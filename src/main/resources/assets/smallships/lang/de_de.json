@@ -1,0 +1,34 @@
+{
+  "entity.smallships.cog": "Kogge ",
+  "item.smallships.acacia_cog": "Akazienholzkogge ",
+  "item.smallships.birch_cog": "Birkenholzkogge ",
+  "item.smallships.jungle_cog": "Tropenholzkogge ",
+  "item.smallships.spruce_cog": "Fichtenholzkogge ",
+  "item.smallships.oak_cog": "Eichenholzkogge",
+  "item.smallships.dark_oak_cog": "Schwarzeichenholzkogge",
+  "item.smallships.sail_item": "Segel",
+
+  "entity.smallships.galley": "Galeere",
+  "item.smallships.acacia_galley": "Akazienholzgaleere",
+  "item.smallships.birch_galley": "Birkenholtzgaleere",
+  "item.smallships.jungle_galley": "Tropenholzgaleere",
+  "item.smallships.spruce_galley": "Fichtenholzgaleere",
+  "item.smallships.oak_galley": "Eichenholzgaleere",
+  "item.smallships.dark_oak_galley": "Schwarzeichenholzgaleere",
+
+  "entity.smallships.war_galley": "Kriegsgaleere",
+  "item.smallships.acacia_war_galley": "Akazienholzkriegsgaleere",
+  "item.smallships.birch_war_galley": "Birkenholtzkriegsgaleere",
+  "item.smallships.jungle_war_galley": "Tropenholzkriegsgaleere",
+  "item.smallships.spruce_war_galley": "Fichtenholzkriegsgaleere",
+  "item.smallships.oak_war_galley": "Eichenholzkriegsgaleere",
+  "item.smallships.dark_oak_war_galley": "Schwarzeichenholzkriegsgaleere",
+
+  "entity.smallships.drakkar": "Wikingershiff",
+  "item.smallships.acacia_drakkar": "Akazienholz Wikingershiff",
+  "item.smallships.birch_drakkar": "Birkenholtz Wikingershiff",
+  "item.smallships.jungle_drakkar": "Tropenholz Wikingershiff",
+  "item.smallships.spruce_drakkar": "Fichtenholz Wikingershiff",
+  "item.smallships.oak_drakkar": "Eichenholz Wikingershiff",
+  "item.smallships.dark_oak_drakkar": "Schwarzeichenholz Wikingershiff"
+}

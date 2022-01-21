@@ -1,0 +1,27 @@
+{
+  "rewards": {
+    "recipes": [
+      "smallships:lotr_charred_brigg"
+    ]
+  },
+  "criteria": {
+    "in_water": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "block": "minecraft:water"
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe":"smallships:lotr_charred_brigg"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "in_water",
+      "has_the_recipe"
+    ]
+  ]
+}

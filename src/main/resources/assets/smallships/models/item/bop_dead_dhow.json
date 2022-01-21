@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "smallships:item/mod/bop/bop_dead_dhow_item"
+  }
+}

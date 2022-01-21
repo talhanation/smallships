@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "galley",
+  "pattern": [
+    "lyl",
+    "txt",
+    "bbb"
+  ],
+  "key": {
+    "y": {
+      "item": "smallships:sail_item"
+    },
+    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:lead"
+    },
+    "t": {
+      "item": "minecraft:tripwire_hook"
+    },
+    "b": {
+      "item": "minecraft:oak_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:oak_galley"
+  }
+}

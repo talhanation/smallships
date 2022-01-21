@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "smallships:item/dark_oak_war_galley_item"
+  }
+}

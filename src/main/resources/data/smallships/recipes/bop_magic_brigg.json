@@ -1,0 +1,30 @@
+{
+  "conditions": [{
+  "type": "forge:mod_loaded",
+  "modid": "biomesoplenty"
+  }],
+  "type": "minecraft:crafting_shaped",
+  "group":"brigg",
+  "pattern": [
+    "lxl",
+    "sxs",
+    "bbb"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:lead"
+    },
+    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "s": {
+      "item": "smallships:sail_item"
+    },
+    "b": {
+      "item": "biomesoplenty:magic_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:bop_magic_brigg"
+  }
+}

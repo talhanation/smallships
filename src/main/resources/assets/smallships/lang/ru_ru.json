@@ -1,0 +1,18 @@
+{
+  "entity.smallships.cog": "Когг",
+  "item.smallships.acacia_cog": "Когг из акации",
+  "item.smallships.birch_cog": "Когг из берёзы",
+  "item.smallships.jungle_cog": "Когг из тропического дерева",
+  "item.smallships.spruce_cog": "Когг из ели",
+  "item.smallships.oak_cog": "Когг из дуба",
+  "item.smallships.dark_oak_cog": "Когг из тёмного дуба",
+  "item.smallships.sail_item": "Парус",
+
+  "entity.smallships.galley": "Галера",
+  "item.smallships.acacia_galley": "Галера из акации",
+  "item.smallships.birch_galley": "Галера из берёзы",
+  "item.smallships.jungle_galley": "Галера из тропического дерева",
+  "item.smallships.spruce_galley": "Галера из ели",
+  "item.smallships.oak_galley": "Галера из дуба",
+  "item.smallships.dark_oak_galley": "Галера из тёмного дуба"
+}

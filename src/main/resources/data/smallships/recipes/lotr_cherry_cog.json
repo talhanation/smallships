@@ -1,0 +1,30 @@
+{
+  "conditions": [{
+  "type": "forge:mod_loaded",
+  "modid": "lotr"
+  }],
+  "type": "minecraft:crafting_shaped",
+  "group": "cog",
+  "pattern": [
+    "sss",
+    "xyx",
+    "bbb"
+  ],
+  "key": {
+    "y": {
+      "item": "smallships:sail_item"
+    },
+    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "b": {
+      "item": "lotr:cherry_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:lotr_cherry_cog"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "smallships:item/mod/lotr/lotr_cypress_brigg_item"
+  }
+}

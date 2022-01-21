@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group":"rowboat",
+  "pattern": [
+    "x",
+    "b"
+  ],
+  "key": {
+    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "b": {
+      "item": "minecraft:oak_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:oak_rowboat"
+  }
+}

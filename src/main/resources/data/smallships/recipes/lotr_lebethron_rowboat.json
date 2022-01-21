@@ -1,0 +1,23 @@
+{
+  "conditions": [{
+  "type": "forge:mod_loaded",
+  "modid": "lotr"
+  }],
+  "type": "minecraft:crafting_shaped",
+  "group":"rowboat",
+  "pattern": [
+    "x",
+    "b"
+  ],
+  "key": {
+    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "b": {
+      "item": "lotr:lebethron_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:lotr_lebethron_rowboat"
+  }
+}

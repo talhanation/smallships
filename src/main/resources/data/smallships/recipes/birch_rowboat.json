@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group":"rowboat",
+  "pattern": [
+    "x",
+    "b"
+  ],
+  "key": {
+    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "b": {
+      "item": "minecraft:birch_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:birch_rowboat"
+  }
+}

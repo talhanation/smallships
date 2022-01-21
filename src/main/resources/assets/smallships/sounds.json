@@ -1,0 +1,23 @@
+{
+
+  "sail_0":{
+    "category": "entity",
+    "subtitle": "Sail goes down",
+    "sounds": [
+      {
+        "name": "smallships:entity/sail_0",
+        "stream":true
+      }
+    ]
+  },
+  "sail_1":{
+    "category": "entity",
+    "subtitle": "Sail goes up",
+    "sounds": [
+      {
+        "name": "smallships:entity/sail_1",
+        "stream":true
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "entity.smallships.cog": "Coca",
+  "item.smallships.acacia_cog": "Coca de Acácia",
+  "item.smallships.birch_cog": "Coca de Bétula",
+  "item.smallships.jungle_cog": "Coca de Madeira da Selva",
+  "item.smallships.spruce_cog": "Coca de Pinheiro",
+  "item.smallships.oak_cog": "Coca de Carvalho",
+  "item.smallships.dark_oak_cog": "Coca de Carvalho Escuro",
+  "item.smallships.sail_item": "Vela",
+
+  "entity.smallships.galley": "Galé",
+  "item.smallships.acacia_galley": "Galé de Acácia",
+  "item.smallships.birch_galley": "Galé de Bétula",
+  "item.smallships.jungle_galley": "Galé de Madeira da Selva",
+  "item.smallships.spruce_galley": "Galé de Pinheiro",
+  "item.smallships.oak_galley": "Galé de Carvalho",
+  "item.smallships.dark_oak_galley": "Galé de Carvalho Escuro",
+
+  "entity.smallships.war_galley": "Galé de Guerra",
+  "item.smallships.acacia_war_galley": "Galé de Guerra de Acácia",
+  "item.smallships.birch_war_galley": "Galé de Guerra de Bétula",
+  "item.smallships.jungle_war_galley": "Galé de Guerra de Madeira da Selva",
+  "item.smallships.spruce_war_galley": "Galé de Guerra de Pinheiro",
+  "item.smallships.oak_war_galley": "Galé de Guerra de Carvalho",
+  "item.smallships.dark_oak_war_galley": "Galé de Guerra de Carvalho Escuro",
+
+  "entity.smallships.drakkar": "Drakkar",
+  "item.smallships.acacia_drakkar": "Drakkar de Acácia",
+  "item.smallships.birch_drakkar": "Drakkar de Bétula",
+  "item.smallships.jungle_drakkar": "Drakkar de Madeira da Selva",
+  "item.smallships.spruce_drakkar": "Drakkar de Pinheiro",
+  "item.smallships.oak_drakkar": "Drakkar de Carvalho",
+  "item.smallships.dark_oak_drakkar": "Drakkar de Carvalho Escuro"
+}

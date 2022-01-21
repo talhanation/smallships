@@ -1,0 +1,35 @@
+{
+  "entity.smallships.cog": "Yelkenli Tekne",
+  "item.smallships.acacia_cog": "Akasya Yelkenli Tekne ",
+  "item.smallships.birch_cog": "Huş Yelkenli Tekne ",
+  "item.smallships.jungle_cog": "Orman Ağaçı Yelkenli Tekne ",
+  "item.smallships.spruce_cog": "Ladin Yelkenli Tekne ",
+  "item.smallships.oak_cog": "Meşe Yelkenli Tekne",
+  "item.smallships.dark_oak_cog": "Koyu Meşe Yelkenli Tekne",
+  "item.smallships.sail_item": "Yelken",
+
+  "entity.smallships.galley": "Kadırga",
+  "item.smallships.acacia_galley": "Akasya Kadırga",
+  "item.smallships.birch_galley": "Huş Kadırga",
+  "item.smallships.jungle_galley": "Orman Ağaçı Kadırga",
+  "item.smallships.spruce_galley": "Ladin Kadırga",
+  "item.smallships.oak_galley": "Meşe Kadırga",
+  "item.smallships.dark_oak_galley": "Koyu Meşe Kadırga",
+
+  "entity.smallships.war_galley": "Savaş kadırgası",
+  "item.smallships.acacia_war_galley": "Akasya Savaş kadırgası",
+  "item.smallships.birch_war_galley": "Huş Kadırga",
+  "item.smallships.jungle_war_galley": "Orman Ağaçı Savaş kadırgası",
+  "item.smallships.spruce_war_galley": "Ladin Savaş kadırgası",
+  "item.smallships.oak_war_galley": "Meşe Savaş kadırgası",
+  "item.smallships.dark_war_oak_galley": "Koyu Meşe Savaş kadırgası",
+
+  "entity.smallships.drakkar": "Viking gemisi",
+  "item.smallships.acacia_drakkar": "Akasya viking gemisi",
+  "item.smallships.birch_drakkar": "Huş viking gemisi",
+  "item.smallships.jungle_drakkar": "Orman Ağaçı viking gemisi",
+  "item.smallships.spruce_drakkar": "Ladin viking gemisi",
+  "item.smallships.oak_drakkar": "Meşe viking gemisi",
+  "item.smallships.dark_oak_drakkar": "Koyu Meşe viking gemisi"
+}
+

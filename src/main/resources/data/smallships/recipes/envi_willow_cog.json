@@ -1,0 +1,29 @@
+{
+  "conditions": [{
+  "type": "forge:mod_loaded",
+  "modid": "environmental"
+  }],
+  "type": "minecraft:crafting_shaped",
+  "group":"cog",
+ "pattern": [
+    "sss",
+    "xyx",
+    "bbb"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:string"
+    },    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "y": {
+      "item": "smallships:sail_item"
+    },
+    "b": {
+      "item": "environmental:willow_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:envi_willow_cog"
+  }
+}

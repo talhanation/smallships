@@ -1,0 +1,33 @@
+{
+  "conditions": [{
+  "type": "forge:mod_loaded",
+  "modid": "lotr"
+  }],
+  "type": "minecraft:crafting_shaped",
+  "group":"dhow",
+  "pattern": [
+    "lfl",
+    "sxs",
+    "bbb"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:lead"
+    },
+    "f": {
+      "item": "minecraft:string"
+    },
+    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "s": {
+      "item": "smallships:sail_item"
+    },
+    "b": {
+       "item": "lotr:mirk_oak_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:lotr_mirk_oak_dhow"
+  }
+}
