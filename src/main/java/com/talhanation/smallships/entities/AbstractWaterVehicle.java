@@ -100,20 +100,15 @@ public abstract class AbstractWaterVehicle extends Entity {
         }
     }
 
-
     public void recalculateBoundingBox() {
-        double width = getCarWidth();
-        double height = getCarHeight();
+        double width = getWidth();
+        double height = getHeight();
         boundingBox = new AxisAlignedBB(getX() - width / 2D, getY(), getZ() - width / 2D, getX() + width / 2D, getY() + height, getZ() + width / 2D);
     }
 
-    public double getCarWidth() {
-        return 2.3D;
-    }
+    public abstract double getWidth();
 
-    public double getCarHeight() {
-        return 1.6D;
-    }
+    public abstract double getHeight();
 
     public PlayerEntity getDriver() {
         List<Entity> passengers = getPassengers();
