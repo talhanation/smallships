@@ -41,8 +41,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     private final float[] paddlePositions = new float[2];
     private float waveAngle;
     private float prevWaveAngle;
-
-
     private boolean collidedLastTick;
 
     private static final DataParameter<Float> SPEED = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.FLOAT);
@@ -84,7 +82,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public abstract float getMaxRotationSpeed();
     public abstract float getRotationAcceleration();
     public abstract float getRollResistance();
-    public abstract void WaterSplash();
+    public abstract void  WaterSplash();
 
     @Override
     public void tick() {
@@ -167,10 +165,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
     public float getWheelRotationAmount() {
         return 120F * getSpeed();
-    }
-
-    public float getWheelRotation(float partialTicks) {
-        return wheelRotation + getWheelRotationAmount() * partialTicks;
     }
 
     public float getSpeed() {
