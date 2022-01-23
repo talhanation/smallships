@@ -3,6 +3,7 @@ package com.talhanation.smallships.client.events;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.entities.AbstractSailShip;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -25,7 +26,7 @@ public class RenderEvents {
 
     private static final ResourceLocation SHIP_INFO_TEXTURE = new ResourceLocation(Main.MOD_ID, "textures/gui/ship_info.png");
     private Minecraft mc;
-    private AbstractSailBoat lastVehicle;
+    private AbstractSailShip lastVehicle;
 
     public RenderEvents() {
         mc = Minecraft.getInstance();
@@ -59,7 +60,7 @@ public class RenderEvents {
             return;
         }
 
-        AbstractSailBoat vehicle = getShip();
+        AbstractSailShip vehicle = getShip();
 
         if (vehicle != null && lastVehicle == null) {
             setThirdPerson(true);
@@ -79,6 +80,7 @@ public class RenderEvents {
 
         Entity e = player.getVehicle();
 
+        /*
         if (!(e instanceof AbstractShipDamage)) {
             return;
         }
@@ -87,8 +89,9 @@ public class RenderEvents {
 
         //renderShipInfo(evt.getMatrixStack(), ship);
 
-    }
 
+         */
+    }
 
     private void setThirdPerson(boolean third) {
         if (!SmallShipsConfig.EnterThirdPerson.get()) {
@@ -103,14 +106,14 @@ public class RenderEvents {
 
     }
 
-    private AbstractSailBoat getShip() {
+    private AbstractSailShip getShip() {
         Entity e = mc.player.getVehicle();
-        if (e instanceof AbstractSailBoat) {
-            return (AbstractSailBoat) e;
+        if (e instanceof AbstractSailShip) {
+            return (AbstractSailShip) e;
         }
         return null;
     }
-
+/*
     //THIRDPERSON SCREEN
     public void renderShipInfo(MatrixStack matrixStack, AbstractShipDamage ship) {
         matrixStack.pushPose();
@@ -146,4 +149,6 @@ public class RenderEvents {
 
         matrixStack.popPose();
     }
+
+ */
 }

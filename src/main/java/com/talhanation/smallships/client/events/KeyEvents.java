@@ -1,6 +1,7 @@
 package com.talhanation.smallships.client.events;
 
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.entities.AbstractSailShip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -22,10 +23,10 @@ public class KeyEvents {
             return;
 
         Entity vehicle = clientPlayerEntity.getVehicle();
-        if (!(vehicle instanceof TNBoatEntity)){
+        if (!(vehicle instanceof AbstractSailShip)){
             return;
         }
-        TNBoatEntity boat = (TNBoatEntity) vehicle;
+        AbstractSailShip boat = (AbstractSailShip) vehicle;
         if (clientPlayerEntity.equals(boat.getDriver())) {
             if (Main.SAIL_KEY.isDown()) {
                 boat.onKeyPressed();
@@ -35,6 +36,7 @@ public class KeyEvents {
                 this.wasSailPressed = false;
             }
         }
+        /*
         if (boat.getPassengers().contains(clientPlayerEntity)) {
             if (Main.INV_KEY.isDown()) {
                 boat.onInvPressed(clientPlayerEntity);
@@ -62,6 +64,7 @@ public class KeyEvents {
                 this.wasSailPressed = false;
             }
         }
+        /*
         if (clientPlayerEntity.equals(boat.getDriver())) {
             if (Main.LANTERN_KEY.isDown()) {
                 boat.onLanternPressed();
@@ -81,6 +84,8 @@ public class KeyEvents {
                 this.wasCannonPressed = false;
             }
         }
+
+         */
 
     }
 }
