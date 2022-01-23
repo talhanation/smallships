@@ -55,6 +55,16 @@ public class CogEntity extends AbstractShipDamage{
         initInventory();
     }
 
+    @Override
+    public double getWidth() {
+        return 3D;
+    }
+
+    @Override
+    public double getHeight() {
+        return 1.5D;
+    }
+
     ////////////////////////////////////DATA////////////////////////////////////
 
     @Override
