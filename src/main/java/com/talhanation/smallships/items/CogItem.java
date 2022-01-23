@@ -52,7 +52,7 @@ public class CogItem extends Item {
 
             if (raytraceresult.getType() == RayTraceResult.Type.BLOCK) {
                 CogEntity boatentity = new CogEntity(worldIn, raytraceresult.getLocation().x, raytraceresult.getLocation().y, raytraceresult.getLocation().z);
-                boatentity.setType(this.type);
+                boatentity.setWoodType(this.type);
                 boatentity.yRot = playerIn.yRot + 90F;
                 if (!worldIn.noCollision(boatentity, boatentity.getBoundingBox().inflate(-0.1D))) {
                     return ActionResult.fail(itemstack);

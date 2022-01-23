@@ -150,34 +150,11 @@ public abstract class AbstractWaterVehicle extends Entity {
         this.applyYawToEntity(entityToUpdate);
     }
 
-    public abstract Vector3d[] getPlayerOffsets();
-
     @Override
     public void positionRider(Entity passenger) {
         if (!hasPassenger(passenger)) {
             return;
         }
-
-        double front = 0.0F;
-        double side = 0.0F;
-        double height = 0.0F;
-
-        List<Entity> passengers = getPassengers();
-
-        if (passengers.size() > 0) {
-            int i = passengers.indexOf(passenger);
-
-            Vector3d offset = getPlayerOffsets()[i];
-            front = offset.x;
-            side = offset.z;
-            height = offset.y;
-        }
-
-        Vector3d vec3d = (new Vector3d(front, height, side)).yRot(-this.yRot * 0.017453292F - ((float) Math.PI / 2F));
-        passenger.setPos(getX() + vec3d.x, getY() + vec3d.y, getZ() + vec3d.z);
-        passenger.yRot += deltaRotation;
-        passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
-        applyYawToEntity(passenger);
     }
 
 
@@ -268,18 +245,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     @Override
-    public ActionResultType interact(PlayerEntity player, Hand hand) {
-        if (!player.isShiftKeyDown()) {
-            if (player.getVehicle() != this) {
-                if (!level.isClientSide) {
-                    player.startRiding(this);
-                }
-            }
-            return ActionResultType.SUCCESS;
-        }
-        return ActionResultType.FAIL;
-    }
-
+    public abstract ActionResultType interact(PlayerEntity player, Hand hand);
     public abstract boolean doesEnterThirdPerson();
 
     @Override

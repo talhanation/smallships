@@ -1,6 +1,7 @@
 package com.talhanation.smallships.client.events;
 
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractSailShip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -39,16 +40,7 @@ public class KeyEvents {
                 this.wasSailPressed = false;
             }
         }
-        /*
-        if (boat.getPassengers().contains(clientPlayerEntity)) {
-            if (Main.INV_KEY.isDown()) {
-                boat.onInvPressed(clientPlayerEntity);
-                this.wasInvPressed = true;
-            }else {
-                this.wasInvPressed = false;
 
-            }
-        }
         if (clientPlayerEntity.equals(boat.getDriver())) {
             if (Main.SAIL_L_KEY.isDown()) {
                 boat.onKeyLowerPressed();
@@ -90,5 +82,17 @@ public class KeyEvents {
 
          */
 
+        if (vehicle instanceof AbstractInventoryEntity){
+            AbstractInventoryEntity invboat = (AbstractInventoryEntity) vehicle;
+            if (boat.getPassengers().contains(clientPlayerEntity)) {
+                if (Main.INV_KEY.isDown()) {
+                    invboat.openGUI(clientPlayerEntity);
+                    this.wasInvPressed = true;
+                } else {
+                    this.wasInvPressed = false;
+
+                }
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageControlShip;
 import com.talhanation.smallships.network.MessageOpenGui;
+import com.talhanation.smallships.network.MessageSailState;
 import de.maxhenkel.corelib.ClientRegistry;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
@@ -86,13 +87,13 @@ public class Main {
                 buf -> (new MessageOpenGui()).fromBytes(buf),
                 (msg, fun) -> msg.executeServerSide(fun.get()));
 
+        SIMPLE_CHANNEL.registerMessage(2, MessageSailState.class, MessageSailState::toBytes,
+                buf -> (new MessageSailState()).fromBytes(buf),
+                (msg, fun) -> msg.executeServerSide(fun.get()));
+
         /*
         SIMPLE_CHANNEL.registerMessage(0, MessagePaddleState.class, MessagePaddleState::toBytes,
                 buf -> (new MessagePaddleState()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(1, MessageSailState.class, MessageSailState::toBytes,
-                buf -> (new MessageSailState()).fromBytes(buf),
                 (msg, fun) -> msg.executeServerSide(fun.get()));
 
         SIMPLE_CHANNEL.registerMessage(2, MessageSteerState.class, MessageSteerState::toBytes,

@@ -87,11 +87,11 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     public abstract void openGUI(PlayerEntity player);
 
-
     public void destroyShip(DamageSource dmg) {
         for (int i = 0; i < this.inventory.getContainerSize(); i++)
             InventoryHelper.dropItemStack(this.level, getX(), getY(), getZ(), this.inventory.getItem(i));
         super.destroyShip(dmg);
     }
+
 }
 

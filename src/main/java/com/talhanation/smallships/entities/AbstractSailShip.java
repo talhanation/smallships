@@ -1,17 +1,21 @@
 package com.talhanation.smallships.entities;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.talhanation.smallships.DamageSourceShip;
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.client.render.RenderSailColor;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.network.MessageControlShip;
+import com.talhanation.smallships.network.MessageSailState;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LilyPadBlock;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.BannerTileEntityRenderer;
 import net.minecraft.entity.*;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,7 +24,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -43,6 +46,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     private boolean collidedLastTick;
 
     private static final DataParameter<Float> SPEED = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.FLOAT);
+    private static final DataParameter<Float> ROT_SPEED = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.FLOAT);
     private static final DataParameter<Boolean> FORWARD = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> BACKWARD = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> LEFT = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
@@ -53,7 +57,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     private static final DataParameter<Integer> TYPE = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.INT);
     private static final DataParameter<Boolean> LEFT_PADDLE = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> RIGHT_PADDLE = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
-    private float momentum;
 
     public AbstractSailShip(EntityType<? extends AbstractWaterVehicle> type, World world) {
         super(type, world);
@@ -63,6 +66,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     @Override
     protected void defineSynchedData() {
         entityData.define(SPEED, 0F);
+        entityData.define(ROT_SPEED, 0F);
         entityData.define(FORWARD, false);
         entityData.define(BACKWARD, false);
         entityData.define(LEFT, false);
@@ -78,40 +82,57 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public abstract float getMaxReverseSpeed();
     public abstract float getAcceleration();
     public abstract float getMaxRotationSpeed();
-    public abstract float getMinRotationSpeed();
+    public abstract float getRotationAcceleration();
     public abstract float getRollResistance();
-    public abstract float getRotationModifier();
-    public abstract double getPlayerYOffset();
     public abstract void WaterSplash();
 
     @Override
     public void tick() {
         super.tick();
-        if (isForward()){
+        if ((getSpeed() > 0.085F || getSpeed() < -0.085F)) {
             this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntityPredicates.NO_CREATIVE_OR_SPECTATOR));
             this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntityPredicates.NO_CREATIVE_OR_SPECTATOR));
 
-            if (this.checkInWater())
+            if (this.getStatus() == Status.IN_WATER) {
+
                 WaterSplash();
+
+                if (SmallShipsConfig.PlaySwimmSound.get()) {
+                    this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SWIM, this.getSoundSource(), 0.05F, 0.8F + 0.4F * this.random.nextFloat());
+                }
+            }
+
         }
+
+        if ((this.getControllingPassenger() == null ||!(this.getControllingPassenger() instanceof PlayerEntity) )) {
+            setSailState(0);
+        }
+
+        if (this.getStatus() == Status.IN_WATER) updateWaveAngle();
         updateGravity();
         controlShip();
         checkPush();
         move(MoverType.SELF, getDeltaMovement());
-        updateWheelRotation();
+        //updateWheelRotation();
         updateWaterMobs();
+        updateWaveAngle();
         breakLily();
     }
     ////////////////////////////////////SAVE DATA////////////////////////////////////
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundNBT nbt) {
+
         nbt.putString("SailColor", getSailColor());
+        nbt.putString("Type", getWoodType().getName());
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundNBT nbt) {;
         this.setSailColor(nbt.getString("SailColor"));
+        if (nbt.contains("Type", 8)) {
+            this.setWoodType(AbstractSailShip.Type.getTypeFromString(nbt.getString("Type")));
+        }
         //this.setOwnerUUID(nbt.getUUID("OwnerUUID"));
     }
 
@@ -156,12 +177,16 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return this.entityData.get(SPEED);
     }
 
-    public AbstractWaterVehicle.Type getBoatType() {
+    public float getRotSpeed() {
+        return this.entityData.get(ROT_SPEED);
+    }
+
+    public AbstractWaterVehicle.Type getWoodType() {
         return AbstractWaterVehicle.Type.byId(this.entityData.get(TYPE));
     }
 
     public float getWaveFactor() {
-        return level.isRaining() ? 3F : 1.125F;
+        return level.isRaining() ? 3F +  random.nextInt(10) * 0.1F : 1.125F + random.nextInt(10) * 0.01F;
     }
 
     public float getWaveSpeed() {
@@ -170,10 +195,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
     public float getWaveAngle(float partialTicks) {
         return MathHelper.lerp(partialTicks, this.prevWaveAngle, this.waveAngle);
-    }
-
-    public AbstractSailShip.Type getShipType() {
-        return AbstractSailShip.Type.byId(this.entityData.get(TYPE));
     }
 
     public boolean isForward() {
@@ -191,12 +212,9 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return entityData.get(BACKWARD);
     }
 
-
-
     public boolean isLeft() {
         return entityData.get(LEFT);
     }
-
 
     public boolean isRight() {
         return entityData.get(RIGHT);
@@ -225,11 +243,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         }
     }
 
-    public void setSteerState(boolean left, boolean right){
-        this.entityData.set(LEFT, left);
-        this.entityData.set(RIGHT, right);
-    }
-
     public void setPaddleState(boolean left, boolean right) {
         this.entityData.set(LEFT_PADDLE, left);
         this.entityData.set(RIGHT_PADDLE, right);
@@ -255,14 +268,19 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         this.entityData.set(SPEED, speed);
     }
 
-    public void setType(AbstractSailShip.Type boatType) {
-        this.entityData.set(TYPE, boatType.ordinal());
+    public void setRotSpeed(float rotSpeed) {
+        this.entityData.set(ROT_SPEED, rotSpeed);
     }
+
+    public void setWoodType(AbstractSailShip.Type type) {
+        this.entityData.set(TYPE, type.ordinal());
+    }
+
     ////////////////////////////////////SERVER////////////////////////////////////
 
     public void sendSailStateToServer(int state) {
         if (level.isClientSide) {
-            //Main.SIMPLE_CHANNEL.sendToServer(new MessageSailState(state));
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageSailState(state));
         }
     }
 
@@ -307,71 +325,83 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             setLeft(false);
             setRight(false);
         }
-
+        int sailstate = getSailState();
         float modifier = getBiomeModifier();
 
         float maxSp = getMaxSpeed() * modifier;
         float maxBackSp = getMaxReverseSpeed() * modifier;
+        float maxRotSp = getMaxRotationSpeed() * modifier;
 
         float speed = MathUtils.subtractToZero(getSpeed(), getRollResistance());
 
+        if (sailstate != 0) {
+            switch (sailstate) {
+                case 1:
+                    if (speed <= maxSp)
+                        speed = Math.min(speed + getAcceleration() * 1 / 8, maxSp);
+                    break;
+                case 2:
+                    if (speed <= maxSp)
+                        speed = Math.min(speed + getAcceleration() * 3 / 8, maxSp);
+                    break;
+                case 3:
+                    if (speed <= maxSp)
+                        speed = Math.min(speed + getAcceleration() * 5 / 8, maxSp);
+                    break;
+                case 4:
+                    if (speed <= maxSp) {
+                        speed = Math.min(speed + getAcceleration(), maxSp);
+                    }
+                    break;
+            }
+        }
+
         if (isForward()) {
             if (speed <= maxSp) {
-                speed = Math.min(speed + getAcceleration(), maxSp);
+                speed = Math.min(speed + getAcceleration() * 1 / 8, maxSp);
             }
         }
 
         if (isBackward()) {
             if (speed >= -maxBackSp) {
-                speed = Math.max(speed - getAcceleration(), -maxBackSp);
+                speed = Math.max(speed - getAcceleration() * 1 / 8, -maxBackSp);
             }
         }
 
         setSpeed(speed);
 
 
-        float rotationSpeed = 0;
-        if (Math.abs(speed) > 0.02F) {
-            rotationSpeed = MathHelper.abs(getRotationModifier() / (float) Math.pow(speed, 2));
-
-            rotationSpeed = MathHelper.clamp(rotationSpeed, getMinRotationSpeed(), getMaxRotationSpeed());
-        }
-
+        float rotationSpeed = MathUtils.subtractToZero(getRotSpeed(), getRollResistance() * 2);
         deltaRotation = 0;
 
-        if (speed < 0) {
-            rotationSpeed = -rotationSpeed;
+        if (isRight()) {
+            if (rotationSpeed <= maxRotSp) {
+                rotationSpeed = Math.min(rotationSpeed + getRotationAcceleration() * 1 / 8, maxRotSp);
+            }
         }
 
         if (isLeft()) {
-            deltaRotation -= rotationSpeed;
+            if (rotationSpeed >= -maxRotSp) {
+                rotationSpeed = Math.max(rotationSpeed - getRotationAcceleration() * 1 / 8, -maxRotSp);
+            }
         }
-        if (isRight()) {
-            deltaRotation += rotationSpeed;
-        }
+        setRotSpeed(rotationSpeed);
+
+        deltaRotation = rotationSpeed;
 
         yRot += deltaRotation;
-        float delta = Math.abs(yRot - yRotO);
-        while (yRot > 180F) {
-            yRot -= 360F;
-            yRotO = yRot - delta;
-        }
-        while (yRot <= -180F) {
-            yRot += 360F;
-            yRotO = delta + yRot;
-        }
-        /*
+
         if (horizontalCollision) {
             if (level.isClientSide && !collidedLastTick) {
                 onCollision(speed);
                 collidedLastTick = true;
             }
         } else {
-            */
             setDeltaMovement(calculateMotionX(getSpeed(), yRot), getDeltaMovement().y, calculateMotionZ(getSpeed(), yRot));
             if (level.isClientSide) {
                 collidedLastTick = false;
 
+            }
         }
     }
 
@@ -424,11 +454,16 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         if (level.isClientSide) {
             //Main.SIMPLE_CHANNEL.sendToServer(new MessageCrash(speed, this));
         }
-        setSpeed(0.01F);
+        setSpeed(0.00F);
         setDeltaMovement(0D, getDeltaMovement().y, 0D);
     }
 
     ////////////////////////////////////UPDATE FUNCTIONS////////////////////////////////////
+
+    public void updateWaveAngle(){
+        this.prevWaveAngle = this.waveAngle;
+        this.waveAngle = (float) Math.sin(getWaveSpeed() * (float) tickCount) * getWaveFactor();
+    }
 
     public void updateWaterMobs() {
         if (SmallShipsConfig.WaterMobFlee.get()) {
@@ -446,7 +481,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         double d0 = (double) -0.04F;
         double d1 = this.isNoGravity() ? 0.0D : (double) -0.04F;
         double d2 = 0.0D;
-        this.momentum = 0.05F;
+        float momentum = 0.05F;
         if (this.previousStatus == AbstractWaterVehicle.Status.IN_AIR && this.status != AbstractWaterVehicle.Status.IN_AIR && this.status != AbstractWaterVehicle.Status.ON_LAND) {
             this.waterLevel = this.getY(1.0D);
             this.setPos(this.getX(), (double) (this.getWaterLevelAbove() - this.getBbHeight()) + 0.101D, this.getZ());
@@ -456,12 +491,12 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         } else {
             if (this.status == AbstractWaterVehicle.Status.IN_WATER) {
                 d2 = (this.waterLevel - this.getY()) / (double) this.getBbHeight();
-                this.momentum = 0.9F;
+                momentum = 0.9F;
             }
 
             Vector3d vector3d = this.getDeltaMovement();
-            this.setDeltaMovement(vector3d.x * (double) this.momentum, vector3d.y + d1, vector3d.z * (double) this.momentum);
-            this.deltaRotation *= this.momentum;
+            this.setDeltaMovement(vector3d.x * (double) momentum, vector3d.y + d1, vector3d.z * (double) momentum);
+            this.deltaRotation *= momentum;
             if (d2 > 0.0D) {
                 Vector3d vector3d1 = this.getDeltaMovement();
                 this.setDeltaMovement(vector3d1.x, (vector3d1.y + d2 * 0.06153846016296973D) * 0.75D, vector3d1.z);
@@ -503,15 +538,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return true;
     }
 
-    @Override
-    public ActionResultType interact(PlayerEntity player, Hand hand) {
-        if (!canPlayerEnterShip(player)) {
-            return ActionResultType.FAIL;
-        }
-        return super.interact(player, hand);
-    }
-
-
     //////////////////////////////////////SOUND////////////////////////////////////////////
 
     public void playSailSound(int state) {
@@ -523,6 +549,10 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
+
+    public void renderSailColor(MatrixStack matrixStack, IRenderTypeBuffer buffer , int packedLight, float partialTicks) {
+        RenderSailColor.renderSailColor(this, partialTicks, matrixStack, getSailColor(), buffer,  packedLight, BannerTileEntityRenderer.makeFlag());
+    }
 
     public void destroyShip(DamageSource dmg) {
         remove();
@@ -553,35 +583,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
     }
 
-    private boolean checkInWater() {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox();
-        int i = MathHelper.floor(axisalignedbb.minX);
-        int j = MathHelper.ceil(axisalignedbb.maxX);
-        int k = MathHelper.floor(axisalignedbb.minY);
-        int l = MathHelper.ceil(axisalignedbb.minY + 0.001D);
-        int i1 = MathHelper.floor(axisalignedbb.minZ);
-        int j1 = MathHelper.ceil(axisalignedbb.maxZ);
-        boolean flag = false;
-        this.waterLevel = Double.MIN_VALUE;
-        BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
-
-        for (int k1 = i; k1 < j; ++k1) {
-            for (int l1 = k; l1 < l; ++l1) {
-                for (int i2 = i1; i2 < j1; ++i2) {
-                    blockpos$mutable.set(k1, l1, i2);
-                    FluidState fluidstate = this.level.getFluidState(blockpos$mutable);
-                    if (fluidstate.is(FluidTags.WATER)) {
-                        float f = (float) l1 + fluidstate.getHeight(this.level, blockpos$mutable);
-                        this.waterLevel = Math.max((double) f, this.waterLevel);
-                        flag |= axisalignedbb.minY < (double) f;
-                    }
-                }
-            }
-        }
-
-        return flag;
-    }
-
     private void breakLily() {
         AxisAlignedBB boundingBox = getBoundingBox();
         double offset = 0.75D;
@@ -610,7 +611,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
 
     public Item getItemBoat() {
-        switch (this.getBoatType()) {
+        switch (this.getWoodType()) {
             case OAK:
             default:
                 return Items.OAK_BOAT;

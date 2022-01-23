@@ -67,7 +67,7 @@ public class RenderEntityCog extends EntityRenderer<CogEntity>{
 */
     };
 
-    private final ModelCog model = new ModelCog<>();
+    private final ModelCog model = new ModelCog();
 
     public RenderEntityCog(EntityRendererManager renderManagerIn) {
         super(renderManagerIn);
@@ -89,13 +89,16 @@ public class RenderEntityCog extends EntityRenderer<CogEntity>{
 
         matrixStackIn.scale(-1.3F, -1.3F, 1.3F);
         matrixStackIn.translate(0.0D, -1.8D,0.0D);
-        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(0F));
+        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
         this.model.setupAnim(entityIn, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
         IVertexBuilder ivertexbuilder = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
         this.model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
         //render Banner
-        //entityIn.renderBanner(matrixStackIn,bufferIn,packedLightIn,partialTicks);
+        entityIn.renderBanner(matrixStackIn,bufferIn,packedLightIn,partialTicks);
+
+        //render Sail Color
+        entityIn.renderSailColor(matrixStackIn,bufferIn,packedLightIn,partialTicks);
 
         matrixStackIn.popPose();
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
@@ -103,7 +106,7 @@ public class RenderEntityCog extends EntityRenderer<CogEntity>{
 
     @Override
     public ResourceLocation getTextureLocation(CogEntity entity) {
-        return COG_TEXTURES[entity.getBoatType().ordinal()];
+        return COG_TEXTURES[entity.getWoodType().ordinal()];
     }
 
 }

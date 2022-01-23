@@ -1,7 +1,9 @@
 package com.talhanation.smallships.entities;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.talhanation.smallships.client.render.RenderBanner;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.BannerTileEntityRenderer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -132,7 +134,7 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
 
     public void renderBanner(MatrixStack matrixStack, IRenderTypeBuffer buffer ,int packedLight, float partialTicks) {
         if (getHasBanner()) {
-            //RenderBanner.renderBanner(this, partialTicks, matrixStack, buffer, getBanner(), packedLight, BannerTileEntityRenderer.makeFlag());
+            RenderBanner.renderBanner(this, partialTicks, matrixStack, buffer, getBanner(), packedLight, BannerTileEntityRenderer.makeFlag());
         }
     }
 

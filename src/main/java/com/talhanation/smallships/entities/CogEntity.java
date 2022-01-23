@@ -9,6 +9,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.*;
@@ -51,6 +52,7 @@ public class CogEntity extends AbstractShipDamage{
 
     public void tick() {
         super.tick();
+        initInventory();
     }
 
     ////////////////////////////////////DATA////////////////////////////////////
@@ -65,11 +67,13 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public void addAdditionalSaveData(CompoundNBT nbt) {
+       super.addAdditionalSaveData(nbt);
         nbt.putInt("Cargo", getCargo());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT nbt) {
+        super.readAdditionalSaveData(nbt);
         this.setCargo(nbt.getInt("Cargo"));
     }
 
@@ -87,7 +91,7 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public float getMaxSpeed() {
-        return 1;
+        return 0.5F;
     }
 
     @Override
@@ -97,32 +101,22 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public float getAcceleration() {
-        return 1;
+        return 0.03F;
     }
 
     @Override
     public float getMaxRotationSpeed() {
-        return 5;
+        return 1.0F;
     }
 
     @Override
-    public float getMinRotationSpeed() {
-        return 1;
+    public float getRotationAcceleration() {
+        return 0.3F;
     }
 
     @Override
     public float getRollResistance() {
-        return 0.02F;
-    }
-
-    @Override
-    public float getRotationModifier() {
-        return 0.5F;
-    }
-
-    @Override
-    public double getPlayerYOffset() {
-        return 1.2D;
+        return 0.009F;
     }
 
     @Override
@@ -135,10 +129,6 @@ public class CogEntity extends AbstractShipDamage{
         return 6;
     }
 
-    @Override
-    public Vector3d[] getPlayerOffsets() {
-        return new Vector3d[]{new Vector3d(0.55D, 0D, -0.38D), new Vector3d(0.55D, 0D, 0.38D)};
-    }
 
     ////////////////////////////////////SET////////////////////////////////////
 
@@ -149,7 +139,7 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public ActionResultType interact(PlayerEntity player, Hand hand) {
-        super.interact(player, hand);
+
         ItemStack itemInHand = player.getItemInHand(hand);
 /*
         if (itemInHand.getItem().equals(Items.LANTERN) && getMaxLanternCount() != getLanternCount()){
@@ -189,8 +179,8 @@ public class CogEntity extends AbstractShipDamage{
                 } return ActionResultType.sidedSuccess(this.level.isClientSide);
             } return ActionResultType.PASS;
         }
-        /*
-        else if (this.outOfControlTicks < 60.0F) {
+
+        else if (!player.isSecondaryUseActive()){
 
             if (!this.level.isClientSide) {
                 return player.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
@@ -203,9 +193,6 @@ public class CogEntity extends AbstractShipDamage{
         } else {
             return ActionResultType.PASS;
         }
-
-         */
-        else return ActionResultType.PASS;
     }
 
     @Override
@@ -340,4 +327,24 @@ public class CogEntity extends AbstractShipDamage{
 
     }
 
+    public void initInventory(){
+        Inventory inventory = this.getInventory();
+        int sigma, tempload = 0;
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            if (!inventory.getItem(i).isEmpty())
+                tempload++;
+        }
+        if (tempload > 31) {
+            sigma = 4;
+        } else if (tempload > 16) {
+            sigma = 3;
+        } else if (tempload > 8) {
+            sigma = 2;
+        } else if (tempload > 3) {
+            sigma = 1;
+        } else {
+            sigma = 0;
+        }
+        entityData.set(CARGO, sigma);
+    }
 }
