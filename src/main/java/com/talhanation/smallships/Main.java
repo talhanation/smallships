@@ -35,6 +35,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -49,6 +50,10 @@ public class Main {
     public static KeyBinding INV_KEY;
     public static KeyBinding LANTERN_KEY;
     public static KeyBinding CANNON_KEY;
+    public static KeyBinding FORWARD_KEY;
+    public static KeyBinding BACK_KEY;
+    public static KeyBinding LEFT_KEY;
+    public static KeyBinding RIGHT_KEY;
 
     public static ContainerType<BasicShipContainer> BASIC_SHIP_CONTAINER_TYPE;
 
@@ -116,18 +121,23 @@ public class Main {
     @OnlyIn(Dist.CLIENT)
     public void clientSetup(FMLClientSetupEvent event) {
 
+        FORWARD_KEY = ClientRegistry.registerKeyBinding("key.ship_forward", "category.smallships", GLFW.GLFW_KEY_W);
+        BACK_KEY = ClientRegistry.registerKeyBinding("key.ship_back", "category.smallships", GLFW.GLFW_KEY_S);
+        LEFT_KEY = ClientRegistry.registerKeyBinding("key.ship_left", "category.smallships", GLFW.GLFW_KEY_A);
+        RIGHT_KEY = ClientRegistry.registerKeyBinding("key.ship_right", "category.smallships", GLFW.GLFW_KEY_D);
+
+        SAIL_KEY = ClientRegistry.registerKeyBinding("key.ship_sail", "category.smallships", GLFW.GLFW_KEY_R);
+        INV_KEY = ClientRegistry.registerKeyBinding("key.ship_inventory", "category.smallships", GLFW.GLFW_KEY_I);
+        SAIL_L_KEY = ClientRegistry.registerKeyBinding("key.lower_ship_sail", "category.smallships", GLFW.GLFW_KEY_J);
+        SAIL_H_KEY = ClientRegistry.registerKeyBinding("key.higher_ship_sail", "category.smallships", GLFW.GLFW_KEY_K);
+        LANTERN_KEY = ClientRegistry.registerKeyBinding("key.lantern_on/off", "category.smallships", GLFW.GLFW_KEY_L);
+        CANNON_KEY = ClientRegistry.registerKeyBinding("key.cannon_shoot", "category.smallships", GLFW.GLFW_KEY_SPACE);
+
+        ClientRegistry.registerScreen(Main.BASIC_SHIP_CONTAINER_TYPE, BasicShipInvScreen::new);
+
         MinecraftForge.EVENT_BUS.register(new RenderEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new KeyEvents());
-
-        SAIL_KEY = ClientRegistry.registerKeyBinding("key.ship_sail", "category.smallships", 82);
-        INV_KEY = ClientRegistry.registerKeyBinding("key.ship_inventory", "category.smallships", 73);
-        SAIL_L_KEY = ClientRegistry.registerKeyBinding("key.lower_ship_sail", "category.smallships", 74);
-        SAIL_H_KEY = ClientRegistry.registerKeyBinding("key.higher_ship_sail", "category.smallships", 75);
-        LANTERN_KEY = ClientRegistry.registerKeyBinding("key.lantern_on/off", "category.smallships", 79);
-        CANNON_KEY = ClientRegistry.registerKeyBinding("key.cannon_shoot", "category.smallships", 32);
-
-        ClientRegistry.registerScreen(Main.BASIC_SHIP_CONTAINER_TYPE, BasicShipInvScreen::new);
     }
 
 

@@ -32,13 +32,13 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     public static float SCALE_FACTOR = 1F;
     private final float[] paddlePositions = new float[2];
-    private AbstractWaterVehicle.Status status;
-    private AbstractWaterVehicle.Status previousStatus;
+    public AbstractWaterVehicle.Status status;
+    public AbstractWaterVehicle.Status previousStatus;
     public double waterLevel;
     private float boatGlide;
     private float waveAngle;
     private float prevWaveAngle;
-    private double lastYd;
+    public double lastYd;
 
     private int steps;
     private double clientX;
@@ -76,8 +76,6 @@ public abstract class AbstractWaterVehicle extends Entity {
         tickLerp();
 
         recalculateBoundingBox();
-
-
         checkInsideBlocks();
         handleCollisionWithEntity();
 
@@ -110,7 +108,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     public double getCarWidth() {
-        return 1.3D;
+        return 2.3D;
     }
 
     public double getCarHeight() {
@@ -152,8 +150,35 @@ public abstract class AbstractWaterVehicle extends Entity {
         this.applyYawToEntity(entityToUpdate);
     }
 
+    public abstract Vector3d[] getPlayerOffsets();
+
     @Override
-    public abstract void positionRider(Entity passenger);
+    public void positionRider(Entity passenger) {
+        if (!hasPassenger(passenger)) {
+            return;
+        }
+
+        double front = 0.0F;
+        double side = 0.0F;
+        double height = 0.0F;
+
+        List<Entity> passengers = getPassengers();
+
+        if (passengers.size() > 0) {
+            int i = passengers.indexOf(passenger);
+
+            Vector3d offset = getPlayerOffsets()[i];
+            front = offset.x;
+            side = offset.z;
+            height = offset.y;
+        }
+
+        Vector3d vec3d = (new Vector3d(front, height, side)).yRot(-this.yRot * 0.017453292F - ((float) Math.PI / 2F));
+        passenger.setPos(getX() + vec3d.x, getY() + vec3d.y, getZ() + vec3d.z);
+        passenger.yRot += deltaRotation;
+        passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
+        applyYawToEntity(passenger);
+    }
 
 
     @Override

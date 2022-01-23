@@ -5,6 +5,7 @@ import de.maxhenkel.corelib.net.Message;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -48,6 +49,7 @@ public class MessageControlShip implements Message<MessageControlShip> {
         AbstractSailShip ship = (AbstractSailShip) e;
 
         ship.updateControls(forward, backward, left, right, context.getSender());
+        ship.sendMessage(new StringTextComponent("Forward: " + forward), context.getSender().getUUID());
     }
 
     @Override

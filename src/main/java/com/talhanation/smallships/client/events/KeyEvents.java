@@ -28,6 +28,9 @@ public class KeyEvents {
         }
         AbstractSailShip boat = (AbstractSailShip) vehicle;
         if (clientPlayerEntity.equals(boat.getDriver())) {
+
+            boat.updateControls(Main.FORWARD_KEY.isDown(), Main.BACK_KEY.isDown(), Main.LEFT_KEY.isDown(), Main.RIGHT_KEY.isDown(), clientPlayerEntity);
+
             if (Main.SAIL_KEY.isDown()) {
                 boat.onKeyPressed();
                 this.wasSailPressed = true;

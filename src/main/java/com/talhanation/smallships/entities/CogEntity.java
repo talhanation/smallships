@@ -40,7 +40,7 @@ public class CogEntity extends AbstractShipDamage{
     public CogEntity(World world, double x, double y, double z) {
         this(ModEntityTypes.COG_ENTITY.get(), world);
         setPos(x, y, z);
-        setDeltaMovement(Vector3d.ZERO);
+        //setDeltaMovement(Vector3d.ZERO);
         this.xo = x;
         this.yo = y;
         this.zo = z;
@@ -87,46 +87,58 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public float getMaxSpeed() {
-        return 100;
+        return 1;
     }
 
     @Override
     public float getMaxReverseSpeed() {
-        return 10;
+        return 0.1F;
     }
 
     @Override
     public float getAcceleration() {
-        return 20;
+        return 1;
     }
 
     @Override
     public float getMaxRotationSpeed() {
-        return 20;
+        return 5;
     }
 
     @Override
     public float getMinRotationSpeed() {
-        return 10;
+        return 1;
     }
 
     @Override
     public float getRollResistance() {
-        return 0;
+        return 0.02F;
     }
 
     @Override
     public float getRotationModifier() {
-        return 10;
+        return 0.5F;
     }
 
     @Override
     public double getPlayerYOffset() {
-        return 0;
+        return 1.2D;
     }
 
     @Override
-    public ResourceLocation getLootTable() {return null;}
+    public ResourceLocation getLootTable() {
+        return null;
+    }
+
+    @Override
+    public int getPassengerSize() {
+        return 6;
+    }
+
+    @Override
+    public Vector3d[] getPlayerOffsets() {
+        return new Vector3d[]{new Vector3d(0.55D, 0D, -0.38D), new Vector3d(0.55D, 0D, 0.38D)};
+    }
 
     ////////////////////////////////////SET////////////////////////////////////
 
@@ -216,17 +228,6 @@ public class CogEntity extends AbstractShipDamage{
         }
     }
 
-
-    @Override
-    public int getPassengerSize() {
-        return 6;
-    }
-
-    @Override
-    public void positionRider(Entity passenger) {
-
-    }
-
     @Override
     public boolean doesEnterThirdPerson() {
         return true;
@@ -266,6 +267,77 @@ public class CogEntity extends AbstractShipDamage{
             this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
 
         }
+    }
+
+    @Override
+    public void positionRider(Entity passenger) {
+        if (hasPassenger(passenger)) {
+            float f = -1.75F; //driver x pos
+            float d = 0.0F;   //driver z pos
+            float f1 = (float) ((this.removed ? 0.02D : getPassengersRidingOffset()) + passenger.getMyRidingOffset());
+            if (getPassengers().size() == 2) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+
+                    f = -1.75F;
+                    d = 0.0F;
+                } else {
+                    f = 1.25F;
+                    d = 0.0F;
+                }
+            } else if (getPassengers().size() == 3) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+                    f = -1.75F;
+                    d = 0.0F;
+                } else if (i == 1) {
+                    f = 1.25F;
+                    d = 0.9F;
+                } else {
+                    f = 1.25F;
+                    d = -0.90F;
+                }
+            }else if (getPassengers().size() == 4) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+                    f = -1.75F;
+                    d = 0.0F;
+                } else if (i == 1) {
+                    f =  1.25F;
+                    d = -0.90F;
+                } else if (i == 2) {
+                    f = 1.25F;
+                    d = 0.90F;
+                } else {
+                    f = 0.45F;
+                    d = 0F;
+                }
+            } else if (getPassengers().size() == 5) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+                    f = -1.75F;
+                    d = 0.0F;
+                } else if (i == 1) {
+                    f =  1.25F;
+                    d = -0.90F;
+                } else if (i == 2) {
+                    f = 1.25F;
+                    d = 0.90F;
+                } else if (i == 3){
+                    f =  0.45F;
+                    d = 0.90F;
+                } else {
+                    f =  0.45F;
+                    d = -0.90F;
+                }
+            }
+            Vector3d vector3d = (new Vector3d((double)f, 0.0D, 0.0D + d)).yRot(-this.yRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
+            passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, + this.getZ() + vector3d.z);
+            passenger.yRot += this.deltaRotation;
+            passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
+            applyYawToEntity(passenger);
+        }
+
     }
 
 }
