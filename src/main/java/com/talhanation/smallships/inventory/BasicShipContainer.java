@@ -24,7 +24,7 @@ public class BasicShipContainer extends ContainerBase {
 
     @Override
     public int getInvOffset() {
-        return 0;
+        return 57;
     }
 
     public void addShipInventorySlots() {

@@ -11,6 +11,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 public abstract class AbstractShipDamage extends AbstractBannerUser {
@@ -35,6 +36,8 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         if (isInLava()) {
             setShipDamage(getShipDamage() + 1.5F);
         }
+        if (getDriver() != null)
+        getDriver().sendMessage(new StringTextComponent("Dmg= " + getShipDamage()), getDriver().getUUID());
         //if (isBurning)
     }
 
@@ -58,6 +61,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         return entityData.get(DAMAGE);
     }
 
+    public abstract double getShipDefense(); // how much incoming dmg gets reduced in % e.g: 30
     //public double getShipHealth(){
 
 
@@ -98,9 +102,8 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
                 return true;
             }
         }
-        //if (getShipHealth == getShipDamage())
-        //destroyShip(source, player);
-        damageShip(amount);
+        if (getShipDamage() >= 100) destroyShip(source);
+        if (amount >= 2) damageShip(amount);
         return false;
     }
 
@@ -108,24 +111,13 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
     public void destroyShip(DamageSource source) {
         super.destroyShip(source);
-
-        //LootTable loottable = this.level.getServer().getLootTables().get(getLootTable());
-        /*
-        LootContext.Builder context = new LootContext.Builder((ServerLevel) level)
-                .withParameter(LootContextParams.ORIGIN, position())
-                .withParameter(LootContextParams.THIS_ENTITY, this)
-                .withParameter(LootContextParams.DAMAGE_SOURCE, source)
-                .withParameter(LootContextParams.KILLER_ENTITY, player)
-                .withParameter(LootContextParams.DIRECT_KILLER_ENTITY, player);
-        loottable.getRandomItems(context.create(LootContextParamSets.ENTITY)).forEach(this::spawnAtLocation);
-        */
         kill();
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
     public void damageShip(double damage) {
-        setShipDamage((float) (getShipDamage() + damage));
+        setShipDamage((float) (((getShipDamage()) + (damage - (damage * getShipDefense()/100)))));
     }
 
     @Override

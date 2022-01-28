@@ -8,6 +8,7 @@ import de.maxhenkel.corelib.inventory.ScreenBase;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import org.apache.http.impl.cookie.PublicSuffixListParser;
 
 public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
 
@@ -24,6 +25,8 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         imageWidth = 176;
         imageHeight = 222;
     }
+
+
 
     @Override
     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {

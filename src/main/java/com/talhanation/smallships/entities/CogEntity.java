@@ -87,6 +87,11 @@ public class CogEntity extends AbstractShipDamage{
         this.setCargo(nbt.getInt("Cargo"));
     }
 
+    @Override
+    public double getShipDefense() { //in %
+        return 30;
+    }
+
 
     ////////////////////////////////////GET////////////////////////////////////
 
