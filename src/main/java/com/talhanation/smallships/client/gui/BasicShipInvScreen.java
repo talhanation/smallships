@@ -3,6 +3,7 @@ package com.talhanation.smallships.client.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
+import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import net.minecraft.entity.player.PlayerInventory;
@@ -14,7 +15,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
 
     private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
 
-    private final AbstractInventoryEntity ship;
+    private final AbstractShipDamage ship;
     private final PlayerInventory playerInventory;
 
     public BasicShipInvScreen(BasicShipContainer container, PlayerInventory playerInventory, ITextComponent title) {
@@ -26,13 +27,12 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         imageHeight = 222;
     }
 
-
-
     @Override
     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
         super.renderLabels(matrixStack, mouseX, mouseY);
         font.draw(matrixStack, ship.getDisplayName().getVisualOrderText(), 8, 6, FONT_COLOR);
-        font.draw(matrixStack, playerInventory.getDisplayName().getVisualOrderText(), 8, imageHeight - 152 + 3, FONT_COLOR);
+        font.draw(matrixStack, playerInventory.getDisplayName().getVisualOrderText(), 8, imageHeight - 95, FONT_COLOR);
+        font.draw(matrixStack,"Damage: " + (double) Math.round(ship.getShipDamage()) + "%", 95, 6, FONT_COLOR);
     }
 
     @Override

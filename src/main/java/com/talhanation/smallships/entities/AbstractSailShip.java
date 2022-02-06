@@ -71,7 +71,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         entityData.define(RIGHT, false);
         entityData.define(SAIL_STATE, 0);
         entityData.define(SAIL_COLOR, "white");
-        this.entityData.define(TYPE, AbstractSailShip.Type.OAK.ordinal());
+        entityData.define(TYPE, AbstractSailShip.Type.OAK.ordinal());
     }
 
     ////////////////////////////////////TICK////////////////////////////////////
@@ -82,7 +82,11 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public abstract float getMaxRotationSpeed();
     public abstract float getRotationAcceleration();
     public abstract float getRollResistance();
+    public abstract boolean getHasBanner();
     public abstract void  WaterSplash();
+    public abstract void openGUI(PlayerEntity player);
+    public abstract void onInteractionWithShears(PlayerEntity player);
+    public abstract boolean onInteractionWithBanner(ItemStack itemStack,PlayerEntity player);
 
     @Override
     public void tick() {
@@ -198,7 +202,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return entityData.get(FORWARD);
     }
 
-
     public boolean isBackward() {
         if (getDriver() == null) {
             return false;
@@ -224,7 +227,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return this.getPaddleState(side) ? (float) MathHelper.clampedLerp((double) this.paddlePositions[side] - (double) ((float) Math.PI / 8F), (double) this.paddlePositions[side], (double) limbSwing) : 0.0F;
     }
 
-////////////////////////////////////SET////////////////////////////////////
+    ////////////////////////////////////SET////////////////////////////////////
 
     public void setSailColor(String color) {
         entityData.set(SAIL_COLOR, color);
@@ -291,13 +294,13 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
                 if (speed > 0.35F) {
                     float damage = speed * 10;
                     entityIn.hurt(DamageSourceShip.DAMAGE_SHIP, damage);
+                    this.hurt(DamageSourceShip.DAMAGE_SHIP,damage / 2);
                 }
 
             }
         }
         return super.canCollideWith(entityIn);
     }
-
 
     public void checkPush() {
         List<PlayerEntity> list = level.getEntitiesOfClass(PlayerEntity.class, getBoundingBox().expandTowards(0.2, 0, 0.2).expandTowards(-0.2, 0, -0.2));
@@ -352,13 +355,13 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
         if (isForward()) {
             if (speed <= maxSp) {
-                speed = Math.min(speed + getAcceleration() * 1 / 8, maxSp);
+                speed = Math.min(speed + getAcceleration() * 8 / 8, maxSp);
             }
         }
 
         if (isBackward()) {
             if (speed >= -maxBackSp) {
-                speed = Math.max(speed - getAcceleration() * 1 / 8, -maxBackSp);
+                speed = Math.max(speed - getAcceleration() * 8 / 8, -maxBackSp);
             }
         }
 
@@ -394,7 +397,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             setDeltaMovement(calculateMotionX(getSpeed(), yRot), getDeltaMovement().y, calculateMotionZ(getSpeed(), yRot));
             if (level.isClientSide) {
                 collidedLastTick = false;
-
             }
         }
     }
@@ -472,7 +474,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     private void updateGravity() {
-        double d0 = (double) -0.04F;
         double d1 = this.isNoGravity() ? 0.0D : (double) -0.04F;
         double d2 = 0.0D;
         float momentum = 0.05F;
@@ -574,7 +575,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
                 entity.push(d2 / d4 * 0.4D, (double)0.0F, d3 / d4 * 0.4D);
             }
         }
-
     }
 
     private void breakLily() {
@@ -602,7 +602,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             level.playSound(null, getX(), getY(), getZ(), SoundEvents.CROP_BREAK, SoundCategory.BLOCKS, 1F, 0.9F + 0.2F * random.nextFloat());
         }
     }
-
 
     public Item getItemBoat() {
         switch (this.getWoodType()) {
@@ -669,7 +668,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
          */
 
-
         private final String name;
 
         Type(String name) {
@@ -709,6 +707,4 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             return aboatentity$type[0];
         }
     }
-
-
 }

@@ -2,6 +2,7 @@ package com.talhanation.smallships.inventory;
 
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
+import com.talhanation.smallships.entities.AbstractShipDamage;
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -11,9 +12,9 @@ import net.minecraft.inventory.container.Slot;
 public class BasicShipContainer extends ContainerBase {
 
     private final IInventory shipInventory;
-    private final AbstractInventoryEntity ship;
+    private final AbstractShipDamage ship;
 
-    public BasicShipContainer(int id, AbstractInventoryEntity ship, PlayerInventory playerInventory) {
+    public BasicShipContainer(int id, AbstractShipDamage ship, PlayerInventory playerInventory) {
         super(Main.BASIC_SHIP_CONTAINER_TYPE, id, playerInventory, ship.getInventory());
         this.ship = ship;
         this.shipInventory = ship.getInventory();
@@ -24,7 +25,7 @@ public class BasicShipContainer extends ContainerBase {
 
     @Override
     public int getInvOffset() {
-        return 57;
+        return 55;
     }
 
     public void addShipInventorySlots() {
@@ -35,7 +36,7 @@ public class BasicShipContainer extends ContainerBase {
         }
     }
 
-    public AbstractInventoryEntity getShip() {
+    public AbstractShipDamage getShip() {
         return ship;
     }
 

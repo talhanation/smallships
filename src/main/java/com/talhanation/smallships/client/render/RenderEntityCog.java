@@ -77,7 +77,7 @@ public class RenderEntityCog extends EntityRenderer<CogEntity>{
     @Override
     public void render(CogEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         matrixStackIn.pushPose();
-        matrixStackIn.translate(0.0D, 0.1D, 0.0D);
+        matrixStackIn.translate(0.0D, 0.4D, 0.0D);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityYaw));
 
         if (SmallShipsConfig.MakeWaveAnimation.get()) {
@@ -88,7 +88,8 @@ public class RenderEntityCog extends EntityRenderer<CogEntity>{
         }
 
         matrixStackIn.scale(-1.3F, -1.3F, 1.3F);
-        matrixStackIn.translate(0.0D, -1.8D,0.0D);
+        //                                x                y               z (- nachhinten)
+        matrixStackIn.translate(0.0D, -1.8D,-1.0D);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
         this.model.setupAnim(entityIn, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
         IVertexBuilder ivertexbuilder = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));

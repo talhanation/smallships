@@ -9,7 +9,6 @@ import net.minecraft.entity.Pose;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.item.Item;
 import net.minecraft.network.IPacket;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.*;
@@ -55,7 +54,6 @@ public abstract class AbstractWaterVehicle extends Entity {
         super(type, world);
         this.blocksBuilding = true;
         this.maxUpStep = 0.6F;
-
         recalculateBoundingBox();
     }
 
@@ -78,7 +76,6 @@ public abstract class AbstractWaterVehicle extends Entity {
         recalculateBoundingBox();
         checkInsideBlocks();
         handleCollisionWithEntity();
-
     }
 
 
@@ -90,7 +87,7 @@ public abstract class AbstractWaterVehicle extends Entity {
             for (int j = 0; j < list.size(); ++j) {
                 Entity entity = list.get(j);
                 if (!entity.hasPassenger(this)) {
-                    if (flag && this.getPassengers().size() < 2 && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterMobEntity) && !(entity instanceof PlayerEntity)) {
+                    if (flag && canAddPassenger(entity) && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterMobEntity) && !(entity instanceof PlayerEntity)) {
                         entity.startRiding(this);
                     } else {
                         this.push(entity);

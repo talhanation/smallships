@@ -32,8 +32,6 @@ public class RenderEvents {
         mc = Minecraft.getInstance();
     }
 
-
-
     @SubscribeEvent
     public void onRender(EntityViewRenderEvent.CameraSetup evt) {
         if (getShip() != null && !mc.options.getCameraType().isFirstPerson()) {

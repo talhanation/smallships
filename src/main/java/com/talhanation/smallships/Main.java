@@ -6,6 +6,7 @@ import com.talhanation.smallships.client.events.RenderEvents;
 import com.talhanation.smallships.client.gui.BasicShipInvScreen;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
+import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.init.SoundInit;
@@ -145,7 +146,7 @@ public class Main {
     @SubscribeEvent
     public void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
         BASIC_SHIP_CONTAINER_TYPE = new ContainerType<>((IContainerFactory<BasicShipContainer>) (windowId, inv, data) -> {
-            AbstractInventoryEntity ship = getInvEntityByUUID(inv.player, data.readUUID());
+            AbstractShipDamage ship = getInvEntityByUUID(inv.player, data.readUUID());
             if (ship == null) {
                 return null;
             }
@@ -158,8 +159,8 @@ public class Main {
     }
 
     @Nullable
-    public static AbstractInventoryEntity getInvEntityByUUID(PlayerEntity player, UUID uuid) {
+    public static AbstractShipDamage getInvEntityByUUID(PlayerEntity player, UUID uuid) {
         double distance = 10D;
-        return player.level.getEntitiesOfClass(AbstractInventoryEntity.class, new AxisAlignedBB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
+        return player.level.getEntitiesOfClass(AbstractShipDamage.class, new AxisAlignedBB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
     }
 }

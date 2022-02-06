@@ -12,7 +12,10 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.*;
+import net.minecraft.item.BannerItem;
+import net.minecraft.item.DyeItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShearsItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -29,17 +32,17 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
-public class CogEntity extends AbstractShipDamage{
+public class BriggEntity extends AbstractShipDamage{
 
-    private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(CogEntity.class, DataSerializers.INT);
+    private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(BriggEntity.class, DataSerializers.INT);
 
-    public CogEntity(EntityType<? extends CogEntity> type, World world) {
+    public BriggEntity(EntityType<? extends BriggEntity> type, World world) {
         super(type, world);
     }
 
     //Constructor for ShipItem
-    public CogEntity(World world, double x, double y, double z) {
-        this(ModEntityTypes.COG_ENTITY.get(), world);
+    public BriggEntity(World world, double x, double y, double z) {
+        this(ModEntityTypes.BRIGG.get(), world);
         setPos(x, y, z);
         //setDeltaMovement(Vector3d.ZERO);
         this.xo = x;
@@ -55,15 +58,14 @@ public class CogEntity extends AbstractShipDamage{
         initInventory();
     }
 
-    // hight and width for now as mast
     @Override
     public double getWidth() {
-        return 3D;
+        return 4D;
     }
 
     @Override
     public double getHeight() {
-        return 1.5D;
+        return 1.75D;
     }
 
     ////////////////////////////////////DATA////////////////////////////////////
@@ -107,12 +109,12 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public float getMaxSpeed() {
-        return 0.5F;
+        return 0.56F;
     }
 
     @Override
     public float getMaxReverseSpeed() {
-        return 0.1F;
+        return 0.08F;
     }
 
     @Override
@@ -127,7 +129,7 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public float getRotationAcceleration() {
-        return 0.3F;
+        return 0.6F;
     }
 
     @Override
@@ -142,7 +144,7 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public int getPassengerSize() {
-        return 6;
+        return 10;
     }
 
 
@@ -151,7 +153,6 @@ public class CogEntity extends AbstractShipDamage{
     public void setCargo(int cargo){
         entityData.set(CARGO, cargo);
     }
-
     ////////////////////////////////////INTERACTIONS///////////////////////////////
 
     @Override
@@ -165,18 +166,18 @@ public class CogEntity extends AbstractShipDamage{
         }
 */
         if (itemInHand.getItem() instanceof DyeItem){
-            this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
+            onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
             return ActionResultType.SUCCESS;
         }
 
         if (itemInHand.getItem() instanceof BannerItem){
-            this.onInteractionWithBanner(itemInHand,player);
+            onInteractionWithBanner(itemInHand,player);
             return ActionResultType.SUCCESS;
         }
 
         else if (itemInHand.getItem() instanceof ShearsItem){
             if (this.getHasBanner()){
-                this.onInteractionWithShears(player);
+                onInteractionWithShears(player);
                 return ActionResultType.SUCCESS;
             }
             return ActionResultType.PASS;
@@ -190,8 +191,9 @@ public class CogEntity extends AbstractShipDamage{
             }
 
             else {
+
                 if (!(getControllingPassenger() instanceof PlayerEntity)) {
-                    this.openGUI(player);
+                    openGUI(player);
                 } return ActionResultType.sidedSuccess(this.level.isClientSide);
             } return ActionResultType.PASS;
         }
@@ -223,7 +225,7 @@ public class CogEntity extends AbstractShipDamage{
                 @Nullable
                 @Override
                 public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                    return new BasicShipContainer(i, CogEntity.this, playerInventory);
+                    return new BasicShipContainer(i, BriggEntity.this, playerInventory);
                 }
             }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
         } else {
@@ -241,99 +243,232 @@ public class CogEntity extends AbstractShipDamage{
     @Override
     public void WaterSplash(){
         Vector3d vector3d = this.getViewVector(0.0F);
-        float f0 = MathHelper.cos(this.yRot * ((float)Math.PI / 180F)) * 0.8F;
-        float f1 = MathHelper.sin(this.yRot * ((float)Math.PI / 180F)) * 0.8F;
-        float f0_1 = MathHelper.cos(this.yRot * ((float)Math.PI / 180F)) * 1.6F;
-        float f1_1 = MathHelper.sin(this.yRot * ((float)Math.PI / 180F)) * 1.6F;
-        float f2 =  2.5F - this.random.nextFloat() * 0.7F;
-        float f2_ =  -1.3F - this.random.nextFloat() * 0.7F;
-        float x = 0;
-        for (int i = 0; i < 2; ++i) {
+        float f0 = MathHelper.cos(this.yRot * ((float)Math.PI / 180F)) * 1.2F;
+        float f1 = MathHelper.sin(this.yRot * ((float)Math.PI / 180F)) * 1.2F;
+        float f2 =  4F - this.random.nextFloat() * 0.7F; // höhe
+        float f2_ =  -2.3F - this.random.nextFloat() * 0.7F;
+        float x = 0; //verschiebung nach rechts/links
+        float y = 4;
+        for (int i = 0; i < 2; ++i) {                                                                                                                             //höhe
             this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 + (double) f1, 0.0D, 0.0D, 0.0D);
             this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 - (double) f1, 0.0D, 0.0D, 0.0D);
-            this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 + (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
-            this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 - (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 + (double) f1 * 5.1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 - (double) f1 * 5.1, 0.0D, 0.0D, 0.0D);
 
             this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) f2 + (double) f1, 0.0D, 0.0D, 0.0D);
             this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) f2 - (double) f1, 0.0D, 0.0D, 0.0D);
             this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) f2 + (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
             this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) f2 - (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
 
-            this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ + (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1_1, 0.0D, 0.0D, 0.0D);
-            this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1, 0.0D, 0.0D, 0.0D);
-            this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ + (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
-            this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ + (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ - (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ + (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ - (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
 
-            this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ + (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1_1, 0.0D, 0.0D, 0.0D);
-            this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1, 0.0D, 0.0D, 0.0D);
-            this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ + (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
-            this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
-
+            this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ + (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ + (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
+            this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
         }
     }
 
     @Override
     public void positionRider(Entity passenger) {
         if (hasPassenger(passenger)) {
-            float f = -1.75F; //driver x pos
-            float d = 0.0F;   //driver z pos
+            double f = -1.5F;
+            double d = 0.75F;
             float f1 = (float) ((this.removed ? 0.02D : getPassengersRidingOffset()) + passenger.getMyRidingOffset());
             if (getPassengers().size() == 2) {
                 int i = getPassengers().indexOf(passenger);
                 if (i == 0) {
-
-                    f = -1.75F;
-                    d = 0.0F;
+                    f = -1.5F;
+                    d = 0.75F;
                 } else {
-                    f = 1.25F;
-                    d = 0.0F;
+                    f = -1.5F;
+                    d = -0.75F;
                 }
             } else if (getPassengers().size() == 3) {
                 int i = getPassengers().indexOf(passenger);
                 if (i == 0) {
-                    f = -1.75F;
-                    d = 0.0F;
+                    f = -1.5F;
+                    d = 0.75F;
                 } else if (i == 1) {
-                    f = 1.25F;
-                    d = 0.9F;
+                    f = -1.5F;
+                    d = -0.75F;
                 } else {
-                    f = 1.25F;
-                    d = -0.90F;
+                    f = -0.5F;
+                    d = -0.75F;
                 }
             }else if (getPassengers().size() == 4) {
                 int i = getPassengers().indexOf(passenger);
                 if (i == 0) {
-                    f = -1.75F;
-                    d = 0.0F;
+                    f = -1.5F;
+                    d = 0.75F;
                 } else if (i == 1) {
-                    f =  1.25F;
-                    d = -0.90F;
+                    f = -1.5F;
+                    d = -0.75F;
                 } else if (i == 2) {
-                    f = 1.25F;
-                    d = 0.90F;
+                    f = -0.5F;
+                    d = -0.75F;
                 } else {
-                    f = 0.45F;
-                    d = 0F;
+                    f = -0.5F;
+                    d = 0.75F;
                 }
-            } else if (getPassengers().size() == 5) {
+            }else if (getPassengers().size() == 5) {
                 int i = getPassengers().indexOf(passenger);
                 if (i == 0) {
-                    f = -1.75F;
-                    d = 0.0F;
+                    f = -1.5F;
+                    d = 0.75F;
                 } else if (i == 1) {
-                    f =  1.25F;
-                    d = -0.90F;
+                    f = -1.5F;
+                    d = -0.75F;
                 } else if (i == 2) {
-                    f = 1.25F;
-                    d = 0.90F;
-                } else if (i == 3){
-                    f =  0.45F;
-                    d = 0.90F;
+                    f = -0.5F;
+                    d = -0.75F;
+                } else if (i == 3) {
+                    f = -0.5F;
+                    d = 0.75F;
                 } else {
-                    f =  0.45F;
-                    d = -0.90F;
+                    f = 0.5F;
+                    d = -0.75F;
+                }
+            }else if (getPassengers().size() == 6) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+                    f = -1.5F;
+                    d = 0.75F;
+                } else if (i == 1) {
+                    f = -1.5F;
+                    d = -0.75F;
+                } else if (i == 2) {
+                    f = -0.5F;
+                    d = -0.75F;
+                } else if (i == 3) {
+                    f = -0.5F;
+                    d = 0.75F;
+                } else if(i == 4){
+                    f = 0.5F;
+                    d = -0.75F;
+                } else {
+                    f = 0.5F;
+                    d = 0.75F;
+                }
+            }else if (getPassengers().size() == 7) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+                    f = -1.5F;
+                    d = 0.75F;
+                } else if (i == 1) {
+                    f = -1.5F;
+                    d = -0.75F;
+                } else if (i == 2) {
+                    f = -0.5F;
+                    d = -0.75F;
+                } else if (i == 3) {
+                    f = -0.5F;
+                    d = 0.75F;
+                } else if (i == 4) {
+                    f = 0.5F;
+                    d = -0.75F;
+                } else if (i == 5) {
+                    f = 0.5F;
+                    d = 0.75F;
+                } else {
+                    f = 1.5F;
+                    d = 0.75F;
+                }
+            }else if (getPassengers().size() == 8) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+                    f = -1.5F;
+                    d = 0.75F;
+                } else if (i == 1) {
+                    f = -1.5F;
+                    d = -0.75F;
+                } else if (i == 2) {
+                    f = -0.5F;
+                    d = -0.75F;
+                } else if (i == 3) {
+                    f = -0.5F;
+                    d = 0.75F;
+                } else if (i == 4) {
+                    f = 0.5F;
+                    d = -0.75F;
+                } else if (i == 5) {
+                    f = 0.5F;
+                    d = 0.75F;
+                } else if (i == 6){
+                    f = 1.5F;
+                    d = -0.75F;
+                }else {
+                    f = 1.5F;
+                    d = 0.75F;
+                }
+            }else if (getPassengers().size() == 9) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+                    f = -1.5F;
+                    d = 0.75F;
+                } else if (i == 1) {
+                    f = -1.5F;
+                    d = -0.75F;
+                } else if (i == 2) {
+                    f = -0.5F;
+                    d = -0.75F;
+                } else if (i == 3) {
+                    f = -0.5F;
+                    d = 0.75F;
+                } else if (i == 4) {
+                    f = 0.5F;
+                    d = -0.75F;
+                } else if (i == 5) {
+                    f = 0.5F;
+                    d = 0.75F;
+                } else if (i == 6){
+                    f = 1.5F;
+                    d = -0.75F;
+                }else if (i == 7){
+                    f = 1.5F;
+                    d = 0.75F;
+                }else {
+                    f = 2.75F;
+                    d = 0.0F;
+                }
+            }else if (getPassengers().size() == 10) {
+                int i = getPassengers().indexOf(passenger);
+                if (i == 0) {
+                    f = -1.5F;
+                    d = 0.75F;
+                } else if (i == 1) {
+                    f = -1.5F;
+                    d = -0.75F;
+                } else if (i == 2) {
+                    f = -0.5F;
+                    d = -0.75F;
+                } else if (i == 3) {
+                    f = -0.5F;
+                    d = 0.75F;
+                } else if (i == 4) {
+                    f = 0.5F;
+                    d = -0.75F;
+                } else if (i == 5) {
+                    f = 0.5F;
+                    d = 0.75F;
+                } else if (i == 6){
+                    f = 1.5F;
+                    d = -0.75F;
+                }else if (i == 7){
+                    f = 1.5F;
+                    d = 0.75F;
+                }else if (i == 8){
+                    f = 2.75F;
+                    d = 0.5F;
+                }else {
+                    f = 2.75F;
+                    d = -0.5F;
                 }
             }
+            f = f - 0.5;
             Vector3d vector3d = (new Vector3d((double)f, 0.0D, 0.0D + d)).yRot(-this.yRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, + this.getZ() + vector3d.z);
             passenger.yRot += this.deltaRotation;

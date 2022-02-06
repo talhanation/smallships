@@ -1,7 +1,9 @@
 package com.talhanation.smallships.init;
 
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.entities.BriggEntity;
 import com.talhanation.smallships.entities.CogEntity;
+import com.talhanation.smallships.entities.SailShipPart;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.ResourceLocation;
@@ -21,4 +23,19 @@ public class ModEntityTypes {
                     .setShouldReceiveVelocityUpdates(true)
                     .build(new ResourceLocation(Main.MOD_ID, "cog").toString()));
 
+    public static final RegistryObject<EntityType<BriggEntity>> BRIGG = ENTITY_TYPES.register("brigg",
+            () -> EntityType.Builder.<BriggEntity>of(BriggEntity::new, EntityClassification.MISC)
+                    .clientTrackingRange(20)
+                    .setUpdateInterval(10)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .build(new ResourceLocation(Main.MOD_ID, "brigg").toString()));
+
+
+    public static final RegistryObject<EntityType<SailShipPart>> SHIP_PART = ENTITY_TYPES.register("ship_part",
+            () -> EntityType.Builder.<SailShipPart>of(SailShipPart::new, EntityClassification.MISC)
+                    .sized(3.5F, 1.25F)
+                    .clientTrackingRange(20)
+                    .setUpdateInterval(10)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .build(new ResourceLocation(Main.MOD_ID, "ship_part").toString()));
 }
