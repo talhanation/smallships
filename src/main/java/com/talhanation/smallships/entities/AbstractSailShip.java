@@ -86,6 +86,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public abstract void  WaterSplash();
     public abstract void openGUI(PlayerEntity player);
     public abstract void onInteractionWithShears(PlayerEntity player);
+    public abstract void onCannonKeyPressed();
     public abstract boolean onInteractionWithBanner(ItemStack itemStack,PlayerEntity player);
 
     @Override

@@ -59,16 +59,6 @@ public class KeyEvents {
                 this.wasSailPressed = false;
             }
         }
-        /*
-        if (clientPlayerEntity.equals(boat.getDriver())) {
-            if (Main.LANTERN_KEY.isDown()) {
-                boat.onLanternPressed();
-                this.wasLanternPressed = true;
-            }
-            else {
-                this.wasLanternPressed = false;
-            }
-        }
 
         if (clientPlayerEntity.equals(boat.getDriver())) {
             if (Main.CANNON_KEY.isDown()) {
@@ -80,6 +70,16 @@ public class KeyEvents {
             }
         }
 
+        /*
+        if (clientPlayerEntity.equals(boat.getDriver())) {
+            if (Main.LANTERN_KEY.isDown()) {
+                boat.onLanternPressed();
+                this.wasLanternPressed = true;
+            }
+            else {
+                this.wasLanternPressed = false;
+            }
+        }
          */
 
         if (vehicle instanceof AbstractInventoryEntity){

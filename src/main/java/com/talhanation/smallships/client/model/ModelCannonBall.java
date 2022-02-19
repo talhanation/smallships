@@ -5,7 +5,7 @@ package com.talhanation.smallships.client.model;// Made with Blockbench 3.9.3
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.talhanation.smallships.entities.CannonBallEntity;
+import com.talhanation.smallships.entities.projectile.CannonBallEntity;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 

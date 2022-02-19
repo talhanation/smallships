@@ -3,7 +3,6 @@ package com.talhanation.smallships.client.events;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.render.RenderCannonBall;
 import com.talhanation.smallships.client.render.RenderEntityCog;
-import com.talhanation.smallships.client.render.RenderShipPart;
 import com.talhanation.smallships.init.ModEntityTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

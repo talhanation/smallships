@@ -1,10 +1,11 @@
-package com.talhanation.smallships.entities;
+package com.talhanation.smallships.entities.projectile;
+import com.talhanation.smallships.entities.projectile.AbstractCannonBall;
 import com.talhanation.smallships.init.ModEntityTypes;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;
 
-public class CannonBallEntity extends AbstractCannonBall{
+public class CannonBallEntity extends AbstractCannonBall {
 
     public CannonBallEntity(EntityType<? extends AbstractCannonBall> type, World world) {
         super(type, world);

@@ -32,7 +32,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
-public class BriggEntity extends AbstractShipDamage{
+public class BriggEntity extends AbstractCannonShip{
 
     private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(BriggEntity.class, DataSerializers.INT);
 

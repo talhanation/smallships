@@ -3,7 +3,7 @@ package com.talhanation.smallships.init;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.entities.BriggEntity;
 import com.talhanation.smallships.entities.CogEntity;
-import com.talhanation.smallships.entities.SailShipPart;
+import com.talhanation.smallships.entities.projectile.CannonBallEntity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.ResourceLocation;
@@ -30,7 +30,7 @@ public class ModEntityTypes {
                     .setShouldReceiveVelocityUpdates(true)
                     .build(new ResourceLocation(Main.MOD_ID, "brigg").toString()));
 
-
+/*
     public static final RegistryObject<EntityType<SailShipPart>> SHIP_PART = ENTITY_TYPES.register("ship_part",
             () -> EntityType.Builder.<SailShipPart>of(SailShipPart::new, EntityClassification.MISC)
                     .sized(3.5F, 1.25F)
@@ -38,6 +38,7 @@ public class ModEntityTypes {
                     .setUpdateInterval(10)
                     .setShouldReceiveVelocityUpdates(true)
                     .build(new ResourceLocation(Main.MOD_ID, "ship_part").toString()));
+    */
     public static final RegistryObject<EntityType<CannonBallEntity>> CANNON_BALL = ENTITY_TYPES.register("cannon_ball",
             () -> EntityType.Builder.<CannonBallEntity>of(CannonBallEntity::new, EntityClassification.MISC)
                     .sized(0.25F, 0.25F)

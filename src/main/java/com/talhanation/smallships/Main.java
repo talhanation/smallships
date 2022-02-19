@@ -14,6 +14,7 @@ import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageControlShip;
 import com.talhanation.smallships.network.MessageOpenGui;
 import com.talhanation.smallships.network.MessageSailState;
+import com.talhanation.smallships.network.MessageShootCannon;
 import de.maxhenkel.corelib.ClientRegistry;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
@@ -92,6 +93,10 @@ public class Main {
                 buf -> (new MessageSailState()).fromBytes(buf),
                 (msg, fun) -> msg.executeServerSide(fun.get()));
 
+        SIMPLE_CHANNEL.registerMessage(3, MessageShootCannon.class, MessageShootCannon::toBytes,
+                buf -> (new MessageShootCannon()).fromBytes(buf),
+                (msg, fun) -> msg.executeServerSide(fun.get()));
+
         /*
         SIMPLE_CHANNEL.registerMessage(0, MessagePaddleState.class, MessagePaddleState::toBytes,
                 buf -> (new MessagePaddleState()).fromBytes(buf),
@@ -113,9 +118,6 @@ public class Main {
                 buf -> (new MessageLantern()).fromBytes(buf),
                 (msg, fun) -> msg.executeServerSide(fun.get()));
 
-        SIMPLE_CHANNEL.registerMessage(7, MessageShootCannon.class, MessageShootCannon::toBytes,
-                buf -> (new MessageShootCannon()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
         */
     }
 
@@ -132,7 +134,7 @@ public class Main {
         INV_KEY = ClientRegistry.registerKeyBinding("key.ship_inventory", "category.smallships", GLFW.GLFW_KEY_I);
         SAIL_L_KEY = ClientRegistry.registerKeyBinding("key.lower_ship_sail", "category.smallships", GLFW.GLFW_KEY_J);
         SAIL_H_KEY = ClientRegistry.registerKeyBinding("key.higher_ship_sail", "category.smallships", GLFW.GLFW_KEY_K);
-        LANTERN_KEY = ClientRegistry.registerKeyBinding("key.lantern_on/off", "category.smallships", GLFW.GLFW_KEY_L);
+        //LANTERN_KEY = ClientRegistry.registerKeyBinding("key.lantern_on/off", "category.smallships", GLFW.GLFW_KEY_L);
         CANNON_KEY = ClientRegistry.registerKeyBinding("key.cannon_shoot", "category.smallships", GLFW.GLFW_KEY_SPACE);
 
         ClientRegistry.registerScreen(Main.BASIC_SHIP_CONTAINER_TYPE, BasicShipInvScreen::new);

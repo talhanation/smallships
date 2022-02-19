@@ -1,6 +1,7 @@
-package com.talhanation.smallships.entities;
+package com.talhanation.smallships.entities.projectile;
 
 
+import com.talhanation.smallships.entities.AbstractShipDamage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;

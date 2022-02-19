@@ -1,6 +1,7 @@
 package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.entities.projectile.CannonBallEntity;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageOpenGui;
@@ -9,6 +10,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.LlamaSpitEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -29,7 +31,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
-public class CogEntity extends AbstractShipDamage{
+public class CogEntity extends AbstractCannonShip{
 
     private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(CogEntity.class, DataSerializers.INT);
 
@@ -145,7 +147,6 @@ public class CogEntity extends AbstractShipDamage{
         return 6;
     }
 
-
     ////////////////////////////////////SET////////////////////////////////////
 
     public void setCargo(int cargo){
@@ -168,7 +169,7 @@ public class CogEntity extends AbstractShipDamage{
 
             Vector3d forward = player.getViewVector(1);
             float x0 = 0; // /-/rechst /+/links //no need
-            float yOffset = 5;// /+/hoch
+            float yOffset = 2;// /+/hoch
             float offset = -2;// /-/vorne /+/zurück
 
             float f0 = MathHelper.cos(this.yRot * ((float)Math.PI / 180F)) * x0;
@@ -179,7 +180,9 @@ public class CogEntity extends AbstractShipDamage{
             double d2 = this.getY() - forward.y + yOffset;
             double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
 
-            LlamaSpitEntity cannonBallEntity = new LlamaSpitEntity(this.level, d1, d2, d3, d1, d2, d3);
+            //LlamaSpitEntity cannonBallEntity = new LlamaSpitEntity(this.level, d1, d2, d3, d1, d2, d3);
+            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, player, d1, d2, d3);
+            cannonBallEntity.shoot(d1, d2, d3, 1, 2);
             level.addFreshEntity(cannonBallEntity);
             return ActionResultType.SUCCESS;
         }
@@ -193,11 +196,11 @@ public class CogEntity extends AbstractShipDamage{
             this.onInteractionWithBanner(itemInHand,player);
             return ActionResultType.SUCCESS;
         }
-
+/*
         if (itemInHand.getItem() instanceof PickaxeItem){
             return this.onInteractionWithAxeItem(player)  ? ActionResultType.SUCCESS : ActionResultType.PASS;
         }
-
+*/
 //&& this.getShipDamage() > 0
         else if (itemInHand.getItem() instanceof ShearsItem){
             if (this.getHasBanner()){
