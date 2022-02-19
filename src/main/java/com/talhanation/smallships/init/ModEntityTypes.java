@@ -38,4 +38,11 @@ public class ModEntityTypes {
                     .setUpdateInterval(10)
                     .setShouldReceiveVelocityUpdates(true)
                     .build(new ResourceLocation(Main.MOD_ID, "ship_part").toString()));
+    public static final RegistryObject<EntityType<CannonBallEntity>> CANNON_BALL = ENTITY_TYPES.register("cannon_ball",
+            () -> EntityType.Builder.<CannonBallEntity>of(CannonBallEntity::new, EntityClassification.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(20)
+                    .setUpdateInterval(10)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .build(new ResourceLocation(Main.MOD_ID, "cannon_ball").toString()));
 }

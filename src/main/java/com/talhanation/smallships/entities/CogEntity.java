@@ -164,6 +164,26 @@ public class CogEntity extends AbstractShipDamage{
             return ActionResultType.SUCCESS;
         }
 */
+        if (itemInHand.getItem() == Items.FLINT_AND_STEEL){
+
+            Vector3d forward = player.getViewVector(1);
+            float x0 = 0; // /-/rechst /+/links //no need
+            float yOffset = 5;// /+/hoch
+            float offset = -2;// /-/vorne /+/zurück
+
+            float f0 = MathHelper.cos(this.yRot * ((float)Math.PI / 180F)) * x0;
+            float f1 = MathHelper.sin(this.yRot * ((float)Math.PI / 180F)) * x0;
+            float f2 = offset;
+
+            double d1 = this.getX() - forward.x * (double) f2 + (double) f0;
+            double d2 = this.getY() - forward.y + yOffset;
+            double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
+
+            LlamaSpitEntity cannonBallEntity = new LlamaSpitEntity(this.level, d1, d2, d3, d1, d2, d3);
+            level.addFreshEntity(cannonBallEntity);
+            return ActionResultType.SUCCESS;
+        }
+
         if (itemInHand.getItem() instanceof DyeItem){
             this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
             return ActionResultType.SUCCESS;
@@ -174,6 +194,11 @@ public class CogEntity extends AbstractShipDamage{
             return ActionResultType.SUCCESS;
         }
 
+        if (itemInHand.getItem() instanceof PickaxeItem){
+            return this.onInteractionWithAxeItem(player)  ? ActionResultType.SUCCESS : ActionResultType.PASS;
+        }
+
+//&& this.getShipDamage() > 0
         else if (itemInHand.getItem() instanceof ShearsItem){
             if (this.getHasBanner()){
                 this.onInteractionWithShears(player);
@@ -277,6 +302,7 @@ public class CogEntity extends AbstractShipDamage{
         if (hasPassenger(passenger)) {
             float f = -1.75F; //driver x pos
             float d = 0.0F;   //driver z pos
+            float x = 0;//global offset
             float f1 = (float) ((this.removed ? 0.02D : getPassengersRidingOffset()) + passenger.getMyRidingOffset());
             if (getPassengers().size() == 2) {
                 int i = getPassengers().indexOf(passenger);
@@ -334,6 +360,7 @@ public class CogEntity extends AbstractShipDamage{
                     d = -0.90F;
                 }
             }
+            f = f + x;
             Vector3d vector3d = (new Vector3d((double)f, 0.0D, 0.0D + d)).yRot(-this.yRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, + this.getZ() + vector3d.z);
             passenger.yRot += this.deltaRotation;

@@ -39,6 +39,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         if (getDriver() != null)
         getDriver().sendMessage(new StringTextComponent("Dmg= " + getShipDamage()), getDriver().getUUID());
         //if (isBurning)
+        if (getShipDamage() >= 100) sinkShip();
     }
 
     ////////////////////////////////////SAVE////////////////////////////////////
@@ -83,24 +84,29 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
             return false;
         }
 
-        if (!(source.getDirectEntity() instanceof PlayerEntity)) {
-            return false;
-        }
-        PlayerEntity player = (PlayerEntity) source.getDirectEntity();
-
-        if (player == null) {
-            return false;
-        }
-
-        if (hasPassenger(player)) {
-            return false;
-        }
-
-        if (player.abilities.instabuild) {
-            if (player.isShiftKeyDown()) {
-                destroyShip(source);
-                return true;
+        if (source.getDirectEntity() instanceof PlayerEntity){
+            PlayerEntity player = (PlayerEntity) source.getDirectEntity();
+            if (player == null) {
+                return false;
             }
+
+            if (hasPassenger(player)) {
+                return false;
+            }
+
+            if (player.abilities.instabuild) {
+                if (player.isShiftKeyDown()) {
+                    destroyShip(source);
+                    return true;
+                }
+            }
+            if (amount >= 2) damageShip(amount);
+            this.markHurt();
+            return false;
+        }
+        if (source.isProjectile()){
+            if (amount >= 2) damageShip(amount);
+            this.markHurt();
         }
         if (getShipDamage() >= 100) destroyShip(source);
         if (amount >= 2) damageShip(amount);
@@ -112,6 +118,10 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     public void destroyShip(DamageSource source) {
         super.destroyShip(source);
         kill();
+    }
+
+    public void sinkShip() {
+        this.setDeltaMovement(0, -0.2D,0);
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
