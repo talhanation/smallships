@@ -2,14 +2,16 @@ package com.talhanation.smallships.client.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.talhanation.smallships.entities.AbstractInventoryEntity;
+import com.talhanation.smallships.Main;
 import com.talhanation.smallships.entities.AbstractShipDamage;
+import com.talhanation.smallships.inventory.AdvancedShipContainer;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import de.maxhenkel.corelib.inventory.ScreenBase;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import org.apache.http.impl.cookie.PublicSuffixListParser;
+import net.minecraft.util.text.StringTextComponent;
 
 public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
 
@@ -26,6 +28,20 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         imageWidth = 176;
         imageHeight = 222;
     }
+
+    @Override
+    protected void init() {
+        super.init();
+
+
+        if (ship.hasBiggerInv()) {
+            addButton(new Button(leftPos + 77 + 85 + 15, topPos + 74, 8, 12, new StringTextComponent(">"), button -> {
+                minecraft.setScreen(new AdvancedShipInvScreen(new AdvancedShipContainer( 1, this.ship, playerInventory), playerInventory, ship.getDisplayName()));
+            }));
+        }
+
+    }
+
 
     @Override
     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {

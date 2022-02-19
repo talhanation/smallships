@@ -3,7 +3,6 @@ package com.talhanation.smallships.client.model;// Made with Blockbench 3.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.talhanation.smallships.entities.CogEntity;

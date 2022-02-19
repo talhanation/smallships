@@ -3,6 +3,7 @@ package com.talhanation.smallships.entities;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.inventory.BasicShipContainer;
+import com.talhanation.smallships.network.MessageNextInvGui;
 import com.talhanation.smallships.network.MessageOpenGui;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -90,13 +91,12 @@ public class BriggEntity extends AbstractShipDamage{
         this.setCargo(nbt.getInt("Cargo"));
     }
 
+    ////////////////////////////////////GET////////////////////////////////////
+
     @Override
     public double getShipDefense() { //in %
         return 30;
     }
-
-
-    ////////////////////////////////////GET////////////////////////////////////
 
     public int getCargo() {
         return entityData.get(CARGO);
@@ -105,6 +105,16 @@ public class BriggEntity extends AbstractShipDamage{
     @Override
     public int getInventorySize() {
         return 54;
+    }
+
+    @Override
+    public int getInventory2Size() {
+        return 54;
+    }
+
+    @Override
+    public boolean hasBiggerInv() {
+        return true;
     }
 
     @Override
@@ -140,6 +150,11 @@ public class BriggEntity extends AbstractShipDamage{
     @Override
     public ResourceLocation getLootTable() {
         return null;
+    }
+
+    @Override
+    public void updateShipPart() {
+
     }
 
     @Override
@@ -231,6 +246,11 @@ public class BriggEntity extends AbstractShipDamage{
         } else {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player));
         }
+    }
+
+    @Override
+    public void openGUI2(PlayerEntity player) {
+
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.talhanation.smallships;
 import com.talhanation.smallships.client.events.KeyEvents;
 import com.talhanation.smallships.client.events.PlayerEvents;
 import com.talhanation.smallships.client.events.RenderEvents;
+import com.talhanation.smallships.client.gui.AdvancedShipInvScreen;
 import com.talhanation.smallships.client.gui.BasicShipInvScreen;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
@@ -10,10 +11,9 @@ import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.init.SoundInit;
+import com.talhanation.smallships.inventory.AdvancedShipContainer;
 import com.talhanation.smallships.inventory.BasicShipContainer;
-import com.talhanation.smallships.network.MessageControlShip;
-import com.talhanation.smallships.network.MessageOpenGui;
-import com.talhanation.smallships.network.MessageSailState;
+import com.talhanation.smallships.network.*;
 import de.maxhenkel.corelib.ClientRegistry;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
@@ -58,6 +58,7 @@ public class Main {
     public static KeyBinding RIGHT_KEY;
 
     public static ContainerType<BasicShipContainer> BASIC_SHIP_CONTAINER_TYPE;
+    public static ContainerType<AdvancedShipContainer> ADVANCED_SHIP_CONTAINER_TYPE;
 
 
     public Main() {
@@ -90,6 +91,14 @@ public class Main {
 
         SIMPLE_CHANNEL.registerMessage(2, MessageSailState.class, MessageSailState::toBytes,
                 buf -> (new MessageSailState()).fromBytes(buf),
+                (msg, fun) -> msg.executeServerSide(fun.get()));
+
+        SIMPLE_CHANNEL.registerMessage(3, MessageNextInvGui.class, MessageNextInvGui::toBytes,
+                buf -> (new MessageNextInvGui()).fromBytes(buf),
+                (msg, fun) -> msg.executeServerSide(fun.get()));
+
+        SIMPLE_CHANNEL.registerMessage(4, MessagePartCollision.class, MessagePartCollision::toBytes,
+                buf -> (new MessagePartCollision()).fromBytes(buf),
                 (msg, fun) -> msg.executeServerSide(fun.get()));
 
         /*
@@ -136,6 +145,7 @@ public class Main {
         CANNON_KEY = ClientRegistry.registerKeyBinding("key.cannon_shoot", "category.smallships", GLFW.GLFW_KEY_SPACE);
 
         ClientRegistry.registerScreen(Main.BASIC_SHIP_CONTAINER_TYPE, BasicShipInvScreen::new);
+        ClientRegistry.registerScreen(Main.ADVANCED_SHIP_CONTAINER_TYPE, AdvancedShipInvScreen::new);
 
         MinecraftForge.EVENT_BUS.register(new RenderEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
@@ -145,6 +155,7 @@ public class Main {
 
     @SubscribeEvent
     public void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
+
         BASIC_SHIP_CONTAINER_TYPE = new ContainerType<>((IContainerFactory<BasicShipContainer>) (windowId, inv, data) -> {
             AbstractShipDamage ship = getInvEntityByUUID(inv.player, data.readUUID());
             if (ship == null) {
@@ -153,9 +164,19 @@ public class Main {
             return new BasicShipContainer(windowId, ship, inv);
         });
 
-        BASIC_SHIP_CONTAINER_TYPE.setRegistryName(new ResourceLocation(Main.MOD_ID, "basic_container"));
-        event.getRegistry().register(BASIC_SHIP_CONTAINER_TYPE);
+        ADVANCED_SHIP_CONTAINER_TYPE = new ContainerType<>((IContainerFactory<AdvancedShipContainer>) (windowId, inv, data) -> {
+            AbstractShipDamage ship = getInvEntityByUUID(inv.player, data.readUUID());
+            if (ship == null) {
+                return null;
+            }
+            return new AdvancedShipContainer(windowId, ship, inv);
+        });
 
+
+        BASIC_SHIP_CONTAINER_TYPE.setRegistryName(new ResourceLocation(Main.MOD_ID, "basic_container"));
+        ADVANCED_SHIP_CONTAINER_TYPE.setRegistryName(new ResourceLocation(Main.MOD_ID, "advanced_container"));
+        event.getRegistry().register(BASIC_SHIP_CONTAINER_TYPE);
+        event.getRegistry().register(ADVANCED_SHIP_CONTAINER_TYPE);
     }
 
     @Nullable

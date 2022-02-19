@@ -1,44 +1,66 @@
 package com.talhanation.smallships.entities;
 
+import com.google.common.collect.ImmutableSet;
 import com.talhanation.smallships.DamageSourceShip;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
-public abstract class AbstractShipDamage extends AbstractBannerUser {
-    private static final DataParameter<Float> DAMAGE = EntityDataManager.defineId(AbstractShipDamage.class, DataSerializers.FLOAT);
+import java.util.Set;
 
+public abstract class AbstractShipDamage extends AbstractBannerUser {
+    public AbstractShipPart shipPart;
+    public AbstractShipPart shipMast;
+
+
+    private static final DataParameter<Float> DAMAGE = EntityDataManager.defineId(AbstractShipDamage.class, DataSerializers.FLOAT);
     public AbstractShipDamage(EntityType<? extends AbstractShipDamage> type, World world) {
         super(type, world);
 
     }
-
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DAMAGE, 0F);
     }
 
-    ////////////////////////////////////TICK////////////////////////////////////
+    public static final Set<Item> REPAIR_BLOCKS = ImmutableSet.of(
+            Items.OAK_PLANKS,
+            Items.BIRCH_PLANKS,
+            Items.SPRUCE_PLANKS,
+            Items.ACACIA_PLANKS,
+            Items.JUNGLE_PLANKS,
+            Items.DARK_OAK_PLANKS
+    );
 
+    ////////////////////////////////////TICK////////////////////////////////////
     @Override
     public void tick() {
         super.tick();
+        updateShipPart();
         if (isInLava()) {
             setShipDamage(getShipDamage() + 1.5F);
         }
-        if (getDriver() != null)
-        getDriver().sendMessage(new StringTextComponent("Dmg= " + getShipDamage()), getDriver().getUUID());
-        //if (isBurning)
+        if (this.isOnFire()) {
+            setShipDamage(getShipDamage() + 0.5F);
+        }
+
+        if (this.isOnFire()) {
+            setShipDamage(getShipDamage() + 0.5F);
+        }
+
         if (getShipDamage() >= 100) sinkShip();
     }
 
@@ -54,6 +76,8 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
         setShipDamage(nbt.getFloat("Damage"));
+        shipPart = null;
+        shipMast = null;
     }
 
     ////////////////////////////////////GET////////////////////////////////////
@@ -63,8 +87,14 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
     public abstract double getShipDefense(); // how much incoming dmg gets reduced in % e.g: 30
-    //public double getShipHealth(){
 
+    public AbstractShipPart getShipPart(){
+        return shipPart;
+    }
+
+    public AbstractShipPart getShipMast(){
+        return shipPart;
+    }
 
     ////////////////////////////////////SET////////////////////////////////////
 
@@ -73,6 +103,24 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
     ////////////////////////////////////ON FUNCTIONS////////////////////////////////////
+
+    public boolean onInteractionWithAxeItem(PlayerEntity player) {
+        IInventory inventory = player.inventory;
+
+        for(int i = 0; i < player.inventory.getContainerSize(); i++){
+            if (inventory.getItem(i) == Items.IRON_NUGGET.getDefaultInstance()){
+                ItemStack nuggets = inventory.getItem(i).getStack();
+
+                if (!player.isCreative()) {
+                    nuggets.shrink(1);
+                }
+
+                this.damageShip(-5);
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
@@ -108,8 +156,6 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
             if (amount >= 2) damageShip(amount);
             this.markHurt();
         }
-        if (getShipDamage() >= 100) destroyShip(source);
-        if (amount >= 2) damageShip(amount);
         return false;
     }
 
@@ -145,4 +191,10 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         return super.canCollideWith(entity);
     }
 
+    @Override
+    public boolean canBeCollidedWith() {
+        return super.canBeCollidedWith();
+    }
+
+    public abstract void updateShipPart();
 }

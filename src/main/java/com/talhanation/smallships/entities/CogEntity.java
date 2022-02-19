@@ -2,13 +2,16 @@ package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.init.ModEntityTypes;
+import com.talhanation.smallships.inventory.AdvancedShipContainer;
 import com.talhanation.smallships.inventory.BasicShipContainer;
+import com.talhanation.smallships.network.MessageNextInvGui;
 import com.talhanation.smallships.network.MessageOpenGui;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.LlamaSpitEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -63,7 +66,7 @@ public class CogEntity extends AbstractShipDamage{
 
     @Override
     public double getHeight() {
-        return 1.5D;
+        return 1.25D;
     }
 
     ////////////////////////////////////DATA////////////////////////////////////
@@ -106,6 +109,11 @@ public class CogEntity extends AbstractShipDamage{
     }
 
     @Override
+    public int getInventory2Size() {
+        return 54;
+    }
+
+    @Override
     public float getMaxSpeed() {
         return 0.5F;
     }
@@ -141,6 +149,36 @@ public class CogEntity extends AbstractShipDamage{
     }
 
     @Override
+    public void updateShipPart() {
+        if(!level.isClientSide) {
+            if (shipPart == null || !shipPart.isAlive()) {
+                this.shipPart = new ShipPart(this, -2.5F);// /-/vorne /+/zurück
+                level.addFreshEntity(this.shipPart);
+            }
+            shipPart.updatePosition();
+            shipPart.handleCollisionWithEntity();
+            if (shipPart.isCollidingWithBlock() || shipPart.isCollidingWithEntity()){
+                this.onCollision();
+                this.horizontalCollision = true;
+            }
+        }
+
+        if(!level.isClientSide) {
+            if (shipMast == null || !shipMast.isAlive()) {
+                                                //offset:// /-/vorne /+/zurück
+                this.shipMast = new ShipMast(this, -0.25F, 1.75F, 14.00F, 0.5F );
+                level.addFreshEntity(this.shipMast);
+            }
+            shipMast.updatePosition();
+            shipMast.handleCollisionWithEntity();
+            if (shipMast.isCollidingWithBlock() || shipMast.isCollidingWithEntity()){
+                this.onCollision();
+                this.horizontalCollision = true;
+            }
+        }
+    }
+
+    @Override
     public int getPassengerSize() {
         return 6;
     }
@@ -150,6 +188,12 @@ public class CogEntity extends AbstractShipDamage{
 
     public void setCargo(int cargo){
         entityData.set(CARGO, cargo);
+    }
+
+
+    @Override
+    public boolean hasBiggerInv() {
+        return false;
     }
 
     ////////////////////////////////////INTERACTIONS///////////////////////////////
@@ -253,6 +297,26 @@ public class CogEntity extends AbstractShipDamage{
             }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
         } else {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player));
+        }
+    }
+
+    @Override
+    public void openGUI2(PlayerEntity player) {
+        if (player instanceof ServerPlayerEntity) {
+            NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
+                @Override
+                public ITextComponent getDisplayName() {
+                    return getName();
+                }
+
+                @Nullable
+                @Override
+                public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+                    return new AdvancedShipContainer(i, CogEntity.this, playerInventory);
+                }
+            }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
+        } else {
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageNextInvGui(player));
         }
     }
 

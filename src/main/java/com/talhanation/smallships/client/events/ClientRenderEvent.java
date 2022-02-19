@@ -17,6 +17,8 @@ public class ClientRenderEvent {
     @SubscribeEvent
     public static void clientsetup(FMLClientSetupEvent event){
         RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.COG_ENTITY.get(), RenderEntityCog::new );
+        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SHIP_PART.get(), RenderShipPart::new );
+        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SHIP_MAST.get(), RenderShipPart::new );
         RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.CANNON_BALL.get(), RenderCannonBall::new );
     }
 }

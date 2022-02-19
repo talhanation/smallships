@@ -124,7 +124,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     @Override
     protected boolean canAddPassenger(Entity passenger) {
-        return this.getPassengers().size() < getPassengerSize();
+        return this.getPassengers().size() < getPassengerSize() && this.getDriver() == null;
     }
 
     protected void applyYawToEntity(Entity entityToUpdate) {

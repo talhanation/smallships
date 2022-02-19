@@ -41,7 +41,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     private final float[] paddlePositions = new float[2];
     private float waveAngle;
     private float prevWaveAngle;
-    private boolean collidedLastTick;
+    public boolean collidedLastTick;
 
     private static final DataParameter<Float> SPEED = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.FLOAT);
     private static final DataParameter<Float> ROT_SPEED = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.FLOAT);
@@ -92,8 +92,8 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public void tick() {
         super.tick();
         if ((getSpeed() > 0.085F || getSpeed() < -0.085F)) {
-            this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntityPredicates.NO_CREATIVE_OR_SPECTATOR));
-            this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntityPredicates.NO_CREATIVE_OR_SPECTATOR));
+            this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(2.0D, 2.0D, 2.0D).move(0.0D, -2.0D, 0.0D), EntityPredicates.NO_CREATIVE_OR_SPECTATOR));
+            this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(2.0D, 2.0D, 2.0D).move(0.0D, -2.0D, 0.0D), EntityPredicates.NO_CREATIVE_OR_SPECTATOR));
 
             if (this.getStatus() == Status.IN_WATER) {
 
@@ -390,7 +390,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
         if (horizontalCollision) {
             if (level.isClientSide && !collidedLastTick) {
-                onCollision(speed);
+                onCollision();
                 collidedLastTick = true;
             }
         } else {
@@ -446,12 +446,15 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         }
     }
 
-    public void onCollision(float speed) {
-        if (level.isClientSide) {
-            //Main.SIMPLE_CHANNEL.sendToServer(new MessageCrash(speed, this));
-        }
+    public void onCollision() {
+        setPos(getX(), getY(), getZ());
         setSpeed(0.00F);
-        setDeltaMovement(0D, getDeltaMovement().y, 0D);
+        setDeltaMovement(Vector3d.ZERO);
+        setRotSpeed(0.00F);
+        setForward(false);
+        setBackward(false);
+        setLeft(false);
+        setRight(false);
     }
 
     ////////////////////////////////////UPDATE FUNCTIONS////////////////////////////////////

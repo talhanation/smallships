@@ -1,7 +1,6 @@
 package com.talhanation.smallships.inventory;
 
 import com.talhanation.smallships.Main;
-import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import net.minecraft.entity.player.PlayerEntity;
