@@ -8,26 +8,34 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+
+import java.util.Random;
 
 public abstract class AbstractCannonShip extends AbstractShipDamage{
     private static final DataParameter<Integer> CANNON_COUNT = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
     private static final DataParameter<Boolean> LEFT_CANNON = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> RIGHT_CANNON = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.BOOLEAN);
-    public float shootCounter;
+    private static final DataParameter<Integer> SHOOT_COOLDOWN = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
 
     public AbstractCannonShip(EntityType<? extends AbstractCannonShip> type, World world) {
         super(type, world);
+
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(CANNON_COUNT, 2);
+        this.entityData.define(RIGHT_CANNON, false);
+        this.entityData.define(LEFT_CANNON, false);
+        this.entityData.define(SHOOT_COOLDOWN, 30);
     }
 
     ////////////////////////////////////TICK////////////////////////////////////
@@ -35,6 +43,11 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     @Override
     public void tick() {
         super.tick();
+        if (this.getShootCoolDown() >= 0) {
+            this.setShootCoolDown(getShootCoolDown() - 1);
+        }
+
+        //if (this.getDriver() != null) this.getDriver().sendMessage(new StringTextComponent("Look Vec .y = " + getDriver().getLookAngle().y), this.getDriver().getUUID());
     }
 
     ////////////////////////////////////SAVE////////////////////////////////////
@@ -43,12 +56,14 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putInt("CannonCount", getCannonCount());
+        nbt.putInt("ShootCoolDown", getShootCoolDown());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
         setCannonCount(nbt.getInt("CannonCount"));
+        setShootCoolDown(nbt.getInt("ShootCoolDown"));
     }
 
     ////////////////////////////////////GET////////////////////////////////////
@@ -80,7 +95,10 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     ////////////////////////////////////ON FUNCTIONS////////////////////////////////////
 
     public void onCannonKeyPressed(){
-        Main.SIMPLE_CHANNEL.sendToServer(new MessageShootCannon(true));
+        if (this.getShootCoolDown() <= 0) {
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageShootCannon(true));
+            onShootParticles();
+        }
     }
 
     public Vector3d getShootVector(){
@@ -138,41 +156,61 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public void shootCannon(boolean s) {
-        Vector3d shootVector = this.getShootVector();
-        Vector3d forward = this.getForward();
-        float speed = 5F;
-        float x0 = 0;
-        if (shootVector == null){
-            return;
-        }
-        if (getLeftCannon()){
-            x0 = 2.1F; //rechst //links
-        }
-        if (getRightCannon()){
-            x0 = -2.1F; //rechst //links
-        }
-        float f0 = MathHelper.cos(this.yRot * ((float)Math.PI / 180F)) * x0;
-        float f1 = MathHelper.sin(this.yRot * ((float)Math.PI / 180F)) * x0;
-        float f2 =  -0.75F; // /-/vorne /+/zurück
-        double d1 = this.getX() - forward.x * (double) f2 + (double) f0;
-        double d2 = this.getY() - forward.y + 1.3D;//hoch
-        double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
-        CannonBallEntity cannonBall = new CannonBallEntity(this.level, this.getDriver(), d1,d2,d3);
-        //LlamaSpitEntity
-        //cannonParticles(d1,d2,d3);
-        cannonBall.shoot(shootVector.x(), shootVector.y(), shootVector.z(), speed, 10);
-        this.level.addFreshEntity(cannonBall);
-        this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
-        //this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), ModSoundEvents.CANNON_SHOOT, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+        if (this.getShootCoolDown() <= 0) {
+            this.setShootCoolDown(30);
+            Vector3d shootVector = this.getShootVector();
+            Vector3d forward = this.getForward();
 
+            float speed = 2.5F;
+            float k = 2F;
+            float x0 = 0;
+            boolean playerView= getDriver().getLookAngle().y >= 0;
+            double yShootVec = playerView ? shootVector.y() + getDriver().getLookAngle().y * 0.75F : shootVector.y() + 0.25F;
+
+            if (shootVector == null) {
+                return;
+            }
+            if (getLeftCannon()) {
+                x0 = 2.1F; //rechst //links
+            }
+            if (getRightCannon()) {
+                x0 = -2.1F; //rechst //links
+            }
+            float f0 = MathHelper.cos(this.yRot * ((float) Math.PI / 180F)) * x0;
+            float f1 = MathHelper.sin(this.yRot * ((float) Math.PI / 180F)) * x0;
+            float f2 = -0.75F; // /-/vorne /+/zurück
+            double d1 = this.getX() - forward.x * (double) f2 + (double) f0;
+            double d2 = this.getY() - forward.y;//hoch
+            double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
+
+            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, this.getDriver(), d1, d2 , d3);
+            cannonBallEntity.shoot(shootVector.x() ,yShootVec , shootVector.z(), speed, k);
+            this.level.addFreshEntity(cannonBallEntity);
+        }
     }
 
 
     ////////////////////////////////////PARTICLE FUNCTIONS////////////////////////////////////
 
-
+    private void onShootParticles(){
+        if (this.level.isClientSide) {
+            for (int i = 0; i < 10; ++i) {
+                double d0 = this.random.nextGaussian() * 0.02D;
+                double d1 = this.random.nextGaussian() * 0.02D;
+                double d2 = this.random.nextGaussian() * 0.02D;
+                double d3 = 10.0D;
+                this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * 10.0D, this.getRandomY() - d1 * 10.0D, this.getRandomZ(1.0D) - d2 * 10.0D, d0, d1, d2);
+            }
+        }
+    }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
+    public void setShootCoolDown(int i){
+        this.entityData.set(SHOOT_COOLDOWN, i);
+    }
 
+    public int getShootCoolDown(){
+        return this.entityData.get(SHOOT_COOLDOWN);
+    }
 }

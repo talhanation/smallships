@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.entity.projectile.LlamaSpitEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
@@ -165,6 +166,7 @@ public class CogEntity extends AbstractCannonShip{
             return ActionResultType.SUCCESS;
         }
 */
+        /*
         if (itemInHand.getItem() == Items.FLINT_AND_STEEL){
 
             Vector3d forward = player.getViewVector(1);
@@ -181,11 +183,13 @@ public class CogEntity extends AbstractCannonShip{
             double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
 
             //LlamaSpitEntity cannonBallEntity = new LlamaSpitEntity(this.level, d1, d2, d3, d1, d2, d3);
-            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, player, d1, d2, d3);
+            FireballEntity cannonBallEntity = new FireballEntity(this.level, d1, d2, d3, d1, d2, d3);
+            //CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, player, d1, d2, d3);
             cannonBallEntity.shoot(d1, d2, d3, 1, 2);
             level.addFreshEntity(cannonBallEntity);
             return ActionResultType.SUCCESS;
         }
+        */
 
         if (itemInHand.getItem() instanceof DyeItem){
             this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);

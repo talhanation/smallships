@@ -36,9 +36,10 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         if (isInLava()) {
             setShipDamage(getShipDamage() + 1.5F);
         }
-        if (getDriver() != null)
-        getDriver().sendMessage(new StringTextComponent("Dmg= " + getShipDamage()), getDriver().getUUID());
-        //if (isBurning)
+
+        if (isOnFire()) {
+            setShipDamage(getShipDamage() + 0.5F);
+        }
         if (getShipDamage() >= 100) sinkShip();
     }
 

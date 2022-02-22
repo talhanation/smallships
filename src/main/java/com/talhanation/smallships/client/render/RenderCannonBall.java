@@ -27,15 +27,9 @@ public class RenderCannonBall extends EntityRenderer<CannonBallEntity>{
     @Override
     public void render(CannonBallEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         matrixStackIn.pushPose();
-        matrixStackIn.translate(1D, 1D, 1D);
-
         matrixStackIn.scale(1F, 1F, 1F);
-        //                                x                y               z (- nachhinten)
-        matrixStackIn.translate(1D, 1D,1D);
-        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(0F));
         IVertexBuilder ivertexbuilder = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
         this.model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-
         matrixStackIn.popPose();
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
     }
