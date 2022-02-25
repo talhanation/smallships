@@ -1,9 +1,18 @@
 package com.talhanation.smallships.entities;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.client.render.RenderCannon;
+import com.talhanation.smallships.client.render.RenderSailColor;
 import com.talhanation.smallships.entities.projectile.CannonBallEntity;
+import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.network.MessageShootCannon;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.BannerTileEntityRenderer;
 import net.minecraft.entity.EntityType;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -13,13 +22,11 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
-import java.util.Random;
-
 public abstract class AbstractCannonShip extends AbstractShipDamage{
-    private static final DataParameter<Integer> CANNON_COUNT = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
+    private static final DataParameter<Integer> RIGHT_CANNON_COUNT = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
+    private static final DataParameter<Integer> LEFT_CANNON_COUNT = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
     private static final DataParameter<Boolean> LEFT_CANNON = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> RIGHT_CANNON = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Integer> SHOOT_COOLDOWN = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
@@ -32,7 +39,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(CANNON_COUNT, 2);
+        this.entityData.define(RIGHT_CANNON_COUNT, 2);
+        this.entityData.define(LEFT_CANNON_COUNT, 2);
         this.entityData.define(RIGHT_CANNON, false);
         this.entityData.define(LEFT_CANNON, false);
         this.entityData.define(SHOOT_COOLDOWN, 30);
@@ -46,7 +54,6 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         if (this.getShootCoolDown() >= 0) {
             this.setShootCoolDown(getShootCoolDown() - 1);
         }
-
         //if (this.getDriver() != null) this.getDriver().sendMessage(new StringTextComponent("Look Vec .y = " + getDriver().getLookAngle().y), this.getDriver().getUUID());
     }
 
@@ -55,21 +62,31 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     @Override
     public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.putInt("CannonCount", getCannonCount());
+        nbt.putInt("RightCannonCount", getRightCannonCount());
+        nbt.putInt("LeftCannonCount", getLeftCannonCount());
         nbt.putInt("ShootCoolDown", getShootCoolDown());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
-        setCannonCount(nbt.getInt("CannonCount"));
+        setRightCannonCount(nbt.getInt("RightCannonCount"));
+        setLeftCannonCount(nbt.getInt("LeftCannonCount"));
         setShootCoolDown(nbt.getInt("ShootCoolDown"));
     }
 
     ////////////////////////////////////GET////////////////////////////////////
 
-    public int getCannonCount(){
-        return entityData.get(CANNON_COUNT);
+    public int getShootCoolDown(){
+        return this.entityData.get(SHOOT_COOLDOWN);
+    }
+
+    public int getRightCannonCount(){
+        return entityData.get(LEFT_CANNON_COUNT);
+    }
+
+    public int getLeftCannonCount(){
+        return entityData.get(LEFT_CANNON_COUNT);
     }
 
     public boolean getRightCannon() {
@@ -80,11 +97,41 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         return entityData.get(LEFT_CANNON);
     }
 
+    public boolean canShoot(){
+        return hasGunPowder() && hasCannonBall();
+    }
+
+    public boolean hasGunPowder(){
+        Inventory inventory = this.getInventory();
+        for(int i = 0; i < inventory.getContainerSize(); i++){
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getItem() == Items.GUNPOWDER){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasCannonBall(){
+        Inventory inventory = this.getInventory();
+        for(int i = 0; i < inventory.getContainerSize(); i++){
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getItem() == Items.IRON_BLOCK){
+                return true;
+            }
+
+        }
+        return false;
+    }
 
     ////////////////////////////////////SET////////////////////////////////////
 
-    public void setCannonCount(int count){
-        entityData.set(CANNON_COUNT, count);
+    public void setRightCannonCount(int count){
+        entityData.set(RIGHT_CANNON_COUNT, count);
+    }
+
+    public void setLeftCannonCount(int count){
+        entityData.set(LEFT_CANNON_COUNT, count);
     }
 
     public void setCannonSide(boolean left, boolean right){
@@ -92,12 +139,16 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         this.entityData.set(RIGHT_CANNON, right);
     }
 
+    public void setShootCoolDown(int i){
+        this.entityData.set(SHOOT_COOLDOWN, i);
+    }
+
     ////////////////////////////////////ON FUNCTIONS////////////////////////////////////
 
     public void onCannonKeyPressed(){
-        if (this.getShootCoolDown() <= 0) {
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageShootCannon(true));
-            onShootParticles();
+        //if (this.getShootCoolDown() <= 0 && canShoot()) {
+            if (this.getShootCoolDown() <= 0) {
+                Main.SIMPLE_CHANNEL.sendToServer(new MessageShootCannon(true));
         }
     }
 
@@ -155,7 +206,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         return null;
     }
 
-    public void shootCannon(boolean s) {
+    public void shootCannons(boolean s) {
         if (this.getShootCoolDown() <= 0) {
             this.setShootCoolDown(30);
             Vector3d shootVector = this.getShootVector();
@@ -171,46 +222,50 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
                 return;
             }
             if (getLeftCannon()) {
-                x0 = 2.1F; //rechst //links
+                x0 = 1F; //rechst //links
+
             }
             if (getRightCannon()) {
-                x0 = -2.1F; //rechst //links
+                x0 = -1F; //rechst //links
             }
-            float f0 = MathHelper.cos(this.yRot * ((float) Math.PI / 180F)) * x0;
-            float f1 = MathHelper.sin(this.yRot * ((float) Math.PI / 180F)) * x0;
-            float f2 = -0.75F; // /-/vorne /+/zurück
-            double d1 = this.getX() - forward.x * (double) f2 + (double) f0;
-            double d2 = this.getY() - forward.y;//hoch
-            double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
+            int cannonCount = getLeftCannon()? getLeftCannonCount(): getRightCannonCount();
 
-            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, this.getDriver(), d1, d2 , d3);
-            cannonBallEntity.shoot(shootVector.x() ,yShootVec , shootVector.z(), speed, k);
-            this.level.addFreshEntity(cannonBallEntity);
+            //for(int i = 0; i < cannonCount; i++){
+                //float f2 = (0.2F * -i);
+            shootCannon(forward, shootVector, yShootVec, speed, (float) 0.2, k, x0);
+            //shootCannon(forward, shootVector, yShootVec, speed, (float) -2.4, k, x0);
+            //shootCannon(forward, shootVector, yShootVec, speed, (float) -4.8, k, x0);
+
+            //}
         }
+    }
+
+    public void shootCannon(Vector3d forward, Vector3d shootVector, double yShootVec, float speed, float f2, float k, float x0){
+        float f0 = MathHelper.cos(this.yRot * ((float) Math.PI / 180F)) * x0;
+        float f1 = MathHelper.sin(this.yRot * ((float) Math.PI / 180F)) * x0;
+        //float f2 = 0.2F; // /-/vorne /+/zurück
+        double d1 = this.getX() - forward.x * (double) f2 + (double) f0;
+        double d2 = this.getY() - forward.y + 1;//hoch
+        double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
+
+        CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, this.getDriver(), d1, d2, d3);
+        cannonBallEntity.shoot(shootVector.x() ,yShootVec , shootVector.z(), speed, k);
+        this.level.addFreshEntity(cannonBallEntity);
+
+        this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+
     }
 
 
     ////////////////////////////////////PARTICLE FUNCTIONS////////////////////////////////////
 
-    private void onShootParticles(){
-        if (this.level.isClientSide) {
-            for (int i = 0; i < 10; ++i) {
-                double d0 = this.random.nextGaussian() * 0.02D;
-                double d1 = this.random.nextGaussian() * 0.02D;
-                double d2 = this.random.nextGaussian() * 0.02D;
-                double d3 = 10.0D;
-                this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * 10.0D, this.getRandomY() - d1 * 10.0D, this.getRandomZ(1.0D) - d2 * 10.0D, d0, d1, d2);
-            }
-        }
-    }
+
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
-    public void setShootCoolDown(int i){
-        this.entityData.set(SHOOT_COOLDOWN, i);
+    public void renderCannon(MatrixStack matrixStack, IRenderTypeBuffer buffer , int packedLight, float partialTicks) {
+        RenderCannon.renderCannon(this, partialTicks, matrixStack, buffer,  packedLight);
     }
 
-    public int getShootCoolDown(){
-        return this.entityData.get(SHOOT_COOLDOWN);
-    }
+
 }

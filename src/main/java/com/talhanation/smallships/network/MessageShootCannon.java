@@ -29,7 +29,7 @@ public class MessageShootCannon implements Message<MessageShootCannon> {
             return;
         AbstractCannonShip sailBoat = (AbstractCannonShip) riding;
         if (context.getSender() == (sailBoat.getDriver())) {
-            sailBoat.shootCannon(shoot);
+            sailBoat.shootCannons(shoot);
         }
     }
 

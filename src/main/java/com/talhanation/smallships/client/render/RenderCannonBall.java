@@ -28,6 +28,8 @@ public class RenderCannonBall extends EntityRenderer<CannonBallEntity>{
     public void render(CannonBallEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         matrixStackIn.pushPose();
         matrixStackIn.scale(1F, 1F, 1F);
+        //                                x                y               z (- nachhinten)
+        matrixStackIn.translate(0.0D, -1.0D,0.0D);
         IVertexBuilder ivertexbuilder = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
         this.model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStackIn.popPose();

@@ -1,5 +1,4 @@
 {
-
   "sail_0":{
     "category": "entity",
     "subtitle": "Sail goes down",
@@ -16,6 +15,16 @@
     "sounds": [
       {
         "name": "smallships:entity/sail_1",
+        "stream":true
+      }
+    ]
+  },
+  "ship_cannon_shot":{
+    "category": "entity",
+    "subtitle": "Cannon shoots",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship_cannon_shot",
         "stream":true
       }
     ]

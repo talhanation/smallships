@@ -18,13 +18,11 @@ public class RenderSailColor {
     public static void renderSailColor(AbstractSailShip ship, float partialTicks, MatrixStack matrixStackIn, String sailColor ,IRenderTypeBuffer bufferIn,  int packedLight, ModelRenderer modelRenderer) {
 
         matrixStackIn.pushPose();
-
         MODEL.setupAnim((CogEntity) ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
         IVertexBuilder ivertexbuilder = bufferIn.getBuffer(MODEL.renderType(getSailColor(sailColor)));
         MODEL.renderToBuffer(matrixStackIn, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
         matrixStackIn.popPose();
-
     }
 
     private static final ResourceLocation WHITE =      (new ResourceLocation(Main.MOD_ID,"textures/entity/sail/white_sail.png"));

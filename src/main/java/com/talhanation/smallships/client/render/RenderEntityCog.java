@@ -101,6 +101,10 @@ public class RenderEntityCog extends EntityRenderer<CogEntity>{
         //render Sail Color
         entityIn.renderSailColor(matrixStackIn,bufferIn,packedLightIn,partialTicks);
 
+        //render Cannon
+        entityIn.renderCannon(matrixStackIn,bufferIn,packedLightIn,partialTicks);
+
+
         matrixStackIn.popPose();
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
     }
