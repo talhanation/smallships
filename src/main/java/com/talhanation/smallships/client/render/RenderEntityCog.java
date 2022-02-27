@@ -104,7 +104,6 @@ public class RenderEntityCog extends EntityRenderer<CogEntity>{
         //render Cannon
         entityIn.renderCannon(matrixStackIn,bufferIn,packedLightIn,partialTicks);
 
-
         matrixStackIn.popPose();
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
     }

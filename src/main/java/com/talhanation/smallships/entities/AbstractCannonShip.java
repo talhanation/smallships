@@ -3,12 +3,9 @@ package com.talhanation.smallships.entities;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.render.RenderCannon;
-import com.talhanation.smallships.client.render.RenderSailColor;
 import com.talhanation.smallships.entities.projectile.CannonBallEntity;
-import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.network.MessageShootCannon;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.tileentity.BannerTileEntityRenderer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -17,7 +14,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
@@ -54,7 +50,10 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         if (this.getShootCoolDown() >= 0) {
             this.setShootCoolDown(getShootCoolDown() - 1);
         }
-        //if (this.getDriver() != null) this.getDriver().sendMessage(new StringTextComponent("Look Vec .y = " + getDriver().getLookAngle().y), this.getDriver().getUUID());
+        if (this.getDriver() != null) {
+
+            //this.getDriver().sendMessage(new StringTextComponent("Look Vec .x = " + getDriver().getLookAngle().dot()), this.getDriver().getUUID());
+        }
     }
 
     ////////////////////////////////////SAVE////////////////////////////////////
@@ -208,7 +207,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
     public void shootCannons(boolean s) {
         if (this.getShootCoolDown() <= 0) {
-            this.setShootCoolDown(30);
+            this.setShootCoolDown(60);
             Vector3d shootVector = this.getShootVector();
             Vector3d forward = this.getForward();
 
@@ -228,15 +227,19 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
             if (getRightCannon()) {
                 x0 = -1F; //rechst //links
             }
-            int cannonCount = getLeftCannon()? getLeftCannonCount(): getRightCannonCount();
-
-            //for(int i = 0; i < cannonCount; i++){
-                //float f2 = (0.2F * -i);
-            shootCannon(forward, shootVector, yShootVec, speed, (float) 0.2, k, x0);
-            //shootCannon(forward, shootVector, yShootVec, speed, (float) -2.4, k, x0);
-            //shootCannon(forward, shootVector, yShootVec, speed, (float) -4.8, k, x0);
-
-            //}
+            int cannonCount = getLeftCannon() ? getLeftCannonCount(): getRightCannonCount();
+            float f2 = 0;
+            for(int i = 0; i < cannonCount; i++){
+                switch (i){
+                    case 0: f2 = 0.2F;
+                    break;
+                    case 1: f2 = -1.4F;
+                    break;
+                    case 2: f2 = -3.8F;
+                    break;
+                }
+            shootCannon(forward, shootVector, yShootVec, speed, f2, k, x0);
+            }
         }
     }
 
@@ -256,15 +259,43 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
     }
 
-
-    ////////////////////////////////////PARTICLE FUNCTIONS////////////////////////////////////
-
-
-
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
     public void renderCannon(MatrixStack matrixStack, IRenderTypeBuffer buffer , int packedLight, float partialTicks) {
-        RenderCannon.renderCannon(this, partialTicks, matrixStack, buffer,  packedLight);
+        if (getLeftCannonCount() != 0) {
+            for (int i = 0; i < getLeftCannonCount(); i++) {
+                double offset = 0;
+                switch (i) {
+                    case 0:
+                        offset = 1;
+                        break;
+                    case 1:
+                        offset = -0.2;
+                        break;
+                    case 2:
+                        offset = -1.5;
+                        break;
+                }
+                RenderCannon.renderCannon(offset, 0,this, partialTicks, matrixStack, buffer, packedLight);
+            }
+        }
+        if (getRightCannonCount() != 0) {
+            for (int i = 0; i < getRightCannonCount(); i++) {
+                double offset = 0;
+                switch (i) {
+                    case 0:
+                        offset = -1;
+                        break;
+                    case 1:
+                        offset = 0.2;
+                        break;
+                    case 2:
+                        offset = 1.5;
+                        break;
+                }
+                RenderCannon.renderCannon(offset,180, this, partialTicks, matrixStack, buffer, packedLight);
+            }
+        }
     }
 
 
