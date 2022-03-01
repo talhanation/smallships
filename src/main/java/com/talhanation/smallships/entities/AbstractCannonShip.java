@@ -18,6 +18,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 public abstract class AbstractCannonShip extends AbstractShipDamage{
@@ -52,7 +53,10 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         }
         if (this.getDriver() != null) {
 
-            //this.getDriver().sendMessage(new StringTextComponent("Look Vec .x = " + getDriver().getLookAngle().dot()), this.getDriver().getUUID());
+          //  Vector3d forward = this.getForward().normalize();
+          //  Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
+          //  Vector3d playerVec = this.getDriver().getLookAngle().normalize();
+          //  this.getDriver().sendMessage(new StringTextComponent("Distance to VecLeft Vec = " + playerVec.distanceTo(VecLeft)), this.getDriver().getUUID());
         }
     }
 
@@ -152,56 +156,20 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public Vector3d getShootVector(){
-        Vector3d forward = this.getForward();
-        Vector3d VecRight = forward.yRot(-3.14F/2);
-        Vector3d VecLeft  = forward.yRot(3.14F/2);
+        Vector3d forward = this.getForward().normalize();
+        Vector3d VecRight = forward.yRot(-3.14F/2).normalize();
+        Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
 
-        Direction shipDirection = this.getDirection();
-        Direction playerDirection = this.getDriver().getDirection();
 
-        switch (shipDirection){
-            case NORTH:
-                if (playerDirection == Direction.EAST) {
-                    setCannonSide(false, true);
-                    return VecRight;
-                }
-                if (playerDirection == Direction.WEST){
-                    setCannonSide(true, false);
-                    return VecLeft;
-                }
-                break;
-            case SOUTH:
-                if (playerDirection == Direction.EAST) {
-                    setCannonSide(true, false);
-                    return VecLeft;
-                }
-                if (playerDirection == Direction.WEST){
-                    setCannonSide(false, true);
-                    return VecRight;
-                }
-                break;
-            case EAST:
-                if (playerDirection == Direction.NORTH) {
-                    setCannonSide(true, false);
-                    return VecLeft;
-                }
-                if (playerDirection == Direction.SOUTH){
-                    setCannonSide(false, true);
-                    return VecRight;
-                }
-                break;
-            case WEST:
-                if (playerDirection == Direction.NORTH) {
-                    setCannonSide(false, true);
-                    return VecRight;
-                }
-                if (playerDirection == Direction.SOUTH){
-                    setCannonSide(true, false);
-                    return VecLeft;
-                }
-                break;
+        Vector3d playerVec = this.getDriver().getLookAngle().normalize();
+
+        if (playerVec.distanceTo(VecLeft) > playerVec.distanceTo(VecRight)) {
+            return VecRight;
         }
-        setCannonSide(false,false);
+
+        if (playerVec.distanceTo(VecLeft) < playerVec.distanceTo(VecRight)) {
+            return VecLeft;
+        }
         return null;
     }
 
@@ -222,7 +190,6 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
             }
             if (getLeftCannon()) {
                 x0 = 1F; //rechst //links
-
             }
             if (getRightCannon()) {
                 x0 = -1F; //rechst //links
