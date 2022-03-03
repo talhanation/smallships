@@ -14,11 +14,9 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.Direction;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 public abstract class AbstractCannonShip extends AbstractShipDamage{
@@ -26,7 +24,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     private static final DataParameter<Integer> LEFT_CANNON_COUNT = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
     private static final DataParameter<Boolean> LEFT_CANNON = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> RIGHT_CANNON = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Integer> SHOOT_COOLDOWN = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
+    private static final DataParameter<Integer> LEFT_SHOOT_COOLDOWN = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
+    private static final DataParameter<Integer> RIGHT_SHOOT_COOLDOWN = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
 
     public AbstractCannonShip(EntityType<? extends AbstractCannonShip> type, World world) {
         super(type, world);
@@ -40,7 +39,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         this.entityData.define(LEFT_CANNON_COUNT, 2);
         this.entityData.define(RIGHT_CANNON, false);
         this.entityData.define(LEFT_CANNON, false);
-        this.entityData.define(SHOOT_COOLDOWN, 30);
+        this.entityData.define(LEFT_SHOOT_COOLDOWN, 30);
+        this.entityData.define(RIGHT_SHOOT_COOLDOWN, 30);
     }
 
     ////////////////////////////////////TICK////////////////////////////////////
@@ -48,15 +48,24 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     @Override
     public void tick() {
         super.tick();
-        if (this.getShootCoolDown() >= 0) {
-            this.setShootCoolDown(getShootCoolDown() - 1);
-        }
+        updateCountdown();
+
         if (this.getDriver() != null) {
 
           //  Vector3d forward = this.getForward().normalize();
           //  Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
           //  Vector3d playerVec = this.getDriver().getLookAngle().normalize();
           //  this.getDriver().sendMessage(new StringTextComponent("Distance to VecLeft Vec = " + playerVec.distanceTo(VecLeft)), this.getDriver().getUUID());
+        }
+    }
+
+    private void updateCountdown() {
+        if (this.getRightShootCoolDown() >= 0) {
+            this.setRightShootCoolDown(getRightShootCoolDown() - 1);
+        }
+
+        if (this.getLeftShootCoolDown() >= 0) {
+            this.setLeftShootCoolDown(getLeftShootCoolDown() - 1);
         }
     }
 
@@ -67,7 +76,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         super.addAdditionalSaveData(nbt);
         nbt.putInt("RightCannonCount", getRightCannonCount());
         nbt.putInt("LeftCannonCount", getLeftCannonCount());
-        nbt.putInt("ShootCoolDown", getShootCoolDown());
+        nbt.putInt("LeftShootCoolDown", getLeftShootCoolDown());
+        nbt.putInt("RightShootCoolDown", getRightShootCoolDown());
     }
 
     @Override
@@ -75,13 +85,18 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         super.readAdditionalSaveData(nbt);
         setRightCannonCount(nbt.getInt("RightCannonCount"));
         setLeftCannonCount(nbt.getInt("LeftCannonCount"));
-        setShootCoolDown(nbt.getInt("ShootCoolDown"));
+        setRightShootCoolDown(nbt.getInt("RightShootCoolDown"));
+        setLeftShootCoolDown(nbt.getInt("LeftShootCoolDown"));
     }
 
     ////////////////////////////////////GET////////////////////////////////////
 
-    public int getShootCoolDown(){
-        return this.entityData.get(SHOOT_COOLDOWN);
+    public int getRightShootCoolDown(){
+        return this.entityData.get(RIGHT_SHOOT_COOLDOWN);
+    }
+
+    public int getLeftShootCoolDown(){
+        return this.entityData.get(LEFT_SHOOT_COOLDOWN);
     }
 
     public int getRightCannonCount(){
@@ -133,25 +148,25 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         entityData.set(RIGHT_CANNON_COUNT, count);
     }
 
+
     public void setLeftCannonCount(int count){
         entityData.set(LEFT_CANNON_COUNT, count);
     }
 
-    public void setCannonSide(boolean left, boolean right){
-        this.entityData.set(LEFT_CANNON, left);
-        this.entityData.set(RIGHT_CANNON, right);
+    public void setRightShootCoolDown(int i){
+        this.entityData.set(RIGHT_SHOOT_COOLDOWN, i);
     }
 
-    public void setShootCoolDown(int i){
-        this.entityData.set(SHOOT_COOLDOWN, i);
+    public void setLeftShootCoolDown(int i){
+        this.entityData.set(LEFT_SHOOT_COOLDOWN, i);
     }
+
 
     ////////////////////////////////////ON FUNCTIONS////////////////////////////////////
 
     public void onCannonKeyPressed(){
-        //if (this.getShootCoolDown() <= 0 && canShoot()) {
-            if (this.getShootCoolDown() <= 0) {
-                Main.SIMPLE_CHANNEL.sendToServer(new MessageShootCannon(true));
+        if (this.getLeftShootCoolDown() <= 0 || this.getRightShootCoolDown() <= 0) {
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageShootCannon(true));
         }
     }
 
@@ -173,11 +188,28 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         return null;
     }
 
-    public void shootCannons(boolean s) {
-        if (this.getShootCoolDown() <= 0) {
-            this.setShootCoolDown(60);
-            Vector3d shootVector = this.getShootVector();
-            Vector3d forward = this.getForward();
+    public void shootCannons(boolean a) {
+        Vector3d shootVector = this.getShootVector();
+        Vector3d forward = this.getForward();
+        Vector3d VecRight = forward.yRot(-3.14F/2).normalize();
+        Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
+        boolean shoot = false;
+
+        if (shootVector == null) {
+            return;
+        }
+
+        if (shootVector.distanceTo(VecLeft) > shootVector.distanceTo(VecRight) && this.getRightShootCoolDown() <= 0) {
+            this.setRightShootCoolDown(60);
+            shoot = true;
+        }
+
+        if (shootVector.distanceTo(VecLeft) < shootVector.distanceTo(VecRight) && this.getLeftShootCoolDown() <= 0) {
+            this.setLeftShootCoolDown(60);
+            shoot = true;
+        }
+
+        if (shoot){
 
             float speed = 2.5F;
             float k = 2F;
@@ -185,9 +217,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
             boolean playerView= getDriver().getLookAngle().y >= 0;
             double yShootVec = playerView ? shootVector.y() + getDriver().getLookAngle().y * 0.75F : shootVector.y() + 0.25F;
 
-            if (shootVector == null) {
-                return;
-            }
+
             if (getLeftCannon()) {
                 x0 = 1F; //rechst //links
             }
