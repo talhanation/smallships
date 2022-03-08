@@ -3,6 +3,7 @@ package com.talhanation.smallships.entities;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.entities.projectile.CannonBallEntity;
 import com.talhanation.smallships.init.ModEntityTypes;
+import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageOpenGui;
 import net.minecraft.entity.Entity;
@@ -148,6 +149,10 @@ public class CogEntity extends AbstractCannonShip{
         return 6;
     }
 
+    public int getMaxCannons(){//max cannons
+        return 4;
+    }
+
     ////////////////////////////////////SET////////////////////////////////////
 
     public void setCargo(int cargo){
@@ -160,36 +165,11 @@ public class CogEntity extends AbstractCannonShip{
     public ActionResultType interact(PlayerEntity player, Hand hand) {
 
         ItemStack itemInHand = player.getItemInHand(hand);
-/*
-        if (itemInHand.getItem().equals(Items.LANTERN) && getMaxLanternCount() != getLanternCount()){
-            onInteractionWithLantern(player, itemInHand);
+
+        if (itemInHand.getItem() == ModItems.CANNON_ITEM.get()){
+            this.onInteractionWithCannon(player, itemInHand);
             return ActionResultType.SUCCESS;
         }
-*/
-        /*
-        if (itemInHand.getItem() == Items.FLINT_AND_STEEL){
-
-            Vector3d forward = player.getViewVector(1);
-            float x0 = 0; // /-/rechst /+/links //no need
-            float yOffset = 2;// /+/hoch
-            float offset = -2;// /-/vorne /+/zurück
-
-            float f0 = MathHelper.cos(this.yRot * ((float)Math.PI / 180F)) * x0;
-            float f1 = MathHelper.sin(this.yRot * ((float)Math.PI / 180F)) * x0;
-            float f2 = offset;
-
-            double d1 = this.getX() - forward.x * (double) f2 + (double) f0;
-            double d2 = this.getY() - forward.y + yOffset;
-            double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
-
-            //LlamaSpitEntity cannonBallEntity = new LlamaSpitEntity(this.level, d1, d2, d3, d1, d2, d3);
-            FireballEntity cannonBallEntity = new FireballEntity(this.level, d1, d2, d3, d1, d2, d3);
-            //CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, player, d1, d2, d3);
-            cannonBallEntity.shoot(d1, d2, d3, 1, 2);
-            level.addFreshEntity(cannonBallEntity);
-            return ActionResultType.SUCCESS;
-        }
-        */
 
         if (itemInHand.getItem() instanceof DyeItem){
             this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);

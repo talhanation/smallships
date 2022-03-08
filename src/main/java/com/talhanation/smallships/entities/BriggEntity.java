@@ -147,6 +147,10 @@ public class BriggEntity extends AbstractCannonShip{
         return 10;
     }
 
+    @Override
+    public int getMaxCannons() {
+        return 8;
+    }
 
     ////////////////////////////////////SET////////////////////////////////////
 

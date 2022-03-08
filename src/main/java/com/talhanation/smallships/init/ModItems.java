@@ -14,9 +14,10 @@ public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Main.MOD_ID);
     //public static final RegistryObject<Item> SHIP_ITEM = ITEMS.register("ship_item", ShipItem::new);
     public static final RegistryObject<Item> SAIL_ITEM = ITEMS.register("sail_item", () -> new Item((new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION))));
-    //public static final RegistryObject<Item> CANNON_ITEM = ITEMS.register("cannon_item", () -> new Item((new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION))));
+    public static final RegistryObject<Item> CANNON_ITEM = ITEMS.register("cannon_item", () -> new Item((new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION))));
+    public static final RegistryObject<Item> CANNONBALL = ITEMS.register("cannonball", () -> new Item((new Item.Properties().stacksTo(16).tab(ItemGroup.TAB_TRANSPORTATION))));
 
-/*
+    /*
     public static final RegistryObject<Item> OAK_ROWBOAT_ITEM =         createRowBoat("oak", AbstractRowBoatEntity.Type.OAK, true);
     public static final RegistryObject<Item> SPRUCE_ROWBOAT_ITEM =      createRowBoat("spruce", AbstractRowBoatEntity.Type.SPRUCE, true);
     public static final RegistryObject<Item> BIRCH_ROWBOAT_ITEM =       createRowBoat("birch", AbstractRowBoatEntity.Type.BIRCH, true);

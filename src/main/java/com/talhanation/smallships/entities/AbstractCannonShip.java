@@ -4,9 +4,11 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.render.RenderCannon;
 import com.talhanation.smallships.entities.projectile.CannonBallEntity;
+import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.network.MessageShootCannon;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -17,6 +19,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 public abstract class AbstractCannonShip extends AbstractShipDamage{
@@ -35,8 +38,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(RIGHT_CANNON_COUNT, 2);
-        this.entityData.define(LEFT_CANNON_COUNT, 2);
+        this.entityData.define(RIGHT_CANNON_COUNT, 0);
+        this.entityData.define(LEFT_CANNON_COUNT, 0);
         this.entityData.define(RIGHT_CANNON, false);
         this.entityData.define(LEFT_CANNON, false);
         this.entityData.define(LEFT_SHOOT_COOLDOWN, 30);
@@ -91,6 +94,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
     ////////////////////////////////////GET////////////////////////////////////
 
+    public abstract int getMaxCannons();
+
     public int getRightShootCoolDown(){
         return this.entityData.get(RIGHT_SHOOT_COOLDOWN);
     }
@@ -100,7 +105,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public int getRightCannonCount(){
-        return entityData.get(LEFT_CANNON_COUNT);
+        return entityData.get(RIGHT_CANNON_COUNT);
     }
 
     public int getLeftCannonCount(){
@@ -134,10 +139,9 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         Inventory inventory = this.getInventory();
         for(int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStack = inventory.getItem(i);
-            if (itemStack.getItem() == Items.IRON_BLOCK){
+            if (itemStack.getItem() == ModItems.CANNONBALL.get()){
                 return true;
             }
-
         }
         return false;
     }
@@ -147,7 +151,6 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     public void setRightCannonCount(int count){
         entityData.set(RIGHT_CANNON_COUNT, count);
     }
-
 
     public void setLeftCannonCount(int count){
         entityData.set(LEFT_CANNON_COUNT, count);
@@ -194,6 +197,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         Vector3d VecRight = forward.yRot(-3.14F/2).normalize();
         Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
         boolean shoot = false;
+        float x0 = 0;
+        int cannonCount = 0;
 
         if (shootVector == null) {
             return;
@@ -201,11 +206,15 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
         if (shootVector.distanceTo(VecLeft) > shootVector.distanceTo(VecRight) && this.getRightShootCoolDown() <= 0) {
             this.setRightShootCoolDown(60);
+            x0 = -1F; //rechst //links
+            cannonCount = getRightCannonCount();
             shoot = true;
         }
 
         if (shootVector.distanceTo(VecLeft) < shootVector.distanceTo(VecRight) && this.getLeftShootCoolDown() <= 0) {
             this.setLeftShootCoolDown(60);
+            x0 = 1F; //rechst //links
+            cannonCount = getLeftCannonCount();
             shoot = true;
         }
 
@@ -213,19 +222,13 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
             float speed = 2.5F;
             float k = 2F;
-            float x0 = 0;
+
             boolean playerView= getDriver().getLookAngle().y >= 0;
             double yShootVec = playerView ? shootVector.y() + getDriver().getLookAngle().y * 0.75F : shootVector.y() + 0.25F;
 
-
-            if (getLeftCannon()) {
-                x0 = 1F; //rechst //links
-            }
-            if (getRightCannon()) {
-                x0 = -1F; //rechst //links
-            }
-            int cannonCount = getLeftCannon() ? getLeftCannonCount(): getRightCannonCount();
+;
             float f2 = 0;
+            this.getDriver().sendMessage(new StringTextComponent("cannons: " + cannonCount), getDriver().getUUID());
             for(int i = 0; i < cannonCount; i++){
                 switch (i){
                     case 0: f2 = 0.2F;
@@ -235,7 +238,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
                     case 2: f2 = -3.8F;
                     break;
                 }
-            shootCannon(forward, shootVector, yShootVec, speed, f2, k, x0);
+            //if (canShoot())
+                shootCannon(forward, shootVector, yShootVec, speed, f2, k, x0);
             }
         }
     }
@@ -251,12 +255,30 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, this.getDriver(), d1, d2, d3);
         cannonBallEntity.shoot(shootVector.x() ,yShootVec , shootVector.z(), speed, k);
         this.level.addFreshEntity(cannonBallEntity);
-
         this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
 
+        //decrease items
+        handleItemsOnShoot();
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
+
+    public void handleItemsOnShoot(){
+        Inventory inventory = this.getInventory();
+        for(int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getItem() == Items.GUNPOWDER) {
+                itemStack.shrink(1);
+            }
+        }
+
+        for(int i = 0; i < inventory.getContainerSize(); i++){
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getItem() == Items.IRON_BLOCK){
+                itemStack.shrink(1);
+            }
+        }
+    }
 
     public void renderCannon(MatrixStack matrixStack, IRenderTypeBuffer buffer , int packedLight, float partialTicks) {
         if (getLeftCannonCount() != 0) {
@@ -295,5 +317,17 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         }
     }
 
+    public void onInteractionWithCannon(PlayerEntity player, ItemStack itemStack) {
+        if (getRightCannonCount() + getLeftCannonCount() != getMaxCannons()) {
+            if (getRightCannonCount() == getLeftCannonCount()) {
+                setRightCannonCount(getRightCannonCount() + 1);
+            } else
+                setLeftCannonCount(getLeftCannonCount() + 1);
+
+            if (!player.isCreative()) {
+                itemStack.shrink(1);
+            }
+        }
+    }
 
 }
