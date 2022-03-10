@@ -21,6 +21,9 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> CANNON_SHOOT = SOUNDS.register("ship_cannon_shoot",
             () -> new SoundEvent(new ResourceLocation(Main.MOD_ID,"ship_cannon_shoot")));
 
+    public static final RegistryObject<SoundEvent> SHIP_CANNON_DAMAGE = SOUNDS.register("ship_cannon_damage",
+            () -> new SoundEvent(new ResourceLocation(Main.MOD_ID,"ship_cannon_damage")));
+
 /*
     public static final RegistryObject<SoundEvent> SHIP_AMBIENT = SOUNDS.register("shipambient",
             () -> new SoundEvent(new ResourceLocation(Main.MOD_ID,"shipambient")));

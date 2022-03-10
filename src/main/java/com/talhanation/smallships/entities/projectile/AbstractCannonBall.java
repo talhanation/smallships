@@ -2,6 +2,7 @@ package com.talhanation.smallships.entities.projectile;
 
 
 import com.talhanation.smallships.entities.AbstractShipDamage;
+import com.talhanation.smallships.init.SoundInit;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -113,7 +114,8 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
 
             if (hit instanceof AbstractShipDamage) {
                 AbstractShipDamage shipDamage = (AbstractShipDamage) hit;
-                shipDamage.damageShip(12);
+                shipDamage.damageShip(random.nextInt(7) + 7);
+                this.level.playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundInit.SHIP_CANNON_DAMAGE.get(), this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
             }
         }
     }

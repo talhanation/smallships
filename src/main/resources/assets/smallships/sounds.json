@@ -19,12 +19,30 @@
       }
     ]
   },
-  "ship_cannon_shot":{
+  "ship_cannon_shoot":{
     "category": "entity",
     "subtitle": "Cannon shoots",
     "sounds": [
       {
-        "name": "smallships:entity/ship_cannon_shot",
+        "name": "smallships:entity/ship_cannon_shoot",
+        "stream":true
+      }
+    ]
+  },
+  "ship_cannon_damage":{
+    "category": "entity",
+    "subtitle": "Cannon shoots",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship_cannon_dmg_1",
+        "stream":true
+      },
+      {
+        "name": "smallships:entity/ship_cannon_dmg_2",
+        "stream":true
+      },
+      {
+        "name": "smallships:entity/ship_cannon_dmg_3",
         "stream":true
       }
     ]

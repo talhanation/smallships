@@ -1,6 +1,7 @@
 package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.DamageSourceShip;
+import com.talhanation.smallships.init.SoundInit;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -9,8 +10,10 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
@@ -111,7 +114,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         }
         if (getShipDamage() >= 100) destroyShip(source);
         if (amount >= 2) damageShip(amount);
-        return false;
+         return false;
     }
 
     public abstract ResourceLocation getLootTable();
@@ -123,6 +126,20 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
     public void sinkShip() {
         this.setDeltaMovement(0, -0.2D,0);
+
+
+        //particels
+        if (this.level.isClientSide) {
+            for (int i = 0; i < 300; ++i) {
+                double d0 = this.random.nextGaussian() * 0.04D;
+                double d1 = this.random.nextGaussian() * 0.02D;
+                double d2 = this.random.nextGaussian() * 0.04D;
+                double d3 = 45.0D;
+                this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+                this.level.addParticle(ParticleTypes.BUBBLE, this.getX(2.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+
+            }
+        }
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////

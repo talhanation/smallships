@@ -5,6 +5,7 @@ import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.render.RenderCannon;
 import com.talhanation.smallships.entities.projectile.CannonBallEntity;
 import com.talhanation.smallships.init.ModItems;
+import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.network.MessageShootCannon;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.EntityType;
@@ -45,7 +46,6 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         this.entityData.define(LEFT_SHOOT_COOLDOWN, 30);
         this.entityData.define(RIGHT_SHOOT_COOLDOWN, 30);
     }
-
     ////////////////////////////////////TICK////////////////////////////////////
 
     @Override
@@ -58,7 +58,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
           //  Vector3d forward = this.getForward().normalize();
           //  Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
           //  Vector3d playerVec = this.getDriver().getLookAngle().normalize();
-          //  this.getDriver().sendMessage(new StringTextComponent("Distance to VecLeft Vec = " + playerVec.distanceTo(VecLeft)), this.getDriver().getUUID());
+            //this.getDriver().sendMessage(new StringTextComponent("Timer: "), this.getDriver().getUUID());
         }
     }
 
@@ -191,6 +191,9 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         return null;
     }
 
+    public void startCannons(boolean a) {
+        this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.TNT_PRIMED, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+
     public void shootCannons(boolean a) {
         Vector3d shootVector = this.getShootVector();
         Vector3d forward = this.getForward();
@@ -255,7 +258,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, this.getDriver(), d1, d2, d3);
         cannonBallEntity.shoot(shootVector.x() ,yShootVec , shootVector.z(), speed, k);
         this.level.addFreshEntity(cannonBallEntity);
-        this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+        this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundInit.CANNON_SHOOT.get(), this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
 
         //decrease items
         handleItemsOnShoot();
@@ -329,5 +332,4 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
             }
         }
     }
-
 }
