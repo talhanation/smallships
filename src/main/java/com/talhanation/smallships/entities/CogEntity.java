@@ -32,6 +32,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+import javax.swing.*;
 
 public class CogEntity extends AbstractCannonShip{
 
@@ -180,11 +181,15 @@ public class CogEntity extends AbstractCannonShip{
             this.onInteractionWithBanner(itemInHand,player);
             return ActionResultType.SUCCESS;
         }
-/*
-        if (itemInHand.getItem() instanceof PickaxeItem){
-            return this.onInteractionWithAxeItem(player)  ? ActionResultType.SUCCESS : ActionResultType.PASS;
+
+        if (itemInHand.getItem() instanceof AxeItem){
+            if (hasPlanks(player.inventory) && hasIronNugget(player.inventory) && getShipDamage() > 16.0D) {
+                this.onInteractionWitAxe(player);
+                return ActionResultType.SUCCESS;
+            }
+            else return ActionResultType.FAIL;
         }
-*/
+
 //&& this.getShipDamage() > 0
         else if (itemInHand.getItem() instanceof ShearsItem){
             if (this.getHasBanner()){

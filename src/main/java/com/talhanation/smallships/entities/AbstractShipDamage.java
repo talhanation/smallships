@@ -1,11 +1,17 @@
 package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.DamageSourceShip;
+import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.init.SoundInit;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -14,6 +20,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
@@ -137,7 +144,6 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
                 double d3 = 45.0D;
                 this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
                 this.level.addParticle(ParticleTypes.BUBBLE, this.getX(2.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
-
             }
         }
     }
@@ -163,4 +169,55 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         return super.canCollideWith(entity);
     }
 
+
+    public void onInteractionWitAxe(PlayerEntity player){
+        PlayerInventory playerInventory = player.inventory;
+        int healBonus = this.random.nextInt(7) + 5;
+
+        this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.WOOD_PLACE, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+
+
+        setShipDamage(this.getShipDamage() - healBonus);
+        handleItemsOnRepair(playerInventory);
+    }
+    
+    public boolean hasPlanks(PlayerInventory inventory){
+
+        for(int i = 0; i < inventory.getContainerSize(); i++){
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getItem() == Items.OAK_PLANKS || itemStack.getItem() == Items.SPRUCE_PLANKS){
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasIronNugget(PlayerInventory inventory){
+
+        for(int i = 0; i < inventory.getContainerSize(); i++){
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getItem() == Items.IRON_NUGGET){
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void handleItemsOnRepair(PlayerInventory inventory){
+        for(int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getItem() == Items.IRON_NUGGET) {
+                itemStack.shrink(1);
+            }
+        }
+
+        for(int i = 0; i < inventory.getContainerSize(); i++){
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getItem() == Items.OAK_PLANKS || itemStack.getItem() == Items.SPRUCE_PLANKS){
+                itemStack.shrink(1);
+            }
+        }
+    }
 }

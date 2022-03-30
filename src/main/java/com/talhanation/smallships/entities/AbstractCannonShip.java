@@ -193,10 +193,13 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
     public void startCannons(boolean a) {
         this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.TNT_PRIMED, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+        shootCannons();
+    }
 
-    public void shootCannons(boolean a) {
+    public void shootCannons() {
         Vector3d shootVector = this.getShootVector();
         Vector3d forward = this.getForward();
+
         Vector3d VecRight = forward.yRot(-3.14F/2).normalize();
         Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
         boolean shoot = false;
@@ -241,7 +244,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
                     case 2: f2 = -3.8F;
                     break;
                 }
-            //if (canShoot())
+            if (canShoot())
                 shootCannon(forward, shootVector, yShootVec, speed, f2, k, x0);
             }
         }
