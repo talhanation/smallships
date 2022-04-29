@@ -234,7 +234,6 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
 ;
             float f2 = 0;
-            this.getDriver().sendMessage(new StringTextComponent("cannons: " + cannonCount), getDriver().getUUID());
             for(int i = 0; i < cannonCount; i++){
                 switch (i){
                     case 0: f2 = 0.2F;
@@ -280,7 +279,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
         for(int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStack = inventory.getItem(i);
-            if (itemStack.getItem() == Items.IRON_BLOCK){
+            if (itemStack.getItem() == ModItems.CANNONBALL.get()){
                 itemStack.shrink(1);
             }
         }

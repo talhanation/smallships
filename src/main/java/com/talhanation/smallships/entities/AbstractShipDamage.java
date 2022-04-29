@@ -185,7 +185,13 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
         for(int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStack = inventory.getItem(i);
-            if (itemStack.getItem() == Items.OAK_PLANKS || itemStack.getItem() == Items.SPRUCE_PLANKS){
+
+            if (itemStack.getItem() == Items.OAK_PLANKS ||
+                    itemStack.getItem() == Items.SPRUCE_PLANKS ||
+                    itemStack.getItem() == Items.ACACIA_PLANKS ||
+                    itemStack.getItem() == Items.DARK_OAK_PLANKS ||
+                    itemStack.getItem() == Items.BIRCH_PLANKS ||
+                    itemStack.getItem() == Items.JUNGLE_PLANKS){
 
                 return true;
             }
@@ -215,7 +221,12 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
         for(int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStack = inventory.getItem(i);
-            if (itemStack.getItem() == Items.OAK_PLANKS || itemStack.getItem() == Items.SPRUCE_PLANKS){
+            if (itemStack.getItem() == Items.OAK_PLANKS ||
+                    itemStack.getItem() == Items.SPRUCE_PLANKS ||
+                    itemStack.getItem() == Items.ACACIA_PLANKS ||
+                    itemStack.getItem() == Items.DARK_OAK_PLANKS ||
+                    itemStack.getItem() == Items.BIRCH_PLANKS ||
+                    itemStack.getItem() == Items.JUNGLE_PLANKS){
                 itemStack.shrink(1);
             }
         }
