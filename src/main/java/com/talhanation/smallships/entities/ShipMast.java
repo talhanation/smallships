@@ -16,20 +16,17 @@ public class ShipMast extends AbstractShipPart{
         super(type, world);
     }
 
-    public ShipMast(AbstractShipDamage sailShip, float offset, float yOffset, double height, double width) {
+    public ShipMast(AbstractShipDamage sailShip, float offset, float yOffset) {
         this(ModEntityTypes.SHIP_MAST.get(), sailShip.level);
         this.sailShip = sailShip;
         this.offset = offset;
         this.yOffset =yOffset;
-        this.height = height;
-        this.width = width;
         this.setDeltaMovement(Vector3d.ZERO);
-        recalculateBoundingBox();
+        //recalculateBoundingBox();
         updatePosition();
         this.xo = getX();
         this.yo = getY();
         this.zo = getZ();
-
     }
 
 

@@ -39,7 +39,7 @@ public class ModEntityTypes {
 
     public static final RegistryObject<EntityType<ShipMast>> SHIP_MAST = ENTITY_TYPES.register("ship_mast",
             () -> EntityType.Builder.<ShipMast>of(ShipMast::new, EntityClassification.MISC)
-                    //.sized(0.5F, 7.00F)
+                    .sized(0.5F, 6.00F)
                     .clientTrackingRange(20)
                     .setUpdateInterval(10)
                     .setShouldReceiveVelocityUpdates(true)

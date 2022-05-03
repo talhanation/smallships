@@ -28,12 +28,17 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
@@ -43,14 +48,17 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     private float prevWaveAngle;
     public boolean collidedLastTick;
 
+
     private static final DataParameter<Float> SPEED = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.FLOAT);
     private static final DataParameter<Float> ROT_SPEED = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.FLOAT);
     private static final DataParameter<Boolean> FORWARD = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Boolean> BLOCKED = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> BACKWARD = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> LEFT = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> RIGHT = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Integer> SAIL_STATE = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.INT);
     private static final DataParameter<String>  SAIL_COLOR = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.STRING);
+    private static final DataParameter<Direction>  BLOCKED_DIRECTION = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.DIRECTION);
 
     private static final DataParameter<Integer> TYPE = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.INT);
     private static final DataParameter<Boolean> LEFT_PADDLE = EntityDataManager.defineId(AbstractSailShip.class, DataSerializers.BOOLEAN);
@@ -63,8 +71,10 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
     @Override
     protected void defineSynchedData() {
+        entityData.define(BLOCKED_DIRECTION, Direction.NORTH);
         entityData.define(SPEED, 0F);
         entityData.define(ROT_SPEED, 0F);
+        entityData.define(BLOCKED, false);
         entityData.define(FORWARD, false);
         entityData.define(BACKWARD, false);
         entityData.define(LEFT, false);
@@ -222,12 +232,25 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return b;
     }
 
+    public boolean isBlocked() {
+        return entityData.get(BLOCKED);
+    }
+
+    private Direction getBlockedDirection() {
+        return entityData.get(BLOCKED_DIRECTION);
+    }
+
+
     @OnlyIn(Dist.CLIENT)
     public float getRowingTime(int side, float limbSwing) {
         return this.getPaddleState(side) ? (float) MathHelper.clampedLerp((double) this.paddlePositions[side] - (double) ((float) Math.PI / 8F), (double) this.paddlePositions[side], (double) limbSwing) : 0.0F;
     }
 
     ////////////////////////////////////SET////////////////////////////////////
+
+    public void setBlockedDirection(Direction direction){
+        entityData.set(BLOCKED_DIRECTION, direction);
+    }
 
     public void setSailColor(String color) {
         entityData.set(SAIL_COLOR, color);
@@ -272,6 +295,15 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public void setWoodType(AbstractSailShip.Type type) {
         this.entityData.set(TYPE, type.ordinal());
     }
+
+    public void setBlocked(boolean blocked) {
+        if((blocked != isBlocked())){
+            //this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_EXPLODE, SoundCategory.BLOCKS, 0.75F, 0.8F);
+
+        };
+        this.entityData.set(BLOCKED, blocked);
+    }
+
 
     ////////////////////////////////////SERVER////////////////////////////////////
 
@@ -325,6 +357,11 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         int sailstate = getSailState();
         float modifier = getBiomeModifier();
 
+        float blockedmodf = 1;
+
+        if (isBlocked() && this.getDirection() == this.getBlockedDirection())
+            blockedmodf = 0.00001F;
+
         float maxSp = getMaxSpeed() * modifier;
         float maxBackSp = getMaxReverseSpeed() * modifier;
         float maxRotSp = getMaxRotationSpeed() * modifier;
@@ -334,18 +371,23 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         if (sailstate != 0) {
             switch (sailstate) {
                 case 1:
+                    maxSp *= 4/16F;
                     if (speed <= maxSp)
                         speed = Math.min(speed + getAcceleration() * 1 / 8, maxSp);
                     break;
                 case 2:
+                    maxSp *= 8/16F;
                     if (speed <= maxSp)
                         speed = Math.min(speed + getAcceleration() * 3 / 8, maxSp);
                     break;
+
                 case 3:
+                    maxSp *= 12/16F;
                     if (speed <= maxSp)
                         speed = Math.min(speed + getAcceleration() * 5 / 8, maxSp);
                     break;
                 case 4:
+                    maxSp *= 1F;
                     if (speed <= maxSp) {
                         speed = Math.min(speed + getAcceleration(), maxSp);
                     }
@@ -365,7 +407,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             }
         }
 
-        setSpeed(speed);
+        setSpeed(speed * blockedmodf);
 
 
         float rotationSpeed = MathUtils.subtractToZero(getRotSpeed(), getRollResistance() * 2);
@@ -382,23 +424,15 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
                 rotationSpeed = Math.max(rotationSpeed - getRotationAcceleration() * 1 / 8, -maxRotSp);
             }
         }
+
         setRotSpeed(rotationSpeed);
 
         deltaRotation = rotationSpeed;
 
         yRot += deltaRotation;
 
-        if (horizontalCollision) {
-            if (level.isClientSide && !collidedLastTick) {
-                onCollision();
-                collidedLastTick = true;
-            }
-        } else {
-            setDeltaMovement(calculateMotionX(getSpeed(), yRot), getDeltaMovement().y, calculateMotionZ(getSpeed(), yRot));
-            if (level.isClientSide) {
-                collidedLastTick = false;
-            }
-        }
+        setDeltaMovement(calculateMotionX(getSpeed(), yRot), getDeltaMovement().y, calculateMotionZ(getSpeed(), yRot));
+
     }
 
     ////////////////////////////////////ON FUNCTIONS////////////////////////////////////
@@ -447,14 +481,8 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     public void onCollision() {
-        setPos(getX(), getY(), getZ());
-        setSpeed(0.00F);
-        setDeltaMovement(Vector3d.ZERO);
-        setRotSpeed(0.00F);
-        setForward(false);
-        setBackward(false);
-        setLeft(false);
-        setRight(false);
+        this.setBlocked(true);
+        this.setBlockedDirection(this.getDirection());
     }
 
     ////////////////////////////////////UPDATE FUNCTIONS////////////////////////////////////

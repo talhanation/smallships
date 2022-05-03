@@ -4,6 +4,7 @@ import com.talhanation.smallships.init.ModEntityTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.monster.ShulkerEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
@@ -13,10 +14,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -147,19 +145,19 @@ public abstract class AbstractShipPart extends Entity implements IEntityAddition
     }
     @Override
     public boolean canCollideWith(Entity entity) {
-        /*
+
         if (entity instanceof AbstractShipDamage){
             AbstractShipDamage shipDamage = (AbstractShipDamage)entity;
             return (shipDamage != this.sailShip);
         }
 
-        if (entity instanceof AbstractShipPart){
+        else if (entity instanceof AbstractShipPart){
             AbstractShipPart shipPart = (AbstractShipPart)entity;
             AbstractShipDamage shipDamage = shipPart.getSailShip();
             return (shipDamage != this.sailShip);
         }
-        */
-        return (entity.canBeCollidedWith() || entity.isPushable()) && !isPassengerOfSameVehicle(entity);
+        else
+        return (entity.canBeCollidedWith() || entity.isPushable() ) && !isPassengerOfSameVehicle(entity);
     }
 
     public boolean isPickable() {

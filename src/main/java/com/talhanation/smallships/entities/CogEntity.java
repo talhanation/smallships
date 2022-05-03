@@ -6,6 +6,9 @@ import com.talhanation.smallships.inventory.AdvancedShipContainer;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageNextInvGui;
 import com.talhanation.smallships.network.MessageOpenGui;
+import com.talhanation.smallships.network.MessagePartCollision;
+import com.talhanation.smallships.network.MessageSailState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,13 +27,19 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ReuseableStream;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+import java.util.stream.Stream;
 
 public class CogEntity extends AbstractShipDamage{
 
@@ -157,24 +166,30 @@ public class CogEntity extends AbstractShipDamage{
             }
             shipPart.updatePosition();
             shipPart.handleCollisionWithEntity();
-            if (shipPart.isCollidingWithBlock() || shipPart.isCollidingWithEntity()){
-                this.onCollision();
+            if ((shipPart.isCollidingWithBlock() ) && this.getDriver() != null){
+                //Main.SIMPLE_CHANNEL.sendToServer(new MessagePartCollision(this.getDriver()));
+                onCollision();
                 this.horizontalCollision = true;
             }
+            else
+                this.setBlocked(false);
         }
 
         if(!level.isClientSide) {
             if (shipMast == null || !shipMast.isAlive()) {
                                                 //offset:// /-/vorne /+/zurück
-                this.shipMast = new ShipMast(this, -0.25F, 1.75F, 14.00F, 0.5F );
+                this.shipMast = new ShipMast(this, -0.25F, 1F);
                 level.addFreshEntity(this.shipMast);
             }
             shipMast.updatePosition();
             shipMast.handleCollisionWithEntity();
-            if (shipMast.isCollidingWithBlock() || shipMast.isCollidingWithEntity()){
-                this.onCollision();
+            if (shipMast.isCollidingWithBlock()  && this.getDriver() != null){
+                //Main.SIMPLE_CHANNEL.sendToServer(new MessagePartCollision(this.getDriver()));
+                onCollision();
                 this.horizontalCollision = true;
             }
+            else
+                this.setBlocked(false);
         }
     }
 
