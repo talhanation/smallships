@@ -184,12 +184,14 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return AbstractWaterVehicle.Type.byId(this.entityData.get(TYPE));
     }
 
+
     public float getWaveFactor() {
-        return level.isRaining() ? 3F +  random.nextInt(10) * 0.1F : 1.125F + random.nextInt(10) * 0.01F;
+
+        return level.isRaining() ? 3F : 1.25F;
     }
 
     public float getWaveSpeed() {
-        return level.isRaining() ? 0.15F : 0.06F;
+        return level.isRaining() ? 0.12F : 0.03F;
     }
 
     public float getWaveAngle(float partialTicks) {
