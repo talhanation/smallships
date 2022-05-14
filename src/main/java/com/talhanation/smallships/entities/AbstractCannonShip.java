@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -268,21 +269,17 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
-    public void handleItemsOnShoot(){
+    public void handleItemsOnShoot() {
         Inventory inventory = this.getInventory();
-        for(int i = 0; i < inventory.getContainerSize(); i++) {
-            ItemStack itemStack = inventory.getItem(i);
-            if (itemStack.getItem() == Items.GUNPOWDER) {
-                itemStack.shrink(1);
-            }
-        }
 
-        for(int i = 0; i < inventory.getContainerSize(); i++){
-            ItemStack itemStack = inventory.getItem(i);
-            if (itemStack.getItem() == ModItems.CANNONBALL.get()){
-                itemStack.shrink(1);
-            }
-        }
+        int cannonball = 0;
+        int gunpowder = 0;
+
+        Item gunpowderItem = Items.GUNPOWDER;
+        Item cannonballItem = ModItems.CANNONBALL.get();
+
+        this.shrinkItemInInv(inventory, gunpowderItem, 1);
+        this.shrinkItemInInv(inventory, cannonballItem, 1);
     }
 
     public void renderCannon(MatrixStack matrixStack, IRenderTypeBuffer buffer , int packedLight, float partialTicks) {
@@ -331,6 +328,18 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
             if (!player.isCreative()) {
                 itemStack.shrink(1);
+            }
+        }
+    }
+
+    public void shrinkItemInInv(Inventory inventory, Item item, int count){
+
+        for (int i = 0; i < inventory.getContainerSize(); i++){
+            ItemStack itemStackInSlot = inventory.getItem(i);
+            Item itemInSlot = itemStackInSlot.getItem();
+            if (itemInSlot == item){
+                itemStackInSlot.shrink(count);
+                break;
             }
         }
     }

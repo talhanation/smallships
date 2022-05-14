@@ -1,7 +1,9 @@
 package com.talhanation.smallships.items;
 
+import com.talhanation.smallships.client.render.RenderItemCog;
 import com.talhanation.smallships.entities.CogEntity;
 import com.talhanation.smallships.entities.AbstractWaterVehicle;
+import com.talhanation.smallships.init.ModEntityTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -23,10 +25,16 @@ public class CogItem extends Item {
     private final CogEntity.Type type;
 
     public CogItem(CogEntity.Type typeIn, Item.Properties properties) {
-        super(properties);
+        super(properties.setISTER(() -> RenderItemCog::new));
         this.type = typeIn;
     }
 
+    public CogEntity getCogEntity(World world, ItemStack stack) {
+        CogEntity cog = new CogEntity(ModEntityTypes.COG_ENTITY.get(), world);
+        cog.setWoodType(type);
+        cog.setSailState(4);
+        return cog;
+    }
 
 
     @Override

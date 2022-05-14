@@ -5,11 +5,14 @@ import com.talhanation.smallships.entities.*;
 import com.talhanation.smallships.items.CogItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModItems {
+
+
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Main.MOD_ID);
     //public static final RegistryObject<Item> SHIP_ITEM = ITEMS.register("ship_item", ShipItem::new);
@@ -17,6 +20,13 @@ public class ModItems {
     public static final RegistryObject<Item> CANNON_ITEM = ITEMS.register("cannon_item", () -> new Item((new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION))));
     public static final RegistryObject<Item> CANNONBALL = ITEMS.register("cannonball_item", () -> new Item((new Item.Properties().stacksTo(16).tab(ItemGroup.TAB_TRANSPORTATION))));
 
+    public static CogItem OAK_COG_ITEM = new CogItem(CogEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION));
+
+    public static void registerItems(RegistryEvent.Register<Item> event) {
+        event.getRegistry().registerAll(
+                OAK_COG_ITEM.setRegistryName(Main.MOD_ID, "oak_cog")
+        );
+    }
     /*
     public static final RegistryObject<Item> OAK_ROWBOAT_ITEM =         createRowBoat("oak", AbstractRowBoatEntity.Type.OAK, true);
     public static final RegistryObject<Item> SPRUCE_ROWBOAT_ITEM =      createRowBoat("spruce", AbstractRowBoatEntity.Type.SPRUCE, true);
@@ -25,7 +35,7 @@ public class ModItems {
     public static final RegistryObject<Item> ACACIA_ROWBOAT_ITEM =      createRowBoat("acacia", AbstractRowBoatEntity.Type.ACACIA, true);
     public static final RegistryObject<Item> DARK_OAK_ROWBOAT_ITEM =    createRowBoat("dark_oak", AbstractRowBoatEntity.Type.DARK_OAK, true);
 */
-    public static final RegistryObject<Item> OAK_COG_ITEM =             createCog("oak", CogEntity.Type.OAK, true);
+    //public static final RegistryObject<Item> OAK_COG_ITEM = createCog("oak", CogEntity.Type.OAK, true);
     public static final RegistryObject<Item> SPRUCE_COG_ITEM =          createCog("spruce", CogEntity.Type.SPRUCE, true);
     public static final RegistryObject<Item> BIRCH_COG_ITEM =           createCog("birch", CogEntity.Type.BIRCH, true);
     public static final RegistryObject<Item> JUNGLE_COG_ITEM =          createCog("jungle", CogEntity.Type.JUNGLE, true);

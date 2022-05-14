@@ -1,15 +1,11 @@
 package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.DamageSourceShip;
-import com.talhanation.smallships.init.ModItems;
-import com.talhanation.smallships.init.SoundInit;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -19,23 +15,22 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 public abstract class AbstractShipDamage extends AbstractBannerUser {
     private static final DataParameter<Float> DAMAGE = EntityDataManager.defineId(AbstractShipDamage.class, DataSerializers.FLOAT);
+    private static final DataParameter<Boolean> SUNKEN = EntityDataManager.defineId(AbstractShipDamage.class, DataSerializers.BOOLEAN);
 
     public AbstractShipDamage(EntityType<? extends AbstractShipDamage> type, World world) {
         super(type, world);
-
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DAMAGE, 0F);
+        this.entityData.define(SUNKEN, false);
     }
 
     ////////////////////////////////////TICK////////////////////////////////////
@@ -50,7 +45,14 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         if (isOnFire()) {
             setShipDamage(getShipDamage() + 0.5F);
         }
-        if (getShipDamage() >= 100) sinkShip();
+
+        //if(isOverBubble)
+
+        if (getShipDamage() >= 100){
+            setSunken(true);
+            this.setDeltaMovement(0, -0.2D,0);
+        }
+
     }
 
     ////////////////////////////////////SAVE////////////////////////////////////
@@ -59,15 +61,21 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putFloat("Damage", getShipDamage());
+        nbt.putBoolean("Sunken", getSunken());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
         setShipDamage(nbt.getFloat("Damage"));
+        setSunken(nbt.getBoolean("Sunken"));
     }
 
     ////////////////////////////////////GET////////////////////////////////////
+
+    public boolean getSunken() {
+        return entityData.get(SUNKEN);
+    }
 
     public float getShipDamage() {
         return entityData.get(DAMAGE);
@@ -78,6 +86,23 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
 
     ////////////////////////////////////SET////////////////////////////////////
+
+    public void setSunken(boolean sunken) {
+        if (sunken != getSunken()){
+            //particels
+            if (this.level.isClientSide) {
+                for (int i = 0; i < 600; ++i) {
+                    double d0 = this.random.nextGaussian() * 0.04D;
+                    double d1 = this.random.nextGaussian() * 0.02D;
+                    double d2 = this.random.nextGaussian() * 0.04D;
+                    double d3 = 45.0D;
+                    this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3 + i * 0.0001, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+                    //this.level.addParticle(ParticleTypes.BUBBLE, this.getX(2.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+                }
+            }
+            entityData.set(SUNKEN, sunken);
+        }
+    }
 
     public void setShipDamage(float damage) {
         entityData.set(DAMAGE, damage);
@@ -129,23 +154,6 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     public void destroyShip(DamageSource source) {
         super.destroyShip(source);
         kill();
-    }
-
-    public void sinkShip() {
-        this.setDeltaMovement(0, -0.2D,0);
-
-
-        //particels
-        if (this.level.isClientSide) {
-            for (int i = 0; i < 300; ++i) {
-                double d0 = this.random.nextGaussian() * 0.04D;
-                double d1 = this.random.nextGaussian() * 0.02D;
-                double d2 = this.random.nextGaussian() * 0.04D;
-                double d3 = 45.0D;
-                this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
-                this.level.addParticle(ParticleTypes.BUBBLE, this.getX(2.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
-            }
-        }
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////

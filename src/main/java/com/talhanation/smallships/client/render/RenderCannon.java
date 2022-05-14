@@ -8,6 +8,7 @@ import com.talhanation.smallships.client.model.ModelCannon;
 import com.talhanation.smallships.entities.AbstractCannonShip;
 import com.talhanation.smallships.entities.CogEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
@@ -18,6 +19,10 @@ public class RenderCannon{
     private static final ResourceLocation[] TEXTURES = new ResourceLocation[]{
             new ResourceLocation(Main.MOD_ID,"textures/entity/ship_cannon.png"),
     };
+
+    public RenderCannon(EntityRendererManager entityRenderDispatcher) {
+
+    }
 
     public static void renderCannon(double offset,float angle, AbstractCannonShip cannonShip, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLight) {
         matrixStackIn.pushPose();
