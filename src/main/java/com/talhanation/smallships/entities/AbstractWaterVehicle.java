@@ -1,5 +1,6 @@
 package com.talhanation.smallships.entities;
 
+import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LilyPadBlock;
 import net.minecraft.entity.Entity;
@@ -124,7 +125,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     @Override
     protected boolean canAddPassenger(Entity passenger) {
-        return this.getPassengers().size() < getPassengerSize();
+        return this.getPassengers().size() < getPassengerSize() && !SmallShipsConfig.PassengerBlackList.get().contains(passenger.getEncodeId());
     }
 
     protected void applyYawToEntity(Entity entityToUpdate) {

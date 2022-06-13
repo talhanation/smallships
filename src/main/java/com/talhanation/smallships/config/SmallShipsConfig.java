@@ -7,17 +7,16 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 
 @Mod.EventBusSubscriber
 public class SmallShipsConfig {
 
 
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-
     public static ForgeConfigSpec CONFIG;
-
     public static ForgeConfigSpec.IntValue VERSION;
-    public static final int NEW_VERSION = 9;
+    public static final int NEW_VERSION = 10;
 
     public static ForgeConfigSpec.BooleanValue PlaySwimmSound;
     public static ForgeConfigSpec.BooleanValue WaterMobFlee;
@@ -50,7 +49,7 @@ public class SmallShipsConfig {
     public static ForgeConfigSpec.BooleanValue ShowShipInfo;
     public static ForgeConfigSpec.DoubleValue  ShipInfoScale;
 
-    public static ForgeConfigSpec.ConfigValue<ArrayList<String>> PassengerBlackList;
+    public static ForgeConfigSpec.ConfigValue<List<String>> PassengerBlackList;
 
     static {
         VERSION = BUILDER.comment("\n" +"##Version, do not change!##")
@@ -226,6 +225,11 @@ public class SmallShipsConfig {
                 .worldRestart()
                 .defineInRange("DhowHealth", 400.0, 0.0, 10000.0);
 
+        PassengerBlackList = BUILDER.comment("\n" + "----Passenger Blacklist----" + "\n" +
+                        "\t" + "(takes effect after restart)" + "\n" +
+                        "\t" + "Entities in this list won't be able to get on the boat, for example: [\"minecraft:creeper\", \"minecraft:sheep\"]")
+                .worldRestart()
+                .define("Passenger BlackList", new ArrayList<>());
 
         CONFIG = BUILDER.build();
     }

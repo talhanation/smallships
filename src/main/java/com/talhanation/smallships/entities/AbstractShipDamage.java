@@ -167,7 +167,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         if (entity instanceof LivingEntity && !getPassengers().contains(entity)) {
             if (entity.getBoundingBox().intersects(getBoundingBox())) {
                 double speed = getDeltaMovement().length();
-                if (speed > 0.35F) {
+                if (speed > 0.25F) {
                     float damage = Math.min((float) (speed * 10D), 15F);
                     entity.hurt(DamageSourceShip.DAMAGE_SHIP, damage);
                 }
