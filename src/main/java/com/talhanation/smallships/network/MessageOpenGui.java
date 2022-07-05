@@ -2,11 +2,11 @@ package com.talhanation.smallships.network;
 
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import de.maxhenkel.corelib.net.Message;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
         this.uuid = new UUID(0, 0);
     }
 
-    public MessageOpenGui(PlayerEntity player){
+    public MessageOpenGui(Player player){
         this.uuid = player.getUUID();
     }
 
@@ -35,12 +35,12 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
             ((AbstractInventoryEntity)e).openGUI(context.getSender());
     }
 
-    public MessageOpenGui fromBytes(PacketBuffer buf) {
+    public MessageOpenGui fromBytes(FriendlyByteBuf buf) {
         this.uuid = buf.readUUID();
         return this;
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(uuid);
     }
 }

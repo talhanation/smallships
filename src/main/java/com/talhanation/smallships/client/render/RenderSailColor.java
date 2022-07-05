@@ -1,26 +1,27 @@
 package com.talhanation.smallships.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.client.events.ClientRenderEvent;
 import com.talhanation.smallships.client.model.ModelCogSail;
 import com.talhanation.smallships.entities.AbstractSailShip;
 import com.talhanation.smallships.entities.CogEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.resources.ResourceLocation;
 
 public class RenderSailColor {
 
-    private static final ModelCogSail MODEL = new ModelCogSail();
-    public static void renderSailColor(AbstractSailShip ship, float partialTicks, MatrixStack matrixStackIn, String sailColor ,IRenderTypeBuffer bufferIn,  int packedLight, ModelRenderer modelRenderer) {
+    private static final ModelCogSail<CogEntity> model = new ModelCogSail<>(ClientRenderEvent.context.bakeLayer(ModelCogSail.LAYER_LOCATION));
+    public static void renderSailColor(AbstractSailShip ship, float partialTicks, PoseStack matrixStackIn, String sailColor ,MultiBufferSource bufferIn,  int packedLight, ModelPart modelRenderer) {
 
         matrixStackIn.pushPose();
-        MODEL.setupAnim((CogEntity) ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
-        IVertexBuilder ivertexbuilder = bufferIn.getBuffer(MODEL.renderType(getSailColor(sailColor)));
-        MODEL.renderToBuffer(matrixStackIn, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        model.setupAnim((CogEntity) ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
+        VertexConsumer ivertexbuilder = bufferIn.getBuffer(model.renderType(getSailColor(sailColor)));
+        model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
         matrixStackIn.popPose();
     }

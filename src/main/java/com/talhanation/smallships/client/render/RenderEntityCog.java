@@ -1,18 +1,18 @@
 package com.talhanation.smallships.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.model.ModelCog;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.entities.CogEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class RenderEntityCog extends EntityRenderer<CogEntity> {
     private static final ResourceLocation[] COG_TEXTURES = new ResourceLocation[]{
@@ -63,21 +63,23 @@ public class RenderEntityCog extends EntityRenderer<CogEntity> {
 */
     };
 
-    private final ModelCog model = new ModelCog();
+    private final ModelCog<CogEntity> model;
 
-    public RenderEntityCog(EntityRendererManager renderManagerIn) {
-        super(renderManagerIn);
+    public RenderEntityCog(EntityRendererProvider.Context context) {
+        super(context);
+        model = new ModelCog<>(context.bakeLayer(ModelCog.LAYER_LOCATION));
         this.shadowRadius = 1.5F;
     }
 
-    public void render(CogEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
+    @Override
+    public void render(CogEntity entityIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
         matrixStackIn.pushPose();
         matrixStackIn.translate(0.0D, 0.4D, 0.0D);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityYaw));
 
         if (SmallShipsConfig.MakeWaveAnimation.get()) {
             float waveAngle = entityIn.getWaveAngle(partialTicks);
-            if (!MathHelper.equal(waveAngle, 0F)) {
+            if (!Mth.equal(waveAngle, 0F)) {
                 matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(waveAngle));
             }
         }
@@ -87,7 +89,7 @@ public class RenderEntityCog extends EntityRenderer<CogEntity> {
         matrixStackIn.translate(0.0D, -1.8D,-1.0D);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
         this.model.setupAnim(entityIn, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
-        IVertexBuilder ivertexbuilder = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
+        VertexConsumer ivertexbuilder = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
         this.model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
         //render Banner
@@ -102,6 +104,8 @@ public class RenderEntityCog extends EntityRenderer<CogEntity> {
         matrixStackIn.popPose();
 
     }
+
+    @Override
     public ResourceLocation getTextureLocation(CogEntity entity) {
         return COG_TEXTURES[entity.getWoodType().ordinal()];
     }

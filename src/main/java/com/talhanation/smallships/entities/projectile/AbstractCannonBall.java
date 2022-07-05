@@ -3,37 +3,37 @@ package com.talhanation.smallships.entities.projectile;
 
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.init.SoundInit;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.DamagingProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.network.IPacket;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
-public abstract class AbstractCannonBall extends DamagingProjectileEntity {
+public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
 
     public boolean inWater = false;
     public boolean wasShot = false;
     public int counter = 0;
 
-    protected AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, World world) {
+    protected AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, Level world) {
         super(type, world);
     }
 
-    public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, LivingEntity owner, double d1, double d2, double d3, World world) {
+    public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, LivingEntity owner, double d1, double d2, double d3, Level world) {
         super(type, owner, d1, d2, d3, world);
-        this.moveTo(d1, d2, d3, this.yRot, this.xRot);
+        this.moveTo(d1, d2, d3, this.getYRot(), this.getXRot());
     }
 
 
@@ -41,10 +41,10 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
     public void tick() {
         this.baseTick();
 
-        Vector3d vector3d = this.getDeltaMovement();
-        RayTraceResult raytraceresult = ProjectileHelper.getHitResult(this, this::canHitEntity);
+        Vec3 vector3d = this.getDeltaMovement();
+        HitResult raytraceresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
 
-        if (raytraceresult.getType() != RayTraceResult.Type.MISS && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
+        if (raytraceresult.getType() != HitResult.Type.MISS && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
             this.onHit(raytraceresult);
         }
 
@@ -93,23 +93,23 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
                 waterParticles();
             }
             if (!this.level.isClientSide) {
-                level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundCategory.BLOCKS, 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+                level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 10.0F, 0.8F + 0.4F * this.random.nextFloat());
             }
-            this.remove();
+            this.remove(RemovalReason.KILLED);
         }
     }
 
-    protected void onHit(RayTraceResult rayTraceResult) {
+    protected void onHit(HitResult rayTraceResult) {
         super.onHit(rayTraceResult);
         if (!this.level.isClientSide) {
             boolean flag = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.level, this.getOwner());
-            this.level.explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, Explosion.Mode.BREAK);
-            this.remove();
+            this.level.explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, Explosion.BlockInteraction.BREAK);
+            this.remove(RemovalReason.KILLED);
         }
         onHitBlockParticles();
     }
 
-    protected void onHitEntity(EntityRayTraceResult rayTraceResult) {
+    protected void onHitEntity(EntityHitResult rayTraceResult) {
         super.onHitEntity(rayTraceResult);
         if (!this.level.isClientSide) {
             Entity hit = rayTraceResult.getEntity();
@@ -199,7 +199,7 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
@@ -207,7 +207,7 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
         return false;
     }
 
-    protected IParticleData getTrailParticle() {
+    protected ParticleOptions getTrailParticle() {
         return ParticleTypes.SMOKE;
     }
 

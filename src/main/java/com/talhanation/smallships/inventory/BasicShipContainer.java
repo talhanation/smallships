@@ -1,20 +1,19 @@
 package com.talhanation.smallships.inventory;
 
 import com.talhanation.smallships.Main;
-import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import de.maxhenkel.corelib.inventory.ContainerBase;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Slot;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 
 public class BasicShipContainer extends ContainerBase {
 
-    private final IInventory shipInventory;
+    private final Container shipInventory;
     private final AbstractShipDamage ship;
 
-    public BasicShipContainer(int id, AbstractShipDamage ship, PlayerInventory playerInventory) {
+    public BasicShipContainer(int id, AbstractShipDamage ship, Inventory playerInventory) {
         super(Main.BASIC_SHIP_CONTAINER_TYPE, id, playerInventory, ship.getInventory());
         this.ship = ship;
         this.shipInventory = ship.getInventory();
@@ -41,12 +40,12 @@ public class BasicShipContainer extends ContainerBase {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerIn) {
+    public boolean stillValid(Player playerIn) {
         return this.shipInventory.stillValid(playerIn) && this.ship.distanceTo(playerIn) < 8.0F;
     }
 
     @Override
-    public void removed(PlayerEntity playerIn) {
+    public void removed(Player playerIn) {
         super.removed(playerIn);
     }
 }

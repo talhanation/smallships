@@ -1,32 +1,32 @@
 package com.talhanation.smallships.entities;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.talhanation.smallships.client.render.RenderBanner;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.tileentity.BannerTileEntityRenderer;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BannerRenderer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 public abstract class AbstractBannerUser extends AbstractInventoryEntity {
-    private static final DataParameter<Boolean> HAS_BANNER = EntityDataManager.defineId(AbstractBannerUser.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<ItemStack> BANNER = EntityDataManager.defineId(AbstractBannerUser.class, DataSerializers.ITEM_STACK);
+    private static final EntityDataAccessor<Boolean> HAS_BANNER = SynchedEntityData.defineId(AbstractBannerUser.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<ItemStack> BANNER = SynchedEntityData.defineId(AbstractBannerUser.class, EntityDataSerializers.ITEM_STACK);
 
     private float bannerWaveAngle;
     private float prevBannerWaveAngle;
 
-    public AbstractBannerUser(EntityType<? extends AbstractBannerUser> type, World world) {
+    public AbstractBannerUser(EntityType<? extends AbstractBannerUser> type, Level world) {
         super(type, world);
     }
 
@@ -52,19 +52,19 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
     ////////////////////////////////////REGISTER////////////////////////////////////
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.put("banner", getBanner().serializeNBT());
         nbt.putBoolean("hasbanner", getHasBanner());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         if (nbt.contains("hasbanner")) this.setHasBanner(nbt.getBoolean("hasbanner"));
-        final INBT banner = nbt.get("banner");
-        if (banner instanceof CompoundNBT) {
-            entityData.set(BANNER, ItemStack.of((CompoundNBT) banner));
+        final Tag banner = nbt.get("banner");
+        if (banner instanceof CompoundTag) {
+            entityData.set(BANNER, ItemStack.of((CompoundTag) banner));
         }
 
     }
@@ -88,12 +88,12 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
     }
 
     public float getBannerWaveAngle(float partialTicks) {
-        return MathHelper.lerp(partialTicks, this.prevBannerWaveAngle, this.bannerWaveAngle);
+        return Mth.lerp(partialTicks, this.prevBannerWaveAngle, this.bannerWaveAngle);
     }
 
     ////////////////////////////////////SET////////////////////////////////////
 
-    public void setBanner(PlayerEntity player, ItemStack banner) {
+    public void setBanner(Player player, ItemStack banner) {
         playBannerSound();
         setHasBanner(true);
         entityData.set(BANNER, banner.copy());
@@ -115,7 +115,7 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
 
     ////////////////////////////////////ON FUNCTIONS////////////////////////////////////
 
-    public boolean onInteractionWithBanner(ItemStack banner, PlayerEntity player) {
+    public boolean onInteractionWithBanner(ItemStack banner, Player player) {
             if (getHasBanner())
                 dropBanner();
 
@@ -123,7 +123,7 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
         return true;
     }
 
-    public void onInteractionWithShears(PlayerEntity playerEntity) {
+    public void onInteractionWithShears(Player playerEntity) {
             if (getHasBanner()) {
                 dropBanner();
                 setHasBanner(false);
@@ -132,14 +132,14 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
-    public void renderBanner(MatrixStack matrixStack, IRenderTypeBuffer buffer ,int packedLight, float partialTicks) {
+    public void renderBanner(PoseStack matrixStack, MultiBufferSource buffer ,int packedLight, float partialTicks) {
         if (getHasBanner()) {
-            RenderBanner.renderBanner(this, partialTicks, matrixStack, buffer, getBanner(), packedLight, BannerTileEntityRenderer.makeFlag());
+            RenderBanner.renderBanner(this, partialTicks, matrixStack, buffer, getBanner(), packedLight, BannerRenderer.createBodyLayer().bakeRoot());
         }
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 

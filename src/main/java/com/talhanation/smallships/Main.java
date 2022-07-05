@@ -5,7 +5,6 @@ import com.talhanation.smallships.client.events.PlayerEvents;
 import com.talhanation.smallships.client.events.RenderEvents;
 import com.talhanation.smallships.client.gui.BasicShipInvScreen;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
@@ -16,12 +15,12 @@ import com.talhanation.smallships.network.MessageOpenGui;
 import com.talhanation.smallships.network.MessageSailState;
 import com.talhanation.smallships.network.MessageShootCannon;
 import de.maxhenkel.corelib.ClientRegistry;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,10 +34,9 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fml.network.IContainerFactory;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fmllegacy.network.IContainerFactory;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
@@ -48,17 +46,17 @@ import java.util.UUID;
 public class Main {
     public static final String MOD_ID = "smallships";
     public static SimpleChannel SIMPLE_CHANNEL;
-    public static KeyBinding SAIL_KEY;
-    public static KeyBinding SAIL_L_KEY;
-    public static KeyBinding SAIL_H_KEY;
-    public static KeyBinding INV_KEY;
-    public static KeyBinding CANNON_KEY;
-    public static KeyBinding FORWARD_KEY;
-    public static KeyBinding BACK_KEY;
-    public static KeyBinding LEFT_KEY;
-    public static KeyBinding RIGHT_KEY;
+    public static KeyMapping SAIL_KEY;
+    public static KeyMapping SAIL_L_KEY;
+    public static KeyMapping SAIL_H_KEY;
+    public static KeyMapping INV_KEY;
+    public static KeyMapping CANNON_KEY;
+    public static KeyMapping FORWARD_KEY;
+    public static KeyMapping BACK_KEY;
+    public static KeyMapping LEFT_KEY;
+    public static KeyMapping RIGHT_KEY;
 
-    public static ContainerType<BasicShipContainer> BASIC_SHIP_CONTAINER_TYPE;
+    public static MenuType<BasicShipContainer> BASIC_SHIP_CONTAINER_TYPE;
 
 
     public Main() {
@@ -68,7 +66,7 @@ public class Main {
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::setup);
 
-        modEventBus.addGenericListener(ContainerType.class, this::registerContainers);
+        modEventBus.addGenericListener(MenuType.class, this::registerContainers);
         modEventBus.addGenericListener(Item.class, ModItems::registerItems);
         SoundInit.SOUNDS.register(modEventBus);
         //ModBlocks.BLOCKS.register(modEventBus);
@@ -148,8 +146,8 @@ public class Main {
 
 
     @SubscribeEvent
-    public void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
-        BASIC_SHIP_CONTAINER_TYPE = new ContainerType<>((IContainerFactory<BasicShipContainer>) (windowId, inv, data) -> {
+    public void registerContainers(RegistryEvent.Register<MenuType<?>> event) {
+        BASIC_SHIP_CONTAINER_TYPE = new MenuType<>((IContainerFactory<BasicShipContainer>) (windowId, inv, data) -> {
             AbstractShipDamage ship = getInvEntityByUUID(inv.player, data.readUUID());
             if (ship == null) {
                 return null;
@@ -163,8 +161,8 @@ public class Main {
     }
 
     @Nullable
-    public static AbstractShipDamage getInvEntityByUUID(PlayerEntity player, UUID uuid) {
+    public static AbstractShipDamage getInvEntityByUUID(Player player, UUID uuid) {
         double distance = 10D;
-        return player.level.getEntitiesOfClass(AbstractShipDamage.class, new AxisAlignedBB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
+        return player.level.getEntitiesOfClass(AbstractShipDamage.class, new AABB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
     }
 }

@@ -4,44 +4,44 @@ import com.talhanation.smallships.Main;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageOpenGui;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.BannerItem;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShearsItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShearsItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
 public class BriggEntity extends AbstractCannonShip{
 
-    private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(BriggEntity.class, DataSerializers.INT);
+    private static final EntityDataAccessor<Integer> CARGO = SynchedEntityData.defineId(BriggEntity.class, EntityDataSerializers.INT);
 
-    public BriggEntity(EntityType<? extends BriggEntity> type, World world) {
+    public BriggEntity(EntityType<? extends BriggEntity> type, Level world) {
         super(type, world);
     }
 
     //Constructor for ShipItem
-    public BriggEntity(World world, double x, double y, double z) {
+    public BriggEntity(Level world, double x, double y, double z) {
         this(ModEntityTypes.BRIGG.get(), world);
         setPos(x, y, z);
         //setDeltaMovement(Vector3d.ZERO);
@@ -79,13 +79,13 @@ public class BriggEntity extends AbstractCannonShip{
     ////////////////////////////////////SAVE DATA////////////////////////////////////
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
        super.addAdditionalSaveData(nbt);
         nbt.putInt("Cargo", getCargo());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         this.setCargo(nbt.getInt("Cargo"));
     }
@@ -160,7 +160,7 @@ public class BriggEntity extends AbstractCannonShip{
     ////////////////////////////////////INTERACTIONS///////////////////////////////
 
     @Override
-    public ActionResultType interact(PlayerEntity player, Hand hand) {
+    public InteractionResult interact(Player player, InteractionHand hand) {
 
         ItemStack itemInHand = player.getItemInHand(hand);
 /*
@@ -171,64 +171,64 @@ public class BriggEntity extends AbstractCannonShip{
 */
         if (itemInHand.getItem() instanceof DyeItem){
             onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (itemInHand.getItem() instanceof BannerItem){
             onInteractionWithBanner(itemInHand,player);
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         else if (itemInHand.getItem() instanceof ShearsItem){
             if (this.getHasBanner()){
                 onInteractionWithShears(player);
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
 
         else if (player.isSecondaryUseActive()) {
 
-            if (this.isVehicle() && !(getControllingPassenger() instanceof PlayerEntity)){
+            if (this.isVehicle() && !(getControllingPassenger() instanceof Player)){
                 this.ejectPassengers();
                 //this.passengerwaittime = 200;
             }
 
             else {
 
-                if (!(getControllingPassenger() instanceof PlayerEntity)) {
+                if (!(getControllingPassenger() instanceof Player)) {
                     openGUI(player);
-                } return ActionResultType.sidedSuccess(this.level.isClientSide);
-            } return ActionResultType.PASS;
+                } return InteractionResult.sidedSuccess(this.level.isClientSide);
+            } return InteractionResult.PASS;
         }
 
         else if (!player.isSecondaryUseActive()){
 
             if (!this.level.isClientSide) {
-                return player.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
+                return player.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
 
             } else {
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
 
 
         } else {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
     }
 
     @Override
-    public void openGUI(PlayerEntity player) {
-        if (player instanceof ServerPlayerEntity) {
-            NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
+    public void openGUI(Player player) {
+        if (player instanceof ServerPlayer) {
+            NetworkHooks.openGui((ServerPlayer) player, new MenuProvider() {
                 @Override
-                public ITextComponent getDisplayName() {
+                public Component getDisplayName() {
                     return getName();
                 }
 
                 @Nullable
                 @Override
-                public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+                public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
                     return new BasicShipContainer(i, BriggEntity.this, playerInventory);
                 }
             }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
@@ -246,9 +246,9 @@ public class BriggEntity extends AbstractCannonShip{
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
     @Override
     public void WaterSplash(){
-        Vector3d vector3d = this.getViewVector(0.0F);
-        float f0 = MathHelper.cos(this.yRot * ((float)Math.PI / 180F)) * 1.2F;
-        float f1 = MathHelper.sin(this.yRot * ((float)Math.PI / 180F)) * 1.2F;
+        Vec3 vector3d = this.getViewVector(0.0F);
+        float f0 = Mth.cos(this.getYRot() * ((float)Math.PI / 180F)) * 1.2F;
+        float f1 = Mth.sin(this.getYRot() * ((float)Math.PI / 180F)) * 1.2F;
         float f2 =  4F - this.random.nextFloat() * 0.7F; // höhe
         float f2_ =  -2.3F - this.random.nextFloat() * 0.7F;
         float x = 0; //verschiebung nach rechts/links
@@ -281,7 +281,7 @@ public class BriggEntity extends AbstractCannonShip{
         if (hasPassenger(passenger)) {
             double f = -1.5F;
             double d = 0.75F;
-            float f1 = (float) ((this.removed ? 0.02D : getPassengersRidingOffset()) + passenger.getMyRidingOffset());
+            float f1 = (float) ((this.isRemoved() ? 0.02D : getPassengersRidingOffset()) + passenger.getMyRidingOffset());
             if (getPassengers().size() == 2) {
                 int i = getPassengers().indexOf(passenger);
                 if (i == 0) {
@@ -473,9 +473,9 @@ public class BriggEntity extends AbstractCannonShip{
                 }
             }
             f = f - 0.5;
-            Vector3d vector3d = (new Vector3d((double)f, 0.0D, 0.0D + d)).yRot(-this.yRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
+            Vec3 vector3d = (new Vec3((double)f, 0.0D, 0.0D + d)).yRot(-this.getYRot() * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, + this.getZ() + vector3d.z);
-            passenger.yRot += this.deltaRotation;
+            passenger.setYRot(passenger.getYRot() + this.deltaRotation);
             passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyYawToEntity(passenger);
         }
@@ -483,7 +483,7 @@ public class BriggEntity extends AbstractCannonShip{
     }
 
     public void initInventory(){
-        Inventory inventory = this.getInventory();
+        SimpleContainer inventory = this.getInventory();
         int sigma, tempload = 0;
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             if (!inventory.getItem(i).isEmpty())

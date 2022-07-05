@@ -1,12 +1,13 @@
 package com.talhanation.smallships.init;
 
 import com.talhanation.smallships.Main;
-import com.talhanation.smallships.entities.*;
+import com.talhanation.smallships.entities.AbstractSailShip;
+import com.talhanation.smallships.entities.CogEntity;
 import com.talhanation.smallships.items.CogItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -16,11 +17,11 @@ public class ModItems {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Main.MOD_ID);
     //public static final RegistryObject<Item> SHIP_ITEM = ITEMS.register("ship_item", ShipItem::new);
-    public static final RegistryObject<Item> SAIL_ITEM = ITEMS.register("sail_item", () -> new Item((new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION))));
-    public static final RegistryObject<Item> CANNON_ITEM = ITEMS.register("cannon_item", () -> new Item((new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION))));
-    public static final RegistryObject<Item> CANNONBALL = ITEMS.register("cannonball_item", () -> new Item((new Item.Properties().stacksTo(16).tab(ItemGroup.TAB_TRANSPORTATION))));
+    public static final RegistryObject<Item> SAIL_ITEM = ITEMS.register("sail_item", () -> new Item((new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION))));
+    public static final RegistryObject<Item> CANNON_ITEM = ITEMS.register("cannon_item", () -> new Item((new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION))));
+    public static final RegistryObject<Item> CANNONBALL = ITEMS.register("cannonball_item", () -> new Item((new Item.Properties().stacksTo(16).tab(CreativeModeTab.TAB_TRANSPORTATION))));
 
-    public static CogItem OAK_COG_ITEM = new CogItem(CogEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION));
+    public static CogItem OAK_COG_ITEM = new CogItem(CogEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION));
 
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().registerAll(
@@ -349,7 +350,7 @@ public class ModItems {
 
  */
     private static RegistryObject<Item> createCog(String name, AbstractSailShip.Type type, boolean compatiblity ){
-        return ITEMS.register(name + "_cog", () -> new CogItem(type, (new Item.Properties()).stacksTo(1).tab(compatiblity ? ItemGroup.TAB_TRANSPORTATION : null)));
+        return ITEMS.register(name + "_cog", () -> new CogItem(type, (new Item.Properties()).stacksTo(1).tab(compatiblity ? CreativeModeTab.TAB_TRANSPORTATION : null)));
     }
 /*
     private static RegistryObject<Item> createGalley(String name, AbstractSailShip.Type type, boolean compatiblity ){
