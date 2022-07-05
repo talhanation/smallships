@@ -22,6 +22,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     public void tick() {
         super.tick();
+
     }
 
     ////////////////////////////////////DATA////////////////////////////////////

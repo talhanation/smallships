@@ -36,11 +36,11 @@ public class ModItems {
     public static final RegistryObject<Item> DARK_OAK_ROWBOAT_ITEM =    createRowBoat("dark_oak", AbstractRowBoatEntity.Type.DARK_OAK, true);
 */
     //public static final RegistryObject<Item> OAK_COG_ITEM = createCog("oak", CogEntity.Type.OAK, true);
-    public static final RegistryObject<Item> SPRUCE_COG_ITEM =          createCog("spruce", CogEntity.Type.SPRUCE, true);
-    public static final RegistryObject<Item> BIRCH_COG_ITEM =           createCog("birch", CogEntity.Type.BIRCH, true);
-    public static final RegistryObject<Item> JUNGLE_COG_ITEM =          createCog("jungle", CogEntity.Type.JUNGLE, true);
-    public static final RegistryObject<Item> ACACIA_COG_ITEM =          createCog("acacia", CogEntity.Type.ACACIA, true);
-    public static final RegistryObject<Item> DARK_OAK_COG_ITEM =        createCog("dark_oak", CogEntity.Type.DARK_OAK, true);
+    //public static final RegistryObject<Item> SPRUCE_COG_ITEM =          createCog("spruce", CogEntity.Type.SPRUCE, true);
+    //public static final RegistryObject<Item> BIRCH_COG_ITEM =           createCog("birch", CogEntity.Type.BIRCH, true);
+    //public static final RegistryObject<Item> JUNGLE_COG_ITEM =          createCog("jungle", CogEntity.Type.JUNGLE, true);
+    //public static final RegistryObject<Item> ACACIA_COG_ITEM =          createCog("acacia", CogEntity.Type.ACACIA, true);
+    //public static final RegistryObject<Item> DARK_OAK_COG_ITEM =        createCog("dark_oak", CogEntity.Type.DARK_OAK, true);
 /*
     public static final RegistryObject<Item> OAK_GALLEY_ITEM =          createGalley("oak", AbstractGalleyEntity.Type.OAK, true);
     public static final RegistryObject<Item> SPRUCE_GALLEY_ITEM =       createGalley("spruce", AbstractGalleyEntity.Type.SPRUCE, true);

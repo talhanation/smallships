@@ -22,6 +22,6 @@ public class RenderItemCog extends ItemStackTileEntityRenderer {
         if (renderer == null) {
             renderer = new RenderEntityCog(minecraft.getEntityRenderDispatcher());
         }
-        renderer.render(ModItems.OAK_COG_ITEM.getCogEntity(minecraft.level, itemStackIn), 90F, 1F, matrixStackIn, bufferIn, combinedLightIn);
+        renderer.render(ModItems.OAK_COG_ITEM.getCogEntity(minecraft.level), -90F, 1F, matrixStackIn, bufferIn, combinedLightIn);
     }
 }

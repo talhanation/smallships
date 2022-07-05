@@ -1,6 +1,45 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "smallships:item/jungle_cog_item"
+  "parent": "builtin/entity",
+  "display": {
+    "gui": {
+      "rotation": [ 0, 330, 0 ],
+      "translation": [ 2, -4, 0],
+      "scale":[ 0.1, 0.1, 0.1]
+    },
+    "ground": {
+      "rotation": [ 0, 0, 0 ],
+      "translation": [ 2, 4, 2],
+      "scale":[ 0.25, 0.25, 0.25 ]
+    },
+    "head": {
+      "rotation": [ 0, 180, 0 ],
+      "translation": [ 0, 0, 0],
+      "scale":[ 0.5, 0.5, 0.5 ]
+    },
+    "fixed": {
+      "rotation": [ 0, 180, 0 ],
+      "translation": [ -4, -4, -4],
+      "scale":[ 0.5, 0.5, 0.5 ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [ 0, 0, 0 ],
+      "translation": [ 2, 2, 3],
+      "scale": [ 0.25, 0.25, 0.25 ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [ 0, 0, 0 ],
+      "translation": [ -2, 2, 3],
+      "scale": [ 0.25, 0.25, 0.25 ]
+    },
+    "firstperson_righthand": {
+      "rotation": [ 350, 330, 10 ],
+      "translation": [ 5, -4, 0],
+      "scale": [ 0.4, 0.4, 0.4 ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [ 350, 330, 10 ],
+      "translation": [ 2, -4, 0],
+      "scale": [ 0.4, 0.4, 0.4 ]
+    }
   }
 }

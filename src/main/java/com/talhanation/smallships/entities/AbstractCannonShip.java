@@ -97,6 +97,10 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
     public abstract int getMaxCannons();
 
+    public int getTotalCannonCount(){
+        return getLeftCannonCount() + getLeftCannonCount();
+    }
+
     public int getRightShootCoolDown(){
         return this.entityData.get(RIGHT_SHOOT_COOLDOWN);
     }
@@ -193,8 +197,10 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public void startCannons(boolean a) {
-        this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.TNT_PRIMED, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
-        shootCannons();
+        if ((this.getTotalCannonCount() > 0)) {
+            this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.TNT_PRIMED, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+            shootCannons();
+        }
     }
 
     public void shootCannons() {

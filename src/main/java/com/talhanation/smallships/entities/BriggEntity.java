@@ -133,7 +133,7 @@ public class BriggEntity extends AbstractCannonShip{
     }
 
     @Override
-    public float getRollResistance() {
+    public float getVelocityResistance() {
         return 0.009F;
     }
 

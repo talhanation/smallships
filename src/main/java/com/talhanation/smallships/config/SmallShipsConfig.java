@@ -20,6 +20,7 @@ public class SmallShipsConfig {
 
     public static ForgeConfigSpec.BooleanValue PlaySwimmSound;
     public static ForgeConfigSpec.BooleanValue WaterMobFlee;
+
     public static ForgeConfigSpec.DoubleValue GalleySpeedFactor;
     public static ForgeConfigSpec.DoubleValue GalleyTurnFactor;
     public static ForgeConfigSpec.DoubleValue WarGalleySpeedFactor;

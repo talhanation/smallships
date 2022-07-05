@@ -1,7 +1,6 @@
 package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.Main;
-import com.talhanation.smallships.entities.projectile.CannonBallEntity;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.inventory.BasicShipContainer;
@@ -11,8 +10,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.FireballEntity;
-import net.minecraft.entity.projectile.LlamaSpitEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -32,7 +29,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
-import javax.swing.*;
+
 
 public class CogEntity extends AbstractCannonShip{
 
@@ -136,9 +133,10 @@ public class CogEntity extends AbstractCannonShip{
     }
 
     @Override
-    public float getRollResistance() {
+    public float getVelocityResistance() {
         return 0.009F;
     }
+
 
     @Override
     public ResourceLocation getLootTable() {
@@ -147,7 +145,24 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public int getPassengerSize() {
-        return 6;
+        switch (getTotalCannonCount()){
+            default:
+            case 0:
+            return 5;
+
+            case 1:
+                return 2;
+
+            case 2:
+                return 3;
+
+            case 3:
+                return 3;
+
+            case 4:
+                return 2;
+
+        }
     }
 
     public int getMaxCannons(){//max cannons
@@ -190,7 +205,6 @@ public class CogEntity extends AbstractCannonShip{
             else return ActionResultType.FAIL;
         }
 
-//&& this.getShipDamage() > 0
         else if (itemInHand.getItem() instanceof ShearsItem){
             if (this.getHasBanner()){
                 this.onInteractionWithShears(player);

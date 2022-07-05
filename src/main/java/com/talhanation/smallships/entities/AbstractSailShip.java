@@ -29,6 +29,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -81,7 +82,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public abstract float getAcceleration();
     public abstract float getMaxRotationSpeed();
     public abstract float getRotationAcceleration();
-    public abstract float getRollResistance();
+    public abstract float getVelocityResistance();
     public abstract boolean getHasBanner();
     public abstract void  WaterSplash();
     public abstract void openGUI(PlayerEntity player);
@@ -92,6 +93,10 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     @Override
     public void tick() {
         super.tick();
+
+        //if(getDriver()!=null)this.getDriver().sendMessage(new StringTextComponent("" + this.getSpeed()), getDriver().getUUID());
+
+
         if ((getSpeed() > 0.085F || getSpeed() < -0.085F)) {
             this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntityPredicates.NO_CREATIVE_OR_SPECTATOR));
             this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntityPredicates.NO_CREATIVE_OR_SPECTATOR));
@@ -180,8 +185,8 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return this.entityData.get(ROT_SPEED);
     }
 
-    public AbstractWaterVehicle.Type getWoodType() {
-        return AbstractWaterVehicle.Type.byId(this.entityData.get(TYPE));
+    public AbstractSailShip.Type getWoodType() {
+        return AbstractSailShip.Type.byId(this.entityData.get(TYPE));
     }
 
 
@@ -326,29 +331,39 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             setRight(false);
         }
         int sailstate = getSailState();
-        float modifier = getBiomeModifier();
+        float modifier = getBiomeModifier() + getVelocityResistance();
 
-        float maxSp = getMaxSpeed() * modifier;
+        float blockedmodf = 1;
+
+        //if (isBlocked() && this.getDirection() == this.getBlockedDirection())
+            //blockedmodf = 0.00001F;
+
+        float maxSp = getMaxSpeed() * modifier ;
         float maxBackSp = getMaxReverseSpeed() * modifier;
         float maxRotSp = getMaxRotationSpeed() * modifier;
 
-        float speed = MathUtils.subtractToZero(getSpeed(), getRollResistance());
+        float speed = MathUtils.subtractToZero(getSpeed(), getVelocityResistance());
 
         if (sailstate != 0) {
             switch (sailstate) {
                 case 1:
+                    maxSp *= 4/16F;
                     if (speed <= maxSp)
-                        speed = Math.min(speed + getAcceleration() * 1 / 8, maxSp);
+                        speed = Math.min(speed + getAcceleration() * 2F / 8, maxSp);
                     break;
                 case 2:
+                    maxSp *= 8/16F;
                     if (speed <= maxSp)
-                        speed = Math.min(speed + getAcceleration() * 3 / 8, maxSp);
+                        speed = Math.min(speed + getAcceleration() * 3.5F / 8, maxSp);
                     break;
+
                 case 3:
+                    maxSp *= 12/16F;
                     if (speed <= maxSp)
                         speed = Math.min(speed + getAcceleration() * 5 / 8, maxSp);
                     break;
                 case 4:
+                    maxSp *= 1F;
                     if (speed <= maxSp) {
                         speed = Math.min(speed + getAcceleration(), maxSp);
                     }
@@ -358,20 +373,20 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
         if (isForward()) {
             if (speed <= maxSp) {
-                speed = Math.min(speed + getAcceleration() * 8 / 8, maxSp);
+                speed = Math.min(speed + getAcceleration() * 1 / 8, maxSp);
             }
         }
 
         if (isBackward()) {
             if (speed >= -maxBackSp) {
-                speed = Math.max(speed - getAcceleration() * 8 / 8, -maxBackSp);
+                speed = Math.max(speed - getAcceleration() * 1 / 8, -maxBackSp);
             }
         }
 
-        setSpeed(speed);
+        setSpeed(speed * blockedmodf);
 
 
-        float rotationSpeed = MathUtils.subtractToZero(getRotSpeed(), getRollResistance() * 2);
+        float rotationSpeed = MathUtils.subtractToZero(getRotSpeed(), getVelocityResistance() * 2);
         deltaRotation = 0;
 
         if (isRight()) {
@@ -385,23 +400,14 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
                 rotationSpeed = Math.max(rotationSpeed - getRotationAcceleration() * 1 / 8, -maxRotSp);
             }
         }
+
         setRotSpeed(rotationSpeed);
 
         deltaRotation = rotationSpeed;
 
         yRot += deltaRotation;
 
-        if (horizontalCollision) {
-            if (level.isClientSide && !collidedLastTick) {
-                onCollision(speed);
-                collidedLastTick = true;
-            }
-        } else {
-            setDeltaMovement(calculateMotionX(getSpeed(), yRot), getDeltaMovement().y, calculateMotionZ(getSpeed(), yRot));
-            if (level.isClientSide) {
-                collidedLastTick = false;
-            }
-        }
+        setDeltaMovement(calculateMotionX(getSpeed(), yRot), getDeltaMovement().y, calculateMotionZ(getSpeed(), yRot));
     }
 
     ////////////////////////////////////ON FUNCTIONS////////////////////////////////////

@@ -52,7 +52,6 @@ public class Main {
     public static KeyBinding SAIL_L_KEY;
     public static KeyBinding SAIL_H_KEY;
     public static KeyBinding INV_KEY;
-    public static KeyBinding LANTERN_KEY;
     public static KeyBinding CANNON_KEY;
     public static KeyBinding FORWARD_KEY;
     public static KeyBinding BACK_KEY;
@@ -64,7 +63,7 @@ public class Main {
 
     public Main() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SmallShipsConfig.CONFIG);
-        SmallShipsConfig.loadConfig(SmallShipsConfig.CONFIG, FMLPaths.CONFIGDIR.get().resolve("smallships-common.toml"));
+        //SmallShipsConfig.loadConfig(SmallShipsConfig.CONFIG, FMLPaths.CONFIGDIR.get().resolve("smallships-common.toml"));
 
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::setup);
@@ -138,7 +137,6 @@ public class Main {
         INV_KEY = ClientRegistry.registerKeyBinding("key.ship_inventory", "category.smallships", GLFW.GLFW_KEY_I);
         SAIL_L_KEY = ClientRegistry.registerKeyBinding("key.lower_ship_sail", "category.smallships", GLFW.GLFW_KEY_J);
         SAIL_H_KEY = ClientRegistry.registerKeyBinding("key.higher_ship_sail", "category.smallships", GLFW.GLFW_KEY_K);
-        //LANTERN_KEY = ClientRegistry.registerKeyBinding("key.lantern_on/off", "category.smallships", GLFW.GLFW_KEY_L);
         CANNON_KEY = ClientRegistry.registerKeyBinding("key.cannon_shoot", "category.smallships", GLFW.GLFW_KEY_SPACE);
 
         ClientRegistry.registerScreen(Main.BASIC_SHIP_CONTAINER_TYPE, BasicShipInvScreen::new);

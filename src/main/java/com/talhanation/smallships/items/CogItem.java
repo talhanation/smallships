@@ -29,7 +29,7 @@ public class CogItem extends Item {
         this.type = typeIn;
     }
 
-    public CogEntity getCogEntity(World world, ItemStack stack) {
+    public CogEntity getCogEntity(World world) {
         CogEntity cog = new CogEntity(ModEntityTypes.COG_ENTITY.get(), world);
         cog.setWoodType(type);
         cog.setSailState(4);
