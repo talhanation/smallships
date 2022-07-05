@@ -21,7 +21,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '2.0.0-Beta'
+version = '2.0.0-Alpha-0.1'
 group = 'com.talhanation.smallships' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'smallships-1.16.5'
 
@@ -79,7 +79,7 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.2.20'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
 
     shadow fg.deobf("de.maxhenkel.corelib:corelib:1.16.5-1.0.5:api")
     runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.16.5-1.0.5")
