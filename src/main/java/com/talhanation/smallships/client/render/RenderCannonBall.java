@@ -17,11 +17,11 @@ public class RenderCannonBall extends EntityRenderer<CannonBallEntity>{
             new ResourceLocation(Main.MOD_ID,"textures/entity/cannonball.png"),
     };
 
-    private final ModelCannonBall<CannonBallEntity> model;
+    private final ModelCannonBall model;
 
     public RenderCannonBall(EntityRendererProvider.Context context) {
         super(context);
-        model = new ModelCannonBall<>();
+        model = new ModelCannonBall();
         this.shadowRadius = 0.25F;
     }
 

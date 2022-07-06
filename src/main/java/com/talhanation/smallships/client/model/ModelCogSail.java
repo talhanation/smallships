@@ -7,15 +7,15 @@ package com.talhanation.smallships.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.entities.CogEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 
-public class ModelCogSail<T extends Entity> extends EntityModel<T> {
+public class ModelCogSail extends EntityModel<CogEntity> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Main.MOD_ID, "model_cogsail"), "main");
 	private final ModelPart Segel_0;
@@ -526,8 +526,50 @@ public class ModelCogSail<T extends Entity> extends EntityModel<T> {
 	}
 
 	@Override
-	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setupAnim(CogEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+		int state = entityIn.getSailState();
+		switch (state){
+			case 0:
 
+				this.Segel_0.visible= true;
+				this.Segel_1.visible= false;
+				this.Segel_2.visible= false;
+				this.Segel_3.visible= false;
+				this.Segel_4.visible= false;
+				break;
+
+			case 1:
+				this.Segel_0.visible= false;
+				this.Segel_1.visible= true;
+				this.Segel_2.visible= false;
+				this.Segel_3.visible= false;
+				this.Segel_4.visible= false;
+				break;
+
+			case 2:
+				this.Segel_0.visible= false;
+				this.Segel_1.visible= false;
+				this.Segel_2.visible= true;
+				this.Segel_3.visible= false;
+				this.Segel_4.visible= false;
+				break;
+
+			case 3:
+				this.Segel_0.visible= false;
+				this.Segel_1.visible= false;
+				this.Segel_2.visible= false;
+				this.Segel_3.visible= true;
+				this.Segel_4.visible= false;
+				break;
+
+			case 4:
+				this.Segel_0.visible= false;
+				this.Segel_1.visible= false;
+				this.Segel_2.visible= false;
+				this.Segel_3.visible= false;
+				this.Segel_4.visible= true;
+				break;
+		}
 	}
 
 	@Override

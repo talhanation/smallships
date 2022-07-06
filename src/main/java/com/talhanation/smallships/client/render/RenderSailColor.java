@@ -7,14 +7,13 @@ import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.model.ModelCogSail;
 import com.talhanation.smallships.entities.AbstractSailShip;
 import com.talhanation.smallships.entities.CogEntity;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class RenderSailColor {
-    public static void renderSailColor(AbstractSailShip ship, float partialTicks, PoseStack matrixStackIn, String sailColor ,MultiBufferSource bufferIn,  int packedLight, ModelPart modelPart) {
-        ModelCogSail<CogEntity> model = new ModelCogSail<>();
+    public static void renderSailColor(AbstractSailShip ship, float partialTicks, PoseStack matrixStackIn, String sailColor ,MultiBufferSource bufferIn,  int packedLight) {
+        ModelCogSail model = new ModelCogSail();
         matrixStackIn.pushPose();
         model.setupAnim((CogEntity) ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
         VertexConsumer ivertexbuilder = bufferIn.getBuffer(model.renderType(getSailColor(sailColor)));

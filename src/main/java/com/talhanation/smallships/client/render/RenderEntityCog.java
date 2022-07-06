@@ -63,11 +63,11 @@ public class RenderEntityCog extends EntityRenderer<CogEntity> {
 */
     };
 
-    private final ModelCog<CogEntity> model;
+    private final ModelCog model;
 
     public RenderEntityCog(EntityRendererProvider.Context context) {
         super(context);
-        model = new ModelCog<>();
+        model = new ModelCog();
         this.shadowRadius = 1.5F;
     }
 

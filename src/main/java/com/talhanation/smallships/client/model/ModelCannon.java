@@ -7,15 +7,15 @@ package com.talhanation.smallships.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.entities.AbstractCannonShip;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 
-public class ModelCannon<T extends Entity> extends EntityModel<T> {
+public class ModelCannon extends EntityModel<AbstractCannonShip> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Main.MOD_ID, "model_cannon"), "main");
 	private final ModelPart cannon;
@@ -64,8 +64,8 @@ public class ModelCannon<T extends Entity> extends EntityModel<T> {
 	}
 
 	@Override
-	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-
+	public void setupAnim(AbstractCannonShip entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+		//previously the render function, render code was moved to a method below
 	}
 
 	@Override

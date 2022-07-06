@@ -10,7 +10,6 @@ import com.talhanation.smallships.network.MessageControlShip;
 import com.talhanation.smallships.network.MessageSailState;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -556,7 +555,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
     public void renderSailColor(PoseStack matrixStack, MultiBufferSource buffer , int packedLight, float partialTicks) {
-        RenderSailColor.renderSailColor(this, partialTicks, matrixStack, getSailColor(), buffer,  packedLight, BannerRenderer.createBodyLayer().bakeRoot());
+        RenderSailColor.renderSailColor(this, partialTicks, matrixStack, getSailColor(), buffer,  packedLight);
     }
 
     public void destroyShip(DamageSource src) {
