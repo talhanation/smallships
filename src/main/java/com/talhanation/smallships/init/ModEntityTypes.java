@@ -15,20 +15,20 @@ public class ModEntityTypes {
 
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, Main.MOD_ID);
 
-    public static final RegistryObject<EntityType<CogEntity>> COG_ENTITY = ENTITY_TYPES.register("cog",
+    public static final RegistryObject<EntityType<CogEntity>> COG = ENTITY_TYPES.register("cog",
             () -> EntityType.Builder.<CogEntity>of(CogEntity::new, MobCategory.MISC)
                     .sized(3.5F, 1.25F)
                     .clientTrackingRange(20)
                     .setUpdateInterval(10)
                     .setShouldReceiveVelocityUpdates(true)
-                    .build(new ResourceLocation(Main.MOD_ID, "cog").toString()));
+                    .build(ResLocation.COG.toString()));
 
     public static final RegistryObject<EntityType<BriggEntity>> BRIGG = ENTITY_TYPES.register("brigg",
             () -> EntityType.Builder.<BriggEntity>of(BriggEntity::new, MobCategory.MISC)
                     .clientTrackingRange(20)
                     .setUpdateInterval(10)
                     .setShouldReceiveVelocityUpdates(true)
-                    .build(new ResourceLocation(Main.MOD_ID, "brigg").toString()));
+                    .build(ResLocation.BRIGG.toString()));
 
 /*
     public static final RegistryObject<EntityType<SailShipPart>> SHIP_PART = ENTITY_TYPES.register("ship_part",
@@ -45,5 +45,11 @@ public class ModEntityTypes {
                     .clientTrackingRange(20)
                     .setUpdateInterval(10)
                     .setShouldReceiveVelocityUpdates(true)
-                    .build(new ResourceLocation(Main.MOD_ID, "cannon_ball").toString()));
+                    .build(ResLocation.CANNON_BALL.toString()));
+
+    public static class ResLocation {
+        public static final ResourceLocation COG = new ResourceLocation(Main.MOD_ID, "cog");
+        public static final ResourceLocation BRIGG = new ResourceLocation(Main.MOD_ID, "brigg");
+        public static final ResourceLocation CANNON_BALL = new ResourceLocation(Main.MOD_ID, "cannon_ball");
+    }
 }

@@ -40,7 +40,7 @@ public class CogEntity extends AbstractCannonShip{
 
     //Constructor for ShipItem
     public CogEntity(Level world, double x, double y, double z) {
-        this(ModEntityTypes.COG_ENTITY.get(), world);
+        this(ModEntityTypes.COG.get(), world);
         setPos(x, y, z);
         //setDeltaMovement(Vector3d.ZERO);
         this.xo = x;

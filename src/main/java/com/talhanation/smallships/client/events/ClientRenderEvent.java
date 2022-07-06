@@ -7,7 +7,7 @@ import com.talhanation.smallships.client.model.ModelCog;
 import com.talhanation.smallships.client.render.RenderCannonBall;
 import com.talhanation.smallships.client.render.RenderEntityCog;
 import com.talhanation.smallships.init.ModEntityTypes;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,15 +15,9 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = Main.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD , value = Dist.CLIENT)
 public class ClientRenderEvent {
-    public static EntityRendererProvider.Context context;
-
-    @SubscribeEvent
-    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event){
-        event.registerEntityRenderer(ModEntityTypes.COG_ENTITY.get(), (ctx) -> {
-            context = ctx;
-            return new RenderEntityCog(context);
-        });
-        event.registerEntityRenderer(ModEntityTypes.CANNON_BALL.get(), RenderCannonBall::new);
+    public static void register() {
+        EntityRenderers.register(ModEntityTypes.COG.get(), RenderEntityCog::new);
+        EntityRenderers.register(ModEntityTypes.CANNON_BALL.get(), RenderCannonBall::new);
     }
 
     @SubscribeEvent

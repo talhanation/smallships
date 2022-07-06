@@ -1,5 +1,6 @@
 package com.talhanation.smallships;
 
+import com.talhanation.smallships.client.events.ClientRenderEvent;
 import com.talhanation.smallships.client.events.KeyEvents;
 import com.talhanation.smallships.client.events.PlayerEvents;
 import com.talhanation.smallships.client.events.RenderEvents;
@@ -142,6 +143,8 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new RenderEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new KeyEvents());
+
+        ClientRenderEvent.register();
     }
 
 

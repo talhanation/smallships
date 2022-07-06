@@ -47,7 +47,7 @@ public class CogItem extends Item {
     }
 
     public CogEntity getCogEntity(Level world) {
-        CogEntity cog = new CogEntity(ModEntityTypes.COG_ENTITY.get(), world);
+        CogEntity cog = new CogEntity(ModEntityTypes.COG.get(), world);
         cog.setWoodType(type);
         cog.setSailState(4);
         return cog;
