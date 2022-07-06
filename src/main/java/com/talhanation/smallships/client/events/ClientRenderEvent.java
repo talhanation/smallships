@@ -7,6 +7,7 @@ import com.talhanation.smallships.client.model.ModelCog;
 import com.talhanation.smallships.client.render.RenderCannonBall;
 import com.talhanation.smallships.client.render.RenderEntityCog;
 import com.talhanation.smallships.init.ModEntityTypes;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -15,8 +16,12 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = Main.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD , value = Dist.CLIENT)
 public class ClientRenderEvent {
+    public static EntityRendererProvider.Context context;
     public static void register() {
-        EntityRenderers.register(ModEntityTypes.COG.get(), RenderEntityCog::new);
+        EntityRenderers.register(ModEntityTypes.COG.get(), ctx -> {
+            context = ctx; // Its strange, but I couldn't find any other way to access the EntityRendererProvider.Context. See: net.minecraft.client.renderer.entity.EntityRenderDispatcher.onResourceManagerReload
+            return new RenderEntityCog(ctx);
+        });
         EntityRenderers.register(ModEntityTypes.CANNON_BALL.get(), RenderCannonBall::new);
     }
 
