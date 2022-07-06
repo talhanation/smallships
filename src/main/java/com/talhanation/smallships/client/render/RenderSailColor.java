@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class RenderSailColor {
     public static void renderSailColor(AbstractSailShip ship, float partialTicks, PoseStack matrixStackIn, String sailColor ,MultiBufferSource bufferIn,  int packedLight, ModelPart modelPart) {
-        ModelCogSail<CogEntity> model = new ModelCogSail<>(modelPart);
+        ModelCogSail<CogEntity> model = new ModelCogSail<>();
         matrixStackIn.pushPose();
         model.setupAnim((CogEntity) ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
         VertexConsumer ivertexbuilder = bufferIn.getBuffer(model.renderType(getSailColor(sailColor)));

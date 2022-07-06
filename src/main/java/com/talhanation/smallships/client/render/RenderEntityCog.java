@@ -67,7 +67,7 @@ public class RenderEntityCog extends EntityRenderer<CogEntity> {
 
     public RenderEntityCog(EntityRendererProvider.Context context) {
         super(context);
-        model = new ModelCog<>(context.bakeLayer(ModelCog.LAYER_LOCATION));
+        model = new ModelCog<>();
         this.shadowRadius = 1.5F;
     }
 

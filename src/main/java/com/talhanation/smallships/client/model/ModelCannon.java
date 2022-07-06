@@ -20,7 +20,8 @@ public class ModelCannon<T extends Entity> extends EntityModel<T> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Main.MOD_ID, "model_cannon"), "main");
 	private final ModelPart cannon;
 
-	public ModelCannon(ModelPart root) {
+	public ModelCannon() {
+		ModelPart root = createBodyLayer().bakeRoot();
 		this.cannon = root.getChild("cannon");
 	}
 

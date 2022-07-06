@@ -24,7 +24,8 @@ public class ModelCogSail<T extends Entity> extends EntityModel<T> {
 	private final ModelPart Segel_3;
 	private final ModelPart Segel_4;
 
-	public ModelCogSail(ModelPart root) {
+	public ModelCogSail() {
+		ModelPart root = createBodyLayer().bakeRoot();
 		this.Segel_0 = root.getChild("Segel_0");
 		this.Segel_1 = root.getChild("Segel_1");
 		this.Segel_2 = root.getChild("Segel_2");

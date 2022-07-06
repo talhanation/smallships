@@ -21,7 +21,7 @@ public class RenderCannonBall extends EntityRenderer<CannonBallEntity>{
 
     public RenderCannonBall(EntityRendererProvider.Context context) {
         super(context);
-        model = new ModelCannonBall<>(context.bakeLayer(ModelCannonBall.LAYER_LOCATION));
+        model = new ModelCannonBall<>();
         this.shadowRadius = 0.25F;
     }
 

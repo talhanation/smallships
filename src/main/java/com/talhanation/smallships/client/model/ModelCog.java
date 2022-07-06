@@ -20,7 +20,8 @@ public class ModelCog<T extends Entity> extends EntityModel<T> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Main.MOD_ID, "model_cog"), "main");
 	private final ModelPart Cog;
 
-	public ModelCog(ModelPart root) {
+	public ModelCog() {
+		ModelPart root = createBodyLayer().bakeRoot();
 		this.Cog = root.getChild("Cog");
 	}
 

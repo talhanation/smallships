@@ -20,7 +20,8 @@ public class ModelCannonBall<T extends Entity> extends EntityModel<T> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Main.MOD_ID, "model_cannonball"), "main");
 	private final ModelPart cannonball;
 
-	public ModelCannonBall(ModelPart root) {
+	public ModelCannonBall() {
+		ModelPart root = createBodyLayer().bakeRoot();
 		this.cannonball = root.getChild("cannonball");
 	}
 
