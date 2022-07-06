@@ -6,10 +6,9 @@ import com.talhanation.smallships.entities.CogEntity;
 import com.talhanation.smallships.items.CogItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModItems {
 
@@ -20,14 +19,8 @@ public class ModItems {
     public static final RegistryObject<Item> SAIL_ITEM = ITEMS.register("sail_item", () -> new Item((new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION))));
     public static final RegistryObject<Item> CANNON_ITEM = ITEMS.register("cannon_item", () -> new Item((new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION))));
     public static final RegistryObject<Item> CANNONBALL = ITEMS.register("cannonball_item", () -> new Item((new Item.Properties().stacksTo(16).tab(CreativeModeTab.TAB_TRANSPORTATION))));
+    public static final RegistryObject<Item> OAK_COG_ITEM = ITEMS.register("oak_cog", () -> new CogItem(CogEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
 
-    public static CogItem OAK_COG_ITEM = new CogItem(CogEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION));
-
-    public static void registerItems(RegistryEvent.Register<Item> event) {
-        event.getRegistry().registerAll(
-                OAK_COG_ITEM.setRegistryName(Main.MOD_ID, "oak_cog")
-        );
-    }
     /*
     public static final RegistryObject<Item> OAK_ROWBOAT_ITEM =         createRowBoat("oak", AbstractRowBoatEntity.Type.OAK, true);
     public static final RegistryObject<Item> SPRUCE_ROWBOAT_ITEM =      createRowBoat("spruce", AbstractRowBoatEntity.Type.SPRUCE, true);
