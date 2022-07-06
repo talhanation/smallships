@@ -20,6 +20,11 @@ public class ModItems {
     public static final RegistryObject<Item> CANNON_ITEM = ITEMS.register("cannon_item", () -> new Item((new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION))));
     public static final RegistryObject<Item> CANNONBALL = ITEMS.register("cannonball_item", () -> new Item((new Item.Properties().stacksTo(16).tab(CreativeModeTab.TAB_TRANSPORTATION))));
     public static final RegistryObject<Item> OAK_COG_ITEM = ITEMS.register("oak_cog", () -> new CogItem(CogEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> SPRUCE_COG_ITEM = ITEMS.register("spruce_cog", () -> new CogItem(CogEntity.Type.SPRUCE, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> BIRCH_COG_ITEM = ITEMS.register("birch_cog", () -> new CogItem(CogEntity.Type.BIRCH, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> JUNGLE_COG_ITEM = ITEMS.register("jungle_cog", () -> new CogItem(CogEntity.Type.JUNGLE, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> ACACIA_COG_ITEM = ITEMS.register("acacia_cog", () -> new CogItem(CogEntity.Type.ACACIA, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> DARK_OAK_COG_ITEM = ITEMS.register("dark_oak_cog", () -> new CogItem(CogEntity.Type.DARK_OAK, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
 
     /*
     public static final RegistryObject<Item> OAK_ROWBOAT_ITEM =         createRowBoat("oak", AbstractRowBoatEntity.Type.OAK, true);

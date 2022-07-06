@@ -40,13 +40,11 @@ public class MessageControlShip implements Message<MessageControlShip> {
             return;
         }
 
-        Entity e = context.getSender().getVehicle();
+        Entity entity = context.getSender().getVehicle();
 
-        if (!(e instanceof AbstractSailShip)) {
+        if (!(entity instanceof AbstractSailShip ship)) {
             return;
         }
-
-        AbstractSailShip ship = (AbstractSailShip) e;
 
         ship.updateControls(forward, backward, left, right, context.getSender());
         ship.sendMessage(new TextComponent("Forward: " + forward), context.getSender().getUUID());

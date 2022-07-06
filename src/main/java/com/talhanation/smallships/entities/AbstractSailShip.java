@@ -136,7 +136,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {;
+    public void readAdditionalSaveData(CompoundTag nbt) {
         this.setSailColor(nbt.getString("SailColor"));
         if (nbt.contains("Type", 8)) {
             this.setWoodType(AbstractSailShip.Type.getTypeFromString(nbt.getString("Type")));
@@ -226,13 +226,12 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     public boolean isAccelerating() {
-        boolean b = (isForward() || isBackward()) && !horizontalCollision;
-        return b;
+        return (isForward() || isBackward()) && !horizontalCollision;
     }
 
     @OnlyIn(Dist.CLIENT)
     public float getRowingTime(int side, float limbSwing) {
-        return this.getPaddleState(side) ? (float) Mth.clampedLerp((double) this.paddlePositions[side] - (double) ((float) Math.PI / 8F), (double) this.paddlePositions[side], (double) limbSwing) : 0.0F;
+        return this.getPaddleState(side) ? (float) Mth.clampedLerp((double) this.paddlePositions[side] - (double) ((float) Math.PI / 8F), this.paddlePositions[side], limbSwing) : 0.0F;
     }
 
     ////////////////////////////////////SET////////////////////////////////////
@@ -289,9 +288,9 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         }
     }
 
-    public void sendSteerStateToServer(){
-        //Main.SIMPLE_CHANNEL.sendToServer(new MessageSteerState(this.getSteerState(0), this.getSteerState(1)));
-    }
+    /*public void sendSteerStateToServer(){
+        Main.SIMPLE_CHANNEL.sendToServer(new MessageSteerState(this.getSteerState(0), this.getSteerState(1)));
+    }*/
 
     @Override
     public boolean canCollideWith(Entity entityIn) {
@@ -346,28 +345,27 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
         if (sailstate != 0) {
             switch (sailstate) {
-                case 1:
-                    maxSp *= 4/16F;
+                case 1 -> {
+                    maxSp *= 4 / 16F;
                     if (speed <= maxSp)
                         speed = Math.min(speed + getAcceleration() * 2F / 8, maxSp);
-                    break;
-                case 2:
-                    maxSp *= 8/16F;
+                }
+                case 2 -> {
+                    maxSp *= 8 / 16F;
                     if (speed <= maxSp)
                         speed = Math.min(speed + getAcceleration() * 3.5F / 8, maxSp);
-                    break;
-
-                case 3:
-                    maxSp *= 12/16F;
+                }
+                case 3 -> {
+                    maxSp *= 12 / 16F;
                     if (speed <= maxSp)
                         speed = Math.min(speed + getAcceleration() * 5 / 8, maxSp);
-                    break;
-                case 4:
+                }
+                case 4 -> {
                     maxSp *= 1F;
                     if (speed <= maxSp) {
                         speed = Math.min(speed + getAcceleration(), maxSp);
                     }
-                    break;
+                }
             }
         }
 
@@ -581,7 +579,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
                 double d2 = entity.getX() - d0;
                 double d3 = entity.getZ() - d1;
                 double d4 = Math.max(d2 * d2 + d3 * d3, 0.1D);
-                entity.push(d2 / d4 * 0.4D, (double)0.0F, d3 / d4 * 0.4D);
+                entity.push(d2 / d4 * 0.4D, 0.0F, d3 / d4 * 0.4D);
             }
         }
     }
@@ -613,21 +611,14 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     public Item getItemBoat() {
-        switch (this.getWoodType()) {
-            case OAK:
-            default:
-                return Items.OAK_BOAT;
-            case SPRUCE:
-                return Items.SPRUCE_BOAT;
-            case BIRCH:
-                return Items.BIRCH_BOAT;
-            case JUNGLE:
-                return Items.JUNGLE_BOAT;
-            case ACACIA:
-                return Items.ACACIA_BOAT;
-            case DARK_OAK:
-                return Items.DARK_OAK_BOAT;
-        }
+        return switch (this.getWoodType()) {
+            case OAK -> Items.OAK_BOAT;
+            case SPRUCE -> Items.SPRUCE_BOAT;
+            case BIRCH -> Items.BIRCH_BOAT;
+            case JUNGLE -> Items.JUNGLE_BOAT;
+            case ACACIA -> Items.ACACIA_BOAT;
+            case DARK_OAK -> Items.DARK_OAK_BOAT;
+        };
     }
 
     public enum Type {
@@ -707,9 +698,9 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         public static AbstractSailShip.Type getTypeFromString(String nameIn) {
             AbstractSailShip.Type[] aboatentity$type = values();
 
-            for (int i = 0; i < aboatentity$type.length; ++i) {
-                if (aboatentity$type[i].getName().equals(nameIn)) {
-                    return aboatentity$type[i];
+            for (Type type : aboatentity$type) {
+                if (type.getName().equals(nameIn)) {
+                    return type;
                 }
             }
 

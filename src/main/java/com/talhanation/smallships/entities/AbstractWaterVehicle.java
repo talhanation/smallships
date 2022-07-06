@@ -140,7 +140,6 @@ public abstract class AbstractWaterVehicle extends Entity {
     @Override
     public void positionRider(Entity passenger) {
         if (!hasPassenger(passenger)) {
-            return;
         }
     }
 
@@ -287,7 +286,7 @@ public abstract class AbstractWaterVehicle extends Entity {
                     FluidState fluidstate = this.level.getFluidState(blockpos$mutable);
                     if (fluidstate.is(FluidTags.WATER)) {
                         float f = (float) l1 + fluidstate.getHeight(this.level, blockpos$mutable);
-                        this.waterLevel = Math.max((double) f, this.waterLevel);
+                        this.waterLevel = Math.max(f, this.waterLevel);
                         flag |= axisalignedbb.minY < (double) f;
                     }
                 }
@@ -318,7 +317,7 @@ public abstract class AbstractWaterVehicle extends Entity {
                         if (j2 <= 0 || k2 != k && k2 != l - 1) {
                             blockpos$mutable.set(l1, k2, i2);
                             BlockState blockstate = this.level.getBlockState(blockpos$mutable);
-                            if (!(blockstate.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, blockpos$mutable).move((double) l1, (double) k2, (double) i2), voxelshape, BooleanOp.AND)) {
+                            if (!(blockstate.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, blockpos$mutable).move(l1, k2, i2), voxelshape, BooleanOp.AND)) {
                                 f += blockstate.getFriction(this.level, blockpos$mutable, this);
                                 ++k1;
                             }
@@ -447,9 +446,9 @@ public abstract class AbstractWaterVehicle extends Entity {
         public static AbstractWaterVehicle.Type getTypeFromString(String nameIn) {
             AbstractWaterVehicle.Type[] aboatentity$type = values();
 
-            for (int i = 0; i < aboatentity$type.length; ++i) {
-                if (aboatentity$type[i].getName().equals(nameIn)) {
-                    return aboatentity$type[i];
+            for (Type type : aboatentity$type) {
+                if (type.getName().equals(nameIn)) {
+                    return type;
                 }
             }
 

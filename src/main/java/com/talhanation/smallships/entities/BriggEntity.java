@@ -231,7 +231,7 @@ public class BriggEntity extends AbstractCannonShip{
                 public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
                     return new BasicShipContainer(i, BriggEntity.this, playerInventory);
                 }
-            }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
+            }, packetBuffer -> packetBuffer.writeUUID(getUUID()));
         } else {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player));
         }
@@ -473,8 +473,8 @@ public class BriggEntity extends AbstractCannonShip{
                 }
             }
             f = f - 0.5;
-            Vec3 vector3d = (new Vec3((double)f, 0.0D, 0.0D + d)).yRot(-this.getYRot() * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
-            passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, + this.getZ() + vector3d.z);
+            Vec3 vector3d = (new Vec3(f, 0.0D, 0.0D + d)).yRot(-this.getYRot() * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
+            passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, this.getZ() + vector3d.z);
             passenger.setYRot(passenger.getYRot() + this.deltaRotation);
             passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyYawToEntity(passenger);

@@ -56,7 +56,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         float f1 = 0.06F;
         this.setDeltaMovement(vector3d.scale(f));
         if (!this.isNoGravity()) {
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, (double)-f1, 0.0D));
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -f1, 0.0D));
         }
         this.setPos(d0, d1, d2);
 
@@ -119,8 +119,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
                 this.doEnchantDamageEffects((LivingEntity) entity1, hit);
             }
 
-            if (hit instanceof AbstractShipDamage) {
-                AbstractShipDamage shipDamage = (AbstractShipDamage) hit;
+            if (hit instanceof AbstractShipDamage shipDamage) {
                 shipDamage.damageShip(random.nextInt(7) + 7);
                 this.level.playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundInit.SHIP_CANNON_DAMAGE.get(), this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
             }

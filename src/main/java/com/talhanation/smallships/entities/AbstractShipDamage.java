@@ -4,7 +4,7 @@ import com.talhanation.smallships.DamageSourceShip;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -112,19 +112,12 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (isInvulnerable()) {
+        Entity sourceEntity = source.getDirectEntity();
+        if (level.isClientSide || !isAlive() || isInvulnerable() || sourceEntity == null) {
             return false;
         }
 
-        if (level.isClientSide || !isAlive()) {
-            return false;
-        }
-
-        if (source.getDirectEntity() instanceof Player){
-            Player player = (Player) source.getDirectEntity();
-            if (player == null) {
-                return false;
-            }
+        if (sourceEntity instanceof Player player){
 
             if (hasPassenger(player)) {
                 return false;
@@ -146,7 +139,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         }
         if (getShipDamage() >= 100) destroyShip(source);
         if (amount >= 2) damageShip(amount);
-         return false;
+        return false;
     }
 
     public abstract ResourceLocation getLootTable();

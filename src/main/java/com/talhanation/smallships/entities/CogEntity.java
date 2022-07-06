@@ -144,24 +144,14 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public int getPassengerSize() {
-        switch (getTotalCannonCount()){
-            default:
-            case 0:
-            return 5;
-
-            case 1:
-                return 2;
-
-            case 2:
-                return 3;
-
-            case 3:
-                return 3;
-
-            case 4:
-                return 2;
-
-        }
+        return switch (getTotalCannonCount()) {
+            case 0 -> 5;
+            case 1 -> 2;
+            case 2 -> 3;
+            case 3 -> 3;
+            case 4 -> 2;
+            default -> throw new IllegalStateException("Unexpected passenger size: " + getTotalCannonCount());
+        };
     }
 
     public int getMaxCannons(){//max cannons
@@ -255,7 +245,7 @@ public class CogEntity extends AbstractCannonShip{
                 public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
                     return new BasicShipContainer(i, CogEntity.this, playerInventory);
                 }
-            }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
+            }, packetBuffer -> packetBuffer.writeUUID(getUUID()));
         } else {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player));
         }
@@ -312,13 +302,11 @@ public class CogEntity extends AbstractCannonShip{
             if (getPassengers().size() == 2) {
                 int i = getPassengers().indexOf(passenger);
                 if (i == 0) {
-
                     f = -1.75F;
-                    d = 0.0F;
                 } else {
                     f = 1.25F;
-                    d = 0.0F;
                 }
+                d = 0.0F;
             } else if (getPassengers().size() == 3) {
                 int i = getPassengers().indexOf(passenger);
                 if (i == 0) {
@@ -366,8 +354,8 @@ public class CogEntity extends AbstractCannonShip{
                 }
             }
             f = f + x;
-            Vec3 vector3d = (new Vec3((double)f, 0.0D, 0.0D + d)).yRot(-this.getYRot() * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
-            passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, + this.getZ() + vector3d.z);
+            Vec3 vector3d = (new Vec3(f, 0.0D, 0.0D + d)).yRot(-this.getYRot() * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
+            passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, this.getZ() + vector3d.z);
             passenger.setYRot(passenger.getYRot() + this.deltaRotation);
             passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyYawToEntity(passenger);

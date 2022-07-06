@@ -22,6 +22,15 @@ public class RenderItemCog extends BlockEntityWithoutLevelRenderer {
 
     @Override
     public void renderByItem(ItemStack itemStackIn, ItemTransforms.TransformType transformType, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn) {
-        renderer.render(((CogItem) ModItems.OAK_COG_ITEM.get()).getCogEntity(Minecraft.getInstance().level), -90F, 1F, matrixStackIn, bufferIn, combinedLightIn);
+        CogItem cogItem;
+        switch (((CogItem) itemStackIn.getItem()).getType()) {
+            case BIRCH -> cogItem = (CogItem) ModItems.BIRCH_COG_ITEM.get();
+            case ACACIA -> cogItem = (CogItem) ModItems.ACACIA_COG_ITEM.get();
+            case JUNGLE -> cogItem = (CogItem) ModItems.JUNGLE_COG_ITEM.get();
+            case SPRUCE -> cogItem = (CogItem) ModItems.SPRUCE_COG_ITEM.get();
+            case DARK_OAK -> cogItem = (CogItem) ModItems.DARK_OAK_COG_ITEM.get();
+            default -> cogItem = (CogItem) ModItems.OAK_COG_ITEM.get();
+        }
+        renderer.render(cogItem.getCogEntity(Minecraft.getInstance().level), -90F, 1F, matrixStackIn, bufferIn, combinedLightIn);
     }
 }

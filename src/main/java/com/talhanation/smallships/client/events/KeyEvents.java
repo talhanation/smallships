@@ -82,8 +82,7 @@ public class KeyEvents {
         }
          */
 
-        if (vehicle instanceof AbstractInventoryEntity){
-            AbstractInventoryEntity invboat = (AbstractInventoryEntity) vehicle;
+        if (vehicle instanceof AbstractInventoryEntity invboat){
             if (boat.getPassengers().contains(clientPlayerEntity)) {
                 if (Main.INV_KEY.isDown()) {
                     invboat.openGUI(clientPlayerEntity);

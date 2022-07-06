@@ -528,47 +528,42 @@ public class ModelCogSail extends EntityModel<CogEntity> {
 	@Override
 	public void setupAnim(CogEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		int state = entityIn.getSailState();
-		switch (state){
-			case 0:
-
-				this.Segel_0.visible= true;
-				this.Segel_1.visible= false;
-				this.Segel_2.visible= false;
-				this.Segel_3.visible= false;
-				this.Segel_4.visible= false;
-				break;
-
-			case 1:
-				this.Segel_0.visible= false;
-				this.Segel_1.visible= true;
-				this.Segel_2.visible= false;
-				this.Segel_3.visible= false;
-				this.Segel_4.visible= false;
-				break;
-
-			case 2:
-				this.Segel_0.visible= false;
-				this.Segel_1.visible= false;
-				this.Segel_2.visible= true;
-				this.Segel_3.visible= false;
-				this.Segel_4.visible= false;
-				break;
-
-			case 3:
-				this.Segel_0.visible= false;
-				this.Segel_1.visible= false;
-				this.Segel_2.visible= false;
-				this.Segel_3.visible= true;
-				this.Segel_4.visible= false;
-				break;
-
-			case 4:
-				this.Segel_0.visible= false;
-				this.Segel_1.visible= false;
-				this.Segel_2.visible= false;
-				this.Segel_3.visible= false;
-				this.Segel_4.visible= true;
-				break;
+		switch (state) {
+			case 0 -> {
+				this.Segel_0.visible = true;
+				this.Segel_1.visible = false;
+				this.Segel_2.visible = false;
+				this.Segel_3.visible = false;
+				this.Segel_4.visible = false;
+			}
+			case 1 -> {
+				this.Segel_0.visible = false;
+				this.Segel_1.visible = true;
+				this.Segel_2.visible = false;
+				this.Segel_3.visible = false;
+				this.Segel_4.visible = false;
+			}
+			case 2 -> {
+				this.Segel_0.visible = false;
+				this.Segel_1.visible = false;
+				this.Segel_2.visible = true;
+				this.Segel_3.visible = false;
+				this.Segel_4.visible = false;
+			}
+			case 3 -> {
+				this.Segel_0.visible = false;
+				this.Segel_1.visible = false;
+				this.Segel_2.visible = false;
+				this.Segel_3.visible = true;
+				this.Segel_4.visible = false;
+			}
+			case 4 -> {
+				this.Segel_0.visible = false;
+				this.Segel_1.visible = false;
+				this.Segel_2.visible = false;
+				this.Segel_3.visible = false;
+				this.Segel_4.visible = true;
+			}
 		}
 	}
 

@@ -53,6 +53,10 @@ public class CogItem extends Item {
         return cog;
     }
 
+    public CogEntity.Type getType() {
+        return this.type;
+    }
+
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
@@ -68,7 +72,7 @@ public class CogItem extends Item {
                 Vec3 vector3d1 = playerIn.getEyePosition(1.0F);
 
                 for(Entity entity : list) {
-                    AABB axisalignedbb = entity.getBoundingBox().inflate((double)entity.getPickRadius());
+                    AABB axisalignedbb = entity.getBoundingBox().inflate(entity.getPickRadius());
                     if (axisalignedbb.contains(vector3d1)) {
                         return InteractionResultHolder.pass(itemstack);
                     }
