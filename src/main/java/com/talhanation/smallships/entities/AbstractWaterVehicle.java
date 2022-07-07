@@ -185,7 +185,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     private void tickLerp() {
         if (this.isControlledByLocalInstance()) {
             this.steps = 0;
-            this.setPacketCoordinates(this.getX(), this.getY(), this.getZ());
+            this.syncPacketPositionCodec(this.getX(), this.getY(), this.getZ());
         }
 
         if (this.steps > 0) {
