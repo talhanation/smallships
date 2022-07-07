@@ -1,16 +1,20 @@
 package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.LilyPadBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.network.IPacket;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -471,6 +475,23 @@ public abstract class AbstractWaterVehicle extends Entity {
             }
 
             return aboatentity$type[0];
+        }
+    }
+
+    public boolean isInBubbleColumn() {
+        return this.level.getBlockState(this.blockPosition()).is(Blocks.BUBBLE_COLUMN);
+    }
+
+    @Override
+    public void onInsideBubbleColumn(boolean p_203004_1_) {
+        return;
+    }
+
+    public void onAboveBubbleCol(boolean p_203002_1_) {
+        if(this.level.isClientSide())
+        this.level.addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7D, this.getZ() + (double)this.random.nextFloat(), 0.0D, 0.0D, 0.0D);
+        if (this.random.nextInt(20) == 0) {
+            this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
         }
     }
 }

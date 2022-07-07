@@ -98,7 +98,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     public abstract int getMaxCannons();
 
     public int getTotalCannonCount(){
-        return getLeftCannonCount() + getLeftCannonCount();
+        return getRightCannonCount() + getLeftCannonCount();
     }
 
     public int getRightShootCoolDown(){
@@ -197,7 +197,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public void startCannons(boolean a) {
-        if ((this.getTotalCannonCount() > 0)) {
+        if ((this.getTotalCannonCount() >= 1)) {
             this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.TNT_PRIMED, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
             shootCannons();
         }

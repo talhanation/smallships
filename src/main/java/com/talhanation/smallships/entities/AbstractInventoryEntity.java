@@ -2,16 +2,22 @@ package com.talhanation.smallships.entities;
 
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventoryChangedListener;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
 public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
+    private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(AbstractInventoryEntity.class, DataSerializers.INT);
     private final Inventory inventory = new Inventory(this.getInventorySize());
 
     public AbstractInventoryEntity(EntityType<? extends AbstractInventoryEntity> type, World world) {
@@ -22,15 +28,18 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     public void tick() {
         super.tick();
-
+        updateCargo();
     }
 
     ////////////////////////////////////DATA////////////////////////////////////
 
 
+    @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        entityData.define(CARGO, 0);
     }
+
 
     public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
@@ -46,6 +55,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         }
 
         nbt.put("Inventory", list);
+        nbt.putInt("Cargo", getCargo());
     }
 
     public void readAdditionalSaveData(CompoundNBT nbt) {
@@ -57,8 +67,8 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
             this.inventory.setItem(j, ItemStack.of(compoundnbt));
         }
+        this.setCargo(nbt.getInt("Cargo"));
     }
-
 
     ////////////////////////////////////GET////////////////////////////////////
 
@@ -67,6 +77,12 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
     }
 
     public abstract int getInventorySize();
+
+
+    public int getCargo() {
+        return entityData.get(CARGO);
+    }
+
     ////////////////////////////////////SET////////////////////////////////////
 
 
@@ -84,6 +100,11 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         }
     }
 
+
+    public void setCargo(int cargo){
+        entityData.set(CARGO, cargo);
+    }
+
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
     public abstract void openGUI(PlayerEntity player);
@@ -94,5 +115,24 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         super.destroyShip(dmg);
     }
 
+    public void updateCargo() {
+        int x, tempload = 0;
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            if (!inventory.getItem(i).isEmpty())
+                tempload++;
+        }
+        if (tempload > 31) {
+            x = 4;
+        } else if (tempload > 16) {
+            x = 3;
+        } else if (tempload > 8) {
+            x = 2;
+        } else if (tempload > 3) {
+            x = 1;
+        } else {
+            x = 0;
+        }
+        setCargo(x);
+    }
 }
 

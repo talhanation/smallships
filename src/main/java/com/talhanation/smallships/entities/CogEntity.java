@@ -10,14 +10,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.*;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -33,8 +28,6 @@ import javax.annotation.Nullable;
 
 public class CogEntity extends AbstractCannonShip{
 
-    private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(CogEntity.class, DataSerializers.INT);
-
     public CogEntity(EntityType<? extends CogEntity> type, World world) {
         super(type, world);
     }
@@ -49,13 +42,7 @@ public class CogEntity extends AbstractCannonShip{
         this.zo = z;
     }
 
-
-    ///////////////////////////////////TICK/////////////////////////////////////////
-
-    public void tick() {
-        super.tick();
-        initInventory();
-    }
+    ////////////////////////////////////GET////////////////////////////////////
 
     // hight and width for now as mast
     @Override
@@ -68,38 +55,8 @@ public class CogEntity extends AbstractCannonShip{
         return 1.5D;
     }
 
-    ////////////////////////////////////DATA////////////////////////////////////
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        entityData.define(CARGO, 0);
-    }
-
-    ////////////////////////////////////SAVE DATA////////////////////////////////////
-
-    @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
-       super.addAdditionalSaveData(nbt);
-        nbt.putInt("Cargo", getCargo());
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
-        super.readAdditionalSaveData(nbt);
-        this.setCargo(nbt.getInt("Cargo"));
-    }
-
-    @Override
     public double getShipDefense() { //in %
         return 30;
-    }
-
-
-    ////////////////////////////////////GET////////////////////////////////////
-
-    public int getCargo() {
-        return entityData.get(CARGO);
     }
 
     @Override
@@ -151,6 +108,7 @@ public class CogEntity extends AbstractCannonShip{
             return 5;
 
             case 1:
+            case 4:
                 return 2;
 
             case 2:
@@ -159,9 +117,6 @@ public class CogEntity extends AbstractCannonShip{
             case 3:
                 return 3;
 
-            case 4:
-                return 2;
-
         }
     }
 
@@ -169,77 +124,65 @@ public class CogEntity extends AbstractCannonShip{
         return 4;
     }
 
-    ////////////////////////////////////SET////////////////////////////////////
-
-    public void setCargo(int cargo){
-        entityData.set(CARGO, cargo);
-    }
-
     ////////////////////////////////////INTERACTIONS///////////////////////////////
 
     @Override
     public ActionResultType interact(PlayerEntity player, Hand hand) {
-
         ItemStack itemInHand = player.getItemInHand(hand);
+        if (player.isSecondaryUseActive()) {
 
-        if (itemInHand.getItem() == ModItems.CANNON_ITEM.get()){
-            this.onInteractionWithCannon(player, itemInHand);
-            return ActionResultType.SUCCESS;
-        }
-
-        if (itemInHand.getItem() instanceof DyeItem){
-            this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
-            return ActionResultType.SUCCESS;
-        }
-
-        if (itemInHand.getItem() instanceof BannerItem){
-            this.onInteractionWithBanner(itemInHand,player);
-            return ActionResultType.SUCCESS;
-        }
-
-        if (itemInHand.getItem() instanceof AxeItem){
-            if (hasPlanks(player.inventory) && hasIronNugget(player.inventory) && getShipDamage() > 16.0D) {
-                this.onInteractionWitAxe(player);
-                return ActionResultType.SUCCESS;
-            }
-            else return ActionResultType.FAIL;
-        }
-
-        else if (itemInHand.getItem() instanceof ShearsItem){
-            if (this.getHasBanner()){
-                this.onInteractionWithShears(player);
-                return ActionResultType.SUCCESS;
-            }
-            return ActionResultType.PASS;
-        }
-
-        else if (player.isSecondaryUseActive()) {
-
-            if (this.isVehicle() && !(getControllingPassenger() instanceof PlayerEntity)){
+            if (this.isVehicle() && !(getControllingPassenger() instanceof PlayerEntity)) {
                 this.ejectPassengers();
                 //this.passengerwaittime = 200;
-            }
-
-            else {
+            } else {
                 if (!(getControllingPassenger() instanceof PlayerEntity)) {
                     this.openGUI(player);
-                } return ActionResultType.sidedSuccess(this.level.isClientSide);
-            } return ActionResultType.PASS;
+                }
+                return ActionResultType.sidedSuccess(this.level.isClientSide);
+            }
+
         }
 
-        else if (!player.isSecondaryUseActive()){
-
-            if (!this.level.isClientSide) {
-                return player.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
-
-            } else {
+        if (!this.getSunken()) {
+            if (itemInHand.getItem() == ModItems.CANNON_ITEM.get()) {
+                this.onInteractionWithCannon(player, itemInHand);
                 return ActionResultType.SUCCESS;
             }
 
+            if (itemInHand.getItem() instanceof DyeItem) {
+                this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
+                return ActionResultType.SUCCESS;
+            }
 
-        } else {
-            return ActionResultType.PASS;
+            if (itemInHand.getItem() instanceof BannerItem) {
+                this.onInteractionWithBanner(itemInHand, player);
+                return ActionResultType.SUCCESS;
+            }
+
+            if (itemInHand.getItem() instanceof AxeItem) {
+                if (hasPlanks(player.inventory) && hasIronNugget(player.inventory) && getShipDamage() > 16.0D) {
+                    this.onInteractionWitAxe(player);
+                    return ActionResultType.SUCCESS;
+                } else return ActionResultType.FAIL;
+            } else if (itemInHand.getItem() instanceof ShearsItem) {
+                if (this.getHasBanner()) {
+                    this.onInteractionWithShears(player);
+                    return ActionResultType.SUCCESS;
+                }
+                return ActionResultType.PASS;
+            }
+            if (!player.isSecondaryUseActive()) {
+
+                if (!this.level.isClientSide) {
+                    return player.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
+
+                } else {
+                    return ActionResultType.SUCCESS;
+                }
+            }
         }
+
+       return ActionResultType.FAIL;
     }
 
     @Override
@@ -374,26 +317,5 @@ public class CogEntity extends AbstractCannonShip{
             applyYawToEntity(passenger);
         }
 
-    }
-
-    public void initInventory(){
-        Inventory inventory = this.getInventory();
-        int sigma, tempload = 0;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
-            if (!inventory.getItem(i).isEmpty())
-                tempload++;
-        }
-        if (tempload > 31) {
-            sigma = 4;
-        } else if (tempload > 16) {
-            sigma = 3;
-        } else if (tempload > 8) {
-            sigma = 2;
-        } else if (tempload > 3) {
-            sigma = 1;
-        } else {
-            sigma = 0;
-        }
-        entityData.set(CARGO, sigma);
     }
 }
