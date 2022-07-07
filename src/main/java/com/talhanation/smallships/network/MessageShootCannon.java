@@ -16,7 +16,6 @@ public class MessageShootCannon implements Message<MessageShootCannon> {
 
     public MessageShootCannon(boolean shoot) {
         this.shoot = shoot;
-
     }
 
     public Dist getExecutingSide() {

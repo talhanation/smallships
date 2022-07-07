@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.WaterlilyBlock;
@@ -68,7 +69,6 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         super.tick();
         tickLerp();
-
         recalculateBoundingBox();
         checkInsideBlocks();
         handleCollisionWithEntity();
@@ -122,19 +122,19 @@ public abstract class AbstractWaterVehicle extends Entity {
         return this.getPassengers().size() < getPassengerSize() && !SmallShipsConfig.PassengerBlackList.get().contains(passenger.getEncodeId());
     }
 
-    protected void applyYawToEntity(Entity entityToUpdate) {
-        entityToUpdate.setYRot(this.getYRot());
-        float f = Mth.wrapDegrees(entityToUpdate.getYRot() - this.getYRot());
+    protected void applyOriantationsToEntity(Entity entityToUpdate) {
+        entityToUpdate.setYBodyRot(getYRot());
+        float f = Mth.wrapDegrees(entityToUpdate.getYRot() - getYRot());
         float f1 = Mth.clamp(f, -130.0F, 130.0F);
         entityToUpdate.yRotO += f1 - f;
-        entityToUpdate.setYBodyRot(entityToUpdate.getYRot() + f1 - f);
+        entityToUpdate.setYRot(entityToUpdate.getYRot() + f1 - f);
         entityToUpdate.setYHeadRot(entityToUpdate.getYRot());
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void onPassengerTurned(Entity entityToUpdate) {
-        this.applyYawToEntity(entityToUpdate);
+        this.applyOriantationsToEntity(entityToUpdate);
     }
 
     @Override

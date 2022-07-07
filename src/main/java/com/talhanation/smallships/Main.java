@@ -16,6 +16,7 @@ import com.talhanation.smallships.network.MessageOpenGui;
 import com.talhanation.smallships.network.MessageSailState;
 import com.talhanation.smallships.network.MessageShootCannon;
 import de.maxhenkel.corelib.ClientRegistry;
+import de.maxhenkel.corelib.CommonRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -79,46 +80,13 @@ public class Main {
 
     private void setup(final FMLCommonSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
+
         SIMPLE_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("smallships", "default"), () -> "1.0.0", s -> true, s -> true);
 
-        SIMPLE_CHANNEL.registerMessage(0, MessageControlShip.class, MessageControlShip::toBytes,
-                buf -> (new MessageControlShip()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(1, MessageOpenGui.class, MessageOpenGui::toBytes,
-                buf -> (new MessageOpenGui()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(2, MessageSailState.class, MessageSailState::toBytes,
-                buf -> (new MessageSailState()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(3, MessageShootCannon.class, MessageShootCannon::toBytes,
-                buf -> (new MessageShootCannon()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        /*
-        SIMPLE_CHANNEL.registerMessage(0, MessagePaddleState.class, MessagePaddleState::toBytes,
-                buf -> (new MessagePaddleState()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(2, MessageSteerState.class, MessageSteerState::toBytes,
-                buf -> (new MessageSteerState()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(4, MessageIsForward.class, MessageIsForward::toBytes,
-                buf -> (new MessageIsForward()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(5, MessageDismount.class, MessageDismount::toBytes,
-                buf -> (new MessageDismount()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(6, MessageLantern.class, MessageLantern::toBytes,
-                buf -> (new MessageLantern()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        */
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageControlShip.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageOpenGui.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageSailState.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageShootCannon.class);
     }
 
     @SubscribeEvent

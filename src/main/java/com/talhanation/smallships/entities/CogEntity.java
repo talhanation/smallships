@@ -358,7 +358,7 @@ public class CogEntity extends AbstractCannonShip{
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, this.getZ() + vector3d.z);
             passenger.setYRot(passenger.getYRot() + this.deltaRotation);
             passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
-            applyYawToEntity(passenger);
+            applyOriantationsToEntity(passenger);
         }
 
     }
