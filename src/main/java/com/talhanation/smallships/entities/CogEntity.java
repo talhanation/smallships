@@ -17,7 +17,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,8 +30,6 @@ import net.minecraftforge.network.NetworkHooks;
 import javax.annotation.Nullable;
 
 public class CogEntity extends AbstractCannonShip{
-
-    private static final EntityDataAccessor<Integer> CARGO = SynchedEntityData.defineId(CogEntity.class, EntityDataSerializers.INT);
 
     public CogEntity(EntityType<? extends CogEntity> type, Level world) {
         super(type, world);
@@ -48,13 +45,13 @@ public class CogEntity extends AbstractCannonShip{
         this.zo = z;
     }
 
-
-    ///////////////////////////////////TICK/////////////////////////////////////////
-
-    public void tick() {
-        super.tick();
-        initInventory();
+    @Override
+    public double getShipDefense() { //in %
+        return 30;
     }
+
+
+    ////////////////////////////////////GET////////////////////////////////////
 
     // hight and width for now as mast
     @Override
@@ -67,39 +64,6 @@ public class CogEntity extends AbstractCannonShip{
         return 1.5D;
     }
 
-    ////////////////////////////////////DATA////////////////////////////////////
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        entityData.define(CARGO, 0);
-    }
-
-    ////////////////////////////////////SAVE DATA////////////////////////////////////
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
-       super.addAdditionalSaveData(nbt);
-        nbt.putInt("Cargo", getCargo());
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
-        super.readAdditionalSaveData(nbt);
-        this.setCargo(nbt.getInt("Cargo"));
-    }
-
-    @Override
-    public double getShipDefense() { //in %
-        return 30;
-    }
-
-
-    ////////////////////////////////////GET////////////////////////////////////
-
-    public int getCargo() {
-        return entityData.get(CARGO);
-    }
 
     @Override
     public int getInventorySize() {
@@ -158,77 +122,65 @@ public class CogEntity extends AbstractCannonShip{
         return 4;
     }
 
-    ////////////////////////////////////SET////////////////////////////////////
-
-    public void setCargo(int cargo){
-        entityData.set(CARGO, cargo);
-    }
-
     ////////////////////////////////////INTERACTIONS///////////////////////////////
 
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
 
         ItemStack itemInHand = player.getItemInHand(hand);
+        if (player.isSecondaryUseActive()) {
 
-        if (itemInHand.getItem() == ModItems.CANNON_ITEM.get()){
-            this.onInteractionWithCannon(player, itemInHand);
-            return InteractionResult.SUCCESS;
-        }
-
-        if (itemInHand.getItem() instanceof DyeItem){
-            this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
-            return InteractionResult.SUCCESS;
-        }
-
-        if (itemInHand.getItem() instanceof BannerItem){
-            this.onInteractionWithBanner(itemInHand,player);
-            return InteractionResult.SUCCESS;
-        }
-
-        if (itemInHand.getItem() instanceof AxeItem){
-            if (hasPlanks(player.getInventory()) && hasIronNugget(player.getInventory()) && getShipDamage() > 16.0D) {
-                this.onInteractionWitAxe(player);
-                return InteractionResult.SUCCESS;
-            }
-            else return InteractionResult.FAIL;
-        }
-
-        else if (itemInHand.getItem() instanceof ShearsItem){
-            if (this.getHasBanner()){
-                this.onInteractionWithShears(player);
-                return InteractionResult.SUCCESS;
-            }
-            return InteractionResult.PASS;
-        }
-
-        else if (player.isSecondaryUseActive()) {
-
-            if (this.isVehicle() && !(getControllingPassenger() instanceof Player)){
+            if (this.isVehicle() && !(getControllingPassenger() instanceof Player)) {
                 this.ejectPassengers();
                 //this.passengerwaittime = 200;
-            }
-
-            else {
+            } else {
                 if (!(getControllingPassenger() instanceof Player)) {
                     this.openGUI(player);
-                } return InteractionResult.sidedSuccess(this.level.isClientSide);
-            } return InteractionResult.PASS;
+                }
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+
         }
 
-        else if (!player.isSecondaryUseActive()){
-
-            if (!this.level.isClientSide) {
-                return player.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
-
-            } else {
+        if (!this.getSunken()) {
+            if (itemInHand.getItem() == ModItems.CANNON_ITEM.get()) {
+                this.onInteractionWithCannon(player, itemInHand);
                 return InteractionResult.SUCCESS;
             }
 
+            if (itemInHand.getItem() instanceof DyeItem) {
+                this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
+                return InteractionResult.SUCCESS;
+            }
 
-        } else {
-            return InteractionResult.PASS;
+            if (itemInHand.getItem() instanceof BannerItem) {
+                this.onInteractionWithBanner(itemInHand, player);
+                return InteractionResult.SUCCESS;
+            }
+
+            if (itemInHand.getItem() instanceof AxeItem) {
+                if (hasPlanks(player.getInventory()) && hasIronNugget(player.getInventory()) && getShipDamage() > 16.0D) {
+                    this.onInteractionWitAxe(player);
+                    return InteractionResult.SUCCESS;
+                } else return InteractionResult.FAIL;
+            } else if (itemInHand.getItem() instanceof ShearsItem) {
+                if (this.getHasBanner()) {
+                    this.onInteractionWithShears(player);
+                    return InteractionResult.SUCCESS;
+                }
+                return InteractionResult.PASS;
+            }
+            if (!player.isSecondaryUseActive()) {
+
+                if (!this.level.isClientSide) {
+                    return player.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
+
+                } else {
+                    return InteractionResult.SUCCESS;
+                }
+            }
         }
+        return InteractionResult.FAIL;
     }
 
     @Override
@@ -361,26 +313,5 @@ public class CogEntity extends AbstractCannonShip{
             applyOriantationsToEntity(passenger);
         }
 
-    }
-
-    public void initInventory(){
-        SimpleContainer inventory = this.getInventory();
-        int sigma, tempload = 0;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
-            if (!inventory.getItem(i).isEmpty())
-                tempload++;
-        }
-        if (tempload > 31) {
-            sigma = 4;
-        } else if (tempload > 16) {
-            sigma = 3;
-        } else if (tempload > 8) {
-            sigma = 2;
-        } else if (tempload > 3) {
-            sigma = 1;
-        } else {
-            sigma = 0;
-        }
-        entityData.set(CARGO, sigma);
     }
 }
