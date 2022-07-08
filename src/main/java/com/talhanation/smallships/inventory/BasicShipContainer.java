@@ -14,7 +14,7 @@ public class BasicShipContainer extends ContainerBase {
     private final AbstractShipDamage ship;
 
     public BasicShipContainer(int id, AbstractShipDamage ship, Inventory playerInventory) {
-        super(Main.BASIC_SHIP_CONTAINER_TYPE.get(), id, playerInventory, ship.getInventory());
+        super(Main.BASIC_SHIP_CONTAINER_TYPE, id, playerInventory, ship.getInventory());
         this.ship = ship;
         this.shipInventory = ship.getInventory();
 
