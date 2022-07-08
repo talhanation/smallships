@@ -24,7 +24,7 @@ import java.util.List;
 
 public class RenderBanner {
 
-    public static void renderBanner(AbstractBannerUser abstractBannerUser, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, ItemStack banner, int packedLight, ModelPart modelRenderer) {
+    public static void renderBanner(AbstractBannerUser abstractBannerUser, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, ItemStack banner, int packedLight, ModelPart modelPart) {
 
         if (!banner.isEmpty()) {
             matrixStackIn.pushPose();
@@ -66,9 +66,12 @@ public class RenderBanner {
                 if (!Mth.equal(bannerWaveAngle, 0F))
                     matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(bannerWaveAngle));
 
+                modelPart.getChild("pole").visible = false;
+                modelPart.getChild("bar").visible = false;
+
                 // getting banner pattern here
                 List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(((BannerItem) banner.getItem()).getColor(), BannerBlockEntity.getItemPatterns(banner));
-                BannerRenderer.renderPatterns(matrixStackIn, bufferIn, packedLight, OverlayTexture.NO_OVERLAY, modelRenderer, ModelBakery.BANNER_BASE, true, patterns);
+                BannerRenderer.renderPatterns(matrixStackIn, bufferIn, packedLight, OverlayTexture.NO_OVERLAY, modelPart, ModelBakery.BANNER_BASE, true, patterns);
                 matrixStackIn.popPose();
             }
         }
