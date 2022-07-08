@@ -44,9 +44,10 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
     public void tick() {
         super.tick();
         //for banner wave
-        this.prevBannerWaveAngle = this.bannerWaveAngle;
-        this.bannerWaveAngle = (float) Math.sin(getBannerWaveSpeed() * (float) tickCount) * getBannerWaveFactor();
-
+        if(getHasBanner()) {
+            this.prevBannerWaveAngle = this.bannerWaveAngle;
+            this.bannerWaveAngle = (float) Math.sin(getBannerWaveSpeed() * (float) tickCount) * getBannerWaveFactor();
+        }
     }
 
     ////////////////////////////////////REGISTER////////////////////////////////////
