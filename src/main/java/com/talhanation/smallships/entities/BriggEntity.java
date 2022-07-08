@@ -34,8 +34,6 @@ import javax.annotation.Nullable;
 
 public class BriggEntity extends AbstractCannonShip{
 
-    private static final EntityDataAccessor<Integer> CARGO = SynchedEntityData.defineId(BriggEntity.class, EntityDataSerializers.INT);
-
     public BriggEntity(EntityType<? extends BriggEntity> type, Level world) {
         super(type, world);
     }
@@ -55,7 +53,6 @@ public class BriggEntity extends AbstractCannonShip{
 
     public void tick() {
         super.tick();
-        initInventory();
     }
 
     @Override
@@ -68,38 +65,11 @@ public class BriggEntity extends AbstractCannonShip{
         return 1.75D;
     }
 
-    ////////////////////////////////////DATA////////////////////////////////////
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        entityData.define(CARGO, 0);
-    }
-
-    ////////////////////////////////////SAVE DATA////////////////////////////////////
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
-       super.addAdditionalSaveData(nbt);
-        nbt.putInt("Cargo", getCargo());
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
-        super.readAdditionalSaveData(nbt);
-        this.setCargo(nbt.getInt("Cargo"));
-    }
+    ////////////////////////////////////GET////////////////////////////////////
 
     @Override
     public double getShipDefense() { //in %
         return 30;
-    }
-
-
-    ////////////////////////////////////GET////////////////////////////////////
-
-    public int getCargo() {
-        return entityData.get(CARGO);
     }
 
     @Override
@@ -152,11 +122,6 @@ public class BriggEntity extends AbstractCannonShip{
         return 8;
     }
 
-    ////////////////////////////////////SET////////////////////////////////////
-
-    public void setCargo(int cargo){
-        entityData.set(CARGO, cargo);
-    }
     ////////////////////////////////////INTERACTIONS///////////////////////////////
 
     @Override
@@ -479,27 +444,5 @@ public class BriggEntity extends AbstractCannonShip{
             passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyOriantationsToEntity(passenger);
         }
-
-    }
-
-    public void initInventory(){
-        SimpleContainer inventory = this.getInventory();
-        int sigma, tempload = 0;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
-            if (!inventory.getItem(i).isEmpty())
-                tempload++;
-        }
-        if (tempload > 31) {
-            sigma = 4;
-        } else if (tempload > 16) {
-            sigma = 3;
-        } else if (tempload > 8) {
-            sigma = 2;
-        } else if (tempload > 3) {
-            sigma = 1;
-        } else {
-            sigma = 0;
-        }
-        entityData.set(CARGO, sigma);
     }
 }
