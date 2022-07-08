@@ -8,7 +8,7 @@ loaderVersion="[41,)" #mandatory This is typically bumped every Minecraft versio
 
 modId="smallships"
 
-version="2.0.0"
+version="2.0.0-a0.2"
 
 displayName="Small Ships Mod"
 updateJSONURL="https://raw.githubusercontent.com/talhanation/Ship-Mod/main/update.json"
