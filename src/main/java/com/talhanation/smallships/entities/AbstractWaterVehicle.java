@@ -3,7 +3,9 @@ package com.talhanation.smallships.entities;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -11,8 +13,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WaterlilyBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -68,7 +72,6 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         super.tick();
         tickLerp();
-
         recalculateBoundingBox();
         checkInsideBlocks();
         handleCollisionWithEntity();
@@ -122,19 +125,19 @@ public abstract class AbstractWaterVehicle extends Entity {
         return this.getPassengers().size() < getPassengerSize() && !SmallShipsConfig.PassengerBlackList.get().contains(passenger.getEncodeId());
     }
 
-    protected void applyYawToEntity(Entity entityToUpdate) {
-        entityToUpdate.setYRot(this.getYRot());
-        float f = Mth.wrapDegrees(entityToUpdate.getYRot() - this.getYRot());
+    protected void applyOriantationsToEntity(Entity entityToUpdate) {
+        entityToUpdate.setYBodyRot(getYRot());
+        float f = Mth.wrapDegrees(entityToUpdate.getYRot() - getYRot());
         float f1 = Mth.clamp(f, -130.0F, 130.0F);
         entityToUpdate.yRotO += f1 - f;
-        entityToUpdate.setYBodyRot(entityToUpdate.getYRot() + f1 - f);
+        entityToUpdate.setYRot(entityToUpdate.getYRot() + f1 - f);
         entityToUpdate.setYHeadRot(entityToUpdate.getYRot());
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void onPassengerTurned(Entity entityToUpdate) {
-        this.applyYawToEntity(entityToUpdate);
+        this.applyOriantationsToEntity(entityToUpdate);
     }
 
     @Override
@@ -453,6 +456,23 @@ public abstract class AbstractWaterVehicle extends Entity {
             }
 
             return aboatentity$type[0];
+        }
+    }
+
+    public boolean isInBubbleColumn() {
+        return this.level.getBlockState(this.blockPosition()).is(Blocks.BUBBLE_COLUMN);
+    }
+
+    @Override
+    public void onInsideBubbleColumn(boolean p_203004_1_) {
+        return;
+    }
+
+    public void onAboveBubbleCol(boolean p_203002_1_) {
+        if(this.level.isClientSide())
+            this.level.addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7D, this.getZ() + (double)this.random.nextFloat(), 0.0D, 0.0D, 0.0D);
+        if (this.random.nextInt(20) == 0) {
+            this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
         }
     }
 }

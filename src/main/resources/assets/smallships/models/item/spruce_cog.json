@@ -3,7 +3,7 @@
   "display": {
     "gui": {
       "rotation": [ 0, 330, 0 ],
-      "translation": [ 2, -4, 0],
+      "translation": [ 0, -4, 0],
       "scale":[ 0.1, 0.1, 0.1]
     },
     "ground": {

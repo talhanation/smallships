@@ -16,8 +16,8 @@ public class RenderSailColor {
         ModelCogSail model = new ModelCogSail();
         matrixStackIn.pushPose();
         model.setupAnim((CogEntity) ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
-        VertexConsumer ivertexbuilder = bufferIn.getBuffer(model.renderType(getSailColor(sailColor)));
-        model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        VertexConsumer vertexConsumer = bufferIn.getBuffer(model.renderType(getSailColor(sailColor)));
+        model.renderToBuffer(matrixStackIn, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
         matrixStackIn.popPose();
     }

@@ -27,8 +27,8 @@ public class RenderCannon{
 
         ModelCannon model = new ModelCannon();
         model.setupAnim(cannonShip, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
-        VertexConsumer ivertexbuilder = bufferIn.getBuffer(model.renderType(getCannonTexture()));
-        model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        VertexConsumer vertexConsumer = bufferIn.getBuffer(model.renderType(getCannonTexture()));
+        model.renderToBuffer(matrixStackIn, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStackIn.popPose();
     }
 

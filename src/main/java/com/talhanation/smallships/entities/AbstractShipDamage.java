@@ -17,6 +17,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractShipDamage extends AbstractBannerUser {
     private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(AbstractShipDamage.class, EntityDataSerializers.FLOAT);
@@ -38,6 +40,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     @Override
     public void tick() {
         super.tick();
+
         if (isInLava()) {
             setShipDamage(getShipDamage() + 1.5F);
         }
@@ -46,11 +49,13 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
             setShipDamage(getShipDamage() + 0.5F);
         }
 
-        //if(isOverBubble)
-
-        if (getShipDamage() >= 100){
+        if(this.isInBubbleColumn()) {
+            setShipDamage(getShipDamage() + 0.15F);
+        }
+        if (getShipDamage() >= 100 || this.isUnderWater()){
             setSunken(true);
             this.setDeltaMovement(0, -0.2D,0);
+            if(level.isClientSide()) updateSunkenParticles();
         }
 
     }
@@ -100,6 +105,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
                     //this.level.addParticle(ParticleTypes.BUBBLE, this.getX(2.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
                 }
             }
+            this.ejectPassengers();
             entityData.set(SUNKEN, sunken);
         }
     }
@@ -134,11 +140,14 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
             return false;
         }
         if (source.isProjectile()){
-            if (amount >= 2) damageShip(amount);
+            if (amount >= 2) damageShip(amount/2);
             this.markHurt();
+            source.getDirectEntity().remove(RemovalReason.KILLED);
         }
-        if (getShipDamage() >= 100) destroyShip(source);
-        if (amount >= 2) damageShip(amount);
+        if (getShipDamage() >= 100)
+            destroyShip(source);
+        if (amount >= 2)
+            damageShip(amount);
         return false;
     }
 
@@ -150,6 +159,15 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
+
+    @OnlyIn(Dist.CLIENT)
+    public void updateSunkenParticles(){
+        if (random.nextInt(5) == 0) {
+            for(int i = 0; i < random.nextInt(1) + 1; ++i) {
+                this.level.addParticle(ParticleTypes.BUBBLE, (double)this.getOnPos().getX() + 0.5D, (double)this.getOnPos().getY() + 3.5D, (double)this.getOnPos().getZ() + 0.5D, (double)(random.nextFloat() / 2.0F), 5.0E-5D, (double)(random.nextFloat() / 2.0F));
+            }
+        }
+    }
 
     public void damageShip(double damage) {
         setShipDamage((float) (((getShipDamage()) + (damage - (damage * getShipDefense()/100)))));

@@ -2,6 +2,9 @@ package com.talhanation.smallships.entities;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -12,6 +15,7 @@ import net.minecraft.world.level.Level;
 
 public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
+    private static final EntityDataAccessor<Integer> CARGO = SynchedEntityData.defineId(AbstractInventoryEntity.class, EntityDataSerializers.INT);
     private final SimpleContainer inventory = new SimpleContainer(this.getInventorySize());
 
     public AbstractInventoryEntity(EntityType<? extends AbstractInventoryEntity> type, Level world) {
@@ -23,14 +27,18 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
     public void tick() {
         super.tick();
 
+        updateCargo();
     }
 
     ////////////////////////////////////DATA////////////////////////////////////
 
-
+    @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        entityData.define(CARGO, 0);
     }
+
+    ////////////////////////////////////SAVE DATA////////////////////////////////////
 
     public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
@@ -46,6 +54,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         }
 
         nbt.put("Inventory", list);
+        nbt.putInt("Cargo", getCargo());
     }
 
     public void readAdditionalSaveData(CompoundTag nbt) {
@@ -57,10 +66,15 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
             this.inventory.setItem(j, ItemStack.of(compoundnbt));
         }
+        this.setCargo(nbt.getInt("Cargo"));
     }
 
 
     ////////////////////////////////////GET////////////////////////////////////
+
+    public int getCargo() {
+        return entityData.get(CARGO);
+    }
 
     public SimpleContainer getInventory() {
         return this.inventory;
@@ -84,6 +98,10 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         }
     }
 
+    public void setCargo(int cargo){
+        entityData.set(CARGO, cargo);
+    }
+
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
     public abstract void openGUI(Player player);
@@ -92,6 +110,27 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         for (int i = 0; i < this.inventory.getContainerSize(); i++)
             Containers.dropItemStack(this.level, getX(), getY(), getZ(), this.inventory.getItem(i));
         super.destroyShip(dmg);
+    }
+
+    public void updateCargo(){
+        SimpleContainer inventory = this.getInventory();
+        int x, tempload = 0;
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            if (!inventory.getItem(i).isEmpty())
+                tempload++;
+        }
+        if (tempload > 31) {
+            x = 4;
+        } else if (tempload > 16) {
+            x = 3;
+        } else if (tempload > 8) {
+            x = 2;
+        } else if (tempload > 3) {
+            x = 1;
+        } else {
+            x = 0;
+        }
+        setCargo(x);
     }
 
 }
