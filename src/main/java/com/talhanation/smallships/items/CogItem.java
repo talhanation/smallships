@@ -36,6 +36,10 @@ public class CogItem extends Item {
         return cog;
     }
 
+    public CogEntity.Type getType() {
+        return this.type;
+    }
+
 
     @Override
     public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {

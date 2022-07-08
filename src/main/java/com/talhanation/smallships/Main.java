@@ -69,12 +69,11 @@ public class Main {
         modEventBus.addListener(this::setup);
 
         modEventBus.addGenericListener(ContainerType.class, this::registerContainers);
-        modEventBus.addGenericListener(Item.class, ModItems::registerItems);
+
         SoundInit.SOUNDS.register(modEventBus);
         //ModBlocks.BLOCKS.register(modEventBus);
         ModEntityTypes.ENTITY_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
-        //ModItems.registerItems();
         MinecraftForge.EVENT_BUS.register(this);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::clientSetup));

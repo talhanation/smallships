@@ -11,22 +11,19 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModItems {
-
-
-
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Main.MOD_ID);
     //public static final RegistryObject<Item> SHIP_ITEM = ITEMS.register("ship_item", ShipItem::new);
     public static final RegistryObject<Item> SAIL_ITEM = ITEMS.register("sail_item", () -> new Item((new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION))));
     public static final RegistryObject<Item> CANNON_ITEM = ITEMS.register("cannon_item", () -> new Item((new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION))));
     public static final RegistryObject<Item> CANNONBALL = ITEMS.register("cannonball_item", () -> new Item((new Item.Properties().stacksTo(16).tab(ItemGroup.TAB_TRANSPORTATION))));
 
-    public static CogItem OAK_COG_ITEM = new CogItem(CogEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION));
+    public static final RegistryObject<Item> OAK_COG_ITEM = ITEMS.register("oak_cog", () -> new CogItem(CogEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> SPRUCE_COG_ITEM = ITEMS.register("spruce_cog", () -> new CogItem(CogEntity.Type.SPRUCE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> BIRCH_COG_ITEM = ITEMS.register("birch_cog", () -> new CogItem(CogEntity.Type.BIRCH, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> JUNGLE_COG_ITEM = ITEMS.register("jungle_cog", () -> new CogItem(CogEntity.Type.JUNGLE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> ACACIA_COG_ITEM = ITEMS.register("acacia_cog", () -> new CogItem(CogEntity.Type.ACACIA, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> DARK_OAK_COG_ITEM = ITEMS.register("dark_oak_cog", () -> new CogItem(CogEntity.Type.DARK_OAK, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
 
-    public static void registerItems(RegistryEvent.Register<Item> event) {
-        event.getRegistry().registerAll(
-                OAK_COG_ITEM.setRegistryName(Main.MOD_ID, "oak_cog")
-        );
-    }
     /*
     public static final RegistryObject<Item> OAK_ROWBOAT_ITEM =         createRowBoat("oak", AbstractRowBoatEntity.Type.OAK, true);
     public static final RegistryObject<Item> SPRUCE_ROWBOAT_ITEM =      createRowBoat("spruce", AbstractRowBoatEntity.Type.SPRUCE, true);
