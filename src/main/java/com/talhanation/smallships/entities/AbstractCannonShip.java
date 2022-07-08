@@ -197,7 +197,6 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
     public void startCannons(boolean a) {
         if ((this.getTotalCannonCount() >= 1)) {
-            this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.TNT_PRIMED, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
             shootCannons();
         }
     }
@@ -262,6 +261,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, this.getDriver(), d1, d2, d3);
         cannonBallEntity.shoot(shootVector.x() ,yShootVec , shootVector.z(), speed, k);
         this.level.addFreshEntity(cannonBallEntity);
+        this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.TNT_PRIMED, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
         this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundInit.CANNON_SHOOT.get(), this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
 
         //decrease items
