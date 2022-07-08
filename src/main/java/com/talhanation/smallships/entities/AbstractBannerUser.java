@@ -17,7 +17,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
 public abstract class AbstractBannerUser extends AbstractInventoryEntity {
     private static final EntityDataAccessor<Boolean> HAS_BANNER = SynchedEntityData.defineId(AbstractBannerUser.class, EntityDataSerializers.BOOLEAN);

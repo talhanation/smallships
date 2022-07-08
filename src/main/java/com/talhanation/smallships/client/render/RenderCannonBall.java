@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 
 public class RenderCannonBall extends EntityRenderer<CannonBallEntity>{
-    private static final ResourceLocation[] COG_TEXTURES = new ResourceLocation[]{
+    private static final ResourceLocation[] CANNON_BALL_TEXTURES = new ResourceLocation[]{
             new ResourceLocation(Main.MOD_ID,"textures/entity/cannonball.png"),
     };
 
@@ -28,18 +28,18 @@ public class RenderCannonBall extends EntityRenderer<CannonBallEntity>{
     @Override
     public void render(CannonBallEntity entityIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
         matrixStackIn.pushPose();
-        matrixStackIn.scale(1F, 1F, 1F);
+        matrixStackIn.scale(1.5F, 1.5F, 1.5F);
         //                                x                y               z (- nachhinten)
         matrixStackIn.translate(0.0D, -1.0D,0.0D);
-        VertexConsumer ivertexbuilder = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
-        this.model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        VertexConsumer vertexConsumer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
+        this.model.renderToBuffer(matrixStackIn, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStackIn.popPose();
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
     }
 
     @Override
     public ResourceLocation getTextureLocation(CannonBallEntity entity) {
-        return COG_TEXTURES[0];
+        return CANNON_BALL_TEXTURES[0];
     }
 
 }

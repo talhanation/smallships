@@ -3,7 +3,9 @@ package com.talhanation.smallships.entities;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -11,8 +13,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WaterlilyBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -23,7 +27,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -68,7 +72,6 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         super.tick();
         tickLerp();
-
         recalculateBoundingBox();
         checkInsideBlocks();
         handleCollisionWithEntity();
@@ -122,25 +125,24 @@ public abstract class AbstractWaterVehicle extends Entity {
         return this.getPassengers().size() < getPassengerSize() && !SmallShipsConfig.PassengerBlackList.get().contains(passenger.getEncodeId());
     }
 
-    protected void applyYawToEntity(Entity entityToUpdate) {
-        entityToUpdate.setYRot(this.getYRot());
-        float f = Mth.wrapDegrees(entityToUpdate.getYRot() - this.getYRot());
+    protected void applyOriantationsToEntity(Entity entityToUpdate) {
+        entityToUpdate.setYBodyRot(getYRot());
+        float f = Mth.wrapDegrees(entityToUpdate.getYRot() - getYRot());
         float f1 = Mth.clamp(f, -130.0F, 130.0F);
         entityToUpdate.yRotO += f1 - f;
-        entityToUpdate.setYBodyRot(entityToUpdate.getYRot() + f1 - f);
+        entityToUpdate.setYRot(entityToUpdate.getYRot() + f1 - f);
         entityToUpdate.setYHeadRot(entityToUpdate.getYRot());
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void onPassengerTurned(Entity entityToUpdate) {
-        this.applyYawToEntity(entityToUpdate);
+        this.applyOriantationsToEntity(entityToUpdate);
     }
 
     @Override
     public void positionRider(Entity passenger) {
         if (!hasPassenger(passenger)) {
-            return;
         }
     }
 
@@ -287,7 +289,7 @@ public abstract class AbstractWaterVehicle extends Entity {
                     FluidState fluidstate = this.level.getFluidState(blockpos$mutable);
                     if (fluidstate.is(FluidTags.WATER)) {
                         float f = (float) l1 + fluidstate.getHeight(this.level, blockpos$mutable);
-                        this.waterLevel = Math.max((double) f, this.waterLevel);
+                        this.waterLevel = Math.max(f, this.waterLevel);
                         flag |= axisalignedbb.minY < (double) f;
                     }
                 }
@@ -318,7 +320,7 @@ public abstract class AbstractWaterVehicle extends Entity {
                         if (j2 <= 0 || k2 != k && k2 != l - 1) {
                             blockpos$mutable.set(l1, k2, i2);
                             BlockState blockstate = this.level.getBlockState(blockpos$mutable);
-                            if (!(blockstate.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, blockpos$mutable).move((double) l1, (double) k2, (double) i2), voxelshape, BooleanOp.AND)) {
+                            if (!(blockstate.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, blockpos$mutable).move(l1, k2, i2), voxelshape, BooleanOp.AND)) {
                                 f += blockstate.getFriction(this.level, blockpos$mutable, this);
                                 ++k1;
                             }
@@ -447,13 +449,30 @@ public abstract class AbstractWaterVehicle extends Entity {
         public static AbstractWaterVehicle.Type getTypeFromString(String nameIn) {
             AbstractWaterVehicle.Type[] aboatentity$type = values();
 
-            for (int i = 0; i < aboatentity$type.length; ++i) {
-                if (aboatentity$type[i].getName().equals(nameIn)) {
-                    return aboatentity$type[i];
+            for (Type type : aboatentity$type) {
+                if (type.getName().equals(nameIn)) {
+                    return type;
                 }
             }
 
             return aboatentity$type[0];
+        }
+    }
+
+    public boolean isInBubbleColumn() {
+        return this.level.getBlockState(this.blockPosition()).is(Blocks.BUBBLE_COLUMN);
+    }
+
+    @Override
+    public void onInsideBubbleColumn(boolean p_203004_1_) {
+        return;
+    }
+
+    public void onAboveBubbleCol(boolean p_203002_1_) {
+        if(this.level.isClientSide())
+            this.level.addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7D, this.getZ() + (double)this.random.nextFloat(), 0.0D, 0.0D, 0.0D);
+        if (this.random.nextInt(20) == 0) {
+            this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
         }
     }
 }

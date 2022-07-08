@@ -16,8 +16,8 @@ public class RenderSailColor {
         ModelCogSail model = new ModelCogSail();
         matrixStackIn.pushPose();
         model.setupAnim((CogEntity) ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
-        VertexConsumer ivertexbuilder = bufferIn.getBuffer(model.renderType(getSailColor(sailColor)));
-        model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        VertexConsumer vertexConsumer = bufferIn.getBuffer(model.renderType(getSailColor(sailColor)));
+        model.renderToBuffer(matrixStackIn, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
         matrixStackIn.popPose();
     }
@@ -41,57 +41,25 @@ public class RenderSailColor {
 
 
     private static ResourceLocation getSailColor(String color) {
-        switch (color) {
-            default:
-            case "white":
-                return WHITE;
-
-            case "orange":
-                return ORANGE;
-
-            case "magenta":
-                return MAGENTA;
-
-            case "light_blue":
-                return LIGHT_BLUE;
-
-            case "yellow":
-                return YELLOW;
-
-            case "lime":
-                return LIME;
-
-            case "pink":
-                return PINK;
-
-            case "purple":
-                return PURPLE;
-
-            case "gray":
-                return GRAY;
-
-            case "light_gray":
-                return LIGHT_GRAY;
-
-            case "cyan":
-                return CYAN;
-
-            case "blue":
-                return BLUE;
-
-            case "brown":
-                return BROWN;
-
-            case "green":
-                return GREEN;
-
-            case "red":
-                return RED;
-
-            case "black":
-                return BLACK;
-
-        }
+        return switch (color) {
+            case "white" -> WHITE;
+            case "orange" -> ORANGE;
+            case "magenta" -> MAGENTA;
+            case "light_blue" -> LIGHT_BLUE;
+            case "yellow" -> YELLOW;
+            case "lime" -> LIME;
+            case "pink" -> PINK;
+            case "purple" -> PURPLE;
+            case "gray" -> GRAY;
+            case "light_gray" -> LIGHT_GRAY;
+            case "cyan" -> CYAN;
+            case "blue" -> BLUE;
+            case "brown" -> BROWN;
+            case "green" -> GREEN;
+            case "red" -> RED;
+            case "black" -> BLACK;
+            default -> WHITE;
+        };
     }
 
 }

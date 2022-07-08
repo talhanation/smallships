@@ -29,7 +29,7 @@ public class RenderEvents {
     @SubscribeEvent
     public void onRender(EntityViewRenderEvent.CameraSetup evt) {
         if (getShip() != null && !mc.options.getCameraType().isFirstPerson()) {
-            evt.getInfo().move(-evt.getInfo().getMaxZoom(SmallShipsConfig.ShipZoom.get() - 4D), 0D, 0D);
+            evt.getCamera().move(-evt.getCamera().getMaxZoom(SmallShipsConfig.ShipZoom.get() - 4D), 0D, 0D);
         }
     }
 
@@ -82,42 +82,4 @@ public class RenderEvents {
         }
         return null;
     }
-/*
-    //THIRDPERSON SCREEN
-    public void renderShipInfo(MatrixStack matrixStack, AbstractShipDamage ship) {
-        matrixStack.pushPose();
-
-        mc.getTextureManager().bind(SHIP_INFO_TEXTURE);
-
-        int texWidth = 110;
-        int texHeight = 90;
-
-        int height = mc.getWindow().getGuiScaledHeight();
-        int width = mc.getWindow().getGuiScaledWidth();
-
-        float scale = 1; // SmallShipsConfig.CONFIG.ShipInfoScale.get().floatValue();
-        matrixStack.scale(scale, scale, 1F);
-        matrixStack.translate(-width, -height, 0D);
-        matrixStack.translate(((double) width) * (1D / scale), ((double) height * (1D / scale)), 0D);
-
-        int padding = 3;
-        int yStart = height - texHeight - padding;
-        int xStart = width - texWidth - padding;
-
-        mc.gui.blit(matrixStack, xStart, yStart, 0, 0, texWidth, texHeight);
-
-        FontRenderer font = mc.gui.getFont();
-
-        Function<Integer, Integer> heightFunc = integer -> yStart + 8 + (font.lineHeight + 2) * integer;
-
-        //font.draw(matrixStack, new TranslationTextComponent("tooltip.ship.speed", SmallShipsConfig.shipInfoSpeedType.get().getTextComponent(ship.getDeltaMovement().length())).getVisualOrderText(), xStart + 7, heightFunc.apply(0), 0);
-        font.draw(matrixStack, new TranslationTextComponent("tooltip.ship.sailstate", String.valueOf(Math.round(ship.getSailState() * 100F))).getVisualOrderText(), xStart + 7, heightFunc.apply(2), 0);
-        //font.draw(matrixStack, new TranslationTextComponent("tooltip.ship.waterbiome", String.valueOf(Math.round(ship.getY()))).getVisualOrderText(), xStart + 7, heightFunc.apply(3), 0);
-        //font.draw(matrixStack, new TranslationTextComponent("tooltip.ship.fuel", String.valueOf(ship.getFuel())).getVisualOrderText(), xStart + 7, heightFunc.apply(5), 0);
-        font.draw(matrixStack, new TranslationTextComponent("tooltip.ship.damage", String.valueOf(MathUtils.round(ship.getShipDamage(), 2))).getVisualOrderText(), xStart + 7, heightFunc.apply(4), 0);
-
-        matrixStack.popPose();
-    }
-
- */
 }

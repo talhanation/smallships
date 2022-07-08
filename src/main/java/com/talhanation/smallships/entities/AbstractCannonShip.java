@@ -97,7 +97,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     public abstract int getMaxCannons();
 
     public int getTotalCannonCount(){
-        return getLeftCannonCount() + getLeftCannonCount();
+        return getRightCannonCount() + getLeftCannonCount();
     }
 
     public int getRightShootCoolDown(){
@@ -196,7 +196,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public void startCannons(boolean a) {
-        if ((this.getTotalCannonCount() > 0)) {
+        if ((this.getTotalCannonCount() >= 1)) {
             this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.TNT_PRIMED, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
             shootCannons();
         }
@@ -238,16 +238,12 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
             boolean playerView= getDriver().getLookAngle().y >= 0;
             double yShootVec = playerView ? shootVector.y() + getDriver().getLookAngle().y * 0.75F : shootVector.y() + 0.25F;
 
-;
             float f2 = 0;
             for(int i = 0; i < cannonCount; i++){
-                switch (i){
-                    case 0: f2 = 0.2F;
-                    break;
-                    case 1: f2 = -1.4F;
-                    break;
-                    case 2: f2 = -3.8F;
-                    break;
+                switch (i) {
+                    case 0 -> f2 = 0.2F;
+                    case 1 -> f2 = -1.4F;
+                    case 2 -> f2 = -3.8F;
                 }
             if (canShoot())
                 shootCannon(forward, shootVector, yShootVec, speed, f2, k, x0);
@@ -290,35 +286,23 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     public void renderCannon(PoseStack matrixStack, MultiBufferSource buffer , int packedLight, float partialTicks) {
         if (getLeftCannonCount() != 0) {
             for (int i = 0; i < getLeftCannonCount(); i++) {
-                double offset = 0;
-                switch (i) {
-                    case 0:
-                        offset = 1;
-                        break;
-                    case 1:
-                        offset = -0.2;
-                        break;
-                    case 2:
-                        offset = -1.5;
-                        break;
-                }
+                double offset = switch (i) {
+                    case 0 -> 1;
+                    case 1 -> -0.2;
+                    case 2 -> -1.5;
+                    default -> 0;
+                };
                 RenderCannon.renderCannon(offset, 0,this, partialTicks, matrixStack, buffer, packedLight);
             }
         }
         if (getRightCannonCount() != 0) {
             for (int i = 0; i < getRightCannonCount(); i++) {
-                double offset = 0;
-                switch (i) {
-                    case 0:
-                        offset = -1;
-                        break;
-                    case 1:
-                        offset = 0.2;
-                        break;
-                    case 2:
-                        offset = 1.5;
-                        break;
-                }
+                double offset = switch (i) {
+                    case 0 -> -1;
+                    case 1 -> 0.2;
+                    case 2 -> 1.5;
+                    default -> 0;
+                };
                 RenderCannon.renderCannon(offset,180, this, partialTicks, matrixStack, buffer, packedLight);
             }
         }

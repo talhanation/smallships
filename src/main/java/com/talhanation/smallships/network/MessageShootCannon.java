@@ -5,7 +5,7 @@ import de.maxhenkel.corelib.net.Message;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class MessageShootCannon implements Message<MessageShootCannon> {
 
@@ -16,7 +16,6 @@ public class MessageShootCannon implements Message<MessageShootCannon> {
 
     public MessageShootCannon(boolean shoot) {
         this.shoot = shoot;
-
     }
 
     public Dist getExecutingSide() {

@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
@@ -40,13 +40,11 @@ public class MessageControlShip implements Message<MessageControlShip> {
             return;
         }
 
-        Entity e = context.getSender().getVehicle();
+        Entity entity = context.getSender().getVehicle();
 
-        if (!(e instanceof AbstractSailShip)) {
+        if (!(entity instanceof AbstractSailShip ship)) {
             return;
         }
-
-        AbstractSailShip ship = (AbstractSailShip) e;
 
         ship.updateControls(forward, backward, left, right, context.getSender());
         ship.sendMessage(new TextComponent("Forward: " + forward), context.getSender().getUUID());
