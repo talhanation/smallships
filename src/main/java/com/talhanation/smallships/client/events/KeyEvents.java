@@ -17,7 +17,7 @@ public class KeyEvents {
     private boolean wasCannonPressed;
 
     @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event) {
+    public void onKeyInput(InputEvent.Key event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer clientPlayerEntity = minecraft.player;
         if (clientPlayerEntity == null)
