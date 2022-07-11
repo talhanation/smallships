@@ -153,7 +153,7 @@ public class Main {
             if (ship == null) {
                 return null;
             }
-            return new BasicShipContainer(windowId, ship, inv);
+            return new BasicShipContainer(windowId, ship, inv, 0);
         });
 
         BASIC_SHIP_CONTAINER_TYPE.setRegistryName(new ResourceLocation(Main.MOD_ID, "basic_container"));

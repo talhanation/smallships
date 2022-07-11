@@ -86,7 +86,7 @@ public class KeyEvents {
             AbstractInventoryEntity invboat = (AbstractInventoryEntity) vehicle;
             if (boat.getPassengers().contains(clientPlayerEntity)) {
                 if (Main.INV_KEY.isDown()) {
-                    invboat.openGUI(clientPlayerEntity);
+                    invboat.openGUI(clientPlayerEntity, 0);
                     this.wasInvPressed = true;
                 } else {
                     this.wasInvPressed = false;

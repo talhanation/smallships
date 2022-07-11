@@ -23,8 +23,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-import javax.annotation.Nullable;
-
 
 public class CogEntity extends AbstractCannonShip{
 
@@ -61,7 +59,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public int getInventorySize() {
-        return 54;
+        return 54+54;
     }
 
     @Override
@@ -136,7 +134,7 @@ public class CogEntity extends AbstractCannonShip{
                 //this.passengerwaittime = 200;
             } else {
                 if (!(getControllingPassenger() instanceof PlayerEntity)) {
-                    this.openGUI(player);
+                    this.openGUI(player, 0);
                 }
                 return ActionResultType.sidedSuccess(this.level.isClientSide);
             }
@@ -186,7 +184,7 @@ public class CogEntity extends AbstractCannonShip{
     }
 
     @Override
-    public void openGUI(PlayerEntity player) {
+    public void openGUI(PlayerEntity player, int startSlot) {
         if (player instanceof ServerPlayerEntity) {
             NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
                 @Override
@@ -194,12 +192,12 @@ public class CogEntity extends AbstractCannonShip{
                     return getName();
                 }
 
-                @Nullable
                 @Override
                 public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                    return new BasicShipContainer(i, CogEntity.this, playerInventory);
+                    return new BasicShipContainer(i, CogEntity.this, playerInventory, startSlot);
                 }
-            }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
+            }, packetBuffer -> {packetBuffer.writeUUID(getUUID());
+            });
         } else {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player));
         }
@@ -245,6 +243,7 @@ public class CogEntity extends AbstractCannonShip{
 
         }
     }
+
 
     @Override
     public void positionRider(Entity passenger) {

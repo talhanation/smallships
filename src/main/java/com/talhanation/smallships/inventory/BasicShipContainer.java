@@ -13,11 +13,13 @@ public class BasicShipContainer extends ContainerBase {
 
     private final IInventory shipInventory;
     private final AbstractShipDamage ship;
+    private final int startSlot;
 
-    public BasicShipContainer(int id, AbstractShipDamage ship, PlayerInventory playerInventory) {
+    public BasicShipContainer(int id, AbstractShipDamage ship, PlayerInventory playerInventory, int startSlot) {
         super(Main.BASIC_SHIP_CONTAINER_TYPE, id, playerInventory, ship.getInventory());
         this.ship = ship;
         this.shipInventory = ship.getInventory();
+        this.startSlot = startSlot;//startSlot
 
         addShipInventorySlots();
         addPlayerInventorySlots();
@@ -31,7 +33,7 @@ public class BasicShipContainer extends ContainerBase {
     public void addShipInventorySlots() {
         for (int k = 0; k < 6; ++k) {
             for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(shipInventory, l + k * 9, 8 + l * 18,  18 + k * 18));
+                this.addSlot(new Slot(shipInventory, l + k * 9 + startSlot, 8 + l * 18,  18 + k * 18));
             }
         }
     }

@@ -107,7 +107,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
-    public abstract void openGUI(PlayerEntity player);
+    public abstract void openGUI(PlayerEntity player, int startSlot);
 
     public void destroyShip(DamageSource dmg) {
         for (int i = 0; i < this.inventory.getContainerSize(); i++)

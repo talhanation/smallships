@@ -1,6 +1,5 @@
 package com.talhanation.smallships.network;
 
-import com.talhanation.smallships.CommonEvents;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.entity.Entity;
@@ -11,14 +10,14 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.UUID;
 
-public class MessageOpenGui implements Message<MessageOpenGui> {
+public class MessageOpenGui2 implements Message<MessageOpenGui2> {
     private UUID uuid;
 
-    public MessageOpenGui(){
+    public MessageOpenGui2(){
         this.uuid = new UUID(0, 0);
     }
 
-    public MessageOpenGui(PlayerEntity player){
+    public MessageOpenGui2(PlayerEntity player){
         this.uuid = player.getUUID();
     }
 
@@ -31,12 +30,12 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
             return;
         }
 
-        Entity e = context.getSender();
+        Entity e = context.getSender().getVehicle();
         if (e instanceof AbstractInventoryEntity)
-            CommonEvents.openGUI(context.getSender(), 54);
+            ((AbstractInventoryEntity)e).openGUI(context.getSender(), 54);
     }
 
-    public MessageOpenGui fromBytes(PacketBuffer buf) {
+    public MessageOpenGui2 fromBytes(PacketBuffer buf) {
         this.uuid = buf.readUUID();
         return this;
     }

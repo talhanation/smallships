@@ -197,7 +197,7 @@ public class BriggEntity extends AbstractCannonShip{
             else {
 
                 if (!(getControllingPassenger() instanceof PlayerEntity)) {
-                    openGUI(player);
+                    openGUI(player, 0);
                 } return ActionResultType.sidedSuccess(this.level.isClientSide);
             } return ActionResultType.PASS;
         }
@@ -218,7 +218,7 @@ public class BriggEntity extends AbstractCannonShip{
     }
 
     @Override
-    public void openGUI(PlayerEntity player) {
+    public void openGUI(PlayerEntity player, int startSlot) {
         if (player instanceof ServerPlayerEntity) {
             NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
                 @Override
@@ -229,7 +229,7 @@ public class BriggEntity extends AbstractCannonShip{
                 @Nullable
                 @Override
                 public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                    return new BasicShipContainer(i, BriggEntity.this, playerInventory);
+                    return new BasicShipContainer(i, BriggEntity.this, playerInventory, 0);
                 }
             }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
         } else {
