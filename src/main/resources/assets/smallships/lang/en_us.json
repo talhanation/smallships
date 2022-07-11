@@ -331,5 +331,10 @@
 
   "tooltip.plane.damage": "Damage: %s %%",
   "tooltip.plane.throttle": "Throttle: %s %%",
-  "tooltip.plane.speed": "Speed: %s"
+  "tooltip.plane.speed": "Speed: %s",
+  "key.cannon_shoot": "Shoot with cannon",
+  "key.ship_right": "Steer right with ship",
+  "key.ship_left": "Steer left with ship",
+  "key.ship_backward": "Steer backwards with ship",
+  "key.ship_forward": "Steer forwards with ship"
 }
