@@ -18,6 +18,7 @@ import net.minecraft.world.World;
 public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(AbstractInventoryEntity.class, DataSerializers.INT);
+    private static final DataParameter<Integer> INV_PAGE = EntityDataManager.defineId(AbstractInventoryEntity.class, DataSerializers.INT);
     private final Inventory inventory = new Inventory(this.getInventorySize());
 
     public AbstractInventoryEntity(EntityType<? extends AbstractInventoryEntity> type, World world) {
@@ -38,6 +39,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
     protected void defineSynchedData() {
         super.defineSynchedData();
         entityData.define(CARGO, 0);
+        entityData.define(INV_PAGE, 1);
     }
 
 
@@ -56,6 +58,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
         nbt.put("Inventory", list);
         nbt.putInt("Cargo", getCargo());
+        nbt.putInt("InventoryPage", getInvPage());
     }
 
     public void readAdditionalSaveData(CompoundNBT nbt) {
@@ -68,6 +71,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
             this.inventory.setItem(j, ItemStack.of(compoundnbt));
         }
         this.setCargo(nbt.getInt("Cargo"));
+        this.setInvPage(nbt.getInt("InventoryPage"));
     }
 
     ////////////////////////////////////GET////////////////////////////////////
@@ -83,8 +87,18 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         return entityData.get(CARGO);
     }
 
-    ////////////////////////////////////SET////////////////////////////////////
+    public int getMaxInvPage(){
+        if(this.getInventorySize() <= 54) return 1;
+        else if (this.getInventorySize() > 54) return 2;
+        else
+            return 3;
+    }
 
+    public int getInvPage(){
+        return entityData.get(INV_PAGE);
+    }
+
+    ////////////////////////////////////SET////////////////////////////////////
 
     public boolean setSlot(int slot, ItemStack itemStack) {
         if (super.setSlot(slot, itemStack)) {
@@ -103,6 +117,10 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     public void setCargo(int cargo){
         entityData.set(CARGO, cargo);
+    }
+
+    public void setInvPage(int page){
+        entityData.set(INV_PAGE, page);
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////

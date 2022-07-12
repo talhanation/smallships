@@ -199,7 +199,7 @@ public class CogEntity extends AbstractCannonShip{
             }, packetBuffer -> {packetBuffer.writeUUID(getUUID());
             });
         } else {
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player));
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player, this, startSlot));
         }
     }
 

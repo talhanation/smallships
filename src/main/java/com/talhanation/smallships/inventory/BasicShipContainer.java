@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
 public class BasicShipContainer extends ContainerBase {
 
@@ -27,7 +28,7 @@ public class BasicShipContainer extends ContainerBase {
 
     @Override
     public int getInvOffset() {
-        return 55;
+        return 56;
     }
 
     public void addShipInventorySlots() {
@@ -50,5 +51,29 @@ public class BasicShipContainer extends ContainerBase {
     @Override
     public void removed(PlayerEntity playerIn) {
         super.removed(playerIn);
+    }
+
+    public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
+        ItemStack itemstack = ItemStack.EMPTY;
+        Slot slot = (Slot)this.slots.get(index);
+        if (slot != null && slot.hasItem()) {
+            ItemStack stack = slot.getItem();
+            itemstack = stack.copy();
+            if (index < this.getInventorySize()) {
+                if (!this.moveItemStackTo(stack, this.getInventorySize(), this.slots.size(), true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(stack, this.startSlot, this.getInventorySize(), false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (stack.isEmpty()) {
+                slot.set(ItemStack.EMPTY);
+            } else {
+                slot.setChanged();
+            }
+        }
+
+        return itemstack;
     }
 }

@@ -7,16 +7,12 @@ import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageOpenGui;
-import com.talhanation.smallships.network.MessageOpenGuiSecond;
 import de.maxhenkel.corelib.inventory.ScreenBase;
-import net.minecraft.client.gui.screen.CommandBlockScreen;
-import net.minecraft.client.gui.screen.inventory.CreativeScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
 
 public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
 
@@ -39,19 +35,24 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
     @Override
     protected void init() {
         super.init();
-        //HOME POS
-        addButton(new Button(leftPos + 90, topPos + 60, 12, 12, new StringTextComponent("->"), button -> {
-            //this works but you cant edit the container/ nothing will be saved...
-            /*
-            BasicShipContainer container = new BasicShipContainer(22222, ship,playerInventory, 54);
-            BasicShipInvScreen screen = new BasicShipInvScreen(container, playerInventory, title);
-            this.minecraft.setScreen(screen);
-            */
-            this.onClose();
-            Main.LOGGER.debug("Screen send Message done");
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGuiSecond(playerInventory.player, ship));
+        int zeroLeftPos = leftPos + 160;
+        int zeroTopPos = topPos + 15;
 
-        }));
+        if (ship.getMaxInvPage() > 1 && ship.getInvPage() > 1){
+            addButton(new Button(zeroLeftPos - 210, zeroTopPos, 40, 20, new StringTextComponent("<-"), button -> {
+
+                Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(playerInventory.player, ship, 0));
+                ship.setInvPage(ship.getInvPage() - 1);
+            }));
+        }
+
+        if(ship.getMaxInvPage() > 1 && ship.getInvPage() < ship.getMaxInvPage()){
+            addButton(new Button(zeroLeftPos + 20, zeroTopPos, 40, 20, new StringTextComponent("->"), button -> {
+
+                    ship.setInvPage(ship.getInvPage() + 1);
+                    Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(playerInventory.player, ship, 54));
+            }));
+        }
     }
 
 
@@ -60,6 +61,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         super.renderLabels(matrixStack, mouseX, mouseY);
         font.draw(matrixStack, ship.getDisplayName().getVisualOrderText(), 8, 6, FONT_COLOR);
         font.draw(matrixStack, playerInventory.getDisplayName().getVisualOrderText(), 8, imageHeight - 95, FONT_COLOR);
+        font.draw(matrixStack,ship.getInvPage() + "/"  + ship.getMaxInvPage(), 50, 6, FONT_COLOR);
         font.draw(matrixStack,"Damage: " + (double) Math.round(((AbstractShipDamage) ship).getShipDamage()) + "%", 95, 6, FONT_COLOR);
     }
 

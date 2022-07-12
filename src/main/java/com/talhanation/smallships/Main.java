@@ -5,7 +5,6 @@ import com.talhanation.smallships.client.events.PlayerEvents;
 import com.talhanation.smallships.client.events.RenderEvents;
 import com.talhanation.smallships.client.gui.BasicShipInvScreen;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
@@ -16,7 +15,6 @@ import de.maxhenkel.corelib.ClientRegistry;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -82,6 +80,7 @@ public class Main {
 
     private void setup(final FMLCommonSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new InventoryEvents());
         SIMPLE_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("smallships", "default"), () -> "1.0.0", s -> true, s -> true);
 
         SIMPLE_CHANNEL.registerMessage(0, MessageControlShip.class, MessageControlShip::toBytes,
@@ -100,8 +99,8 @@ public class Main {
                 buf -> (new MessageShootCannon()).fromBytes(buf),
                 (msg, fun) -> msg.executeServerSide(fun.get()));
 
-        SIMPLE_CHANNEL.registerMessage(4, MessageOpenGuiSecond.class, MessageOpenGuiSecond::toBytes,
-                buf -> (new MessageOpenGuiSecond()).fromBytes(buf),
+        SIMPLE_CHANNEL.registerMessage(4, MessageOpenGui.class, MessageOpenGui::toBytes,
+                buf -> (new MessageOpenGui()).fromBytes(buf),
                 (msg, fun) -> msg.executeServerSide(fun.get()));
 
         /*
