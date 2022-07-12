@@ -11,10 +11,7 @@ import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.inventory.BasicShipContainer;
-import com.talhanation.smallships.network.MessageControlShip;
-import com.talhanation.smallships.network.MessageOpenGui;
-import com.talhanation.smallships.network.MessageSailState;
-import com.talhanation.smallships.network.MessageShootCannon;
+import com.talhanation.smallships.network.*;
 import de.maxhenkel.corelib.ClientRegistry;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
@@ -35,10 +32,11 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
@@ -48,6 +46,8 @@ import java.util.UUID;
 public class Main {
     public static final String MOD_ID = "smallships";
     public static SimpleChannel SIMPLE_CHANNEL;
+    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+
     public static KeyBinding SAIL_KEY;
     public static KeyBinding SAIL_L_KEY;
     public static KeyBinding SAIL_H_KEY;
@@ -57,6 +57,7 @@ public class Main {
     public static KeyBinding BACK_KEY;
     public static KeyBinding LEFT_KEY;
     public static KeyBinding RIGHT_KEY;
+
 
     public static ContainerType<BasicShipContainer> BASIC_SHIP_CONTAINER_TYPE;
 
@@ -97,6 +98,10 @@ public class Main {
 
         SIMPLE_CHANNEL.registerMessage(3, MessageShootCannon.class, MessageShootCannon::toBytes,
                 buf -> (new MessageShootCannon()).fromBytes(buf),
+                (msg, fun) -> msg.executeServerSide(fun.get()));
+
+        SIMPLE_CHANNEL.registerMessage(4, MessageOpenGuiSecond.class, MessageOpenGuiSecond::toBytes,
+                buf -> (new MessageOpenGuiSecond()).fromBytes(buf),
                 (msg, fun) -> msg.executeServerSide(fun.get()));
 
         /*

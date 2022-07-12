@@ -12,10 +12,10 @@ import net.minecraft.inventory.container.Slot;
 public class BasicShipContainer extends ContainerBase {
 
     private final IInventory shipInventory;
-    private final AbstractShipDamage ship;
+    private final AbstractInventoryEntity ship;
     private final int startSlot;
 
-    public BasicShipContainer(int id, AbstractShipDamage ship, PlayerInventory playerInventory, int startSlot) {
+    public BasicShipContainer(int id, AbstractInventoryEntity ship, PlayerInventory playerInventory, int startSlot) {
         super(Main.BASIC_SHIP_CONTAINER_TYPE, id, playerInventory, ship.getInventory());
         this.ship = ship;
         this.shipInventory = ship.getInventory();
@@ -38,7 +38,7 @@ public class BasicShipContainer extends ContainerBase {
         }
     }
 
-    public AbstractShipDamage getShip() {
+    public AbstractInventoryEntity getShip() {
         return ship;
     }
 

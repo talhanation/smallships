@@ -3,9 +3,11 @@ package com.talhanation.smallships.client.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageOpenGui;
+import com.talhanation.smallships.network.MessageOpenGuiSecond;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import net.minecraft.client.gui.screen.CommandBlockScreen;
 import net.minecraft.client.gui.screen.inventory.CreativeScreen;
@@ -21,7 +23,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
     private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
 
     private final BasicShipContainer container;
-    private final AbstractShipDamage ship;
+    private final AbstractInventoryEntity ship;
     private final PlayerInventory playerInventory;
 
     public BasicShipInvScreen(BasicShipContainer container, PlayerInventory playerInventory, ITextComponent title) {
@@ -45,9 +47,10 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
             BasicShipInvScreen screen = new BasicShipInvScreen(container, playerInventory, title);
             this.minecraft.setScreen(screen);
             */
-
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(playerInventory.player));
             this.onClose();
+            Main.LOGGER.debug("Screen send Message done");
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGuiSecond(playerInventory.player, ship));
+
         }));
     }
 
@@ -57,7 +60,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         super.renderLabels(matrixStack, mouseX, mouseY);
         font.draw(matrixStack, ship.getDisplayName().getVisualOrderText(), 8, 6, FONT_COLOR);
         font.draw(matrixStack, playerInventory.getDisplayName().getVisualOrderText(), 8, imageHeight - 95, FONT_COLOR);
-        font.draw(matrixStack,"Damage: " + (double) Math.round(ship.getShipDamage()) + "%", 95, 6, FONT_COLOR);
+        font.draw(matrixStack,"Damage: " + (double) Math.round(((AbstractShipDamage) ship).getShipDamage()) + "%", 95, 6, FONT_COLOR);
     }
 
     @Override

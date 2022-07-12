@@ -1,6 +1,5 @@
 package com.talhanation.smallships.network;
 
-import com.talhanation.smallships.CommonEvents;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.entity.Entity;
@@ -31,9 +30,9 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
             return;
         }
 
-        Entity e = context.getSender();
+        Entity e = context.getSender().getVehicle();
         if (e instanceof AbstractInventoryEntity)
-            CommonEvents.openGUI(context.getSender(), 54);
+            ((AbstractInventoryEntity)e).openGUI(context.getSender(), 0);
     }
 
     public MessageOpenGui fromBytes(PacketBuffer buf) {
