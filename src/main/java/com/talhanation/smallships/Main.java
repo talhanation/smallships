@@ -1,6 +1,9 @@
 package com.talhanation.smallships;
 
-import com.talhanation.smallships.client.events.*;
+import com.talhanation.smallships.client.events.ClientRenderEvent;
+import com.talhanation.smallships.client.events.KeyEvents;
+import com.talhanation.smallships.client.events.PlayerEvents;
+import com.talhanation.smallships.client.events.RenderEvents;
 import com.talhanation.smallships.client.gui.BasicShipInvScreen;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.entities.AbstractShipDamage;
@@ -12,8 +15,8 @@ import com.talhanation.smallships.network.MessageControlShip;
 import com.talhanation.smallships.network.MessageOpenGui;
 import com.talhanation.smallships.network.MessageSailState;
 import com.talhanation.smallships.network.MessageShootCannon;
-import de.maxhenkel.corelib.ClientRegistry;
 import de.maxhenkel.corelib.CommonRegistry;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -46,7 +49,7 @@ public class Main {
     public static final String MOD_ID = "smallships";
     public static SimpleChannel SIMPLE_CHANNEL;
 
-    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.CONTAINERS, Main.MOD_ID);
+    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Main.MOD_ID);
     public static final RegistryObject<MenuType<BasicShipContainer>> BASIC_SHIP_CONTAINER_TYPE = MENU_TYPES.register("basic_ship_container_type", () -> IForgeMenuType.create(((windowId, inv, data) -> new BasicShipContainer(windowId, Objects.requireNonNull(getInvEntityByUUID(inv.player, data.readUUID())), inv))));
 
 
@@ -81,7 +84,7 @@ public class Main {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public void clientSetup(FMLClientSetupEvent event) {
-        ClientRegistry.registerScreen(Main.BASIC_SHIP_CONTAINER_TYPE.get(), BasicShipInvScreen::new);
+        MenuScreens.register(Main.BASIC_SHIP_CONTAINER_TYPE.get(), BasicShipInvScreen::new);
 
         MinecraftForge.EVENT_BUS.register(new RenderEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());

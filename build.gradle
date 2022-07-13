@@ -24,7 +24,7 @@ idea {
     }
 }
 
-version = '2.0.0-Alpha-0.2.1'
+version = '2.0.0-Alpha-0.2.2'
 group = 'com.talhanation.smallships' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'smallships-1.19'
 
