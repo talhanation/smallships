@@ -89,11 +89,11 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19-41.0.64'
+    minecraft 'net.minecraftforge:forge:1.19-41.0.98'
 
-    shadow fg.deobf("de.maxhenkel.corelib:corelib:1.19-1.0.1:api")
-    runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.19-1.0.1")
-    runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.19-1.0.1:javadoc")
+    shadow fg.deobf("de.maxhenkel.corelib:corelib:1.19-1.0.2:api")
+    runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.19-1.0.2")
+    runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.19-1.0.2:javadoc")
 
 }
 repositories {
