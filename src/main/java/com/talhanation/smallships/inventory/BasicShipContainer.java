@@ -2,7 +2,6 @@ package com.talhanation.smallships.inventory;
 
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
-import com.talhanation.smallships.entities.AbstractShipDamage;
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -20,7 +19,7 @@ public class BasicShipContainer extends ContainerBase {
         super(Main.BASIC_SHIP_CONTAINER_TYPE, id, playerInventory, ship.getInventory());
         this.ship = ship;
         this.shipInventory = ship.getInventory();
-        this.startSlot = startSlot;//startSlot
+        this.startSlot = startSlot;
 
         addShipInventorySlots();
         addPlayerInventorySlots();
@@ -53,17 +52,24 @@ public class BasicShipContainer extends ContainerBase {
         super.removed(playerIn);
     }
 
+    @Override
     public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = (Slot)this.slots.get(index);
+        Slot slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {
             ItemStack stack = slot.getItem();
             itemstack = stack.copy();
-            if (index < this.getInventorySize()) {
-                if (!this.moveItemStackTo(stack, this.getInventorySize(), this.slots.size(), true)) {
+
+            int invSize = this.getInventorySize();
+            if (invSize > 54) {
+                invSize -= 54;
+            }
+
+            if (index < invSize) {
+                if (!this.moveItemStackTo(stack, invSize, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(stack, this.startSlot, this.getInventorySize(), false)) {
+            } else if (!this.moveItemStackTo(stack, 0, invSize, false)) {
                 return ItemStack.EMPTY;
             }
 

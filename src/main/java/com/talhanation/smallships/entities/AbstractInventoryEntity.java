@@ -1,11 +1,9 @@
 package com.talhanation.smallships.entities;
 
-import net.minecraft.entity.*;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventoryChangedListener;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -135,7 +133,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     public void updateCargo() {
         int x, tempload = 0;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
+        for (int i = 0; i < this.inventory.items.size(); i++) {
             if (!inventory.getItem(i).isEmpty())
                 tempload++;
         }
