@@ -39,7 +39,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         int zeroTopPos = topPos + 15;
 
         if (ship.getMaxInvPage() > 1 && ship.getInvPage() > 1){
-            addButton(new Button(zeroLeftPos - 210, zeroTopPos, 40, 20, new StringTextComponent("<-"), button -> {
+            addButton(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, new StringTextComponent("<-"), button -> {
 
                 Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(playerInventory.player, ship, 0));
                 ship.setInvPage(ship.getInvPage() - 1);
@@ -59,9 +59,10 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
     @Override
     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
         super.renderLabels(matrixStack, mouseX, mouseY);
+        boolean renderInvPage = ship.getMaxInvPage() != 1;
         font.draw(matrixStack, ship.getDisplayName().getVisualOrderText(), 8, 6, FONT_COLOR);
         font.draw(matrixStack, playerInventory.getDisplayName().getVisualOrderText(), 8, imageHeight - 95, FONT_COLOR);
-        font.draw(matrixStack,ship.getInvPage() + "/"  + ship.getMaxInvPage(), 50, 6, FONT_COLOR);
+        if (renderInvPage)font.draw(matrixStack,ship.getInvPage() + "/"  + ship.getMaxInvPage(), 50, 6, FONT_COLOR);
         font.draw(matrixStack,"Damage: " + (double) Math.round(((AbstractShipDamage) ship).getShipDamage()) + "%", 95, 6, FONT_COLOR);
     }
 
@@ -74,4 +75,6 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         super.renderBg(matrixStack, partialTicks, mouseX, mouseY);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
+
+
 }

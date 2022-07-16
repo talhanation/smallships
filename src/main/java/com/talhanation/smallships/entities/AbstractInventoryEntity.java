@@ -1,7 +1,7 @@
 package com.talhanation.smallships.entities;
 
+import com.talhanation.smallships.Main;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
@@ -11,12 +11,14 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(AbstractInventoryEntity.class, DataSerializers.INT);
     private static final DataParameter<Integer> INV_PAGE = EntityDataManager.defineId(AbstractInventoryEntity.class, DataSerializers.INT);
+
     private final Inventory inventory = new Inventory(this.getInventorySize());
 
     public AbstractInventoryEntity(EntityType<? extends AbstractInventoryEntity> type, World world) {
@@ -27,7 +29,6 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     public void tick() {
         super.tick();
-        updateCargo();
     }
 
     ////////////////////////////////////DATA////////////////////////////////////
@@ -81,7 +82,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
     public abstract int getInventorySize();
 
 
-    public int getCargo() {
+    public int getCargo(){
         return entityData.get(CARGO);
     }
 
@@ -103,7 +104,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
             return true;
         } else {
             int i = slot - 300;
-            if (i >= 0 && i < this.inventory.getContainerSize()) {
+            if (i >= 0 && i < this.inventory.items.size()) {
                 this.inventory.setItem(i, itemStack);
                 return true;
             } else {
@@ -111,7 +112,6 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
             }
         }
     }
-
 
     public void setCargo(int cargo){
         entityData.set(CARGO, cargo);
@@ -123,31 +123,36 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
-    public abstract void openGUI(PlayerEntity player, int startSlot);
-
     public void destroyShip(DamageSource dmg) {
-        for (int i = 0; i < this.inventory.getContainerSize(); i++)
+        for (int i = 0; i < this.inventory.items.size(); i++)
             InventoryHelper.dropItemStack(this.level, getX(), getY(), getZ(), this.inventory.getItem(i));
         super.destroyShip(dmg);
     }
 
-    public void updateCargo() {
-        int x, tempload = 0;
+    public void updateCargo(){
+        int x, slotCount = 0;
+        int oldSlots = this.getCargo();
+
         for (int i = 0; i < this.inventory.items.size(); i++) {
             if (!inventory.getItem(i).isEmpty())
-                tempload++;
+                slotCount++;
         }
-        if (tempload > 31) {
+
+        int average = (slotCount + oldSlots) / 2;
+
+
+        if (average > 27 * getMaxInvPage()) {
             x = 4;
-        } else if (tempload > 16) {
+        } else if (average > 16 * getMaxInvPage()) {
             x = 3;
-        } else if (tempload > 8) {
+        } else if (average > 8 * getMaxInvPage()) {
             x = 2;
-        } else if (tempload > 3) {
+        } else if (average > 2 * getMaxInvPage()) {
             x = 1;
         } else {
             x = 0;
         }
+
         setCargo(x);
     }
 }

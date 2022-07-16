@@ -1,17 +1,10 @@
 package com.talhanation.smallships.entities;
 
-import com.talhanation.smallships.Main;
+import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.init.ModEntityTypes;
-import com.talhanation.smallships.inventory.BasicShipContainer;
-import com.talhanation.smallships.network.MessageOpenGui;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BannerItem;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
@@ -26,11 +19,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
-
-import javax.annotation.Nullable;
 
 public class BriggEntity extends AbstractCannonShip{
 
@@ -55,7 +44,6 @@ public class BriggEntity extends AbstractCannonShip{
 
     public void tick() {
         super.tick();
-        initInventory();
     }
 
     @Override
@@ -197,7 +185,7 @@ public class BriggEntity extends AbstractCannonShip{
             else {
 
                 if (!(getControllingPassenger() instanceof PlayerEntity)) {
-                    openGUI(player, 0);
+                    InventoryEvents.openShipGUI(player, this, 0);
                 } return ActionResultType.sidedSuccess(this.level.isClientSide);
             } return ActionResultType.PASS;
         }
@@ -214,26 +202,6 @@ public class BriggEntity extends AbstractCannonShip{
 
         } else {
             return ActionResultType.PASS;
-        }
-    }
-
-    @Override
-    public void openGUI(PlayerEntity player, int startSlot) {
-        if (player instanceof ServerPlayerEntity) {
-            NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
-                @Override
-                public ITextComponent getDisplayName() {
-                    return getName();
-                }
-
-                @Nullable
-                @Override
-                public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                    return new BasicShipContainer(i, BriggEntity.this, playerInventory, 0);
-                }
-            }, packetBuffer -> {packetBuffer.writeUUID(getUUID());});
-        } else {
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player, this, startSlot));
         }
     }
 
@@ -480,26 +448,5 @@ public class BriggEntity extends AbstractCannonShip{
             applyYawToEntity(passenger);
         }
 
-    }
-
-    public void initInventory(){
-        Inventory inventory = this.getInventory();
-        int sigma, tempload = 0;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
-            if (!inventory.getItem(i).isEmpty())
-                tempload++;
-        }
-        if (tempload > 31) {
-            sigma = 4;
-        } else if (tempload > 16) {
-            sigma = 3;
-        } else if (tempload > 8) {
-            sigma = 2;
-        } else if (tempload > 3) {
-            sigma = 1;
-        } else {
-            sigma = 0;
-        }
-        entityData.set(CARGO, sigma);
     }
 }

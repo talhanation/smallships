@@ -60,7 +60,7 @@ public class BasicShipContainer extends ContainerBase {
             ItemStack stack = slot.getItem();
             itemstack = stack.copy();
 
-            int invSize = this.getInventorySize();
+            int invSize = this.shipInventory.getContainerSize();
             if (invSize > 54) {
                 invSize -= 54;
             }
@@ -81,5 +81,10 @@ public class BasicShipContainer extends ContainerBase {
         }
 
         return itemstack;
+    }
+
+    public void broadcastChanges() {
+        super.broadcastChanges();
+        ship.updateCargo();
     }
 }

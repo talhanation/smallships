@@ -1,17 +1,11 @@
 package com.talhanation.smallships.entities;
 
-import com.talhanation.smallships.Main;
+import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
-import com.talhanation.smallships.inventory.BasicShipContainer;
-import com.talhanation.smallships.network.MessageOpenGui;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.*;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ActionResultType;
@@ -19,10 +13,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
-
 
 public class CogEntity extends AbstractCannonShip{
 
@@ -34,7 +25,6 @@ public class CogEntity extends AbstractCannonShip{
     public CogEntity(World world, double x, double y, double z) {
         this(ModEntityTypes.COG_ENTITY.get(), world);
         setPos(x, y, z);
-        //setDeltaMovement(Vector3d.ZERO);
         this.xo = x;
         this.yo = y;
         this.zo = z;
@@ -59,7 +49,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public int getInventorySize() {
-        return 54+54;
+        return 54;
     }
 
     @Override
@@ -131,10 +121,9 @@ public class CogEntity extends AbstractCannonShip{
 
             if (this.isVehicle() && !(getControllingPassenger() instanceof PlayerEntity)) {
                 this.ejectPassengers();
-                //this.passengerwaittime = 200;
             } else {
                 if (!(getControllingPassenger() instanceof PlayerEntity)) {
-                    this.openGUI(player, 0);
+                    InventoryEvents.openShipGUI(player, this,0);
                 }
                 return ActionResultType.sidedSuccess(this.level.isClientSide);
             }
@@ -183,25 +172,6 @@ public class CogEntity extends AbstractCannonShip{
        return ActionResultType.FAIL;
     }
 
-    @Override
-    public void openGUI(PlayerEntity player, int startSlot) {
-        if (player instanceof ServerPlayerEntity) {
-            NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
-                @Override
-                public ITextComponent getDisplayName() {
-                    return getName();
-                }
-
-                @Override
-                public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                    return new BasicShipContainer(i, CogEntity.this, playerInventory, startSlot);
-                }
-            }, packetBuffer -> {packetBuffer.writeUUID(getUUID());
-            });
-        } else {
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player, this, startSlot));
-        }
-    }
 
     @Override
     public boolean doesEnterThirdPerson() {
