@@ -2,6 +2,7 @@ package com.talhanation.smallships.init;
 
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.entities.*;
+import com.talhanation.smallships.items.BriggItem;
 import com.talhanation.smallships.items.CogItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -23,6 +24,13 @@ public class ModItems {
     public static final RegistryObject<Item> JUNGLE_COG_ITEM = ITEMS.register("jungle_cog", () -> new CogItem(CogEntity.Type.JUNGLE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
     public static final RegistryObject<Item> ACACIA_COG_ITEM = ITEMS.register("acacia_cog", () -> new CogItem(CogEntity.Type.ACACIA, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
     public static final RegistryObject<Item> DARK_OAK_COG_ITEM = ITEMS.register("dark_oak_cog", () -> new CogItem(CogEntity.Type.DARK_OAK, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+
+    public static final RegistryObject<Item> OAK_BRIGG_ITEM = ITEMS.register("oak_brigg", () -> new BriggItem(BriggEntity.Type.OAK, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> SPRUCE_BRIGG_ITEM = ITEMS.register("spruce_brigg", () -> new BriggItem(BriggEntity.Type.SPRUCE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> BIRCH_BRIGG_ITEM = ITEMS.register("birch_brigg", () -> new BriggItem(BriggEntity.Type.BIRCH, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> JUNGLE_BRIGG_ITEM = ITEMS.register("jungle_brigg", () -> new BriggItem(BriggEntity.Type.JUNGLE, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> ACACIA_BRIGG_ITEM = ITEMS.register("acacia_brigg", () -> new BriggItem(BriggEntity.Type.ACACIA, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
+    public static final RegistryObject<Item> DARK_OAK_BRIGG_ITEM = ITEMS.register("dark_oak_brigg", () -> new BriggItem(BriggEntity.Type.DARK_OAK, (new Item.Properties()).stacksTo(1).tab(ItemGroup.TAB_TRANSPORTATION)));
 
     /*
     public static final RegistryObject<Item> OAK_ROWBOAT_ITEM =         createRowBoat("oak", AbstractRowBoatEntity.Type.OAK, true);

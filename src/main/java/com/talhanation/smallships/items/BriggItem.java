@@ -1,8 +1,8 @@
 package com.talhanation.smallships.items;
 
-import com.talhanation.smallships.client.render.RenderItemCog;
-import com.talhanation.smallships.entities.CogEntity;
+import com.talhanation.smallships.client.render.RenderItemBrigg;
 import com.talhanation.smallships.entities.AbstractWaterVehicle;
+import com.talhanation.smallships.entities.BriggEntity;
 import com.talhanation.smallships.init.ModEntityTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,23 +20,23 @@ import java.util.List;
 import java.util.function.Predicate;
 
 
-public class CogItem extends Item {
+public class BriggItem extends Item {
     private static final Predicate<Entity> X = EntityPredicates.NO_SPECTATORS.and(Entity::canBeCollidedWith);
-    private final CogEntity.Type type;
+    private final BriggEntity.Type type;
 
-    public CogItem(CogEntity.Type typeIn, Item.Properties properties) {
-        super(properties.setISTER(() -> RenderItemCog::new));
+    public BriggItem(BriggEntity.Type typeIn, Properties properties) {
+        super(properties.setISTER(() -> RenderItemBrigg::new));
         this.type = typeIn;
     }
 
-    public CogEntity getCogEntity(World world) {
-        CogEntity cog = new CogEntity(ModEntityTypes.COG.get(), world);
+    public BriggEntity getBriggEntity(World world) {
+        BriggEntity cog = new BriggEntity(ModEntityTypes.BRIGG.get(), world);
         cog.setWoodType(type);
         cog.setSailState(4);
         return cog;
     }
 
-    public CogEntity.Type getType() {
+    public BriggEntity.Type getType() {
         return this.type;
     }
 
@@ -63,7 +63,7 @@ public class CogItem extends Item {
             }
 
             if (raytraceresult.getType() == RayTraceResult.Type.BLOCK) {
-                CogEntity boatentity = new CogEntity(worldIn, raytraceresult.getLocation().x, raytraceresult.getLocation().y, raytraceresult.getLocation().z);
+                BriggEntity boatentity = new BriggEntity(worldIn, raytraceresult.getLocation().x, raytraceresult.getLocation().y, raytraceresult.getLocation().z);
                 boatentity.setWoodType(this.type);
                 boatentity.yRot = playerIn.yRot + 90F;
                 if (!worldIn.noCollision(boatentity, boatentity.getBoundingBox().inflate(-0.1D))) {

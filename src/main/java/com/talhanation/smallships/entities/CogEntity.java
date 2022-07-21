@@ -23,7 +23,7 @@ public class CogEntity extends AbstractCannonShip{
 
     //Constructor for ShipItem
     public CogEntity(World world, double x, double y, double z) {
-        this(ModEntityTypes.COG_ENTITY.get(), world);
+        this(ModEntityTypes.COG.get(), world);
         setPos(x, y, z);
         this.xo = x;
         this.yo = y;
@@ -44,7 +44,7 @@ public class CogEntity extends AbstractCannonShip{
     }
 
     public double getShipDefense() { //in %
-        return 30;
+        return 12;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public float getMaxSpeed() {
-        return 0.5F;
+        return 6F;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public float getMaxRotationSpeed() {
-        return 1.0F;
+        return 2F;
     }
 
     @Override

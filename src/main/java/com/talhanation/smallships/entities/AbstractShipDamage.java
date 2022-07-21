@@ -56,7 +56,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
             setShipDamage(getShipDamage() + 0.15F);
         }
 
-        if (getShipDamage() >= 100 || this.isUnderWater()){
+        if (getShipDamage() >= 100 || this.getStatus() == Status.UNDER_WATER){
             setSunken(true);
             this.setDeltaMovement(0, -0.2D,0);
             if(level.isClientSide()) updateSunkenParticles();
@@ -115,6 +115,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
     public void setShipDamage(float damage) {
+        if(getShipDamage() <= 100)
         entityData.set(DAMAGE, damage);
     }
 
@@ -151,7 +152,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         if (source.isProjectile()){
             if (amount >= 2) damageShip(amount/2);
             this.markHurt();
-            source.getDirectEntity().remove();
+            if (source.getDirectEntity() != null)source.getDirectEntity().remove();
 
         }
         if (getShipDamage() >= 100)
@@ -168,7 +169,6 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         kill();
     }
 
-
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
     @OnlyIn(Dist.CLIENT)
@@ -181,7 +181,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
     public void damageShip(double damage) {
-        setShipDamage((float) (((getShipDamage()) + (damage - (damage * getShipDefense()/100)))));
+        setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 65)/100)))));
     }
 
     @Override

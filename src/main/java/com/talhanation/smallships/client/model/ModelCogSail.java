@@ -5,11 +5,12 @@ package com.talhanation.smallships.client.model;// Made with Blockbench 3.9.3
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.talhanation.smallships.entities.AbstractSailShip;
 import com.talhanation.smallships.entities.CogEntity;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 
-public class ModelCogSail extends EntityModel<CogEntity> {
+public class ModelCogSail extends ModelSail{
 	private final ModelRenderer Segel_0;
 	private final ModelRenderer segel_1_3;
 	private final ModelRenderer segel_1_0;
@@ -1219,7 +1220,7 @@ public class ModelCogSail extends EntityModel<CogEntity> {
 	}
 
 	@Override
-	public void setupAnim(CogEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setupAnim(AbstractSailShip entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		int state = entityIn.getSailState();
 		switch (state){
 			case 0:

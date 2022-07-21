@@ -1,5 +1,6 @@
 package com.talhanation.smallships.entities;
 
+import com.talhanation.smallships.Main;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -73,6 +74,8 @@ public abstract class AbstractWaterVehicle extends Entity {
         this.previousStatus = this.status;
         this.status = this.getStatus();
 
+        Main.LOGGER.debug(this.getStatus().toString());
+
         checkAndResetForcedChunkAdditionFlag(); //TODO check
 
         super.tick();
@@ -112,6 +115,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     public abstract double getHeight();
 
+    @Nullable
     public PlayerEntity getDriver() {
         List<Entity> passengers = getPassengers();
         if (passengers.size() <= 0) {
@@ -258,9 +262,9 @@ public abstract class AbstractWaterVehicle extends Entity {
         }
         int[][] offsets = TransportationHelper.offsetsForDirection(direction);
         AxisAlignedBB bb = entity.getLocalBoundsForPose(Pose.STANDING);
-        AxisAlignedBB carBB = getBoundingBox();
+        AxisAlignedBB carBB = this.getBoundingBox();
         for (int[] offset : offsets) {
-            Vector3d dismountPos = new Vector3d(getX() + (double) offset[0] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY(), getZ() + (double) offset[1] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
+            Vector3d dismountPos = new Vector3d(getX() + (double) offset[0] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY() + 0.75D, getZ() + (double) offset[1] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
             double y = level.getBlockFloorHeight(new BlockPos(dismountPos));
             if (TransportationHelper.isBlockFloorValid(y)) {
                 if (TransportationHelper.canDismountTo(level, entity, bb.move(dismountPos))) {
@@ -317,6 +321,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         return flag;
     }
+
     public float getBoatGlide() {
         AxisAlignedBB axisalignedbb = this.getBoundingBox();
         AxisAlignedBB axisalignedbb1 = new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
@@ -348,7 +353,6 @@ public abstract class AbstractWaterVehicle extends Entity {
                 }
             }
         }
-
         return f / (float) k1;
     }
 
@@ -392,7 +396,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     @Nullable
     private AbstractWaterVehicle.Status getUnderwaterStatus() {
         AxisAlignedBB axisalignedbb = this.getBoundingBox();
-        double d0 = axisalignedbb.maxY + 0.001D;
+        double d0 = axisalignedbb.maxY + 0.075D;
         int i = MathHelper.floor(axisalignedbb.minX);
         int j = MathHelper.ceil(axisalignedbb.maxX);
         int k = MathHelper.floor(axisalignedbb.maxY);
@@ -407,17 +411,16 @@ public abstract class AbstractWaterVehicle extends Entity {
                 for (int i2 = i1; i2 < j1; ++i2) {
                     blockpos$mutable.set(k1, l1, i2);
                     FluidState fluidstate = this.level.getFluidState(blockpos$mutable);
-                    if (fluidstate.is(FluidTags.WATER) && d0 < (double) ((float) blockpos$mutable.getY() + fluidstate.getHeight(this.level, blockpos$mutable))) {
+                    if (fluidstate.is(FluidTags.WATER) && 1.5 * d0 < (double) ((float) blockpos$mutable.getY() + fluidstate.getHeight(this.level, blockpos$mutable))) {
+
                         if (!fluidstate.isSource()) {
                             return AbstractWaterVehicle.Status.UNDER_FLOWING_WATER;
                         }
-
                         flag = true;
                     }
                 }
             }
         }
-
         return flag ? AbstractWaterVehicle.Status.UNDER_WATER : null;
     }
 

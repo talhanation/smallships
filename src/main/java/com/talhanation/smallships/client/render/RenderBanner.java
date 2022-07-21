@@ -34,7 +34,7 @@ public class RenderBanner {
             matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-180.0F));
             matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
 
-            if (entityType == ModEntityTypes.COG_ENTITY.get()) {
+            if (entityType == ModEntityTypes.COG.get()) {
                 //                                hight - = +      vorne
                 matrixStackIn.translate(-3.1D, 0.87D, 0.05D);
             /*

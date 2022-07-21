@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.model.ModelCogSail;
+import com.talhanation.smallships.client.model.ModelSail;
 import com.talhanation.smallships.entities.AbstractSailShip;
 import com.talhanation.smallships.entities.CogEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -14,13 +15,11 @@ import net.minecraft.util.math.vector.Vector3f;
 
 public class RenderSailColor {
 
-    private static final ModelCogSail MODEL = new ModelCogSail();
-    public static void renderSailColor(AbstractSailShip ship, float partialTicks, MatrixStack matrixStackIn, String sailColor ,IRenderTypeBuffer bufferIn,  int packedLight, ModelRenderer modelRenderer) {
-
+    public static void renderSailColor(AbstractSailShip ship, float partialTicks, MatrixStack matrixStackIn, String sailColor ,IRenderTypeBuffer bufferIn,  int packedLight, ModelSail modelSail) {
         matrixStackIn.pushPose();
-        MODEL.setupAnim((CogEntity) ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
-        IVertexBuilder ivertexbuilder = bufferIn.getBuffer(MODEL.renderType(getSailColor(sailColor)));
-        MODEL.renderToBuffer(matrixStackIn, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        modelSail.setupAnim(ship, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
+        IVertexBuilder ivertexbuilder = bufferIn.getBuffer(modelSail.renderType(getSailColor(sailColor)));
+        modelSail.renderToBuffer(matrixStackIn, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
         matrixStackIn.popPose();
     }

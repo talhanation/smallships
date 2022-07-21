@@ -2,17 +2,11 @@ package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.init.ModEntityTypes;
+import com.talhanation.smallships.init.ModItems;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BannerItem;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShearsItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.item.*;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -23,8 +17,6 @@ import net.minecraft.world.World;
 
 public class BriggEntity extends AbstractCannonShip{
 
-    private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(BriggEntity.class, DataSerializers.INT);
-
     public BriggEntity(EntityType<? extends BriggEntity> type, World world) {
         super(type, world);
     }
@@ -33,18 +25,12 @@ public class BriggEntity extends AbstractCannonShip{
     public BriggEntity(World world, double x, double y, double z) {
         this(ModEntityTypes.BRIGG.get(), world);
         setPos(x, y, z);
-        //setDeltaMovement(Vector3d.ZERO);
         this.xo = x;
         this.yo = y;
         this.zo = z;
     }
 
-
-    ///////////////////////////////////TICK/////////////////////////////////////////
-
-    public void tick() {
-        super.tick();
-    }
+    ////////////////////////////////////GET////////////////////////////////////
 
     @Override
     public double getWidth() {
@@ -53,56 +39,27 @@ public class BriggEntity extends AbstractCannonShip{
 
     @Override
     public double getHeight() {
-        return 1.75D;
-    }
-
-    ////////////////////////////////////DATA////////////////////////////////////
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        entityData.define(CARGO, 0);
-    }
-
-    ////////////////////////////////////SAVE DATA////////////////////////////////////
-
-    @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
-       super.addAdditionalSaveData(nbt);
-        nbt.putInt("Cargo", getCargo());
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
-        super.readAdditionalSaveData(nbt);
-        this.setCargo(nbt.getInt("Cargo"));
+        return 1.5D;
     }
 
     @Override
     public double getShipDefense() { //in %
-        return 30;
-    }
-
-
-    ////////////////////////////////////GET////////////////////////////////////
-
-    public int getCargo() {
-        return entityData.get(CARGO);
+        return 18;
     }
 
     @Override
     public int getInventorySize() {
-        return 54;
+        return 54 + 54;
     }
 
     @Override
     public float getMaxSpeed() {
-        return 0.56F;
+        return 7F;
     }
 
     @Override
     public float getMaxReverseSpeed() {
-        return 0.08F;
+        return 0.1F;
     }
 
     @Override
@@ -112,13 +69,13 @@ public class BriggEntity extends AbstractCannonShip{
 
     @Override
     public float getMaxRotationSpeed() {
-        return 1.0F;
+        return 4F;
     }
 
     @Override
     public float getRotationAcceleration() {
-        return 0.6F;
-    }
+        return 0.3F;
+    }//not to change
 
     @Override
     public float getVelocityResistance() {
@@ -137,73 +94,69 @@ public class BriggEntity extends AbstractCannonShip{
 
     @Override
     public int getMaxCannons() {
-        return 8;
+        return 6;
     }
 
-    ////////////////////////////////////SET////////////////////////////////////
-
-    public void setCargo(int cargo){
-        entityData.set(CARGO, cargo);
-    }
     ////////////////////////////////////INTERACTIONS///////////////////////////////
 
     @Override
     public ActionResultType interact(PlayerEntity player, Hand hand) {
-
         ItemStack itemInHand = player.getItemInHand(hand);
-/*
-        if (itemInHand.getItem().equals(Items.LANTERN) && getMaxLanternCount() != getLanternCount()){
-            onInteractionWithLantern(player, itemInHand);
-            return ActionResultType.SUCCESS;
-        }
-*/
-        if (itemInHand.getItem() instanceof DyeItem){
-            onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
-            return ActionResultType.SUCCESS;
-        }
+        if (player.isSecondaryUseActive()) {
 
-        if (itemInHand.getItem() instanceof BannerItem){
-            onInteractionWithBanner(itemInHand,player);
-            return ActionResultType.SUCCESS;
-        }
-
-        else if (itemInHand.getItem() instanceof ShearsItem){
-            if (this.getHasBanner()){
-                onInteractionWithShears(player);
-                return ActionResultType.SUCCESS;
-            }
-            return ActionResultType.PASS;
-        }
-
-        else if (player.isSecondaryUseActive()) {
-
-            if (this.isVehicle() && !(getControllingPassenger() instanceof PlayerEntity)){
+            if (this.isVehicle() && !(getControllingPassenger() instanceof PlayerEntity)) {
                 this.ejectPassengers();
-                //this.passengerwaittime = 200;
+            } else {
+                if (!(getControllingPassenger() instanceof PlayerEntity)) {
+                    InventoryEvents.openShipGUI(player, this,0);
+                }
+                return ActionResultType.sidedSuccess(this.level.isClientSide);
             }
 
-            else {
-
-                if (!(getControllingPassenger() instanceof PlayerEntity)) {
-                    InventoryEvents.openShipGUI(player, this, 0);
-                } return ActionResultType.sidedSuccess(this.level.isClientSide);
-            } return ActionResultType.PASS;
         }
 
-        else if (!player.isSecondaryUseActive()){
-
-            if (!this.level.isClientSide) {
-                return player.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
-
-            } else {
+        if (!this.getSunken()) {
+            if (itemInHand.getItem() == ModItems.CANNON_ITEM.get()) {
+                this.onInteractionWithCannon(player, itemInHand);
                 return ActionResultType.SUCCESS;
             }
 
+            if (itemInHand.getItem() instanceof DyeItem) {
+                this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
+                return ActionResultType.SUCCESS;
+            }
 
-        } else {
-            return ActionResultType.PASS;
+            if (itemInHand.getItem() instanceof BannerItem) {
+                this.onInteractionWithBanner(itemInHand, player);
+                return ActionResultType.SUCCESS;
+            }
+
+            if (itemInHand.getItem() instanceof AxeItem) {
+                if (hasPlanks(player.inventory) && hasIronNugget(player.inventory) && getShipDamage() > 16.0D) {
+                    this.onInteractionWitAxe(player);
+                    return ActionResultType.SUCCESS;
+                } else return ActionResultType.FAIL;
+            } else if (itemInHand.getItem() instanceof ShearsItem) {
+                if (this.getHasBanner()) {
+                    this.onInteractionWithShears(player);
+                    return ActionResultType.SUCCESS;
+                }
+                return ActionResultType.PASS;
+            }
+            if (!player.isSecondaryUseActive()) {
+
+                if (!this.level.isClientSide) {
+                    return player.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
+
+                } else {
+                    return ActionResultType.SUCCESS;
+                }
+            }
         }
+
+        return ActionResultType.FAIL;
     }
+
 
     @Override
     public boolean doesEnterThirdPerson() {
@@ -447,6 +400,5 @@ public class BriggEntity extends AbstractCannonShip{
             passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyYawToEntity(passenger);
         }
-
     }
 }

@@ -3,10 +3,10 @@ package com.talhanation.smallships.client.render;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.talhanation.smallships.Main;
-import com.talhanation.smallships.client.model.ModelCog;
-import com.talhanation.smallships.client.model.ModelCogSail;
+import com.talhanation.smallships.client.model.ModelBrigg;
+import com.talhanation.smallships.client.model.ModelBriggSail;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.entities.CogEntity;
+import com.talhanation.smallships.entities.BriggEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
@@ -15,7 +15,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 
-public class RenderEntityCog extends EntityRenderer<CogEntity> {
+public class RenderEntityBrigg extends EntityRenderer<BriggEntity> {
     private static final ResourceLocation[] COG_TEXTURES = new ResourceLocation[]{
             new ResourceLocation(Main.MOD_ID,"textures/entity/cog/oak_cog.png"),
             new ResourceLocation(Main.MOD_ID,"textures/entity/cog/spruce_cog.png"),
@@ -64,16 +64,16 @@ public class RenderEntityCog extends EntityRenderer<CogEntity> {
 */
     };
 
-    private final ModelCog model = new ModelCog();
+    private final ModelBrigg model = new ModelBrigg();
 
-    public RenderEntityCog(EntityRendererManager renderManagerIn) {
+    public RenderEntityBrigg(EntityRendererManager renderManagerIn) {
         super(renderManagerIn);
         this.shadowRadius = 1.5F;
     }
 
-    public void render(CogEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
+    public void render(BriggEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         matrixStackIn.pushPose();
-        matrixStackIn.translate(0.0D, 0.4D, 0.0D);
+        matrixStackIn.translate(0.0D, -0.25D, 0.0D);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityYaw));
 
         if (SmallShipsConfig.MakeWaveAnimation.get()) {
@@ -86,7 +86,7 @@ public class RenderEntityCog extends EntityRenderer<CogEntity> {
         matrixStackIn.scale(-1.3F, -1.3F, 1.3F);
         //                                x                y               z (- nachhinten)
         matrixStackIn.translate(0.0D, -1.8D,-1.0D);
-        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-90F));
+        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(0F));
         this.model.setupAnim(entityIn, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
         IVertexBuilder ivertexbuilder = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
         this.model.renderToBuffer(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
@@ -94,14 +94,19 @@ public class RenderEntityCog extends EntityRenderer<CogEntity> {
         //render Banner
         entityIn.renderBanner(matrixStackIn,bufferIn,packedLightIn,partialTicks);
 
-        //render Sail and Color
-        entityIn.renderSailColor(matrixStackIn,bufferIn,packedLightIn,partialTicks, new ModelCogSail());
+        //render Sail Color
+        entityIn.renderSailColor(matrixStackIn,bufferIn,packedLightIn,partialTicks, new ModelBriggSail());
 
         //render Cannon
-        entityIn.renderCannon(- 0.65D, 0.03D, 0F, matrixStackIn,bufferIn,packedLightIn,partialTicks);
+        //angle: angle
+        //height: + lower/ - higher
+        //Zoffset: + rein/ - raus
+        entityIn.renderCannon(- 0.75D, -0.55D,-90F, matrixStackIn,bufferIn,packedLightIn,partialTicks);
+
         matrixStackIn.popPose();
+
     }
-    public ResourceLocation getTextureLocation(CogEntity entity) {
+    public ResourceLocation getTextureLocation(BriggEntity entity) {
         return COG_TEXTURES[entity.getWoodType().ordinal()];
     }
 
