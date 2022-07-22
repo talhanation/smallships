@@ -29,7 +29,7 @@ public class RenderEvents {
     @SubscribeEvent
     public void onRender(EntityViewRenderEvent.CameraSetup evt) {
         if (getShip() != null && !mc.options.getCameraType().isFirstPerson()) {
-            evt.getInfo().move(-evt.getInfo().getMaxZoom(SmallShipsConfig.ShipZoom.get() - 4D), 0D, 0D);
+            evt.getCamera().move(-evt.getCamera().getMaxZoom(SmallShipsConfig.ShipZoom.get() - 4D), 0D, 0D);
         }
     }
 
