@@ -30,16 +30,17 @@ public class RenderBanner {
             EntityType<?> entityType = abstractBannerUser.getType();
 
             //banner pos for ships:
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-180.0F));
-            matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
-
             if (entityType == ModEntityTypes.COG.get()) {
+                matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-180.0F));
+                matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
                 //                                hight - = +      vorne
                 matrixStackIn.translate(-3.1D, 0.87D, 0.05D);
-            /*
-            } else if(entityType == ModEntityTypes.BRIGG_ENTITY.get()){
-
-                matrixStackIn.translate(-5.8D, 1.65D, 0.0D);
+            }
+           else if(entityType == ModEntityTypes.BRIGG.get()){
+                    matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(90.0F));
+                    matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90F));
+                    matrixStackIn.translate(-6.4D, 1.65D, 0.0D);
+/*
 
             } else if(entityType == ModEntityTypes.DRAKKAR_ENTITY.get()){
                 matrixStackIn.translate(-3.6D, 0.1D, 0.05D);
