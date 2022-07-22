@@ -1,11 +1,13 @@
 package com.talhanation.smallships.entities;
 
+import com.talhanation.smallships.Main;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -16,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WaterlilyBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +30,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -68,7 +71,9 @@ public abstract class AbstractWaterVehicle extends Entity {
         this.previousStatus = this.status;
         this.status = this.getStatus();
 
-        //checkAndResetForcedChunkAdditionFlag(); //TODO implement checkAndResetForcedChunkAdditionFlag()
+        Main.LOGGER.debug(this.getStatus().toString());
+
+        checkAndResetForcedChunkAdditionFlag(); //TODO check
 
         super.tick();
         tickLerp();
@@ -105,6 +110,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     public abstract double getHeight();
 
+    @Nullable
     public Player getDriver() {
         List<Entity> passengers = getPassengers();
         if (passengers.size() <= 0) {
@@ -240,9 +246,9 @@ public abstract class AbstractWaterVehicle extends Entity {
         }
         int[][] offsets = DismountHelper.offsetsForDirection(direction);
         AABB bb = entity.getLocalBoundsForPose(Pose.STANDING);
-        AABB carBB = getBoundingBox();
+        AABB carBB = this.getBoundingBox();
         for (int[] offset : offsets) {
-            Vec3 dismountPos = new Vec3(getX() + (double) offset[0] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY(), getZ() + (double) offset[1] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
+            Vec3 dismountPos = new Vec3(getX() + (double) offset[0] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY() + 0.75D, getZ() + (double) offset[1] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
             double y = level.getBlockFloorHeight(new BlockPos(dismountPos));
             if (DismountHelper.isBlockFloorValid(y)) {
                 if (DismountHelper.canDismountTo(level, entity, bb.move(dismountPos))) {
@@ -298,6 +304,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         return flag;
     }
+
     public float getBoatGlide() {
         AABB axisalignedbb = this.getBoundingBox();
         AABB axisalignedbb1 = new AABB(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
@@ -329,7 +336,6 @@ public abstract class AbstractWaterVehicle extends Entity {
                 }
             }
         }
-
         return f / (float) k1;
     }
 
@@ -373,7 +379,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     @Nullable
     private AbstractWaterVehicle.Status getUnderwaterStatus() {
         AABB axisalignedbb = this.getBoundingBox();
-        double d0 = axisalignedbb.maxY + 0.001D;
+        double d0 = axisalignedbb.maxY + 0.075D;
         int i = Mth.floor(axisalignedbb.minX);
         int j = Mth.ceil(axisalignedbb.maxX);
         int k = Mth.floor(axisalignedbb.maxY);
@@ -388,17 +394,16 @@ public abstract class AbstractWaterVehicle extends Entity {
                 for (int i2 = i1; i2 < j1; ++i2) {
                     blockpos$mutable.set(k1, l1, i2);
                     FluidState fluidstate = this.level.getFluidState(blockpos$mutable);
-                    if (fluidstate.is(FluidTags.WATER) && d0 < (double) ((float) blockpos$mutable.getY() + fluidstate.getHeight(this.level, blockpos$mutable))) {
+                    if (fluidstate.is(FluidTags.WATER) && 1.5 * d0 < (double) ((float) blockpos$mutable.getY() + fluidstate.getHeight(this.level, blockpos$mutable))) {
+
                         if (!fluidstate.isSource()) {
                             return AbstractWaterVehicle.Status.UNDER_FLOWING_WATER;
                         }
-
                         flag = true;
                     }
                 }
             }
         }
-
         return flag ? AbstractWaterVehicle.Status.UNDER_WATER : null;
     }
 
@@ -470,7 +475,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     public void onAboveBubbleCol(boolean p_203002_1_) {
         if(this.level.isClientSide())
-            this.level.addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7D, this.getZ() + (double)this.random.nextFloat(), 0.0D, 0.0D, 0.0D);
+        this.level.addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7D, this.getZ() + (double)this.random.nextFloat(), 0.0D, 0.0D, 0.0D);
         if (this.random.nextInt(20) == 0) {
             this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
         }

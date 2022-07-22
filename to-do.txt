@@ -1,0 +1,75 @@
+---------------------------------
+to do heute 19.07:
+brigg:
+to much turn speed
+
+UPDATE
+
+----------------------------------
+woche 18.07 - 22.07: (diese woche)
+climate faktor
+passenger faktor
+cannon faktor
+fix fish speed fleeing
+fix knockback radius
+
+float 1 high bug
+
+
+UPDATE
+
+------------------------------------
+woche  23.07 - 29.07: (nächste woche)
+
+banner pattern on sail
+banner dynamics (speed)
+
+cannon + passenger cannon
+cannon shoot 1 by 1 while space-pressed
+fix cannon ball particle when hitting water (1.18+)
+
+
+UPDATE
+
+------------------------------------
+woche  30.07 - 05.08:
+
+add galley + ruder features
+
+UPDATE
+
+
+###########################################################
+Road-Map Smallships until all "old ships" are added:
+
+*supported versions: 1.16.5 / 1.18.2 / 1.19
+
+
+Ship-mechanics
+first to come first.
+
+1. Bigger Inventories
+2. Banner on Sail
+3. 
+
+?. More Ammo types
+?. Fishing (fishing boat)
+?. Shield suppot (only Drakkar)
+?. Name-Plates
+?. Anchors
+?. Bed(a ship with boat insalled will have the same fuktion)
+
+Villager related:
+?. new Villager Boat-Trader (only specials)
+?. Sailing-Trader (with a crew?)
+?. Sailing-Pillager
+
+
+Ships:
+
+-Brig
+- 
+- Drakkar (shield support)
+- Sloop
+- Schooner
+#######################################################

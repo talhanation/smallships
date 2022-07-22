@@ -1,6 +1,6 @@
 package com.talhanation.smallships.entities;
 
-import com.talhanation.smallships.Main;
+import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageOpenGui;
@@ -28,7 +28,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
@@ -42,18 +42,12 @@ public class BriggEntity extends AbstractCannonShip{
     public BriggEntity(Level world, double x, double y, double z) {
         this(ModEntityTypes.BRIGG.get(), world);
         setPos(x, y, z);
-        //setDeltaMovement(Vector3d.ZERO);
         this.xo = x;
         this.yo = y;
         this.zo = z;
     }
 
-
-    ///////////////////////////////////TICK/////////////////////////////////////////
-
-    public void tick() {
-        super.tick();
-    }
+    ////////////////////////////////////GET////////////////////////////////////
 
     @Override
     public double getWidth() {
@@ -62,29 +56,27 @@ public class BriggEntity extends AbstractCannonShip{
 
     @Override
     public double getHeight() {
-        return 1.75D;
+        return 1.5D;
     }
-
-    ////////////////////////////////////GET////////////////////////////////////
 
     @Override
     public double getShipDefense() { //in %
-        return 30;
+        return 18;
     }
 
     @Override
     public int getInventorySize() {
-        return 54;
+        return 54 + 54;
     }
 
     @Override
     public float getMaxSpeed() {
-        return 0.56F;
+        return 7F;
     }
 
     @Override
     public float getMaxReverseSpeed() {
-        return 0.08F;
+        return 0.1F;
     }
 
     @Override
@@ -94,13 +86,13 @@ public class BriggEntity extends AbstractCannonShip{
 
     @Override
     public float getMaxRotationSpeed() {
-        return 1.0F;
+        return 4F;
     }
 
     @Override
     public float getRotationAcceleration() {
-        return 0.6F;
-    }
+        return 0.3F;
+    }//not to change
 
     @Override
     public float getVelocityResistance() {
@@ -119,88 +111,69 @@ public class BriggEntity extends AbstractCannonShip{
 
     @Override
     public int getMaxCannons() {
-        return 8;
+        return 6;
     }
 
     ////////////////////////////////////INTERACTIONS///////////////////////////////
 
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
-
         ItemStack itemInHand = player.getItemInHand(hand);
-/*
-        if (itemInHand.getItem().equals(Items.LANTERN) && getMaxLanternCount() != getLanternCount()){
-            onInteractionWithLantern(player, itemInHand);
-            return ActionResultType.SUCCESS;
-        }
-*/
-        if (itemInHand.getItem() instanceof DyeItem){
-            onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
-            return InteractionResult.SUCCESS;
-        }
+        if (player.isSecondaryUseActive()) {
 
-        if (itemInHand.getItem() instanceof BannerItem){
-            onInteractionWithBanner(itemInHand,player);
-            return InteractionResult.SUCCESS;
-        }
-
-        else if (itemInHand.getItem() instanceof ShearsItem){
-            if (this.getHasBanner()){
-                onInteractionWithShears(player);
-                return InteractionResult.SUCCESS;
-            }
-            return InteractionResult.PASS;
-        }
-
-        else if (player.isSecondaryUseActive()) {
-
-            if (this.isVehicle() && !(getControllingPassenger() instanceof Player)){
+            if (this.isVehicle() && !(getControllingPassenger() instanceof PlayerEntity)) {
                 this.ejectPassengers();
-                //this.passengerwaittime = 200;
+            } else {
+                if (!(getControllingPassenger() instanceof PlayerEntity)) {
+                    InventoryEvents.openShipGUI(player, this,0);
+                }
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
 
-            else {
-
-                if (!(getControllingPassenger() instanceof Player)) {
-                    openGUI(player);
-                } return InteractionResult.sidedSuccess(this.level.isClientSide);
-            } return InteractionResult.PASS;
         }
 
-        else if (!player.isSecondaryUseActive()){
-
-            if (!this.level.isClientSide) {
-                return player.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
-
-            } else {
+        if (!this.getSunken()) {
+            if (itemInHand.getItem() == ModItems.CANNON_ITEM.get()) {
+                this.onInteractionWithCannon(player, itemInHand);
                 return InteractionResult.SUCCESS;
             }
 
+            if (itemInHand.getItem() instanceof DyeItem) {
+                this.onInteractionWithDye(player, ((DyeItem) itemInHand.getItem()).getDyeColor(), itemInHand);
+                return InteractionResult.SUCCESS;
+            }
 
-        } else {
-            return InteractionResult.PASS;
+            if (itemInHand.getItem() instanceof BannerItem) {
+                this.onInteractionWithBanner(itemInHand, player);
+                return InteractionResult.SUCCESS;
+            }
+
+            if (itemInHand.getItem() instanceof AxeItem) {
+                if (hasPlanks(player.inventory) && hasIronNugget(player.inventory) && getShipDamage() > 16.0D) {
+                    this.onInteractionWitAxe(player);
+                    return InteractionResult.SUCCESS;
+                } else return InteractionResult.FAIL;
+            } else if (itemInHand.getItem() instanceof ShearsItem) {
+                if (this.getHasBanner()) {
+                    this.onInteractionWithShears(player);
+                    return InteractionResult.SUCCESS;
+                }
+                return InteractionResult.PASS;
+            }
+            if (!player.isSecondaryUseActive()) {
+
+                if (!this.level.isClientSide) {
+                    return player.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
+
+                } else {
+                    return InteractionResult.SUCCESS;
+                }
+            }
         }
+
+        return InteractionResult.FAIL;
     }
 
-    @Override
-    public void openGUI(Player player) {
-        if (player instanceof ServerPlayer) {
-            NetworkHooks.openGui((ServerPlayer) player, new MenuProvider() {
-                @Override
-                public Component getDisplayName() {
-                    return getName();
-                }
-
-                @Nullable
-                @Override
-                public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
-                    return new BasicShipContainer(i, BriggEntity.this, playerInventory);
-                }
-            }, packetBuffer -> packetBuffer.writeUUID(getUUID()));
-        } else {
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player));
-        }
-    }
 
     @Override
     public boolean doesEnterThirdPerson() {

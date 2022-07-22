@@ -6,6 +6,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.nbt.CompoundTag;
@@ -49,10 +52,11 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
             setShipDamage(getShipDamage() + 0.5F);
         }
 
-        if(this.isInBubbleColumn()) {
+        if(isInBubbleColumn()) {
             setShipDamage(getShipDamage() + 0.15F);
         }
-        if (getShipDamage() >= 100 || this.isUnderWater()){
+
+        if (getShipDamage() >= 100 || this.getStatus() == Status.UNDER_WATER){
             setSunken(true);
             this.setDeltaMovement(0, -0.2D,0);
             if(level.isClientSide()) updateSunkenParticles();
@@ -111,6 +115,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
     public void setShipDamage(float damage) {
+        if(getShipDamage() <= 100)
         entityData.set(DAMAGE, damage);
     }
 
@@ -124,7 +129,6 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         }
 
         if (sourceEntity instanceof Player player){
-
             if (hasPassenger(player)) {
                 return false;
             }
@@ -135,10 +139,12 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
                     return true;
                 }
             }
+
             if (amount >= 2) damageShip(amount);
             this.markHurt();
             return false;
         }
+
         if (source.isProjectile()){
             if (amount >= 2) damageShip(amount/2);
             this.markHurt();
@@ -170,7 +176,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
     public void damageShip(double damage) {
-        setShipDamage((float) (((getShipDamage()) + (damage - (damage * getShipDefense()/100)))));
+        setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 65)/100)))));
     }
 
     @Override

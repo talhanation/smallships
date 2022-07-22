@@ -7,7 +7,7 @@ import com.talhanation.smallships.entities.projectile.CannonBallEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -25,6 +25,7 @@ public class ModEntityTypes {
 
     public static final RegistryObject<EntityType<BriggEntity>> BRIGG = ENTITY_TYPES.register("brigg",
             () -> EntityType.Builder.<BriggEntity>of(BriggEntity::new, MobCategory.MISC)
+                    .sized(3.5F, 1.25F)
                     .clientTrackingRange(20)
                     .setUpdateInterval(10)
                     .setShouldReceiveVelocityUpdates(true)

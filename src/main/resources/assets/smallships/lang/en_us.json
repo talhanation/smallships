@@ -5,6 +5,12 @@
   "key.lower_ship_sail" : "Lower Sail",
   "key.ship_inventory" : "Open Ship Inventory",
 
+  "death.attack.cannonball": "%s was shot with a cannon.",
+  "death.attack.cannonball.player": "%s was shot with a cannon by %s.",
+
+  "death.attack.hit_ship": "%s was hit by a ship.",
+  "death.attack.hit_ship.player": "%s was hit by %s with a ship.",
+
   "entity.smallships.cog": "Cog",
   "item.smallships.acacia_cog": "Acacia Cog",
   "item.smallships.birch_cog": "Birch Cog",

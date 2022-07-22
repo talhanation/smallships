@@ -282,8 +282,8 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         this.shrinkItemInInv(inventory, gunpowderItem, 1);
         this.shrinkItemInInv(inventory, cannonballItem, 1);
     }
-
-    public void renderCannon(PoseStack matrixStack, MultiBufferSource buffer , int packedLight, float partialTicks) {
+    
+    public void renderCannon(double Zoffset, double height, float angle, PoseStack matrixStack, MultiBufferSource buffer , int packedLight, float partialTicks) {
         if (getLeftCannonCount() != 0) {
             for (int i = 0; i < getLeftCannonCount(); i++) {
                 double offset = switch (i) {
@@ -292,7 +292,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
                     case 2 -> -1.5;
                     default -> 0;
                 };
-                RenderCannon.renderCannon(offset, 0,this, partialTicks, matrixStack, buffer, packedLight);
+                RenderCannon.renderCannon(Zoffset, offset, height, angle, this, partialTicks, matrixStack, buffer, packedLight);
             }
         }
         if (getRightCannonCount() != 0) {
@@ -303,7 +303,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
                     case 2 -> 1.5;
                     default -> 0;
                 };
-                RenderCannon.renderCannon(offset,180, this, partialTicks, matrixStack, buffer, packedLight);
+                RenderCannon.renderCannon(Zoffset, offset, height, angle + 180, this, partialTicks, matrixStack, buffer, packedLight);
             }
         }
     }

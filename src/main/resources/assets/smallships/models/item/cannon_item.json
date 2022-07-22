@@ -2,7 +2,7 @@
   "credit": "Made with Blockbench by talhanation",
   "textures": {
     "0": "smallships:item/cannon_iron",
-    "1": "smallships:item/cannon_wood",
+    "1": "minecraft:block/oak_planks",
     "particle": "cannon_iron"
   },
   "elements": [
