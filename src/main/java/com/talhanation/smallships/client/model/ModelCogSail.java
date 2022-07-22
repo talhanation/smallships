@@ -4,6 +4,7 @@ package com.talhanation.smallships.client.model;
 // Exported for Minecraft version 1.17 - 1.18 with Mojang mappings
 // Paste this class into your mod and generate all required imports
 
+import com.talhanation.smallships.entities.AbstractSailShip;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.Main;
@@ -15,7 +16,7 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 
-public class ModelCogSail extends EntityModel<CogEntity> {
+public class ModelCogSail extends ModelSail{
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Main.MOD_ID, "model_cogsail"), "main");
 	private final ModelPart Segel_0;
@@ -526,7 +527,7 @@ public class ModelCogSail extends EntityModel<CogEntity> {
 	}
 
 	@Override
-	public void setupAnim(CogEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setupAnim(AbstractSailShip entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		int state = entityIn.getSailState();
 		switch (state) {
 			case 0 -> {

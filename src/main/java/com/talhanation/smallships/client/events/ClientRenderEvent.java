@@ -5,6 +5,7 @@ import com.talhanation.smallships.client.model.ModelCannon;
 import com.talhanation.smallships.client.model.ModelCannonBall;
 import com.talhanation.smallships.client.model.ModelCog;
 import com.talhanation.smallships.client.render.RenderCannonBall;
+import com.talhanation.smallships.client.render.RenderEntityBrigg;
 import com.talhanation.smallships.client.render.RenderEntityCog;
 import com.talhanation.smallships.init.ModEntityTypes;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -22,6 +23,7 @@ public class ClientRenderEvent {
             context = ctx; // Its strange, but I couldn't find any other way to access the EntityRendererProvider.Context. See: net.minecraft.client.renderer.entity.EntityRenderDispatcher.onResourceManagerReload
             return new RenderEntityCog(ctx);
         });
+        EntityRenderers.register(ModEntityTypes.BRIGG.get(), RenderEntityBrigg::new );
         EntityRenderers.register(ModEntityTypes.CANNON_BALL.get(), RenderCannonBall::new);
     }
 

@@ -15,12 +15,12 @@ public class RenderCannon{
     private static final ResourceLocation[] TEXTURES = new ResourceLocation[]{
             new ResourceLocation(Main.MOD_ID,"textures/entity/ship_cannon.png"),
     };
-
-    public static void renderCannon(double offset,float angle, AbstractCannonShip cannonShip, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLight) {
+    
+    public static void renderCannon(double Zoffset, double Xoffset, double height,float angle, AbstractCannonShip cannonShip, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLight) {
         matrixStackIn.pushPose();
         //                               vorne       //- hoch/ + runter      //rechts/links
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(angle));
-        matrixStackIn.translate( offset, 0.03D,       - 0.65D);
+        matrixStackIn.translate(Xoffset, height,       Zoffset);
 
         //scale
         matrixStackIn.scale(0.75F, 0.75F, 0.75F);

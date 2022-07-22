@@ -1,6 +1,7 @@
 package com.talhanation.smallships.entities.projectile;
 
 
+import com.talhanation.smallships.DamageSourceCannonball;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.init.SoundInit;
 import net.minecraft.world.entity.Entity;
@@ -35,7 +36,6 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         super(type, owner, d1, d2, d3, world);
         this.moveTo(d1, d2, d3, this.getYRot(), this.getXRot());
     }
-
 
     @Override
     public void tick() {
@@ -99,13 +99,17 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
     }
 
-    protected void onHit(HitResult rayTraceResult) {
-        super.onHit(rayTraceResult);
+    protected void onHitBlock(BlockHitResult blockHitResult) {
+        super.onHitBlock(blockHitResult);
         if (!this.level.isClientSide) {
             boolean flag = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.level, this.getOwner());
             this.level.explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, Explosion.BlockInteraction.BREAK);
             this.remove(RemovalReason.KILLED);
         }
+    }
+
+    protected void onHit(RayTraceResult rayTraceResult) {
+        super.onHit(rayTraceResult);
         onHitBlockParticles();
     }
 
@@ -114,14 +118,15 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         if (!this.level.isClientSide) {
             Entity hit = rayTraceResult.getEntity();
             Entity entity1 = this.getOwner();
-            hit.hurt(DamageSource.ANVIL, 20.0F);
-            if (entity1 instanceof LivingEntity) {
-                this.doEnchantDamageEffects((LivingEntity) entity1, hit);
-            }
+            hit.hurt(DamageSourceCannonball.DAMAGE_CANNONBALL, 20.0F);
 
             if (hit instanceof AbstractShipDamage shipDamage) {
                 shipDamage.damageShip(random.nextInt(7) + 7);
                 this.level.playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundInit.SHIP_CANNON_DAMAGE.get(), this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
+            }
+            else if (entity1 instanceof LivingEntity) {
+                this.doEnchantDamageEffects((LivingEntity) entity1, hit);
+                this.level.playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_HURT, this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
             }
         }
     }

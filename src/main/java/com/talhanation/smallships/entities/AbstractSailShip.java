@@ -3,6 +3,7 @@ package com.talhanation.smallships.entities;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.talhanation.smallships.DamageSourceShip;
 import com.talhanation.smallships.Main;
+import com.talhanation.smallships.client.model.ModelSail;
 import com.talhanation.smallships.client.render.RenderSailColor;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.init.SoundInit;
@@ -75,8 +76,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         entityData.define(TYPE, AbstractSailShip.Type.OAK.ordinal());
     }
 
-    ////////////////////////////////////TICK////////////////////////////////////
-
     public abstract float getMaxSpeed();
     public abstract float getMaxReverseSpeed();
     public abstract float getAcceleration();
@@ -85,10 +84,11 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public abstract float getVelocityResistance();
     public abstract boolean getHasBanner();
     public abstract void  WaterSplash();
-    public abstract void openGUI(Player player);
     public abstract void onInteractionWithShears(Player player);
     public abstract void onCannonKeyPressed();
     public abstract boolean onInteractionWithBanner(ItemStack itemStack,Player player);
+
+    ////////////////////////////////////TICK////////////////////////////////////
 
     @Override
     public void tick() {
@@ -167,9 +167,8 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return (getSpeed() * 20 * 60 * 60) / 1000;
     }
 
-    public float getBiomeModifier() {
+    public float getBiomesModifier() {
         BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
-        BlockState state = level.getBlockState(pos);
         return 1;
     }
 
@@ -330,16 +329,16 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             setRight(false);
         }
         int sailstate = getSailState();
-        float modifier = getBiomeModifier() + getVelocityResistance();
+        float modifier = getBiomesModifier() + getVelocityResistance();
 
         float blockedmodf = 1;
 
         //if (isBlocked() && this.getDirection() == this.getBlockedDirection())
             //blockedmodf = 0.00001F;
 
-        float maxSp = getMaxSpeed() * modifier ;
+        float maxSp = (getMaxSpeed() / 12F) * modifier ;
         float maxBackSp = getMaxReverseSpeed() * modifier;
-        float maxRotSp = getMaxRotationSpeed() * modifier;
+        float maxRotSp = ((getMaxRotationSpeed() * 0.1F) + 1.8F) * modifier;
 
         float speed = MathUtils.subtractToZero(getSpeed(), getVelocityResistance());
 
@@ -384,7 +383,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         setSpeed(speed * blockedmodf);
 
 
-        float rotationSpeed = MathUtils.subtractToZero(getRotSpeed(), getVelocityResistance() * 2);
+        float rotationSpeed = MathUtils.subtractToZero(getRotSpeed(), getVelocityResistance() * 3);
         deltaRotation = 0;
 
         if (isRight()) {
@@ -552,8 +551,8 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
-    public void renderSailColor(PoseStack matrixStack, MultiBufferSource buffer , int packedLight, float partialTicks) {
-        RenderSailColor.renderSailColor(this, partialTicks, matrixStack, getSailColor(), buffer,  packedLight);
+    public void renderSailColor(PoseStack matrixStack, MultiBufferSource buffer , int packedLight, float partialTicks, ModelSail sailModel) {
+        RenderSailColor.renderSailColor(this, partialTicks, matrixStack, getSailColor(), buffer,  packedLight, sailModel);
     }
 
     public void destroyShip(DamageSource src) {
@@ -567,7 +566,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         Vec3 fleeDir = vecEntity.subtract(vecBoat);
         fleeDir = fleeDir.normalize();
         Vec3 fleePos = new Vec3(vecEntity.x + fleeDir.x * fleeDistance, vecEntity.y + fleeDir.y * fleeDistance, vecEntity.z + fleeDir.z * fleeDistance);
-        entity.getNavigation().moveTo(fleePos.x, fleePos.y, fleePos.z, 10.0D);
+        entity.getNavigation().moveTo(fleePos.x, fleePos.y, fleePos.z, 1.5D);
     }
 
     private void knockBack(List<Entity> entities) {

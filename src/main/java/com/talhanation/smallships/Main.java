@@ -11,10 +11,7 @@ import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.inventory.BasicShipContainer;
-import com.talhanation.smallships.network.MessageControlShip;
-import com.talhanation.smallships.network.MessageOpenGui;
-import com.talhanation.smallships.network.MessageSailState;
-import com.talhanation.smallships.network.MessageShootCannon;
+import com.talhanation.smallships.network.*;
 import de.maxhenkel.corelib.ClientRegistry;
 import de.maxhenkel.corelib.CommonRegistry;
 import net.minecraft.client.KeyMapping;
@@ -35,6 +32,8 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import net.minecraftforge.fmllegacy.network.IContainerFactory;
 import net.minecraftforge.fmllegacy.network.NetworkRegistry;
 import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
@@ -47,6 +46,8 @@ import java.util.UUID;
 public class Main {
     public static final String MOD_ID = "smallships";
     public static SimpleChannel SIMPLE_CHANNEL;
+    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    
     public static KeyMapping SAIL_KEY;
     public static KeyMapping SAIL_L_KEY;
     public static KeyMapping SAIL_H_KEY;
@@ -59,20 +60,17 @@ public class Main {
 
     public static MenuType<BasicShipContainer> BASIC_SHIP_CONTAINER_TYPE;
 
-
     public Main() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SmallShipsConfig.CONFIG);
         //SmallShipsConfig.loadConfig(SmallShipsConfig.CONFIG, FMLPaths.CONFIGDIR.get().resolve("smallships-common.toml"));
 
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::setup);
-
         modEventBus.addGenericListener(MenuType.class, this::registerContainers);
         SoundInit.SOUNDS.register(modEventBus);
         //ModBlocks.BLOCKS.register(modEventBus);
         ModEntityTypes.ENTITY_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
-        //ModItems.registerItems();
         MinecraftForge.EVENT_BUS.register(this);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::clientSetup));
@@ -87,6 +85,8 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageOpenGui.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageSailState.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageShootCannon.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageOpenGui.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessagePaddleState.class);
     }
 
     @SubscribeEvent
@@ -121,7 +121,7 @@ public class Main {
             if (ship == null) {
                 return null;
             }
-            return new BasicShipContainer(windowId, ship, inv);
+            return new BasicShipContainer(windowId, ship, inv, 0);
         });
 
         BASIC_SHIP_CONTAINER_TYPE.setRegistryName(new ResourceLocation(Main.MOD_ID, "basic_container"));

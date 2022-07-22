@@ -1,5 +1,6 @@
 package com.talhanation.smallships.client.events;
 
+import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractSailShip;
@@ -85,7 +86,7 @@ public class KeyEvents {
         if (vehicle instanceof AbstractInventoryEntity invboat){
             if (boat.getPassengers().contains(clientPlayerEntity)) {
                 if (Main.INV_KEY.isDown()) {
-                    invboat.openGUI(clientPlayerEntity);
+                    InventoryEvents.openShipGUI(clientPlayerEntity,invboat, 0);
                     this.wasInvPressed = true;
                 } else {
                     this.wasInvPressed = false;

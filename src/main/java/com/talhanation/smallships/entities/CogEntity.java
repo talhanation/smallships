@@ -1,6 +1,6 @@
 package com.talhanation.smallships.entities;
 
-import com.talhanation.smallships.Main;
+import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.inventory.BasicShipContainer;
@@ -39,18 +39,11 @@ public class CogEntity extends AbstractCannonShip{
     public CogEntity(Level world, double x, double y, double z) {
         this(ModEntityTypes.COG.get(), world);
         setPos(x, y, z);
-        //setDeltaMovement(Vector3d.ZERO);
         this.xo = x;
         this.yo = y;
         this.zo = z;
     }
-
-    @Override
-    public double getShipDefense() { //in %
-        return 30;
-    }
-
-
+    
     ////////////////////////////////////GET////////////////////////////////////
 
     // hight and width for now as mast
@@ -64,6 +57,10 @@ public class CogEntity extends AbstractCannonShip{
         return 1.5D;
     }
 
+    @Override
+    public double getShipDefense() { //in %
+        return 12;
+    }
 
     @Override
     public int getInventorySize() {
@@ -72,7 +69,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public float getMaxSpeed() {
-        return 0.5F;
+        return 6F;
     }
 
     @Override
@@ -87,7 +84,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public float getMaxRotationSpeed() {
-        return 1.0F;
+        return 2F;
     }
 
     @Override
@@ -132,10 +129,9 @@ public class CogEntity extends AbstractCannonShip{
 
             if (this.isVehicle() && !(getControllingPassenger() instanceof Player)) {
                 this.ejectPassengers();
-                //this.passengerwaittime = 200;
             } else {
                 if (!(getControllingPassenger() instanceof Player)) {
-                    this.openGUI(player);
+                    InventoryEvents.openShipGUI(player, this,0);
                 }
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
@@ -157,9 +153,10 @@ public class CogEntity extends AbstractCannonShip{
                 this.onInteractionWithBanner(itemInHand, player);
                 return InteractionResult.SUCCESS;
             }
+            if (!player.isSecondaryUseActive()) {
 
             if (itemInHand.getItem() instanceof AxeItem) {
-                if (hasPlanks(player.getInventory()) && hasIronNugget(player.getInventory()) && getShipDamage() > 16.0D) {
+                if (hasPlanks(player.inventory) && hasIronNugget(player.inventory) && getShipDamage() > 16.0D) {
                     this.onInteractionWitAxe(player);
                     return InteractionResult.SUCCESS;
                 } else return InteractionResult.FAIL;
@@ -180,28 +177,10 @@ public class CogEntity extends AbstractCannonShip{
                 }
             }
         }
-        return InteractionResult.FAIL;
+
+       return InteractionResult.FAIL;
     }
 
-    @Override
-    public void openGUI(Player player) {
-        if (player instanceof ServerPlayer) {
-            NetworkHooks.openGui((ServerPlayer) player, new MenuProvider() {
-                @Override
-                public Component getDisplayName() {
-                    return getName();
-                }
-
-                @Nullable
-                @Override
-                public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
-                    return new BasicShipContainer(i, CogEntity.this, playerInventory);
-                }
-            }, packetBuffer -> packetBuffer.writeUUID(getUUID()));
-        } else {
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(player));
-        }
-    }
 
     @Override
     public boolean doesEnterThirdPerson() {
@@ -243,6 +222,7 @@ public class CogEntity extends AbstractCannonShip{
 
         }
     }
+
 
     @Override
     public void positionRider(Entity passenger) {

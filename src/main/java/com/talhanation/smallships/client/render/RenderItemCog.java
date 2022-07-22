@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.world.item.ItemStack;
 
+import static com.talhanation.smallships.entities.AbstractSailShip.Type.OAK;
+
 public class RenderItemCog extends BlockEntityWithoutLevelRenderer {
     private final RenderEntityCog renderer;
 
@@ -30,6 +32,26 @@ public class RenderItemCog extends BlockEntityWithoutLevelRenderer {
             case SPRUCE -> cogItem = (CogItem) ModItems.SPRUCE_COG_ITEM.get();
             case DARK_OAK -> cogItem = (CogItem) ModItems.DARK_OAK_COG_ITEM.get();
             default -> cogItem = (CogItem) ModItems.OAK_COG_ITEM.get();
+        }
+        CogItem cogItem;
+        switch (((CogItem) itemStackIn.getItem()).getType()) {
+            case BIRCH: cogItem = (CogItem) ModItems.BIRCH_COG_ITEM.get();
+            break;
+
+            case ACACIA: cogItem = (CogItem) ModItems.ACACIA_COG_ITEM.get();
+            break;
+
+            case JUNGLE : cogItem = (CogItem) ModItems.JUNGLE_COG_ITEM.get();
+            break;
+
+            case SPRUCE : cogItem = (CogItem) ModItems.SPRUCE_COG_ITEM.get();
+            break;
+
+            case DARK_OAK : cogItem = (CogItem) ModItems.DARK_OAK_COG_ITEM.get();
+            break;
+
+            default : cogItem = (CogItem) ModItems.OAK_COG_ITEM.get();
+            break;
         }
         renderer.render(cogItem.getCogEntity(Minecraft.getInstance().level), -90F, 1F, matrixStackIn, bufferIn, combinedLightIn);
     }
