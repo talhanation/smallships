@@ -15,6 +15,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -108,8 +109,10 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
     }
 
-    protected void onHit(RayTraceResult rayTraceResult) {
-        super.onHit(rayTraceResult);
+
+    @Override
+    protected void onHit(HitResult hitResult) {
+        super.onHit(hitResult);
         onHitBlockParticles();
     }
 

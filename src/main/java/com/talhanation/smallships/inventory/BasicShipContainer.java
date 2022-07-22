@@ -1,13 +1,13 @@
 package com.talhanation.smallships.inventory;
 
 import com.talhanation.smallships.Main;
-import com.talhanation.smallships.entities.AbstractShipDamage;
+import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class BasicShipContainer extends ContainerBase {
 
@@ -53,7 +53,7 @@ public class BasicShipContainer extends ContainerBase {
     }
 
     @Override
-    public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
+    public ItemStack quickMoveStack(Player playerIn, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {

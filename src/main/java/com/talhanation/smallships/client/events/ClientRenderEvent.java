@@ -23,7 +23,11 @@ public class ClientRenderEvent {
             context = ctx; // Its strange, but I couldn't find any other way to access the EntityRendererProvider.Context. See: net.minecraft.client.renderer.entity.EntityRenderDispatcher.onResourceManagerReload
             return new RenderEntityCog(ctx);
         });
-        EntityRenderers.register(ModEntityTypes.BRIGG.get(), RenderEntityBrigg::new );
+
+        EntityRenderers.register(ModEntityTypes.BRIGG.get(), ctx -> {
+            context = ctx; // Its strange, but I couldn't find any other way to access the EntityRendererProvider.Context. See: net.minecraft.client.renderer.entity.EntityRenderDispatcher.onResourceManagerReload
+            return new RenderEntityBrigg(ctx);
+        });
         EntityRenderers.register(ModEntityTypes.CANNON_BALL.get(), RenderCannonBall::new);
     }
 

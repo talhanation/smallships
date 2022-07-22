@@ -1,15 +1,9 @@
 package com.talhanation.smallships.client.model;
 
-// Made with Blockbench 4.2.5
-// Exported for Minecraft version 1.17 - 1.18 with Mojang mappings
-// Paste this class into your mod and generate all required imports
-
 import com.talhanation.smallships.entities.AbstractSailShip;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.Main;
-import com.talhanation.smallships.entities.CogEntity;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -34,7 +28,7 @@ public class ModelCogSail extends ModelSail{
 		this.Segel_4 = root.getChild("Segel_4");
 	}
 
-	public static LayerDefinition createBodyLayer() {
+	public static LayerDefinition createBodyLayer(){
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
@@ -568,7 +562,6 @@ public class ModelCogSail extends ModelSail{
 		}
 	}
 
-	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		Segel_0.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
 		Segel_1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);

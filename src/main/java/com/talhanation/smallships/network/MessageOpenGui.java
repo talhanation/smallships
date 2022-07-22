@@ -21,7 +21,7 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
         this.uuid = new UUID(0, 0);
     }
 
-    public MessageOpenGui(Player player, AbstractInventoryEntity inventoryEntity, int startSlot)){
+    public MessageOpenGui(Player player, AbstractInventoryEntity inventoryEntity, int startSlot){
         this.uuid = player.getUUID();
         this.ship = inventoryEntity.getUUID();
         this.startSlot = startSlot;
@@ -32,7 +32,7 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
     }
 
     public void executeServerSide(NetworkEvent.Context context) {
-        ServerPlayerEntity player = context.getSender();
+        ServerPlayer player = context.getSender();
         player.level.getEntitiesOfClass(AbstractInventoryEntity.class, player.getBoundingBox()
                         .inflate(16.0D), v -> v
                         .getUUID()

@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -72,8 +71,6 @@ public abstract class AbstractWaterVehicle extends Entity {
         this.status = this.getStatus();
 
         Main.LOGGER.debug(this.getStatus().toString());
-
-        checkAndResetForcedChunkAdditionFlag(); //TODO check
 
         super.tick();
         tickLerp();
