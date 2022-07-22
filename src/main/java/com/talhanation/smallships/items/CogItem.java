@@ -21,7 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.client.IItemRenderProperties;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,10 +37,10 @@ public class CogItem extends Item {
     }
 
     @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
+    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+        consumer.accept(new IItemRenderProperties() {
             @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
                 return new RenderItemCog(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
             }
         });

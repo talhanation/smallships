@@ -4,12 +4,6 @@ package com.talhanation.smallships.entities.projectile;
 import com.talhanation.smallships.DamageSourceCannonball;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.init.SoundInit;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,7 +19,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
 

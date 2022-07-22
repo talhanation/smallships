@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,14 +27,14 @@ public class RenderEvents {
     }
 
     @SubscribeEvent
-    public void onRender(ViewportEvent.ComputeCameraAngles evt) {
+    public void onRender(EntityViewRenderEvent.CameraSetup evt) {
         if (getShip() != null && !mc.options.getCameraType().isFirstPerson()) {
-            evt.getCamera().move(-evt.getCamera().getMaxZoom(SmallShipsConfig.ShipZoom.get() - 4D), 0D, 0D);
+            evt.getInfo().move(-evt.getInfo().getMaxZoom(SmallShipsConfig.ShipZoom.get() - 4D), 0D, 0D);
         }
     }
 
     @SubscribeEvent
-    public void onRender(InputEvent.MouseScrollingEvent evt) {
+    public void onRender(InputEvent.MouseScrollEvent evt) {
         if (getShip() != null && !mc.options.getCameraType().isFirstPerson()) {
             SmallShipsConfig.ShipZoom.set(Math.max(1D, Math.min(20D, SmallShipsConfig.ShipZoom.get() - evt.getScrollDelta())));
             SmallShipsConfig.ShipZoom.save();

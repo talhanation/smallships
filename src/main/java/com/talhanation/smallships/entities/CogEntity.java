@@ -6,7 +6,11 @@ import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageOpenGui;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -21,7 +25,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
