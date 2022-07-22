@@ -1,0 +1,22 @@
+{
+  "homepage": "https://www.curseforge.com/minecraft/mc-mods/small-ships/files",
+  "1.16.5": {
+    "1.0.1": ""
+  },
+  "promos": {
+    "1.16.5-latest": "2.0.0-a0.2",
+    "1.16.5-recommended": "1.10.1"
+  },
+  "promos": {
+    "1.17.1-latest": "2.0.0-a0.2"
+  },
+  "promos": {
+    "1.18.2-latest": "2.0.0-a0.2"
+  },
+  "promos": {
+    "1.19-latest": "2.0.0-a0.2.1"
+  },
+  "promos": {
+    "1.19-latest": "2.0.0-a0.2.2"
+  }
+}
