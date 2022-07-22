@@ -1,37 +1,37 @@
 package com.talhanation.smallships.entities;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.render.RenderCannon;
 import com.talhanation.smallships.entities.projectile.CannonBallEntity;
 import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.network.MessageShootCannon;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 
 public abstract class AbstractCannonShip extends AbstractShipDamage{
-    private static final EntityDataAccessor<Integer> RIGHT_CANNON_COUNT = SynchedEntityData.defineId(AbstractCannonShip.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> LEFT_CANNON_COUNT = SynchedEntityData.defineId(AbstractCannonShip.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> LEFT_CANNON = SynchedEntityData.defineId(AbstractCannonShip.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Boolean> RIGHT_CANNON = SynchedEntityData.defineId(AbstractCannonShip.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Integer> LEFT_SHOOT_COOLDOWN = SynchedEntityData.defineId(AbstractCannonShip.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> RIGHT_SHOOT_COOLDOWN = SynchedEntityData.defineId(AbstractCannonShip.class, EntityDataSerializers.INT);
+    private static final DataParameter<Integer> RIGHT_CANNON_COUNT = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
+    private static final DataParameter<Integer> LEFT_CANNON_COUNT = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
+    private static final DataParameter<Boolean> LEFT_CANNON = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Boolean> RIGHT_CANNON = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Integer> LEFT_SHOOT_COOLDOWN = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
+    private static final DataParameter<Integer> RIGHT_SHOOT_COOLDOWN = EntityDataManager.defineId(AbstractCannonShip.class, DataSerializers.INT);
 
-    public AbstractCannonShip(EntityType<? extends AbstractCannonShip> type, Level world) {
+    public AbstractCannonShip(EntityType<? extends AbstractCannonShip> type, World world) {
         super(type, world);
 
     }
@@ -75,7 +75,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     ////////////////////////////////////SAVE////////////////////////////////////
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putInt("RightCannonCount", getRightCannonCount());
         nbt.putInt("LeftCannonCount", getLeftCannonCount());
@@ -84,7 +84,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
         setRightCannonCount(nbt.getInt("RightCannonCount"));
         setLeftCannonCount(nbt.getInt("LeftCannonCount"));
@@ -129,7 +129,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public boolean hasGunPowder(){
-        SimpleContainer inventory = this.getInventory();
+        Inventory inventory = this.getInventory();
         for(int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStack = inventory.getItem(i);
             if (itemStack.getItem() == Items.GUNPOWDER){
@@ -140,7 +140,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public boolean hasCannonBall(){
-        SimpleContainer inventory = this.getInventory();
+        Inventory inventory = this.getInventory();
         for(int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStack = inventory.getItem(i);
             if (itemStack.getItem() == ModItems.CANNONBALL.get()){
@@ -177,13 +177,13 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         }
     }
 
-    public Vec3 getShootVector(){
-        Vec3 forward = this.getForward().normalize();
-        Vec3 VecRight = forward.yRot(-3.14F/2).normalize();
-        Vec3 VecLeft  = forward.yRot(3.14F/2).normalize();
+    public Vector3d getShootVector(){
+        Vector3d forward = this.getForward().normalize();
+        Vector3d VecRight = forward.yRot(-3.14F/2).normalize();
+        Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
 
 
-        Vec3 playerVec = this.getDriver().getLookAngle().normalize();
+        Vector3d playerVec = this.getDriver().getLookAngle().normalize();
 
         if (playerVec.distanceTo(VecLeft) > playerVec.distanceTo(VecRight)) {
             return VecRight;
@@ -202,11 +202,11 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public void shootCannons() {
-        Vec3 shootVector = this.getShootVector();
-        Vec3 forward = this.getForward();
+        Vector3d shootVector = this.getShootVector();
+        Vector3d forward = this.getForward();
 
-        Vec3 VecRight = forward.yRot(-3.14F/2).normalize();
-        Vec3 VecLeft  = forward.yRot(3.14F/2).normalize();
+        Vector3d VecRight = forward.yRot(-3.14F/2).normalize();
+        Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
         boolean shoot = false;
         float x0 = 0;
         int cannonCount = 0;
@@ -237,12 +237,16 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
             boolean playerView= getDriver().getLookAngle().y >= 0;
             double yShootVec = playerView ? shootVector.y() + getDriver().getLookAngle().y * 0.75F : shootVector.y() + 0.25F;
 
+;
             float f2 = 0;
             for(int i = 0; i < cannonCount; i++){
-                switch (i) {
-                    case 0 -> f2 = 0.2F;
-                    case 1 -> f2 = -1.4F;
-                    case 2 -> f2 = -3.8F;
+                switch (i){
+                    case 0: f2 = 0.2F;
+                    break;
+                    case 1: f2 = -1.4F;
+                    break;
+                    case 2: f2 = -3.8F;
+                    break;
                 }
             if (canShoot())
                 shootCannon(forward, shootVector, yShootVec, speed, f2, k, x0);
@@ -250,9 +254,9 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         }
     }
 
-    public void shootCannon(Vec3 forward, Vec3 shootVector, double yShootVec, float speed, float f2, float k, float x0){
-        float f0 = Mth.cos(this.getYRot() * ((float) Math.PI / 180F)) * x0;
-        float f1 = Mth.sin(this.getYRot() * ((float) Math.PI / 180F)) * x0;
+    public void shootCannon(Vector3d forward, Vector3d shootVector, double yShootVec, float speed, float f2, float k, float x0){
+        float f0 = MathHelper.cos(this.yRot * ((float) Math.PI / 180F)) * x0;
+        float f1 = MathHelper.sin(this.yRot * ((float) Math.PI / 180F)) * x0;
         //float f2 = 0.2F; // /-/vorne /+/zurück
         double d1 = this.getX() - forward.x * (double) f2 + (double) f0;
         double d2 = this.getY() - forward.y + 1;//hoch
@@ -271,7 +275,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
 
     public void handleItemsOnShoot() {
-        SimpleContainer inventory = this.getInventory();
+        Inventory inventory = this.getInventory();
 
         int cannonball = 0;
         int gunpowder = 0;
@@ -282,33 +286,45 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         this.shrinkItemInInv(inventory, gunpowderItem, 1);
         this.shrinkItemInInv(inventory, cannonballItem, 1);
     }
-    
-    public void renderCannon(double Zoffset, double height, float angle, PoseStack matrixStack, MultiBufferSource buffer , int packedLight, float partialTicks) {
+
+    public void renderCannon(double Zoffset, double height, float angle, MatrixStack matrixStack, IRenderTypeBuffer buffer , int packedLight, float partialTicks) {
         if (getLeftCannonCount() != 0) {
             for (int i = 0; i < getLeftCannonCount(); i++) {
-                double offset = switch (i) {
-                    case 0 -> 1;
-                    case 1 -> -0.2;
-                    case 2 -> -1.5;
-                    default -> 0;
-                };
-                RenderCannon.renderCannon(Zoffset, offset, height, angle, this, partialTicks, matrixStack, buffer, packedLight);
+                double offset = 0;
+                switch (i) {
+                    case 0:
+                        offset = 1;
+                        break;
+                    case 1:
+                        offset = -0.2;
+                        break;
+                    case 2:
+                        offset = -1.5;
+                        break;
+                }
+                RenderCannon.renderCannon(Zoffset, offset, height, angle,this, partialTicks, matrixStack, buffer, packedLight);
             }
         }
         if (getRightCannonCount() != 0) {
             for (int i = 0; i < getRightCannonCount(); i++) {
-                double offset = switch (i) {
-                    case 0 -> -1;
-                    case 1 -> 0.2;
-                    case 2 -> 1.5;
-                    default -> 0;
-                };
+                double offset = 0;
+                switch (i) {
+                    case 0:
+                        offset = -1;
+                        break;
+                    case 1:
+                        offset = 0.2;
+                        break;
+                    case 2:
+                        offset = 1.5;
+                        break;
+                }
                 RenderCannon.renderCannon(Zoffset, offset, height, angle + 180, this, partialTicks, matrixStack, buffer, packedLight);
             }
         }
     }
 
-    public void onInteractionWithCannon(Player player, ItemStack itemStack) {
+    public void onInteractionWithCannon(PlayerEntity player, ItemStack itemStack) {
         if (getRightCannonCount() + getLeftCannonCount() != getMaxCannons()) {
             if (getRightCannonCount() == getLeftCannonCount()) {
                 setRightCannonCount(getRightCannonCount() + 1);
@@ -321,7 +337,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
         }
     }
 
-    public void shrinkItemInInv(SimpleContainer inventory, Item item, int count){
+    public void shrinkItemInInv(Inventory inventory, Item item, int count){
 
         for (int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStackInSlot = inventory.getItem(i);

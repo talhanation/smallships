@@ -1,6 +1,6 @@
 package com.talhanation.smallships;
 
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.DamageSource;
 
 public class DamageSourceShip extends DamageSource {
 

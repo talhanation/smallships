@@ -5,8 +5,8 @@ import com.talhanation.smallships.Main;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import com.talhanation.smallships.entities.AbstractSailShip;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -20,7 +20,7 @@ public class KeyEvents {
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
-        LocalPlayer clientPlayerEntity = minecraft.player;
+        ClientPlayerEntity clientPlayerEntity = minecraft.player;
         if (clientPlayerEntity == null)
             return;
 
@@ -83,7 +83,8 @@ public class KeyEvents {
         }
          */
 
-        if (vehicle instanceof AbstractInventoryEntity invboat){
+        if (vehicle instanceof AbstractInventoryEntity){
+            AbstractInventoryEntity invboat = (AbstractInventoryEntity) vehicle;
             if (boat.getPassengers().contains(clientPlayerEntity)) {
                 if (Main.INV_KEY.isDown()) {
                     InventoryEvents.openShipGUI(clientPlayerEntity,invboat, 0);

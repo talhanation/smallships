@@ -2,44 +2,47 @@ package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.LilyPadBlock;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Pose;
+import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.entity.passive.WaterMobEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.network.IPacket;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.animal.WaterAnimal;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.DismountHelper;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.WaterlilyBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.util.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class AbstractWaterVehicle extends Entity {
 
+    public static float SCALE_FACTOR = 1F;
+    private final float[] paddlePositions = new float[2];
     public AbstractWaterVehicle.Status status;
     public AbstractWaterVehicle.Status previousStatus;
     public double waterLevel;
+    private float boatGlide;
+    private float waveAngle;
+    private float prevWaveAngle;
     public double lastYd;
 
     private int steps;
@@ -51,9 +54,9 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     protected float deltaRotation;
 
-    protected AABB boundingBox;
+    protected AxisAlignedBB boundingBox;
 
-    public AbstractWaterVehicle(EntityType<? extends AbstractWaterVehicle> type, Level world) {
+    public AbstractWaterVehicle(EntityType<? extends AbstractWaterVehicle> type, World world) {
         super(type, world);
         this.blocksBuilding = true;
         this.maxUpStep = 0.6F;
@@ -77,6 +80,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         super.tick();
         tickLerp();
+
         recalculateBoundingBox();
         checkInsideBlocks();
         handleCollisionWithEntity();
@@ -84,13 +88,14 @@ public abstract class AbstractWaterVehicle extends Entity {
 
 
     public void handleCollisionWithEntity() {
-        List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate(0.2F, -0.01F, 0.2F), EntitySelector.pushableBy(this));
+        List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate((double) 0.2F, (double) -0.01F, (double) 0.2F), EntityPredicates.pushableBy(this));
         if (!list.isEmpty()) {
-            boolean flag = !this.level.isClientSide && !(this.getControllingPassenger() instanceof Player);
+            boolean flag = !this.level.isClientSide && !(this.getControllingPassenger() instanceof PlayerEntity);
 
-            for (Entity entity : list) {
+            for (int j = 0; j < list.size(); ++j) {
+                Entity entity = list.get(j);
                 if (!entity.hasPassenger(this)) {
-                    if (flag && canAddPassenger(entity) && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && !(entity instanceof Player)) {
+                    if (flag && canAddPassenger(entity) && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterMobEntity) && !(entity instanceof PlayerEntity)) {
                         entity.startRiding(this);
                     } else {
                         this.push(entity);
@@ -103,7 +108,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     public void recalculateBoundingBox() {
         double width = getWidth();
         double height = getHeight();
-        boundingBox = new AABB(getX() - width / 2D, getY(), getZ() - width / 2D, getX() + width / 2D, getY() + height, getZ() + width / 2D);
+        boundingBox = new AxisAlignedBB(getX() - width / 2D, getY(), getZ() - width / 2D, getX() + width / 2D, getY() + height, getZ() + width / 2D);
     }
 
     public abstract double getWidth();
@@ -111,14 +116,14 @@ public abstract class AbstractWaterVehicle extends Entity {
     public abstract double getHeight();
 
     @Nullable
-    public Player getDriver() {
+    public PlayerEntity getDriver() {
         List<Entity> passengers = getPassengers();
         if (passengers.size() <= 0) {
             return null;
         }
 
-        if (passengers.get(0) instanceof Player) {
-            return (Player) passengers.get(0);
+        if (passengers.get(0) instanceof PlayerEntity) {
+            return (PlayerEntity) passengers.get(0);
         }
 
         return null;
@@ -131,24 +136,25 @@ public abstract class AbstractWaterVehicle extends Entity {
         return this.getPassengers().size() < getPassengerSize() && !SmallShipsConfig.PassengerBlackList.get().contains(passenger.getEncodeId());
     }
 
-    protected void applyOriantationsToEntity(Entity entityToUpdate) {
-        entityToUpdate.setYBodyRot(getYRot());
-        float f = Mth.wrapDegrees(entityToUpdate.getYRot() - getYRot());
-        float f1 = Mth.clamp(f, -130.0F, 130.0F);
+    protected void applyYawToEntity(Entity entityToUpdate) {
+        entityToUpdate.setYBodyRot(this.yRot);
+        float f = MathHelper.wrapDegrees(entityToUpdate.yRot - this.yRot);
+        float f1 = MathHelper.clamp(f, -130.0F, 130.0F);
         entityToUpdate.yRotO += f1 - f;
-        entityToUpdate.setYRot(entityToUpdate.getYRot() + f1 - f);
-        entityToUpdate.setYHeadRot(entityToUpdate.getYRot());
+        entityToUpdate.yRot += f1 - f;
+        entityToUpdate.setYHeadRot(entityToUpdate.yRot);
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void onPassengerTurned(Entity entityToUpdate) {
-        this.applyOriantationsToEntity(entityToUpdate);
+        this.applyYawToEntity(entityToUpdate);
     }
 
     @Override
     public void positionRider(Entity passenger) {
         if (!hasPassenger(passenger)) {
+            return;
         }
     }
 
@@ -177,6 +183,16 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     @Override
+    public AxisAlignedBB getBoundingBox() {
+        return boundingBox;
+    }
+
+    @Override
+    public void setBoundingBox(AxisAlignedBB boundingBox) {
+        this.boundingBox = boundingBox;
+    }
+
+    @Override
     public boolean displayFireAnimation() {
         return false;
     }
@@ -201,12 +217,12 @@ public abstract class AbstractWaterVehicle extends Entity {
             double d0 = getX() + (clientX - getX()) / (double) steps;
             double d1 = getY() + (clientY - getY()) / (double) steps;
             double d2 = getZ() + (clientZ - getZ()) / (double) steps;
-            double d3 = Mth.wrapDegrees(clientYaw - (double) getYRot());
-            setYRot((float) ((double) getYRot() + d3 / (double) steps));
-            setXRot((float) ((double) getXRot() + (clientPitch - (double) getXRot()) / (double) steps));
+            double d3 = MathHelper.wrapDegrees(clientYaw - (double) yRot);
+            yRot = (float) ((double) yRot + d3 / (double) steps);
+            xRot = (float) ((double) xRot + (clientPitch - (double) xRot) / (double) steps);
             --steps;
             this.setPos(d0, d1, d2);
-            this.setRot(getYRot(), getXRot());
+            this.setRot(yRot, xRot);
         }
     }
 
@@ -222,36 +238,36 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     public static double calculateMotionX(float speed, float rotationYaw) {
-        return Mth.sin(-rotationYaw * 0.017453292F) * speed;
+        return MathHelper.sin(-rotationYaw * 0.017453292F) * speed;
     }
 
     public static double calculateMotionZ(float speed, float rotationYaw) {
-        return Mth.cos(rotationYaw * 0.017453292F) * speed;
+        return MathHelper.cos(rotationYaw * 0.017453292F) * speed;
     }
 
     @Override
-    public abstract InteractionResult interact(Player player, InteractionHand hand);
+    public abstract ActionResultType interact(PlayerEntity player, Hand hand);
     public abstract boolean doesEnterThirdPerson();
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public IPacket<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    public Vec3 getDismountLocationForPassenger(LivingEntity entity) {
+    public Vector3d getDismountLocationForPassenger(LivingEntity entity) {
         Direction direction = getMotionDirection();
         if (direction.getAxis() == Direction.Axis.Y) {
             return super.getDismountLocationForPassenger(entity);
         }
-        int[][] offsets = DismountHelper.offsetsForDirection(direction);
-        AABB bb = entity.getLocalBoundsForPose(Pose.STANDING);
-        AABB carBB = this.getBoundingBox();
+        int[][] offsets = TransportationHelper.offsetsForDirection(direction);
+        AxisAlignedBB bb = entity.getLocalBoundsForPose(Pose.STANDING);
+        AxisAlignedBB carBB = this.getBoundingBox();
         for (int[] offset : offsets) {
-            Vec3 dismountPos = new Vec3(getX() + (double) offset[0] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY() + 0.75D, getZ() + (double) offset[1] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
+            Vector3d dismountPos = new Vector3d(getX() + (double) offset[0] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY() + 0.75D, getZ() + (double) offset[1] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
             double y = level.getBlockFloorHeight(new BlockPos(dismountPos));
-            if (DismountHelper.isBlockFloorValid(y)) {
-                if (DismountHelper.canDismountTo(level, entity, bb.move(dismountPos))) {
+            if (TransportationHelper.isBlockFloorValid(y)) {
+                if (TransportationHelper.canDismountTo(level, entity, bb.move(dismountPos))) {
                     return dismountPos;
                 }
             }
@@ -269,6 +285,7 @@ public abstract class AbstractWaterVehicle extends Entity {
         } else {
             float f = this.getBoatGlide();
             if (f > 0.0F) {
+                this.boatGlide = f;
                 return AbstractWaterVehicle.Status.ON_LAND;
             } else {
                 return AbstractWaterVehicle.Status.IN_AIR;
@@ -277,16 +294,16 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     private boolean checkInWater() {
-        AABB axisalignedbb = this.getBoundingBox();
-        int i = Mth.floor(axisalignedbb.minX);
-        int j = Mth.ceil(axisalignedbb.maxX);
-        int k = Mth.floor(axisalignedbb.minY);
-        int l = Mth.ceil(axisalignedbb.minY + 0.001D);
-        int i1 = Mth.floor(axisalignedbb.minZ);
-        int j1 = Mth.ceil(axisalignedbb.maxZ);
+        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        int i = MathHelper.floor(axisalignedbb.minX);
+        int j = MathHelper.ceil(axisalignedbb.maxX);
+        int k = MathHelper.floor(axisalignedbb.minY);
+        int l = MathHelper.ceil(axisalignedbb.minY + 0.001D);
+        int i1 = MathHelper.floor(axisalignedbb.minZ);
+        int j1 = MathHelper.ceil(axisalignedbb.maxZ);
         boolean flag = false;
         this.waterLevel = Double.MIN_VALUE;
-        BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos();
+        BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
 
         for (int k1 = i; k1 < j; ++k1) {
             for (int l1 = k; l1 < l; ++l1) {
@@ -295,7 +312,7 @@ public abstract class AbstractWaterVehicle extends Entity {
                     FluidState fluidstate = this.level.getFluidState(blockpos$mutable);
                     if (fluidstate.is(FluidTags.WATER)) {
                         float f = (float) l1 + fluidstate.getHeight(this.level, blockpos$mutable);
-                        this.waterLevel = Math.max(f, this.waterLevel);
+                        this.waterLevel = Math.max((double) f, this.waterLevel);
                         flag |= axisalignedbb.minY < (double) f;
                     }
                 }
@@ -306,18 +323,18 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     public float getBoatGlide() {
-        AABB axisalignedbb = this.getBoundingBox();
-        AABB axisalignedbb1 = new AABB(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
-        int i = Mth.floor(axisalignedbb1.minX) - 1;
-        int j = Mth.ceil(axisalignedbb1.maxX) + 1;
-        int k = Mth.floor(axisalignedbb1.minY) - 1;
-        int l = Mth.ceil(axisalignedbb1.maxY) + 1;
-        int i1 = Mth.floor(axisalignedbb1.minZ) - 1;
-        int j1 = Mth.ceil(axisalignedbb1.maxZ) + 1;
-        VoxelShape voxelshape = Shapes.create(axisalignedbb1);
+        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb1 = new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
+        int i = MathHelper.floor(axisalignedbb1.minX) - 1;
+        int j = MathHelper.ceil(axisalignedbb1.maxX) + 1;
+        int k = MathHelper.floor(axisalignedbb1.minY) - 1;
+        int l = MathHelper.ceil(axisalignedbb1.maxY) + 1;
+        int i1 = MathHelper.floor(axisalignedbb1.minZ) - 1;
+        int j1 = MathHelper.ceil(axisalignedbb1.maxZ) + 1;
+        VoxelShape voxelshape = VoxelShapes.create(axisalignedbb1);
         float f = 0.0F;
         int k1 = 0;
-        BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos();
+        BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
 
         for (int l1 = i; l1 < j; ++l1) {
             for (int i2 = i1; i2 < j1; ++i2) {
@@ -327,8 +344,8 @@ public abstract class AbstractWaterVehicle extends Entity {
                         if (j2 <= 0 || k2 != k && k2 != l - 1) {
                             blockpos$mutable.set(l1, k2, i2);
                             BlockState blockstate = this.level.getBlockState(blockpos$mutable);
-                            if (!(blockstate.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, blockpos$mutable).move(l1, k2, i2), voxelshape, BooleanOp.AND)) {
-                                f += blockstate.getFriction(this.level, blockpos$mutable, this);
+                            if (!(blockstate.getBlock() instanceof LilyPadBlock) && VoxelShapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, blockpos$mutable).move((double) l1, (double) k2, (double) i2), voxelshape, IBooleanFunction.AND)) {
+                                f += blockstate.getSlipperiness(this.level, blockpos$mutable, this);
                                 ++k1;
                             }
                         }
@@ -341,14 +358,14 @@ public abstract class AbstractWaterVehicle extends Entity {
 
 
     public float getWaterLevelAbove() {
-        AABB axisalignedbb = this.getBoundingBox();
-        int i = Mth.floor(axisalignedbb.minX);
-        int j = Mth.ceil(axisalignedbb.maxX);
-        int k = Mth.floor(axisalignedbb.maxY);
-        int l = Mth.ceil(axisalignedbb.maxY - this.lastYd);
-        int i1 = Mth.floor(axisalignedbb.minZ);
-        int j1 = Mth.ceil(axisalignedbb.maxZ);
-        BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos();
+        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        int i = MathHelper.floor(axisalignedbb.minX);
+        int j = MathHelper.ceil(axisalignedbb.maxX);
+        int k = MathHelper.floor(axisalignedbb.maxY);
+        int l = MathHelper.ceil(axisalignedbb.maxY - this.lastYd);
+        int i1 = MathHelper.floor(axisalignedbb.minZ);
+        int j1 = MathHelper.ceil(axisalignedbb.maxZ);
+        BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
 
         label39:
         for (int k1 = k; k1 < l; ++k1) {
@@ -378,16 +395,16 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     @Nullable
     private AbstractWaterVehicle.Status getUnderwaterStatus() {
-        AABB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb = this.getBoundingBox();
         double d0 = axisalignedbb.maxY + 0.075D;
-        int i = Mth.floor(axisalignedbb.minX);
-        int j = Mth.ceil(axisalignedbb.maxX);
-        int k = Mth.floor(axisalignedbb.maxY);
-        int l = Mth.ceil(d0);
-        int i1 = Mth.floor(axisalignedbb.minZ);
-        int j1 = Mth.ceil(axisalignedbb.maxZ);
+        int i = MathHelper.floor(axisalignedbb.minX);
+        int j = MathHelper.ceil(axisalignedbb.maxX);
+        int k = MathHelper.floor(axisalignedbb.maxY);
+        int l = MathHelper.ceil(d0);
+        int i1 = MathHelper.floor(axisalignedbb.minZ);
+        int j1 = MathHelper.ceil(axisalignedbb.maxZ);
         boolean flag = false;
-        BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos();
+        BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
 
         for (int k1 = i; k1 < j; ++k1) {
             for (int l1 = k; l1 < l; ++l1) {
@@ -454,9 +471,9 @@ public abstract class AbstractWaterVehicle extends Entity {
         public static AbstractWaterVehicle.Type getTypeFromString(String nameIn) {
             AbstractWaterVehicle.Type[] aboatentity$type = values();
 
-            for (Type type : aboatentity$type) {
-                if (type.getName().equals(nameIn)) {
-                    return type;
+            for (int i = 0; i < aboatentity$type.length; ++i) {
+                if (aboatentity$type[i].getName().equals(nameIn)) {
+                    return aboatentity$type[i];
                 }
             }
 

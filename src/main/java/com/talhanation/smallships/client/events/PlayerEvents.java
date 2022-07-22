@@ -1,5 +1,12 @@
 package com.talhanation.smallships.client.events;
 
+import com.talhanation.smallships.Main;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
 public class PlayerEvents {
     /*
     @SubscribeEvent

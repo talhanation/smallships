@@ -1,26 +1,27 @@
 package com.talhanation.smallships.entities;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.Containers;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import com.talhanation.smallships.Main;
+import net.minecraft.entity.EntityType;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.World;
 
 public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
-    private static final EntityDataAccessor<Integer> CARGO = SynchedEntityData.defineId(AbstractInventoryEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> INV_PAGE = SynchedEntityData.defineId(AbstractInventoryEntity.class, EntityDataSerializers.INT);
-    
-    private final SimpleContainer inventory = new SimpleContainer(this.getInventorySize());
+    private static final DataParameter<Integer> CARGO = EntityDataManager.defineId(AbstractInventoryEntity.class, DataSerializers.INT);
+    private static final DataParameter<Integer> INV_PAGE = EntityDataManager.defineId(AbstractInventoryEntity.class, DataSerializers.INT);
 
-    public AbstractInventoryEntity(EntityType<? extends AbstractInventoryEntity> type, Level world) {
+    private final Inventory inventory = new Inventory(this.getInventorySize());
+
+    public AbstractInventoryEntity(EntityType<? extends AbstractInventoryEntity> type, World world) {
         super(type, world);
     }
 
@@ -28,26 +29,26 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     public void tick() {
         super.tick();
-        //updateCargo();
     }
 
     ////////////////////////////////////DATA////////////////////////////////////
+
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         entityData.define(CARGO, 0);
         entityData.define(INV_PAGE, 1);
+    }
 
-    ////////////////////////////////////SAVE DATA////////////////////////////////////
 
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
-        ListTag list = new ListTag();
+        ListNBT list = new ListNBT();
         for (int i = 0; i < this.inventory.getContainerSize(); ++i) {
             ItemStack itemstack = this.inventory.getItem(i);
             if (!itemstack.isEmpty()) {
-                CompoundTag compoundnbt = new CompoundTag();
+                CompoundNBT compoundnbt = new CompoundNBT();
                 compoundnbt.putByte("Slot", (byte) i);
                 itemstack.save(compoundnbt);
                 list.add(compoundnbt);
@@ -59,11 +60,11 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         nbt.putInt("InventoryPage", getInvPage());
     }
 
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
-        ListTag list = nbt.getList("Inventory", 10);
+        ListNBT list = nbt.getList("Inventory", 10);
         for (int i = 0; i < list.size(); ++i) {
-            CompoundTag compoundnbt = list.getCompound(i);
+            CompoundNBT compoundnbt = list.getCompound(i);
             int j = compoundnbt.getByte("Slot") & 255;
 
             this.inventory.setItem(j, ItemStack.of(compoundnbt));
@@ -74,11 +75,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     ////////////////////////////////////GET////////////////////////////////////
 
-    public int getCargo() {
-        return entityData.get(CARGO);
-    }
-
-    public SimpleContainer getInventory() {
+    public Inventory getInventory() {
         return this.inventory;
     }
 
@@ -103,7 +100,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
     ////////////////////////////////////SET////////////////////////////////////
 
     public boolean setSlot(int slot, ItemStack itemStack) {
-        if (super.getSlot(slot).set(itemStack)) {
+        if (super.setSlot(slot, itemStack)) {
             return true;
         } else {
             int i = slot - 300;
@@ -128,7 +125,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
 
     public void destroyShip(DamageSource dmg) {
         for (int i = 0; i < this.inventory.items.size(); i++)
-            Containers.dropItemStack(this.level, getX(), getY(), getZ(), this.inventory.getItem(i));
+            InventoryHelper.dropItemStack(this.level, getX(), getY(), getZ(), this.inventory.getItem(i));
         super.destroyShip(dmg);
     }
 

@@ -1,17 +1,18 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://files.minecraftforge.net/maven' }
         maven { url = 'https://maven.maxhenkel.de/repository/public' }
+        jcenter()
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1+', changing: true
+        classpath group: 'com.github.jengelman.gradle.plugins', name: 'shadow', version: '4.0.4'
     }
 }
 
 plugins {
     id "com.matthewprenger.cursegradle" version "1.4.0"
-    id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -22,13 +23,13 @@ apply plugin: 'maven-publish'
 
 version = '2.0.0-Alpha-0.2'
 group = 'com.talhanation.smallships' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'smallships-1.17.1'
+archivesBaseName = 'smallships-1.16.5'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'official', version: '1.17.1'
+    mappings channel: 'official', version: '1.16.5'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
@@ -78,11 +79,11 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.1.1'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
 
-    shadow fg.deobf("de.maxhenkel.corelib:corelib:1.17.1-1.0.2:api")
-    runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.17.1-1.0.2")
-    runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.17.1-1.0.2:javadoc")
+    shadow fg.deobf("de.maxhenkel.corelib:corelib:1.16.5-1.0.5:api")
+    runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.16.5-1.0.5")
+    runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.16.5-1.0.5:javadoc")
 
 }
 repositories {
@@ -96,6 +97,19 @@ repositories {
 sourceSets.main.resources {
     srcDir 'src/generated/resources'
 }
+jar {
+    manifest {
+        attributes([
+                "Specification-Title": "examplemod",
+                "Specification-Vendor": "examplemodsareus",
+                "Specification-Version": "1", // We are version 1 of ourselves
+                "Implementation-Title": project.name,
+                "Implementation-Version": "${version}",
+                "Implementation-Vendor" :"examplemodsareus",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
 
 jar.finalizedBy('reobfJar')
 
@@ -106,8 +120,9 @@ artifacts {
 jar.finalizedBy('reobfJar')
 
 shadowJar {
-    project.configurations.shadow.setTransitive(true)
+    project.configurations.shadow.setTransitive(true);
     configurations = [project.configurations.shadow]
+    classifier = ""
     relocate 'de.maxhenkel.corelib', "de.maxhenkel.smallships.corelib"
 }
 
