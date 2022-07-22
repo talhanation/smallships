@@ -1,5 +1,6 @@
 package com.talhanation.smallships;
 
+import com.talhanation.smallships.client.events.ClientRenderEvent;
 import com.talhanation.smallships.client.events.KeyEvents;
 import com.talhanation.smallships.client.events.PlayerEvents;
 import com.talhanation.smallships.client.events.RenderEvents;
@@ -12,11 +13,12 @@ import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.*;
 import de.maxhenkel.corelib.ClientRegistry;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
+import de.maxhenkel.corelib.CommonRegistry;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -30,11 +32,11 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.IContainerFactory;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import net.minecraftforge.fmllegacy.network.IContainerFactory;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
@@ -45,20 +47,18 @@ public class Main {
     public static final String MOD_ID = "smallships";
     public static SimpleChannel SIMPLE_CHANNEL;
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    
+    public static KeyMapping SAIL_KEY;
+    public static KeyMapping SAIL_L_KEY;
+    public static KeyMapping SAIL_H_KEY;
+    public static KeyMapping INV_KEY;
+    public static KeyMapping CANNON_KEY;
+    public static KeyMapping FORWARD_KEY;
+    public static KeyMapping BACK_KEY;
+    public static KeyMapping LEFT_KEY;
+    public static KeyMapping RIGHT_KEY;
 
-    public static KeyBinding SAIL_KEY;
-    public static KeyBinding SAIL_L_KEY;
-    public static KeyBinding SAIL_H_KEY;
-    public static KeyBinding INV_KEY;
-    public static KeyBinding CANNON_KEY;
-    public static KeyBinding FORWARD_KEY;
-    public static KeyBinding BACK_KEY;
-    public static KeyBinding LEFT_KEY;
-    public static KeyBinding RIGHT_KEY;
-
-
-    public static ContainerType<BasicShipContainer> BASIC_SHIP_CONTAINER_TYPE;
-
+    public static MenuType<BasicShipContainer> BASIC_SHIP_CONTAINER_TYPE;
 
     public Main() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SmallShipsConfig.CONFIG);
@@ -66,9 +66,7 @@ public class Main {
 
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::setup);
-
-        modEventBus.addGenericListener(ContainerType.class, this::registerContainers);
-
+        modEventBus.addGenericListener(MenuType.class, this::registerContainers);
         SoundInit.SOUNDS.register(modEventBus);
         //ModBlocks.BLOCKS.register(modEventBus);
         ModEntityTypes.ENTITY_TYPES.register(modEventBus);
@@ -80,51 +78,15 @@ public class Main {
 
     private void setup(final FMLCommonSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(new InventoryEvents());
+
         SIMPLE_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("smallships", "default"), () -> "1.0.0", s -> true, s -> true);
 
-        SIMPLE_CHANNEL.registerMessage(0, MessageControlShip.class, MessageControlShip::toBytes,
-                buf -> (new MessageControlShip()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(1, MessageOpenGui.class, MessageOpenGui::toBytes,
-                buf -> (new MessageOpenGui()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(2, MessageSailState.class, MessageSailState::toBytes,
-                buf -> (new MessageSailState()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(3, MessageShootCannon.class, MessageShootCannon::toBytes,
-                buf -> (new MessageShootCannon()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(4, MessageOpenGui.class, MessageOpenGui::toBytes,
-                buf -> (new MessageOpenGui()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        /*
-        SIMPLE_CHANNEL.registerMessage(0, MessagePaddleState.class, MessagePaddleState::toBytes,
-                buf -> (new MessagePaddleState()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(2, MessageSteerState.class, MessageSteerState::toBytes,
-                buf -> (new MessageSteerState()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(4, MessageIsForward.class, MessageIsForward::toBytes,
-                buf -> (new MessageIsForward()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(5, MessageDismount.class, MessageDismount::toBytes,
-                buf -> (new MessageDismount()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        SIMPLE_CHANNEL.registerMessage(6, MessageLantern.class, MessageLantern::toBytes,
-                buf -> (new MessageLantern()).fromBytes(buf),
-                (msg, fun) -> msg.executeServerSide(fun.get()));
-
-        */
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageControlShip.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageOpenGui.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageSailState.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageShootCannon.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageOpenGui.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessagePaddleState.class);
     }
 
     @SubscribeEvent
@@ -147,12 +109,14 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new RenderEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new KeyEvents());
+
+        ClientRenderEvent.register();
     }
 
 
     @SubscribeEvent
-    public void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
-        BASIC_SHIP_CONTAINER_TYPE = new ContainerType<>((IContainerFactory<BasicShipContainer>) (windowId, inv, data) -> {
+    public void registerContainers(RegistryEvent.Register<MenuType<?>> event) {
+        BASIC_SHIP_CONTAINER_TYPE = new MenuType<>((IContainerFactory<BasicShipContainer>) (windowId, inv, data) -> {
             AbstractShipDamage ship = getInvEntityByUUID(inv.player, data.readUUID());
             if (ship == null) {
                 return null;
@@ -166,8 +130,8 @@ public class Main {
     }
 
     @Nullable
-    public static AbstractShipDamage getInvEntityByUUID(PlayerEntity player, UUID uuid) {
+    public static AbstractShipDamage getInvEntityByUUID(Player player, UUID uuid) {
         double distance = 10D;
-        return player.level.getEntitiesOfClass(AbstractShipDamage.class, new AxisAlignedBB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
+        return player.level.getEntitiesOfClass(AbstractShipDamage.class, new AABB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
     }
 }

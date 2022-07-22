@@ -3,12 +3,12 @@ package com.talhanation.smallships.network;
 import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.entities.AbstractInventoryEntity;
 import de.maxhenkel.corelib.net.Message;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
         this.uuid = new UUID(0, 0);
     }
 
-    public MessageOpenGui(PlayerEntity player, AbstractInventoryEntity inventoryEntity, int startSlot){
+    public MessageOpenGui(Player player, AbstractInventoryEntity inventoryEntity, int startSlot)){
         this.uuid = player.getUUID();
         this.ship = inventoryEntity.getUUID();
         this.startSlot = startSlot;
@@ -43,14 +43,14 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
                 .ifPresent(entity -> InventoryEvents.openShipGUI(player, entity, startSlot));
     }
 
-    public MessageOpenGui fromBytes(PacketBuffer buf) {
+    public MessageOpenGui fromBytes(FriendlyByteBuf buf) {
         this.uuid = buf.readUUID();
         this.ship = buf.readUUID();
         this.startSlot = buf.readInt();
         return this;
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(uuid);
         buf.writeUUID(ship);
         buf.writeInt(startSlot);

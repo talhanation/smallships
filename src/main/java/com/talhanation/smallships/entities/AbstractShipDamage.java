@@ -1,33 +1,33 @@
 package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.DamageSourceShip;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.TridentEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractShipDamage extends AbstractBannerUser {
-    private static final DataParameter<Float> DAMAGE = EntityDataManager.defineId(AbstractShipDamage.class, DataSerializers.FLOAT);
-    private static final DataParameter<Boolean> SUNKEN = EntityDataManager.defineId(AbstractShipDamage.class, DataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(AbstractShipDamage.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(AbstractShipDamage.class, EntityDataSerializers.BOOLEAN);
 
-    public AbstractShipDamage(EntityType<? extends AbstractShipDamage> type, World world) {
+    public AbstractShipDamage(EntityType<? extends AbstractShipDamage> type, Level world) {
         super(type, world);
     }
 
@@ -67,14 +67,14 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     ////////////////////////////////////SAVE////////////////////////////////////
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putFloat("Damage", getShipDamage());
         nbt.putBoolean("Sunken", getSunken());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         setShipDamage(nbt.getFloat("Damage"));
         setSunken(nbt.getBoolean("Sunken"));
@@ -123,21 +123,17 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (isInvulnerable() || level.isClientSide || !isAlive()) {
+        Entity sourceEntity = source.getDirectEntity();
+        if (level.isClientSide || !isAlive() || isInvulnerable() || sourceEntity == null) {
             return false;
         }
 
-        if (source.getDirectEntity() instanceof PlayerEntity){
-            PlayerEntity player = (PlayerEntity) source.getDirectEntity();
-            if (player == null) {
-                return false;
-            }
-
+        if (sourceEntity instanceof Player player){
             if (hasPassenger(player)) {
                 return false;
             }
 
-            if (player.abilities.instabuild) {
+            if (player.getAbilities().instabuild) {
                 if (player.isShiftKeyDown()) {
                     destroyShip(source);
                     return true;
@@ -152,8 +148,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         if (source.isProjectile()){
             if (amount >= 2) damageShip(amount/2);
             this.markHurt();
-            if (source.getDirectEntity() != null)source.getDirectEntity().remove();
-
+            source.getDirectEntity().remove(RemovalReason.KILLED);
         }
         if (getShipDamage() >= 100)
             destroyShip(source);
@@ -200,8 +195,8 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
 
-    public void onInteractionWitAxe(PlayerEntity player){
-        PlayerInventory playerInventory = player.inventory;
+    public void onInteractionWitAxe(Player player){
+        Inventory playerInventory = player.getInventory();
         int healBonus = this.random.nextInt(7) + 5;
 
         this.level.playSound(null, this.getX(), this.getY() + 4, this.getZ(), SoundEvents.WOOD_PLACE, this.getSoundSource(), 10.0F, 0.8F + 0.4F * this.random.nextFloat());
@@ -211,7 +206,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         handleItemsOnRepair(playerInventory);
     }
     
-    public boolean hasPlanks(PlayerInventory inventory){
+    public boolean hasPlanks(Inventory inventory){
 
         for(int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStack = inventory.getItem(i);
@@ -229,7 +224,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         return false;
     }
 
-    public boolean hasIronNugget(PlayerInventory inventory){
+    public boolean hasIronNugget(Inventory inventory){
 
         for(int i = 0; i < inventory.getContainerSize(); i++){
             ItemStack itemStack = inventory.getItem(i);
@@ -241,7 +236,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         return false;
     }
 
-    public void handleItemsOnRepair(PlayerInventory inventory){
+    public void handleItemsOnRepair(Inventory inventory){
         for(int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack itemStack = inventory.getItem(i);
             if (itemStack.getItem() == Items.IRON_NUGGET) {

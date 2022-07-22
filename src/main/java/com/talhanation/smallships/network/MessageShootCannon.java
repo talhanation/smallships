@@ -2,10 +2,10 @@ package com.talhanation.smallships.network;
 
 import com.talhanation.smallships.entities.AbstractCannonShip;
 import de.maxhenkel.corelib.net.Message;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageShootCannon implements Message<MessageShootCannon> {
 
@@ -16,7 +16,6 @@ public class MessageShootCannon implements Message<MessageShootCannon> {
 
     public MessageShootCannon(boolean shoot) {
         this.shoot = shoot;
-
     }
 
     public Dist getExecutingSide() {
@@ -33,12 +32,12 @@ public class MessageShootCannon implements Message<MessageShootCannon> {
         }
     }
 
-    public MessageShootCannon fromBytes(PacketBuffer buf) {
+    public MessageShootCannon fromBytes(FriendlyByteBuf buf) {
         this.shoot = buf.readBoolean();
         return this;
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBoolean(this.shoot);
     }
 

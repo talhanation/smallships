@@ -2,12 +2,12 @@ package com.talhanation.smallships.network;
 
 import com.talhanation.smallships.entities.AbstractSailShip;
 import de.maxhenkel.corelib.net.Message;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.UUID;
 
@@ -20,7 +20,7 @@ public class MessageControlShip implements Message<MessageControlShip> {
 
     }
 
-    public MessageControlShip(boolean forward, boolean backward, boolean left, boolean right, PlayerEntity player) {
+    public MessageControlShip(boolean forward, boolean backward, boolean left, boolean right, Player player) {
         this.forward = forward;
         this.backward = backward;
         this.left = left;
@@ -40,20 +40,18 @@ public class MessageControlShip implements Message<MessageControlShip> {
             return;
         }
 
-        Entity e = context.getSender().getVehicle();
+        Entity entity = context.getSender().getVehicle();
 
-        if (!(e instanceof AbstractSailShip)) {
+        if (!(entity instanceof AbstractSailShip ship)) {
             return;
         }
 
-        AbstractSailShip ship = (AbstractSailShip) e;
-
         ship.updateControls(forward, backward, left, right, context.getSender());
-        ship.sendMessage(new StringTextComponent("Forward: " + forward), context.getSender().getUUID());
+        ship.sendMessage(new TextComponent("Forward: " + forward), context.getSender().getUUID());
     }
 
     @Override
-    public MessageControlShip fromBytes(PacketBuffer buf) {
+    public MessageControlShip fromBytes(FriendlyByteBuf buf) {
         this.forward = buf.readBoolean();
         this.backward = buf.readBoolean();
         this.left = buf.readBoolean();
@@ -63,7 +61,7 @@ public class MessageControlShip implements Message<MessageControlShip> {
     }
 
     @Override
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBoolean(forward);
         buf.writeBoolean(backward);
         buf.writeBoolean(left);

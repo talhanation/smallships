@@ -2,10 +2,10 @@ package com.talhanation.smallships.network;
 
 import com.talhanation.smallships.entities.AbstractSailShip;
 import de.maxhenkel.corelib.net.Message;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageSailState implements Message<MessageSailState> {
 
@@ -32,12 +32,12 @@ public class MessageSailState implements Message<MessageSailState> {
         }
     }
 
-    public MessageSailState fromBytes(PacketBuffer buf) {
+    public MessageSailState fromBytes(FriendlyByteBuf buf) {
         this.state = buf.readInt();
         return this;
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeInt(this.state);
     }
 
