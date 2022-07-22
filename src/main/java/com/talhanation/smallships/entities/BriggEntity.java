@@ -2,30 +2,19 @@ package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.init.ModEntityTypes;
-import com.talhanation.smallships.inventory.BasicShipContainer;
-import com.talhanation.smallships.network.MessageOpenGui;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
+import com.talhanation.smallships.init.ModItems;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BannerItem;
-import net.minecraft.world.item.DyeItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShearsItem;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.*;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.world.level.Level;
 
-import javax.annotation.Nullable;
 
 public class BriggEntity extends AbstractCannonShip{
 
@@ -116,10 +105,10 @@ public class BriggEntity extends AbstractCannonShip{
         ItemStack itemInHand = player.getItemInHand(hand);
         if (player.isSecondaryUseActive()) {
 
-            if (this.isVehicle() && !(getControllingPassenger() instanceof PlayerEntity)) {
+            if (this.isVehicle() && !(getControllingPassenger() instanceof Player)) {
                 this.ejectPassengers();
             } else {
-                if (!(getControllingPassenger() instanceof PlayerEntity)) {
+                if (!(getControllingPassenger() instanceof Player)) {
                     InventoryEvents.openShipGUI(player, this,0);
                 }
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
@@ -144,7 +133,7 @@ public class BriggEntity extends AbstractCannonShip{
             }
 
             if (itemInHand.getItem() instanceof AxeItem) {
-                if (hasPlanks(player.inventory) && hasIronNugget(player.inventory) && getShipDamage() > 16.0D) {
+                if (hasPlanks(player.getInventory()) && hasIronNugget(player.getInventory()) && getShipDamage() > 16.0D) {
                     this.onInteractionWitAxe(player);
                     return InteractionResult.SUCCESS;
                 } else return InteractionResult.FAIL;

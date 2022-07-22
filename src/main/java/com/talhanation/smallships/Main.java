@@ -79,7 +79,6 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageSailState.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageShootCannon.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageOpenGui.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessagePaddleState.class);
     }
 
     @SubscribeEvent

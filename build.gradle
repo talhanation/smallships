@@ -16,15 +16,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'com.github.johnrengelman.shadow'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
-apply plugin: 'idea'
-idea {
-    module {
-        downloadJavadoc = true
-        downloadSources = true
-    }
-}
-
-version = '2.0.0-Alpha-0.2.2'
+version = '2.0.0-Alpha-0.3'
 group = 'com.talhanation.smallships' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'smallships-1.18.2'
 

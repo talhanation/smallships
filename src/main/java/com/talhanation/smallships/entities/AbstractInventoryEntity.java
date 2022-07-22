@@ -38,6 +38,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         super.defineSynchedData();
         entityData.define(CARGO, 0);
         entityData.define(INV_PAGE, 1);
+    }
 
     ////////////////////////////////////SAVE DATA////////////////////////////////////
 
@@ -83,11 +84,6 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
     }
 
     public abstract int getInventorySize();
-
-
-    public int getCargo(){
-        return entityData.get(CARGO);
-    }
 
     public int getMaxInvPage(){
         if(this.getInventorySize() <= 54) return 1;

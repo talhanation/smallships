@@ -125,6 +125,7 @@ public class CogEntity extends AbstractCannonShip{
 
             if (this.isVehicle() && !(getControllingPassenger() instanceof Player)) {
                 this.ejectPassengers();
+                //this.passengerwaittime = 200;
             } else {
                 if (!(getControllingPassenger() instanceof Player)) {
                     InventoryEvents.openShipGUI(player, this,0);
@@ -149,10 +150,9 @@ public class CogEntity extends AbstractCannonShip{
                 this.onInteractionWithBanner(itemInHand, player);
                 return InteractionResult.SUCCESS;
             }
-            if (!player.isSecondaryUseActive()) {
 
             if (itemInHand.getItem() instanceof AxeItem) {
-                if (hasPlanks(player.inventory) && hasIronNugget(player.inventory) && getShipDamage() > 16.0D) {
+                if (hasPlanks(player.getInventory()) && hasIronNugget(player.getInventory()) && getShipDamage() > 16.0D) {
                     this.onInteractionWitAxe(player);
                     return InteractionResult.SUCCESS;
                 } else return InteractionResult.FAIL;
@@ -173,10 +173,8 @@ public class CogEntity extends AbstractCannonShip{
                 }
             }
         }
-
-       return InteractionResult.FAIL;
+        return InteractionResult.FAIL;
     }
-
 
     @Override
     public boolean doesEnterThirdPerson() {
@@ -218,7 +216,6 @@ public class CogEntity extends AbstractCannonShip{
 
         }
     }
-
 
     @Override
     public void positionRider(Entity passenger) {
@@ -288,6 +285,5 @@ public class CogEntity extends AbstractCannonShip{
             passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyOriantationsToEntity(passenger);
         }
-
     }
 }
