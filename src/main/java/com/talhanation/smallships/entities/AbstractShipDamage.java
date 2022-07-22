@@ -176,7 +176,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     }
 
     public void damageShip(double damage) {
-        setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 65)/100)))));
+        setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 33)/100)))));
     }
 
     @Override
