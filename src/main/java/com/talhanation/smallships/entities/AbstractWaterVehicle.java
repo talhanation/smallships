@@ -70,8 +70,6 @@ public abstract class AbstractWaterVehicle extends Entity {
         this.previousStatus = this.status;
         this.status = this.getStatus();
 
-        Main.LOGGER.debug(this.getStatus().toString());
-
         super.tick();
         tickLerp();
         recalculateBoundingBox();
