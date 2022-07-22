@@ -11,8 +11,10 @@ import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
 import com.talhanation.smallships.init.SoundInit;
 import com.talhanation.smallships.inventory.BasicShipContainer;
-import com.talhanation.smallships.network.*;
-import de.maxhenkel.corelib.ClientRegistry;
+import com.talhanation.smallships.network.MessageControlShip;
+import com.talhanation.smallships.network.MessageOpenGui;
+import com.talhanation.smallships.network.MessageSailState;
+import com.talhanation.smallships.network.MessageShootCannon;
 import de.maxhenkel.corelib.CommonRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +24,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -32,9 +34,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
@@ -51,7 +50,7 @@ public class Main {
     public static SimpleChannel SIMPLE_CHANNEL;
 
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Main.MOD_ID);
-    public static final RegistryObject<MenuType<BasicShipContainer>> BASIC_SHIP_CONTAINER_TYPE = MENU_TYPES.register("basic_ship_container_type", () -> IForgeMenuType.create(((windowId, inv, data) -> new BasicShipContainer(windowId, Objects.requireNonNull(getInvEntityByUUID(inv.player, data.readUUID())), inv))));
+    public static final RegistryObject<MenuType<BasicShipContainer>> BASIC_SHIP_CONTAINER_TYPE = MENU_TYPES.register("basic_ship_container_type", () -> IForgeMenuType.create(((windowId, inv, data) -> new BasicShipContainer(windowId, Objects.requireNonNull(getInvEntityByUUID(inv.player, data.readUUID())), inv, 0))));
 
     public Main() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SmallShipsConfig.CONFIG);
@@ -59,13 +58,13 @@ public class Main {
 
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::setup);
-        modEventBus.addGenericListener(MenuType.class, this::registerContainers);
         SoundInit.SOUNDS.register(modEventBus);
         //ModBlocks.BLOCKS.register(modEventBus);
         ModEntityTypes.ENTITY_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         MinecraftForge.EVENT_BUS.register(this);
 
+        MENU_TYPES.register(modEventBus);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::clientSetup));
     }
 
@@ -93,21 +92,6 @@ public class Main {
         ClientRenderEvent.register();
     }
 
-
-    @SubscribeEvent
-    public void registerContainers(RegistryEvent.Register<MenuType<?>> event) {
-        BASIC_SHIP_CONTAINER_TYPE = new MenuType<>((IContainerFactory<BasicShipContainer>) (windowId, inv, data) -> {
-            AbstractShipDamage ship = getInvEntityByUUID(inv.player, data.readUUID());
-            if (ship == null) {
-                return null;
-            }
-            return new BasicShipContainer(windowId, ship, inv, 0);
-        });
-
-        BASIC_SHIP_CONTAINER_TYPE.setRegistryName(new ResourceLocation(Main.MOD_ID, "basic_container"));
-        event.getRegistry().register(BASIC_SHIP_CONTAINER_TYPE);
-
-    }
 
     @Nullable
     public static AbstractShipDamage getInvEntityByUUID(Player player, UUID uuid) {

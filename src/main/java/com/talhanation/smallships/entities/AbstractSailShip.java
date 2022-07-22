@@ -98,8 +98,8 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
 
         if ((getSpeed() > 0.085F || getSpeed() < -0.085F)) {
-            this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
-            this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
+            this.knockBack(this.level.getEntities(this, this.getBoundingBoxForCulling().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
+            this.knockBack(this.level.getEntities(this, this.getBoundingBoxForCulling().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
 
             if (this.getStatus() == Status.IN_WATER) {
 
@@ -295,7 +295,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public boolean canCollideWith(Entity entityIn) {
         //SmallShipsConfig.damageEntities.get() &&
         if (entityIn instanceof LivingEntity && !getPassengers().contains(entityIn)) {
-            if (entityIn.getBoundingBox().intersects(getBoundingBox())) {
+            if (entityIn.getBoundingBoxForCulling().intersects(getBoundingBoxForCulling())) {
                 float speed = getSpeed();
                 if (speed > 0.35F) {
                     float damage = speed * 10;
@@ -309,7 +309,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     public void checkPush() {
-        List<Player> list = level.getEntitiesOfClass(Player.class, getBoundingBox().expandTowards(0.2, 0, 0.2).expandTowards(-0.2, 0, -0.2));
+        List<Player> list = level.getEntitiesOfClass(Player.class, getBoundingBoxForCulling().expandTowards(0.2, 0, 0.2).expandTowards(-0.2, 0, -0.2));
 
         for (Player player : list) {
             if (!player.hasPassenger(this) && player.isShiftKeyDown()) {
@@ -570,8 +570,8 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     private void knockBack(List<Entity> entities) {
-        double d0 = (this.getBoundingBox().minX + this.getBoundingBox().maxX) / 2.0D;
-        double d1 = (this.getBoundingBox().minZ + this.getBoundingBox().maxZ) / 2.0D;
+        double d0 = (this.getBoundingBoxForCulling().minX + this.getBoundingBoxForCulling().maxX) / 2.0D;
+        double d1 = (this.getBoundingBoxForCulling().minZ + this.getBoundingBoxForCulling().maxZ) / 2.0D;
 
         for(Entity entity : entities) {
             if (entity instanceof LivingEntity) {
@@ -584,7 +584,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     private void breakLily() {
-        AABB boundingBox = getBoundingBox();
+        AABB boundingBox = getBoundingBoxForCulling();
         double offset = 0.75D;
         BlockPos start = new BlockPos(boundingBox.minX - offset, boundingBox.minY - offset, boundingBox.minZ - offset);
         BlockPos end = new BlockPos(boundingBox.maxX + offset, boundingBox.maxY + offset, boundingBox.maxZ + offset);

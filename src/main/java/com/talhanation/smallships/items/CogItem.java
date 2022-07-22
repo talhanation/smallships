@@ -67,12 +67,12 @@ public class CogItem extends Item {
         } else {
             Vec3 vector3d = playerIn.getViewVector(1.0F);
             double d0 = 5.0D;
-            List<Entity> list = worldIn.getEntities(playerIn, playerIn.getBoundingBox().expandTowards(vector3d.scale(5.0D)).inflate(1.0D), X);
+            List<Entity> list = worldIn.getEntities(playerIn, playerIn.getBoundingBoxForCulling().expandTowards(vector3d.scale(5.0D)).inflate(1.0D), X);
             if (!list.isEmpty()) {
                 Vec3 vector3d1 = playerIn.getEyePosition(1.0F);
 
                 for(Entity entity : list) {
-                    AABB axisalignedbb = entity.getBoundingBox().inflate(entity.getPickRadius());
+                    AABB axisalignedbb = entity.getBoundingBoxForCulling().inflate(entity.getPickRadius());
                     if (axisalignedbb.contains(vector3d1)) {
                         return InteractionResultHolder.pass(itemstack);
                     }
@@ -83,7 +83,7 @@ public class CogItem extends Item {
                 CogEntity boatentity = new CogEntity(worldIn, raytraceresult.getLocation().x, raytraceresult.getLocation().y, raytraceresult.getLocation().z);
                 boatentity.setWoodType(this.type);
                 boatentity.setYRot(playerIn.getYRot() + 90F);
-                if (!worldIn.noCollision(boatentity, boatentity.getBoundingBox().inflate(-0.1D))) {
+                if (!worldIn.noCollision(boatentity, boatentity.getBoundingBoxForCulling().inflate(-0.1D))) {
                     return InteractionResultHolder.fail(itemstack);
                 } else {
                     if (!worldIn.isClientSide) {

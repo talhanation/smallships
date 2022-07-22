@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BannerItem;
@@ -71,7 +72,7 @@ public class RenderBanner {
                 modelPart.getChild("bar").visible = false;
 
                 // getting banner pattern here
-                List<Pair<BannerPattern, DyeColor>> patterns = BannerBlockEntity.createPatterns(((BannerItem) banner.getItem()).getColor(), BannerBlockEntity.getItemPatterns(banner));
+                List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(((BannerItem) banner.getItem()).getColor(), BannerBlockEntity.getItemPatterns(banner));
                 BannerRenderer.renderPatterns(matrixStackIn, bufferIn, packedLight, OverlayTexture.NO_OVERLAY, modelPart, ModelBakery.BANNER_BASE, true, patterns);
                 matrixStackIn.popPose();
             }

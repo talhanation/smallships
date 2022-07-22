@@ -13,9 +13,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.projectile.Arrow;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -182,7 +179,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     @Override
     public boolean canCollideWith(Entity entity) {
         if (entity instanceof LivingEntity && !getPassengers().contains(entity)) {
-            if (entity.getBoundingBox().intersects(getBoundingBox())) {
+            if (entity.getBoundingBoxForCulling().intersects(getBoundingBoxForCulling())) {
                 double speed = getDeltaMovement().length();
                 if (speed > 0.25F) {
                     float damage = Math.min((float) (speed * 10D), 15F);

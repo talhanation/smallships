@@ -2,10 +2,10 @@ package com.talhanation.smallships.network;
 
 import com.talhanation.smallships.entities.AbstractSailShip;
 import de.maxhenkel.corelib.net.Message;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -47,7 +47,7 @@ public class MessageControlShip implements Message<MessageControlShip> {
         }
 
         ship.updateControls(forward, backward, left, right, context.getSender());
-        ship.sendMessage(new TextComponent("Forward: " + forward), context.getSender().getUUID());
+        ship.sendSystemMessage(Component.literal("Forward: " + forward));
     }
 
     @Override
