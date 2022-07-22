@@ -1,8 +1,6 @@
 package com.talhanation.smallships.entities;
 
-import com.talhanation.smallships.Main;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LilyPadBlock;
@@ -10,7 +8,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
-import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
@@ -73,8 +70,6 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         this.previousStatus = this.status;
         this.status = this.getStatus();
-
-        Main.LOGGER.debug(this.getStatus().toString());
 
         checkAndResetForcedChunkAdditionFlag(); //TODO check
 
