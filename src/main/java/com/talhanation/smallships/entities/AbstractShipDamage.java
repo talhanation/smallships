@@ -200,7 +200,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
             }
         }
-        return super.canCollideWith(entityIn);
+        return super.canCollideWith(entity);
     }
 
     public void onInteractionWitAxe(Player player){
