@@ -2,7 +2,6 @@ package com.talhanation.smallships.entities;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.talhanation.smallships.DamageSourceShip;
 import com.talhanation.smallships.Main;
 import com.talhanation.smallships.client.model.ModelSail;
 import com.talhanation.smallships.client.render.RenderSailColor;
@@ -15,7 +14,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -43,7 +41,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
@@ -202,7 +199,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
     public static final ImmutableSet<ResourceKey<Biome>> WARM_BIOMES = ImmutableSet.of(
             Biomes.WARM_OCEAN,
-            Biomes.DEEP_WARM_OCEAN,
             Biomes.LUKEWARM_OCEAN,
             Biomes.DEEP_LUKEWARM_OCEAN
     );
@@ -216,7 +212,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public float getBiomesModifier() {
         int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
         BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
-        Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos));;
+        Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos).value());;
 
 
         if(biome.isPresent()) {
