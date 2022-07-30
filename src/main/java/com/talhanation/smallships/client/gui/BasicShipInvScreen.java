@@ -8,6 +8,7 @@ import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.inventory.BasicShipContainer;
 import com.talhanation.smallships.network.MessageOpenGui;
 import de.maxhenkel.corelib.inventory.ScreenBase;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,7 +39,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         int zeroTopPos = topPos + 15;
 
         if (ship.getMaxInvPage() > 1 && ship.getInvPage() > 1){
-            addRenderableWidget(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, Component.literal("<-"), button -> {
+            addRenderableWidget(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, new TextComponent("<-"), button -> {
 
                 Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(playerInventory.player, ship, 0));
                 ship.setInvPage(ship.getInvPage() - 1);
@@ -46,7 +47,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         }
 
         if(ship.getMaxInvPage() > 1 && ship.getInvPage() < ship.getMaxInvPage()){
-            addRenderableWidget(new Button(zeroLeftPos + 20, zeroTopPos, 40, 20, Component.literal("->"), button -> {
+            addRenderableWidget(new Button(zeroLeftPos + 20, zeroTopPos, 40, 20, new TextComponent("->"), button -> {
 
                     ship.setInvPage(ship.getInvPage() + 1);
                     Main.SIMPLE_CHANNEL.sendToServer(new MessageOpenGui(playerInventory.player, ship, 54));

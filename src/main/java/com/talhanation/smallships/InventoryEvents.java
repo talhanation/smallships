@@ -18,7 +18,7 @@ public class InventoryEvents {
             invEntity.setInvPage(1);
         }
         if (player instanceof ServerPlayer) {
-            NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
+            NetworkHooks.openGui((ServerPlayer) player, new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
                     return invEntity.getName();

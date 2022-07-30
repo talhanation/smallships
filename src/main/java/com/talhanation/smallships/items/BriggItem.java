@@ -4,6 +4,7 @@ import com.talhanation.smallships.client.render.RenderItemBrigg;
 import com.talhanation.smallships.entities.AbstractWaterVehicle;
 import com.talhanation.smallships.entities.BriggEntity;
 import com.talhanation.smallships.init.ModEntityTypes;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.sounds.SoundEvents;
@@ -21,7 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.client.IItemRenderProperties;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,10 +38,10 @@ public class BriggItem extends Item {
     }
 
     @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
+    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+        consumer.accept(new IItemRenderProperties() {
             @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
                 return new RenderItemBrigg(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
             }
         });
@@ -67,12 +68,12 @@ public class BriggItem extends Item {
         } else {
             Vec3 vector3d = playerIn.getViewVector(1.0F);
             double d0 = 5.0D;
-            List<Entity> list = worldIn.getEntities(playerIn, playerIn.getBoundingBoxForCulling().expandTowards(vector3d.scale(5.0D)).inflate(1.0D), X);
+            List<Entity> list = worldIn.getEntities(playerIn, playerIn.getBoundingBox().expandTowards(vector3d.scale(5.0D)).inflate(1.0D), X);
             if (!list.isEmpty()) {
                 Vec3 vector3d1 = playerIn.getEyePosition(1.0F);
 
                 for(Entity entity : list) {
-                    AABB axisalignedbb = entity.getBoundingBoxForCulling().inflate(entity.getPickRadius());
+                    AABB axisalignedbb = entity.getBoundingBox().inflate(entity.getPickRadius());
                     if (axisalignedbb.contains(vector3d1)) {
                         return InteractionResultHolder.pass(itemstack);
                     }
@@ -83,7 +84,7 @@ public class BriggItem extends Item {
                 BriggEntity boatentity = new BriggEntity(worldIn, raytraceresult.getLocation().x, raytraceresult.getLocation().y, raytraceresult.getLocation().z);
                 boatentity.setWoodType(this.type);
                 boatentity.setYRot(playerIn.getYRot() + 90F);
-                if (!worldIn.noCollision(boatentity, boatentity.getBoundingBoxForCulling().inflate(-0.1D))) {
+                if (!worldIn.noCollision(boatentity, boatentity.getBoundingBox().inflate(-0.1D))) {
                     return InteractionResultHolder.fail(itemstack);
                 } else {
                     if (!worldIn.isClientSide) {
