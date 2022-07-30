@@ -26,10 +26,11 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Predicate;
 
 public abstract class AbstractWaterVehicle extends Entity {
 
@@ -368,6 +369,11 @@ public abstract class AbstractWaterVehicle extends Entity {
         return (float) (l + 1);
     }
 
+    protected void floatUp(){
+        if (this.isEyeInFluid(FluidTags.WATER))
+        this.setDeltaMovement(getDeltaMovement().x, 0.2D, getDeltaMovement().z);
+    }
+
     @Nullable
     private AbstractWaterVehicle.Status getUnderwaterStatus() {
         AABB axisalignedbb = this.getBoundingBox();
@@ -445,8 +451,8 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         public static AbstractWaterVehicle.Type getTypeFromString(String nameIn) {
             AbstractWaterVehicle.Type[] aboatentity$type = values();
-
             for (Type type : aboatentity$type) {
+
                 if (type.getName().equals(nameIn)) {
                     return type;
                 }

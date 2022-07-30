@@ -28,7 +28,7 @@ public class RenderCannonBall extends EntityRenderer<CannonBallEntity>{
     @Override
     public void render(CannonBallEntity entityIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
         matrixStackIn.pushPose();
-        matrixStackIn.scale(1.5F, 1.5F, 1.5F);
+        matrixStackIn.scale(1.0F, 1.0F, 1.0F);
         //                                x                y               z (- nachhinten)
         matrixStackIn.translate(0.0D, -1.0D,0.0D);
         VertexConsumer vertexConsumer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entityIn)));
