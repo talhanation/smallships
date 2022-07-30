@@ -65,7 +65,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public float getAcceleration() {
-        return 0.03F;
+        return 0.015F;
     }
 
     @Override
@@ -76,6 +76,21 @@ public class CogEntity extends AbstractCannonShip{
     @Override
     public float getRotationAcceleration() {
         return 0.3F;
+    }
+
+    @Override
+    public float getCargoModifier() {
+        return this.getCargo() * 0.02F;
+    }
+
+    @Override
+    public float getCannonModifier() {
+        return this.getTotalCannonCount() * 0.02F;
+    }
+
+    @Override
+    public float getPassengerModifier() {
+        return this.getPassengerSize() * 0.01F;
     }
 
     @Override
@@ -93,10 +108,10 @@ public class CogEntity extends AbstractCannonShip{
     public int getPassengerSize() {
         return switch (getTotalCannonCount()) {
             case 0 -> 5;
-            case 1 -> 2;
-            case 2 -> 3;
+            case 1 -> 4;
+            case 2 -> 4;
             case 3 -> 3;
-            case 4 -> 2;
+            case 4 -> 3;
             default -> throw new IllegalStateException("Unexpected passenger size: " + getTotalCannonCount());
         };
     }
@@ -208,6 +223,11 @@ public class CogEntity extends AbstractCannonShip{
     }
 
     @Override
+    public int getBiomesModifierType() {
+        return 0;
+    }
+
+    @Override
     public void positionRider(Entity passenger) {
         if (hasPassenger(passenger)) {
             float f = -1.75F; //driver x pos
@@ -272,7 +292,7 @@ public class CogEntity extends AbstractCannonShip{
             Vec3 vector3d = (new Vec3(f, 0.0D, 0.0D + d)).yRot(-this.getYRot() * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, this.getZ() + vector3d.z);
             passenger.setYRot(passenger.getYRot() + this.deltaRotation);
-            passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
+            //passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyOriantationsToEntity(passenger);
         }
     }

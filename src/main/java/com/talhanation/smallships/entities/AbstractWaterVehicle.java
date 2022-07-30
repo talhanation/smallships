@@ -368,6 +368,11 @@ public abstract class AbstractWaterVehicle extends Entity {
         return (float) (l + 1);
     }
 
+    protected void floatUp(){
+        if (this.isEyeInFluid(FluidTags.WATER))
+        this.setDeltaMovement(getDeltaMovement().x, 0.2D, getDeltaMovement().z);
+    }
+
     @Nullable
     private AbstractWaterVehicle.Status getUnderwaterStatus() {
         AABB axisalignedbb = this.getBoundingBoxForCulling();
@@ -445,8 +450,8 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         public static AbstractWaterVehicle.Type getTypeFromString(String nameIn) {
             AbstractWaterVehicle.Type[] aboatentity$type = values();
-
             for (Type type : aboatentity$type) {
+
                 if (type.getName().equals(nameIn)) {
                     return type;
                 }

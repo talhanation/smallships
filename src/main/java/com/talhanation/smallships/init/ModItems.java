@@ -1,7 +1,9 @@
 package com.talhanation.smallships.init;
 
 import com.talhanation.smallships.Main;
-import com.talhanation.smallships.entities.*;
+import com.talhanation.smallships.entities.AbstractSailShip;
+import com.talhanation.smallships.entities.BriggEntity;
+import com.talhanation.smallships.entities.CogEntity;
 import com.talhanation.smallships.items.BriggItem;
 import com.talhanation.smallships.items.CogItem;
 import net.minecraft.world.item.CreativeModeTab;

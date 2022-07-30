@@ -24,6 +24,8 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(AbstractShipDamage.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(AbstractShipDamage.class, EntityDataSerializers.BOOLEAN);
 
+    private int sunkenTimer = 0;
+
     public AbstractShipDamage(EntityType<? extends AbstractShipDamage> type, Level world) {
         super(type, world);
     }
@@ -55,10 +57,17 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
         if (getShipDamage() >= 100 || this.getStatus() == Status.UNDER_WATER){
             setSunken(true);
-            this.setDeltaMovement(0, -0.2D,0);
+            this.setDeltaMovement(0, -0.1D,0);
             if(level.isClientSide()) updateSunkenParticles();
         }
 
+        if(!(this.getSunken())) this.floatUp();
+
+        if(this.getSunken()) sunkenTimer++;
+
+        if(sunkenTimer >= 6000){
+            this.destroyShip(DamageSource.OUT_OF_WORLD);
+        }
     }
 
     ////////////////////////////////////SAVE////////////////////////////////////
@@ -148,7 +157,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
             source.getDirectEntity().remove(RemovalReason.KILLED);
         }
         if (getShipDamage() >= 100)
-            destroyShip(source);
+            this.setSunken(true);
         if (amount >= 2)
             damageShip(amount);
         return false;
@@ -158,7 +167,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
     public void destroyShip(DamageSource source) {
         super.destroyShip(source);
-        kill();
+        discard();
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
@@ -166,16 +175,19 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     @OnlyIn(Dist.CLIENT)
     public void updateSunkenParticles(){
         if (random.nextInt(5) == 0) {
-            for(int i = 0; i < random.nextInt(1) + 1; ++i) {
+            for(int i = 0; i < random.nextInt(4) + 1; ++i) {
                 this.level.addParticle(ParticleTypes.BUBBLE, (double)this.getOnPos().getX() + 0.5D, (double)this.getOnPos().getY() + 3.5D, (double)this.getOnPos().getZ() + 0.5D, (double)(random.nextFloat() / 2.0F), 5.0E-5D, (double)(random.nextFloat() / 2.0F));
+                this.level.addParticle(ParticleTypes.BUBBLE, (double)this.getOnPos().getX() + 0.5D, (double)this.getOnPos().getY() + 2.5D, (double)this.getOnPos().getZ() + 0.5D, (double)(random.nextFloat() / 2.0F), 5.0E-5D, (double)(random.nextFloat() / 2.0F));
+
+                this.level.addParticle(ParticleTypes.BUBBLE, (double)this.getOnPos().getX() + 0.5D, (double)this.getOnPos().getY() + 1.5D, (double)this.getOnPos().getZ() + 0.5D, (double)(random.nextFloat() / 2.0F), 5.0E-5D, (double)(random.nextFloat() / 2.0F));
+
             }
         }
     }
 
     public void damageShip(double damage) {
-        setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 33)/100)))));
+        setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 15)/100)))));
     }
-
     @Override
     public boolean canCollideWith(Entity entity) {
         if (entity instanceof LivingEntity && !getPassengers().contains(entity)) {
@@ -188,9 +200,8 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
             }
         }
-        return super.canCollideWith(entity);
+        return super.canCollideWith(entityIn);
     }
-
 
     public void onInteractionWitAxe(Player player){
         Inventory playerInventory = player.getInventory();

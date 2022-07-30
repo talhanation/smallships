@@ -44,7 +44,6 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
 
         Vec3 vector3d = this.getDeltaMovement();
         HitResult raytraceresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
-
         if (raytraceresult.getType() != HitResult.Type.MISS && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
             this.onHit(raytraceresult);
         }
@@ -59,6 +58,8 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         if (!this.isNoGravity()) {
             this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -f1, 0.0D));
         }
+
+
         this.setPos(d0, d1, d2);
 
         if(isAlive()){
@@ -66,6 +67,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
 
         if(isInWater()){
+            this.setDeltaMovement(this.getDeltaMovement().add(-f, -f1, -f));
             setInWater(true);
         }
 
@@ -75,6 +77,10 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
 
         if (counter < 4){
             if (this.level.isClientSide) tailParticles();
+        }
+
+        if (isInWater() && counter > 200){
+            this.discard();
         }
     }
 
@@ -90,22 +96,16 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     public void setInWater(boolean bool){
         if (bool != inWater){
             inWater = true;
-            if (this.level.isClientSide) {
-                waterParticles();
-            }
-            if (!this.level.isClientSide) {
-                level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 10.0F, 0.8F + 0.4F * this.random.nextFloat());
-            }
-            this.remove(RemovalReason.KILLED);
+            waterParticles();
+            level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 10.0F, 0.8F + 0.4F * this.random.nextFloat());
         }
     }
 
     protected void onHitBlock(BlockHitResult blockHitResult) {
         super.onHitBlock(blockHitResult);
         if (!this.level.isClientSide) {
-            boolean flag = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.level, this.getOwner());
             this.level.explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, Explosion.BlockInteraction.BREAK);
-            this.remove(RemovalReason.KILLED);
+            this.discard();
         }
     }
 
@@ -129,22 +129,21 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             }
             else if (entity1 instanceof LivingEntity) {
                 this.doEnchantDamageEffects((LivingEntity) entity1, hit);
-                this.level.playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_HURT, this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
             }
         }
     }
 
     protected void onHitBlockParticles(){
-        if (this.level.isClientSide) {
+        //if (this.level.isClientSide) {
                 hitParticles();
-        }
+        //}
     }
 
     public void hitParticles(){
         for (int i = 0; i < 300; ++i) {
-            double d0 = this.random.nextGaussian() * 0.03D;
-            double d1 = this.random.nextGaussian() * 0.03D;
-            double d2 = this.random.nextGaussian() * 0.03D;
+            double d0 = this.random.nextGaussian() * 0.031D;
+            double d1 = this.random.nextGaussian() * 0.031D;
+            double d2 = this.random.nextGaussian() * 0.031D;
             double d3 = 20.0D;
             this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
             this.level.addParticle(ParticleTypes.LARGE_SMOKE, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
@@ -153,12 +152,12 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
 
     public void waterParticles(){
         for (int i = 0; i < 300; ++i) {
-            double d0 = this.random.nextGaussian() * 0.03D;
-            double d1 = this.random.nextGaussian() * 0.03D;
-            double d2 = this.random.nextGaussian() * 0.03D;
-            double d3 = 20.0D;
-            this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3  + i * 0.012, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
-            this.level.addParticle(ParticleTypes.BUBBLE_COLUMN_UP, this.getX(), this.getY() + i * 0.005, this.getZ(), 0, 0, 0);
+                double d0 = this.random.nextGaussian() * 0.03D;
+                double d1 = this.random.nextGaussian() * 0.03D;
+                double d2 = this.random.nextGaussian() * 0.03D;
+                double d3 = 20.0D;
+                this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3 + i * 0.012, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+                this.level.addParticle(ParticleTypes.BUBBLE_COLUMN_UP, this.getX(), this.getY() + i * 0.005, this.getZ(), 0, 0, 0);
         }
     }
 
