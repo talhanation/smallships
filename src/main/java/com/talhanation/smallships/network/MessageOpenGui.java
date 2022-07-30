@@ -33,7 +33,7 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
 
     public void executeServerSide(NetworkEvent.Context context) {
         ServerPlayer player = context.getSender();
-        player.level.getEntitiesOfClass(AbstractInventoryEntity.class, player.getBoundingBox()
+        player.level.getEntitiesOfClass(AbstractInventoryEntity.class, player.getBoundingBoxForCulling()
                         .inflate(16.0D), v -> v
                         .getUUID()
                         .equals(this.ship))

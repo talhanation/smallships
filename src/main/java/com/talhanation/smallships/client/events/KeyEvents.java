@@ -7,9 +7,12 @@ import com.talhanation.smallships.entities.AbstractSailShip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+@OnlyIn(Dist.CLIENT)
 public class KeyEvents {
 
     private boolean wasSailPressed;
@@ -18,7 +21,7 @@ public class KeyEvents {
     private boolean wasCannonPressed;
 
     @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event) {
+    public void onKeyInput(InputEvent.Key event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer clientPlayerEntity = minecraft.player;
         if (clientPlayerEntity == null)
@@ -31,9 +34,9 @@ public class KeyEvents {
         AbstractSailShip boat = (AbstractSailShip) vehicle;
         if (clientPlayerEntity.equals(boat.getDriver())) {
 
-            boat.updateControls(Main.FORWARD_KEY.isDown(), Main.BACK_KEY.isDown(), Main.LEFT_KEY.isDown(), Main.RIGHT_KEY.isDown(), clientPlayerEntity);
+            boat.updateControls(RegisterKeyMappings.FORWARD_KEY.isDown(), RegisterKeyMappings.BACKWARD_KEY.isDown(), RegisterKeyMappings.LEFT_KEY.isDown(), RegisterKeyMappings.RIGHT_KEY.isDown(), clientPlayerEntity);
 
-            if (Main.SAIL_KEY.isDown()) {
+            if (RegisterKeyMappings.SAIL_KEY.isDown()) {
                 boat.onKeyPressed();
                 this.wasSailPressed = true;
             }
@@ -43,7 +46,7 @@ public class KeyEvents {
         }
 
         if (clientPlayerEntity.equals(boat.getDriver())) {
-            if (Main.SAIL_L_KEY.isDown()) {
+            if (RegisterKeyMappings.SAIL_L_KEY.isDown()) {
                 boat.onKeyLowerPressed();
                 this.wasSailPressed = true;
             }
@@ -52,7 +55,7 @@ public class KeyEvents {
             }
         }
         if (clientPlayerEntity.equals(boat.getDriver())) {
-            if (Main.SAIL_H_KEY.isDown()) {
+            if (RegisterKeyMappings.SAIL_H_KEY.isDown()) {
                 boat.onKeyHigherPressed();
                 this.wasSailPressed = true;
             }
@@ -62,7 +65,7 @@ public class KeyEvents {
         }
 
         if (clientPlayerEntity.equals(boat.getDriver())) {
-            if (Main.CANNON_KEY.isDown()) {
+            if (RegisterKeyMappings.CANNON_KEY.isDown()) {
                 boat.onCannonKeyPressed();
                 this.wasCannonPressed = true;
             }
@@ -73,7 +76,7 @@ public class KeyEvents {
 
         /*
         if (clientPlayerEntity.equals(boat.getDriver())) {
-            if (Main.LANTERN_KEY.isDown()) {
+            if (RegisterKeyMappings.LANTERN_KEY.isDown()) {
                 boat.onLanternPressed();
                 this.wasLanternPressed = true;
             }
@@ -85,7 +88,7 @@ public class KeyEvents {
 
         if (vehicle instanceof AbstractInventoryEntity invboat){
             if (boat.getPassengers().contains(clientPlayerEntity)) {
-                if (Main.INV_KEY.isDown()) {
+                if (RegisterKeyMappings.INV_KEY.isDown()) {
                     InventoryEvents.openShipGUI(clientPlayerEntity,invboat, 0);
                     this.wasInvPressed = true;
                 } else {

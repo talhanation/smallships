@@ -76,7 +76,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
 
     public void handleCollisionWithEntity() {
-        List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate(0.2F, -0.01F, 0.2F), EntitySelector.pushableBy(this));
+        List<Entity> list = this.level.getEntities(this, this.getBoundingBoxForCulling().inflate(0.2F, -0.01F, 0.2F), EntitySelector.pushableBy(this));
         if (!list.isEmpty()) {
             boolean flag = !this.level.isClientSide && !(this.getControllingPassenger() instanceof Player);
 
@@ -186,7 +186,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     private void tickLerp() {
         if (this.isControlledByLocalInstance()) {
             this.steps = 0;
-            this.setPacketCoordinates(this.getX(), this.getY(), this.getZ());
+            this.syncPacketPositionCodec(this.getX(), this.getY(), this.getZ());
         }
 
         if (this.steps > 0) {
@@ -238,7 +238,7 @@ public abstract class AbstractWaterVehicle extends Entity {
         }
         int[][] offsets = DismountHelper.offsetsForDirection(direction);
         AABB bb = entity.getLocalBoundsForPose(Pose.STANDING);
-        AABB carBB = this.getBoundingBox();
+        AABB carBB = this.getBoundingBoxForCulling();
         for (int[] offset : offsets) {
             Vec3 dismountPos = new Vec3(getX() + (double) offset[0] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY() + 0.75D, getZ() + (double) offset[1] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
             double y = level.getBlockFloorHeight(new BlockPos(dismountPos));
@@ -254,7 +254,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     public AbstractWaterVehicle.Status getStatus() {
         AbstractWaterVehicle.Status boatentity$status = this.getUnderwaterStatus();
         if (boatentity$status != null) {
-            this.waterLevel = this.getBoundingBox().maxY;
+            this.waterLevel = this.getBoundingBoxForCulling().maxY;
             return boatentity$status;
         } else if (this.checkInWater()) {
             return AbstractWaterVehicle.Status.IN_WATER;
@@ -269,7 +269,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     private boolean checkInWater() {
-        AABB axisalignedbb = this.getBoundingBox();
+        AABB axisalignedbb = this.getBoundingBoxForCulling();
         int i = Mth.floor(axisalignedbb.minX);
         int j = Mth.ceil(axisalignedbb.maxX);
         int k = Mth.floor(axisalignedbb.minY);
@@ -298,7 +298,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     public float getBoatGlide() {
-        AABB axisalignedbb = this.getBoundingBox();
+        AABB axisalignedbb = this.getBoundingBoxForCulling();
         AABB axisalignedbb1 = new AABB(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
         int i = Mth.floor(axisalignedbb1.minX) - 1;
         int j = Mth.ceil(axisalignedbb1.maxX) + 1;
@@ -333,7 +333,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
 
     public float getWaterLevelAbove() {
-        AABB axisalignedbb = this.getBoundingBox();
+        AABB axisalignedbb = this.getBoundingBoxForCulling();
         int i = Mth.floor(axisalignedbb.minX);
         int j = Mth.ceil(axisalignedbb.maxX);
         int k = Mth.floor(axisalignedbb.maxY);
@@ -375,7 +375,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
     @Nullable
     private AbstractWaterVehicle.Status getUnderwaterStatus() {
-        AABB axisalignedbb = this.getBoundingBox();
+        AABB axisalignedbb = this.getBoundingBoxForCulling();
         double d0 = axisalignedbb.maxY + 0.075D;
         int i = Mth.floor(axisalignedbb.minX);
         int j = Mth.ceil(axisalignedbb.maxX);
@@ -462,7 +462,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     }
 
     public boolean isInBubbleColumn() {
-        return this.level.getBlockState(this.blockPosition()).is(Blocks.BUBBLE_COLUMN);
+        return this.getBlockStateOn().is(Blocks.BUBBLE_COLUMN);
     }
 
     @Override
@@ -473,7 +473,7 @@ public abstract class AbstractWaterVehicle extends Entity {
     public void onAboveBubbleCol(boolean p_203002_1_) {
         if(this.level.isClientSide())
         this.level.addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7D, this.getZ() + (double)this.random.nextFloat(), 0.0D, 0.0D, 0.0D);
-        if (this.random.nextInt(20) == 0) {
+        if (this.random.nextInt() == 0) {
             this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
         }
     }

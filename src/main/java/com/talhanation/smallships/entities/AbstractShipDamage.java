@@ -1,24 +1,21 @@
 package com.talhanation.smallships.entities;
 
 import com.talhanation.smallships.DamageSourceShip;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.projectile.Arrow;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownTrident;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -192,15 +189,13 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
         setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 15)/100)))));
     }
     @Override
-    public boolean canCollideWith(Entity entityIn) {
-        //SmallShipsConfig.damageEntities.get() &&
-        if (entityIn instanceof LivingEntity && !getPassengers().contains(entityIn)) {
-            if (entityIn.getBoundingBox().intersects(getBoundingBox())) {
-                float speed = getSpeed();
-                if (speed > 0.1F) {
-                    float damage = speed * 10;
-                    entityIn.hurt(DamageSourceShip.DAMAGE_SHIP, damage);
-                    this.damageShip(damage / 100);
+    public boolean canCollideWith(Entity entity) {
+        if (entity instanceof LivingEntity && !getPassengers().contains(entity)) {
+            if (entity.getBoundingBoxForCulling().intersects(getBoundingBoxForCulling())) {
+                double speed = getDeltaMovement().length();
+                if (speed > 0.25F) {
+                    float damage = Math.min((float) (speed * 10D), 15F);
+                    entity.hurt(DamageSourceShip.DAMAGE_SHIP, damage);
                 }
 
             }
