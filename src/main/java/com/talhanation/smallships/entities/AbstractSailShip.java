@@ -1,5 +1,6 @@
 package com.talhanation.smallships.entities;
 
+import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.talhanation.smallships.DamageSourceShip;
 import com.talhanation.smallships.Main;
@@ -12,10 +13,13 @@ import com.talhanation.smallships.network.MessageSailState;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -28,6 +32,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.WaterlilyBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -36,6 +42,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
@@ -81,12 +89,17 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public abstract float getAcceleration();
     public abstract float getMaxRotationSpeed();
     public abstract float getRotationAcceleration();
-    public abstract float getVelocityResistance();
+    public abstract float getCargoModifier();
+    public abstract float getCannonModifier();
+    public abstract float getPassengerModifier();
     public abstract boolean getHasBanner();
     public abstract void  WaterSplash();
     public abstract void onInteractionWithShears(Player player);
     public abstract void onCannonKeyPressed();
     public abstract boolean onInteractionWithBanner(ItemStack itemStack,Player player);
+    public abstract void damageShip(double amount);
+    public abstract int getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
+
 
     ////////////////////////////////////TICK////////////////////////////////////
 
@@ -95,8 +108,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         super.tick();
 
         //if(getDriver()!=null)this.getDriver().sendMessage(new StringTextComponent("" + this.getSpeed()), getDriver().getUUID());
-
-
         if ((getSpeed() > 0.085F || getSpeed() < -0.085F)) {
             this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
             this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D).move(0.0D, -2.0D, 0.0D), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
@@ -123,14 +134,24 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         move(MoverType.SELF, getDeltaMovement());
         //updateWheelRotation();
         updateWaterMobs();
-        updateWaveAngle();
         breakLily();
+        /*
+        if(this.getDriver() != null) {
+            BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
+            double x = this.level.getBiome(pos).getTemperature(pos);
+            double y = this.level.getBiome(pos).getWaterColor();
+            //getDriver().sendMessage(new TextComponent("Temp: " + x + " Cannon: " + this.getCannonModifier() + " Passenger: " + this.getPassengerModifier() + " Cargo: " + this.getCargoModifier()), getDriver().getUUID());
+            getDriver().sendMessage(new TextComponent("kmh: " + getKilometerPerHour()), getDriver().getUUID());
+            //getDriver().sendMessage(new TextComponent("OnPos: " + getOnPos().getY()), getDriver().getUUID());
+            getDriver().sendMessage(new TextComponent("ShipType: " + getBiomesModifierType()), getDriver().getUUID());
+            getDriver().sendMessage(new TextComponent("ShipModifier: " + getBiomesModifier()), getDriver().getUUID());
+        }
+        */
     }
     ////////////////////////////////////SAVE DATA////////////////////////////////////
 
     @Override
     public void addAdditionalSaveData(CompoundTag nbt) {
-
         nbt.putString("SailColor", getSailColor());
         nbt.putString("Type", getWoodType().getName());
     }
@@ -146,6 +167,10 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
 
     ////////////////////////////////////GET////////////////////////////////////
+
+    public float getVelocityResistance() {
+        return 0.008F;
+    }
 
     public String getSailColor() {
         return this.entityData.get(SAIL_COLOR);
@@ -167,9 +192,55 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         return (getSpeed() * 20 * 60 * 60) / 1000;
     }
 
+    public static final ImmutableSet<ResourceKey<Biome>> COLD_BIOMES = ImmutableSet.of(
+            Biomes.COLD_OCEAN,
+            Biomes.DEEP_COLD_OCEAN,
+            Biomes.FROZEN_OCEAN,
+            Biomes.DEEP_FROZEN_OCEAN,
+            Biomes.FROZEN_RIVER
+    );
+
+    public static final ImmutableSet<ResourceKey<Biome>> WARM_BIOMES = ImmutableSet.of(
+            Biomes.WARM_OCEAN,
+            Biomes.DEEP_WARM_OCEAN,
+            Biomes.LUKEWARM_OCEAN,
+            Biomes.DEEP_LUKEWARM_OCEAN
+    );
+
+    public static final ImmutableSet<ResourceKey<Biome>> NEUTRAL_BIOMES = ImmutableSet.of(
+            Biomes.OCEAN,
+            Biomes.DEEP_OCEAN,
+            Biomes.RIVER
+    );
+
     public float getBiomesModifier() {
+        int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
         BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
-        return 1;
+        Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos));;
+
+
+        if(biome.isPresent()) {
+            boolean coldBiomes = COLD_BIOMES.contains(biome.get());;
+            boolean neutralBiomes = NEUTRAL_BIOMES.contains(biome.get());
+            boolean warmBiomes = WARM_BIOMES.contains(biome.get());
+
+            boolean coldType = biomeType == 0;
+            boolean neutralType = biomeType == 1;
+            boolean warmType = biomeType == 2;
+
+            if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
+                return -0.1F;
+            } else if (
+                    (coldBiomes && warmType || warmBiomes && coldType) ||
+                            ((coldBiomes || warmBiomes) && neutralType)
+            ) {
+                return 0.1F;
+            } else if (neutralBiomes && warmType || neutralBiomes && coldType) {
+                return 0.05F;
+            } else
+                return 0;
+        }
+        return 0;
     }
 
     public float getWheelRotationAmount() {
@@ -291,22 +362,6 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
         Main.SIMPLE_CHANNEL.sendToServer(new MessageSteerState(this.getSteerState(0), this.getSteerState(1)));
     }*/
 
-    @Override
-    public boolean canCollideWith(Entity entityIn) {
-        //SmallShipsConfig.damageEntities.get() &&
-        if (entityIn instanceof LivingEntity && !getPassengers().contains(entityIn)) {
-            if (entityIn.getBoundingBox().intersects(getBoundingBox())) {
-                float speed = getSpeed();
-                if (speed > 0.35F) {
-                    float damage = speed * 10;
-                    entityIn.hurt(DamageSourceShip.DAMAGE_SHIP, damage);
-                    this.hurt(DamageSourceShip.DAMAGE_SHIP,damage / 2);
-                }
-
-            }
-        }
-        return super.canCollideWith(entityIn);
-    }
 
     public void checkPush() {
         List<Player> list = level.getEntitiesOfClass(Player.class, getBoundingBox().expandTowards(0.2, 0, 0.2).expandTowards(-0.2, 0, -0.2));
@@ -329,14 +384,14 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             setRight(false);
         }
         int sailstate = getSailState();
-        float modifier = getBiomesModifier() + getVelocityResistance();
+        float modifier = 1 - (getBiomesModifier() + getPassengerModifier() + getCannonModifier() + getCargoModifier());
 
         float blockedmodf = 1;
 
         //if (isBlocked() && this.getDirection() == this.getBlockedDirection())
             //blockedmodf = 0.00001F;
 
-        float maxSp = (getMaxSpeed() / 12F) * modifier ;
+        float maxSp = (getMaxSpeed() / (12F * 1.15F)) * modifier;
         float maxBackSp = getMaxReverseSpeed() * modifier;
         float maxRotSp = ((getMaxRotationSpeed() * 0.1F) + 1.8F) * modifier;
 
@@ -347,17 +402,17 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
                 case 1 -> {
                     maxSp *= 4 / 16F;
                     if (speed <= maxSp)
-                        speed = Math.min(speed + getAcceleration() * 2F / 8, maxSp);
+                        speed = Math.min(speed + getAcceleration() * 9F / 16, maxSp);
                 }
                 case 2 -> {
                     maxSp *= 8 / 16F;
                     if (speed <= maxSp)
-                        speed = Math.min(speed + getAcceleration() * 3.5F / 8, maxSp);
+                        speed = Math.min(speed + getAcceleration() * 11F / 16, maxSp);
                 }
                 case 3 -> {
                     maxSp *= 12 / 16F;
                     if (speed <= maxSp)
-                        speed = Math.min(speed + getAcceleration() * 5 / 8, maxSp);
+                        speed = Math.min(speed + getAcceleration() * 13F / 16, maxSp);
                 }
                 case 4 -> {
                     maxSp *= 1F;
@@ -380,12 +435,15 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             }
         }
 
+
+        if (isLeft() || isRight()) {
+            speed = speed * (1.0F - (Mth.abs(getRotSpeed()) * 0.02F));
+        }
+
         setSpeed(speed * blockedmodf);
 
-
-        float rotationSpeed = MathUtils.subtractToZero(getRotSpeed(), getVelocityResistance() * 3);
         deltaRotation = 0;
-
+        float rotationSpeed = MathUtils.subtractToZero(getRotSpeed(), getVelocityResistance() * 3);
         if (isRight()) {
             if (rotationSpeed <= maxRotSp) {
                 rotationSpeed = Math.min(rotationSpeed + getRotationAcceleration() * 1 / 8, maxRotSp);
@@ -570,8 +628,8 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     }
 
     private void knockBack(List<Entity> entities) {
-        double d0 = (this.getBoundingBox().minX + this.getBoundingBox().maxX) / 2.0D;
-        double d1 = (this.getBoundingBox().minZ + this.getBoundingBox().maxZ) / 2.0D;
+        double d0 = (this.getBoundingBox().minX + this.getBoundingBox().maxX) / 2.5D;
+        double d1 = (this.getBoundingBox().minZ + this.getBoundingBox().maxZ) / 2.5D;
 
         for(Entity entity : entities) {
             if (entity instanceof LivingEntity) {
@@ -579,6 +637,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
                 double d3 = entity.getZ() - d1;
                 double d4 = Math.max(d2 * d2 + d3 * d3, 0.1D);
                 entity.push(d2 / d4 * 0.4D, 0.0F, d3 / d4 * 0.4D);
+                this.canCollideWith(entity);
             }
         }
     }

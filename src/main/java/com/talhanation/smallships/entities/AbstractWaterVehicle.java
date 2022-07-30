@@ -1,6 +1,5 @@
 package com.talhanation.smallships.entities;
 
-import com.talhanation.smallships.Main;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,10 +13,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WaterlilyBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,6 +30,7 @@ import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Predicate;
 
 public abstract class AbstractWaterVehicle extends Entity {
 
@@ -371,6 +369,11 @@ public abstract class AbstractWaterVehicle extends Entity {
         return (float) (l + 1);
     }
 
+    protected void floatUp(){
+        if (this.isEyeInFluid(FluidTags.WATER))
+        this.setDeltaMovement(getDeltaMovement().x, 0.2D, getDeltaMovement().z);
+    }
+
     @Nullable
     private AbstractWaterVehicle.Status getUnderwaterStatus() {
         AABB axisalignedbb = this.getBoundingBox();
@@ -448,8 +451,8 @@ public abstract class AbstractWaterVehicle extends Entity {
 
         public static AbstractWaterVehicle.Type getTypeFromString(String nameIn) {
             AbstractWaterVehicle.Type[] aboatentity$type = values();
-
             for (Type type : aboatentity$type) {
+
                 if (type.getName().equals(nameIn)) {
                     return type;
                 }

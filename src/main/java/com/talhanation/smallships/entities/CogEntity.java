@@ -3,31 +3,17 @@ package com.talhanation.smallships.entities;
 import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
-import com.talhanation.smallships.inventory.BasicShipContainer;
-import com.talhanation.smallships.network.MessageOpenGui;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
-
-import javax.annotation.Nullable;
 
 public class CogEntity extends AbstractCannonShip{
 
@@ -45,6 +31,11 @@ public class CogEntity extends AbstractCannonShip{
     }
     
     ////////////////////////////////////GET////////////////////////////////////
+
+    @Override
+    public int getBiomesModifierType() {
+        return 0;// 0 = cold; 1 = neutral; 2 = warm; 3 = extreme cold; 4 = extreme warm;
+    }
 
     // hight and width for now as mast
     @Override
@@ -79,7 +70,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public float getAcceleration() {
-        return 0.03F;
+        return 0.015F; //sensible
     }
 
     @Override
@@ -92,9 +83,20 @@ public class CogEntity extends AbstractCannonShip{
         return 0.3F;
     }
 
+
     @Override
-    public float getVelocityResistance() {
-        return 0.009F;
+    public float getCargoModifier() {
+        return this.getCargo() * 0.02F;
+    }
+
+    @Override
+    public float getCannonModifier() {
+        return this.getTotalCannonCount() * 0.02F;
+    }
+
+    @Override
+    public float getPassengerModifier() {
+        return this.getPassengerSize() * 0.01F;
     }
 
 
@@ -107,10 +109,10 @@ public class CogEntity extends AbstractCannonShip{
     public int getPassengerSize() {
         return switch (getTotalCannonCount()) {
             case 0 -> 5;
-            case 1 -> 2;
-            case 2 -> 3;
+            case 1 -> 4;
+            case 2 -> 4;
             case 3 -> 3;
-            case 4 -> 2;
+            case 4 -> 3;
             default -> throw new IllegalStateException("Unexpected passenger size: " + getTotalCannonCount());
         };
     }
@@ -286,8 +288,30 @@ public class CogEntity extends AbstractCannonShip{
             Vec3 vector3d = (new Vec3(f, 0.0D, 0.0D + d)).yRot(-this.getYRot() * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, this.getZ() + vector3d.z);
             passenger.setYRot(passenger.getYRot() + this.deltaRotation);
-            passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
+            //passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyOriantationsToEntity(passenger);
         }
     }
+
 }
+    /*
+    public PassengerPos assignPassengerPos(Entity passenger, int count){
+        PassengerPos passengerPos = null;
+        PassengerPos pos0 = new PassengerPos(-1.75F, 1.0F);
+        PassengerPos pos1 = new PassengerPos(-1.75F, 1.0F);
+        PassengerPos pos2 = new PassengerPos(-1.75F, 1.0F);
+        PassengerPos pos3 = new PassengerPos(-1.75F, 1.0F);
+        PassengerPos pos4 = new PassengerPos(-1.75F, 1.0F);
+
+        int index = getPassengers().indexOf(passenger);
+        switch (index){
+            case 0 -> passengerPos = pos0;
+            case 1 -> passengerPos = pos1;
+            case 2 -> passengerPos = pos2;
+            case 3 -> passengerPos = pos3;
+            case 4 -> passengerPos = pos4;
+        }
+        return passengerPos;
+    }
+
+*/

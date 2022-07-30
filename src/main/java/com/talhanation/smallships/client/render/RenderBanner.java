@@ -29,19 +29,17 @@ public class RenderBanner {
             matrixStackIn.pushPose();
             EntityType<?> entityType = abstractBannerUser.getType();
 
-            //banner pos for ships:
-
-
-            if (entityType == ModEntityTypes.COG.get()) {
+            if (ModEntityTypes.COG.get().equals(entityType)) {
                 matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-180.0F));
                 matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
                 //                                hight - = +    vorne
-                matrixStackIn.translate(-3.1D, 0.87D, 0.05D);
-
-            } else if(entityType == ModEntityTypes.BRIGG.get()){
+                matrixStackIn.translate(-4.0D, 0.5D, 0.05D);
+            } else if (ModEntityTypes.BRIGG.get().equals(entityType)) {
                 matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(90.0F));
                 matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90F));
-                matrixStackIn.translate(-6.4D, 1.65D, 0.0D);
+                matrixStackIn.translate(-6.65D, 1.65D, 0.05D);
+            }
+
 /*
             } else if(entityType == ModEntityTypes.DRAKKAR_ENTITY.get()){
                 matrixStackIn.translate(-3.6D, 0.1D, 0.05D);
@@ -76,5 +74,4 @@ public class RenderBanner {
                 matrixStackIn.popPose();
             }
         }
-    }
 }

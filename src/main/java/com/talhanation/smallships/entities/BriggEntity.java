@@ -3,6 +3,7 @@ package com.talhanation.smallships.entities;
 import com.talhanation.smallships.InventoryEvents;
 import com.talhanation.smallships.init.ModEntityTypes;
 import com.talhanation.smallships.init.ModItems;
+import net.minecraft.core.Position;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +15,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+
+import java.sql.Array;
+import java.util.ArrayList;
 
 
 public class BriggEntity extends AbstractCannonShip{
@@ -32,6 +36,11 @@ public class BriggEntity extends AbstractCannonShip{
     }
 
     ////////////////////////////////////GET////////////////////////////////////
+
+    @Override
+    public int getBiomesModifierType() {
+        return 0;// 0 = cold; 1 = neutral; 2 = warm;
+    }
 
     @Override
     public double getWidth() {
@@ -65,7 +74,7 @@ public class BriggEntity extends AbstractCannonShip{
 
     @Override
     public float getAcceleration() {
-        return 0.03F;
+        return 0.0135F; //sensible
     }
 
     @Override
@@ -84,13 +93,37 @@ public class BriggEntity extends AbstractCannonShip{
     }
 
     @Override
+    public float getCargoModifier() {
+        return this.getCargo() * 0.02F;
+    }
+
+    @Override
+    public float getCannonModifier() {
+        return this.getTotalCannonCount() * 0.02F;
+    }
+
+    @Override
+    public float getPassengerModifier() {
+        return this.getPassengerSize() * 0.01F;
+    }
+
+    @Override
     public ResourceLocation getLootTable() {
         return null;
     }
 
     @Override
     public int getPassengerSize() {
-        return 10;
+        return switch (getTotalCannonCount()) {
+            case 0 -> 10;
+            case 1 -> 9;
+            case 2 -> 9;
+            case 3 -> 8;
+            case 4 -> 8;
+            case 5 -> 7;
+            case 6 -> 7;
+            default -> throw new IllegalStateException("Unexpected passenger size: " + getTotalCannonCount());
+        };
     }
 
     @Override
@@ -201,8 +234,10 @@ public class BriggEntity extends AbstractCannonShip{
     @Override
     public void positionRider(Entity passenger) {
         if (hasPassenger(passenger)) {
+
             double f = -1.5F;
             double d = 0.75F;
+            double x = 1.5D;
             float f1 = (float) ((this.isRemoved() ? 0.02D : getPassengersRidingOffset()) + passenger.getMyRidingOffset());
             if (getPassengers().size() == 2) {
                 int i = getPassengers().indexOf(passenger);
@@ -222,7 +257,7 @@ public class BriggEntity extends AbstractCannonShip{
                     f = -1.5F;
                     d = -0.75F;
                 } else {
-                    f = -0.5F;
+                    f = -0.5;
                     d = -0.75F;
                 }
             }else if (getPassengers().size() == 4) {
@@ -264,13 +299,13 @@ public class BriggEntity extends AbstractCannonShip{
                     f = -1.5F;
                     d = 0.75F;
                 } else if (i == 1) {
-                    f = -1.5F;
+                    f = -1.5F + x;
                     d = -0.75F;
                 } else if (i == 2) {
-                    f = -0.5F;
+                    f = -0.5F + x;
                     d = -0.75F;
                 } else if (i == 3) {
-                    f = -0.5F;
+                    f = -0.5F + x;
                     d = 0.75F;
                 } else if(i == 4){
                     f = 0.5F;
@@ -394,6 +429,7 @@ public class BriggEntity extends AbstractCannonShip{
                     d = -0.5F;
                 }
             }
+            f += x;
             f = f - 0.5;
             Vec3 vector3d = (new Vec3(f, 0.0D, 0.0D + d)).yRot(-this.getYRot() * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, this.getZ() + vector3d.z);
@@ -403,3 +439,6 @@ public class BriggEntity extends AbstractCannonShip{
         }
     }
 }
+
+
+
