@@ -1,5 +1,5 @@
 # smallships
-A Minecraft Mod that add vanilla frieldy Ships for travel storage and naval warefare.
+A Minecraft Mod that add vanilla friendly Ships for travel, storage and naval warefare.
 
 https://www.curseforge.com/minecraft/mc-mods/small-ships
 
