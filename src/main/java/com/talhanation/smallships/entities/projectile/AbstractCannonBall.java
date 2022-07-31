@@ -4,7 +4,6 @@ package com.talhanation.smallships.entities.projectile;
 import com.talhanation.smallships.DamageSourceCannonball;
 import com.talhanation.smallships.entities.AbstractShipDamage;
 import com.talhanation.smallships.init.SoundInit;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -14,7 +13,6 @@ import net.minecraft.network.IPacket;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -77,6 +75,10 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
         if (counter < 4){
             if (this.level.isClientSide) tailParticles();
         }
+
+        if (isInWater() && counter > 200){
+            this.remove();
+        }
     }
 
     public void setWasShot(boolean bool){
@@ -91,20 +93,14 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
     public void setInWater(boolean bool){
         if (bool != inWater){
             inWater = true;
-            if (this.level.isClientSide) {
-                waterParticles();
-            }
-            if (!this.level.isClientSide) {
-                level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundCategory.BLOCKS, 10.0F, 0.8F + 0.4F * this.random.nextFloat());
-            }
-            this.remove();
+            waterParticles();
+            this.level.playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_SPLASH, this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
         }
     }
 
     protected void onHitBlock(BlockRayTraceResult rayTraceResult) {
         super.onHitBlock(rayTraceResult);
         if (!this.level.isClientSide) {
-            boolean flag = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.level, this.getOwner());
             this.level.explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, Explosion.Mode.BREAK);
             this.remove();
         }
@@ -142,9 +138,9 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
 
     public void hitParticles(){
         for (int i = 0; i < 300; ++i) {
-            double d0 = this.random.nextGaussian() * 0.03D;
-            double d1 = this.random.nextGaussian() * 0.03D;
-            double d2 = this.random.nextGaussian() * 0.03D;
+            double d0 = this.random.nextGaussian() * 0.031D;
+            double d1 = this.random.nextGaussian() * 0.031D;
+            double d2 = this.random.nextGaussian() * 0.031D;
             double d3 = 20.0D;
             this.level.addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
             this.level.addParticle(ParticleTypes.LARGE_SMOKE, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
