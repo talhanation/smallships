@@ -40,6 +40,7 @@ public class ModelCog extends EntityModel<CogEntity> {
 	private final ModelRenderer cube_r17;
 	private final ModelRenderer cube_r18;
 	private final ModelRenderer steer;
+	private final ModelRenderer BannerStick;
 
 	public ModelCog() {
 		texWidth = 128;
@@ -47,12 +48,12 @@ public class ModelCog extends EntityModel<CogEntity> {
 
 		Cog = new ModelRenderer(this);
 		Cog.setPos(0.0F, 24.0F, 0.0F);
-		
+
 
 		deck = new ModelRenderer(this);
 		deck.setPos(14.0F, 0.0F, 0.0F);
 		Cog.addChild(deck);
-		
+
 
 		cube_r1 = new ModelRenderer(this);
 		cube_r1.setPos(-14.0F, 0.0F, 0.0F);
@@ -196,7 +197,7 @@ public class ModelCog extends EntityModel<CogEntity> {
 		chest_4 = new ModelRenderer(this);
 		chest_4.setPos(-23.0F, -11.5F, 9.0F);
 		Cog.addChild(chest_4);
-		
+
 
 		cube_r11 = new ModelRenderer(this);
 		cube_r11.setPos(0.0F, 0.0F, 0.0F);
@@ -219,7 +220,7 @@ public class ModelCog extends EntityModel<CogEntity> {
 		chest_2 = new ModelRenderer(this);
 		chest_2.setPos(19.0F, -15.5F, 15.0F);
 		Cog.addChild(chest_2);
-		
+
 
 		cube_r14 = new ModelRenderer(this);
 		cube_r14.setPos(0.0F, 0.0F, 0.0F);
@@ -243,7 +244,7 @@ public class ModelCog extends EntityModel<CogEntity> {
 		chest_3 = new ModelRenderer(this);
 		chest_3.setPos(51.3333F, -8.0F, -11.1667F);
 		Cog.addChild(chest_3);
-		
+
 
 		cube_r17 = new ModelRenderer(this);
 		cube_r17.setPos(-20.3333F, 17.0F, -33.8333F);
@@ -262,8 +263,12 @@ public class ModelCog extends EntityModel<CogEntity> {
 		steer.setPos(42.0F, 9.0F, 0.0F);
 		Cog.addChild(steer);
 		steer.texOffs(4, 1).addBox(0.0F, -7.0F, -1.0F, 4.0F, 14.0F, 2.0F, 0.0F, false);
-	}
 
+		BannerStick = new ModelRenderer(this);
+		BannerStick.setPos(0.0F, -1.0F, 0.0F);
+		Cog.addChild(BannerStick);
+		BannerStick.texOffs(8, 0).addBox(12.0F, -94.0F, -0.5F, 1.0F, 15.0F, 1.0F, 0.0F, false);
+	}
 
 	public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
 		modelRenderer.xRot = x;
@@ -281,6 +286,7 @@ public class ModelCog extends EntityModel<CogEntity> {
 
 
 		this.steer.yRot = -entityIn.getRotSpeed();
+		this.BannerStick.visible = entityIn.getHasBanner();
 	}
 
 	@Override

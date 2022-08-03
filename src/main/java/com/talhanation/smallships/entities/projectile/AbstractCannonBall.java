@@ -65,6 +65,7 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
         }
 
         if(isInWater()){
+            this.setDeltaMovement(this.getDeltaMovement().add(-f, -f1, -f));
             setInWater(true);
         }
 
@@ -125,7 +126,6 @@ public abstract class AbstractCannonBall extends DamagingProjectileEntity {
             }
             else if (entity1 instanceof LivingEntity) {
                 this.doEnchantDamageEffects((LivingEntity) entity1, hit);
-                this.level.playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_HURT, this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
             }
         }
     }

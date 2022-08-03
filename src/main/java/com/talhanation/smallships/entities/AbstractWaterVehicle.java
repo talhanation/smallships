@@ -388,6 +388,11 @@ public abstract class AbstractWaterVehicle extends Entity {
         return (float) (l + 1);
     }
 
+    protected void floatUp(){
+        if (this.isEyeInFluid(FluidTags.WATER))
+            this.setDeltaMovement(getDeltaMovement().x, 0.2D, getDeltaMovement().z);
+    }
+
     @Nullable
     private AbstractWaterVehicle.Status getUnderwaterStatus() {
         AxisAlignedBB axisalignedbb = this.getBoundingBox();

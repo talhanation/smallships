@@ -33,6 +33,11 @@ public class BriggEntity extends AbstractCannonShip{
     ////////////////////////////////////GET////////////////////////////////////
 
     @Override
+    public int getBiomesModifierType() {
+        return 0;// 0 = cold; 1 = neutral; 2 = warm;
+    }
+
+    @Override
     public double getWidth() {
         return 4D;
     }
@@ -64,7 +69,7 @@ public class BriggEntity extends AbstractCannonShip{
 
     @Override
     public float getAcceleration() {
-        return 0.03F;
+        return 0.0135F; //sensible;
     }
 
     @Override
@@ -83,13 +88,41 @@ public class BriggEntity extends AbstractCannonShip{
     }
 
     @Override
+    public float getCargoModifier() {
+        return this.getCargo() * 0.02F;
+    }
+
+    @Override
+    public float getCannonModifier() {
+        return this.getTotalCannonCount() * 0.02F;
+    }
+
+    @Override
+    public float getPassengerModifier() {
+        return this.getPassengerSize() * 0.01F;
+    }
+
+    @Override
     public ResourceLocation getLootTable() {
         return null;
     }
 
     @Override
     public int getPassengerSize() {
-        return 10;
+        switch (getTotalCannonCount()) {
+            default:
+            case 0:
+                return 10;
+            case 1:
+            case 2:
+                return 9;
+            case 3:
+            case 4:
+                return 8;
+            case 5:
+            case 6:
+                return 7;
+        }
     }
 
     @Override
@@ -397,7 +430,7 @@ public class BriggEntity extends AbstractCannonShip{
             Vector3d vector3d = (new Vector3d((double)f, 0.0D, 0.0D + d)).yRot(-this.yRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, + this.getZ() + vector3d.z);
             passenger.yRot += this.deltaRotation;
-            passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
+            //passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyYawToEntity(passenger);
         }
     }

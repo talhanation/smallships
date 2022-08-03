@@ -30,52 +30,33 @@ public class RenderBanner {
             matrixStackIn.pushPose();
             EntityType<?> entityType = abstractBannerUser.getType();
 
-            //banner pos for ships:
-            if (entityType == ModEntityTypes.COG.get()) {
+            if (ModEntityTypes.COG.get().equals(entityType)) {
                 matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-180.0F));
                 matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
-                //                                hight - = +      vorne
-                matrixStackIn.translate(-3.1D, 0.87D, 0.05D);
-            }
-           else if(entityType == ModEntityTypes.BRIGG.get()){
-                    matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(90.0F));
-                    matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90F));
-                    matrixStackIn.translate(-6.4D, 1.65D, 0.0D);
-/*
+                //                                hight - = +    vorne
+                matrixStackIn.translate(-4.0D, 0.75D, 0.05D);
 
-            } else if(entityType == ModEntityTypes.DRAKKAR_ENTITY.get()){
-                matrixStackIn.translate(-3.6D, 0.1D, 0.05D);
-
-            }
-            else if(entityType == ModEntityTypes.GALLEY_ENTITY.get()){
-                matrixStackIn.translate(-4.3D, 0.5D, 0.05D);
-
-            }
-            else if(entityType == ModEntityTypes.WAR_GALLEY_ENTITY.get()){
-                matrixStackIn.translate(-5.5D, 1.4D, 0.1D);
-
-            }else if(entityType == ModEntityTypes.DHOW_ENTITY.get()){
-                matrixStackIn.translate(-6.2D, -1.4D, 0.05D);
-
+            } else if (ModEntityTypes.BRIGG.get().equals(entityType)) {
+                matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(90.0F));
+                matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90F));
+                matrixStackIn.translate(-6.65D, 1.65D, 0.05D);
             }
 
-             */
-                //scale
-                matrixStackIn.scale(0.5F, 0.5F, 0.5F);
+            //scale
+            matrixStackIn.scale(0.5F, 0.5F, 0.5F);
 
-                BannerItem item = (BannerItem) banner.getItem();
-                BANNER_TE.fromItem(banner, item.getColor());
+            BannerItem item = (BannerItem) banner.getItem();
+            BANNER_TE.fromItem(banner, item.getColor());
 
-                //banner waveing here
-                float bannerWaveAngle = abstractBannerUser.getBannerWaveAngle(partialTicks);
-                if (!MathHelper.equal(bannerWaveAngle, 0F))
-                    matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(bannerWaveAngle));
+            //banner waveing here
+            float bannerWaveAngle = abstractBannerUser.getBannerWaveAngle(partialTicks);
+            if (!MathHelper.equal(bannerWaveAngle, 0F))
+                matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(bannerWaveAngle));
 
-                // getting banner pattern here
-                List<Pair<BannerPattern, DyeColor>> list = BANNER_TE.getPatterns();
-                BannerTileEntityRenderer.renderPatterns(matrixStackIn, bufferIn, packedLight, OverlayTexture.NO_OVERLAY, modelRenderer, ModelBakery.BANNER_BASE, true, list);
-                matrixStackIn.popPose();
-            }
+            // getting banner pattern here
+            List<Pair<BannerPattern, DyeColor>> list = BANNER_TE.getPatterns();
+            BannerTileEntityRenderer.renderPatterns(matrixStackIn, bufferIn, packedLight, OverlayTexture.NO_OVERLAY, modelRenderer, ModelBakery.BANNER_BASE, true, list);
+            matrixStackIn.popPose();
         }
     }
 }

@@ -26,6 +26,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class AbstractShipDamage extends AbstractBannerUser {
     private static final DataParameter<Float> DAMAGE = EntityDataManager.defineId(AbstractShipDamage.class, DataSerializers.FLOAT);
     private static final DataParameter<Boolean> SUNKEN = EntityDataManager.defineId(AbstractShipDamage.class, DataSerializers.BOOLEAN);
+    private int sunkenTimer = 0;
 
     public AbstractShipDamage(EntityType<? extends AbstractShipDamage> type, World world) {
         super(type, world);
@@ -58,8 +59,16 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
         if (getShipDamage() >= 100 || this.getStatus() == Status.UNDER_WATER){
             setSunken(true);
-            this.setDeltaMovement(0, -0.2D,0);
+            this.setDeltaMovement(0, -0.1D,0);
             if(level.isClientSide()) updateSunkenParticles();
+        }
+
+        if(!(this.getSunken())) this.floatUp();
+
+        if(this.getSunken()) sunkenTimer++;
+
+        if(sunkenTimer >= 6000){
+            this.destroyShip(DamageSource.OUT_OF_WORLD);
         }
 
     }
@@ -156,7 +165,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
 
         }
         if (getShipDamage() >= 100)
-            destroyShip(source);
+            this.setSunken(true);
         if (amount >= 2)
             damageShip(amount);
         return false;
@@ -174,29 +183,33 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
     @OnlyIn(Dist.CLIENT)
     public void updateSunkenParticles(){
         if (random.nextInt(5) == 0) {
-            for(int i = 0; i < random.nextInt(1) + 1; ++i) {
+            for(int i = 0; i < random.nextInt(4) + 1; ++i) {
                 this.level.addParticle(ParticleTypes.BUBBLE, (double)this.getOnPos().getX() + 0.5D, (double)this.getOnPos().getY() + 3.5D, (double)this.getOnPos().getZ() + 0.5D, (double)(random.nextFloat() / 2.0F), 5.0E-5D, (double)(random.nextFloat() / 2.0F));
+                this.level.addParticle(ParticleTypes.BUBBLE, (double)this.getOnPos().getX() + 0.5D, (double)this.getOnPos().getY() + 2.5D, (double)this.getOnPos().getZ() + 0.5D, (double)(random.nextFloat() / 2.0F), 5.0E-5D, (double)(random.nextFloat() / 2.0F));
+
+                this.level.addParticle(ParticleTypes.BUBBLE, (double)this.getOnPos().getX() + 0.5D, (double)this.getOnPos().getY() + 1.5D, (double)this.getOnPos().getZ() + 0.5D, (double)(random.nextFloat() / 2.0F), 5.0E-5D, (double)(random.nextFloat() / 2.0F));
             }
         }
     }
 
     public void damageShip(double damage) {
-        setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 65)/100)))));
+        setShipDamage((float) (((getShipDamage()) + (damage - (damage * (getShipDefense() + 50)/100)))));
     }
 
     @Override
-    public boolean canCollideWith(Entity entity) {
-        if (entity instanceof LivingEntity && !getPassengers().contains(entity)) {
-            if (entity.getBoundingBox().intersects(getBoundingBox())) {
-                double speed = getDeltaMovement().length();
-                if (speed > 0.25F) {
-                    float damage = Math.min((float) (speed * 10D), 15F);
-                    entity.hurt(DamageSourceShip.DAMAGE_SHIP, damage);
+    public boolean canCollideWith(Entity entityIn) {
+             //SmallShipsConfig.damageEntities.get() &&
+            if (entityIn instanceof LivingEntity && !getPassengers().contains(entityIn)) {
+                if (entityIn.getBoundingBox().intersects(getBoundingBox())) {
+                    float speed = getSpeed();
+                    if (speed > 0.1F) {
+                        float damage = speed * 10;
+                        entityIn.hurt(DamageSourceShip.DAMAGE_SHIP, damage);
+                        this.damageShip(damage / 100);
+                    }
                 }
-
             }
-        }
-        return super.canCollideWith(entity);
+        return super.canCollideWith(entityIn);
     }
 
 

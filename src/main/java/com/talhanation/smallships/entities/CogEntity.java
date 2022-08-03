@@ -32,6 +32,11 @@ public class CogEntity extends AbstractCannonShip{
 
     ////////////////////////////////////GET////////////////////////////////////
 
+    @Override
+    public int getBiomesModifierType() {
+        return 0;// 0 = cold; 1 = neutral; 2 = warm; 3 = extreme cold; 4 = extreme warm;
+    }
+
     // hight and width for now as mast
     @Override
     public double getWidth() {
@@ -64,7 +69,7 @@ public class CogEntity extends AbstractCannonShip{
 
     @Override
     public float getAcceleration() {
-        return 0.03F;
+        return 0.015F; //sensible
     }
 
     @Override
@@ -82,6 +87,19 @@ public class CogEntity extends AbstractCannonShip{
         return 0.009F;
     }
 
+    public float getCargoModifier() {
+        return this.getCargo() * 0.02F;
+    }
+
+    @Override
+    public float getCannonModifier() {
+        return this.getTotalCannonCount() * 0.02F;
+    }
+
+    @Override
+    public float getPassengerModifier() {
+        return this.getPassengerSize() * 0.01F;
+    }
 
     @Override
     public ResourceLocation getLootTable() {
@@ -92,19 +110,13 @@ public class CogEntity extends AbstractCannonShip{
     public int getPassengerSize() {
         switch (getTotalCannonCount()){
             default:
-            case 0:
-            return 5;
+            case 0: return 5;
 
             case 1:
-            case 4:
-                return 2;
-
-            case 2:
-                return 3;
+            case 2: return 4;
 
             case 3:
-                return 3;
-
+            case 4: return 3;
         }
     }
 
@@ -282,7 +294,7 @@ public class CogEntity extends AbstractCannonShip{
             Vector3d vector3d = (new Vector3d((double)f, 0.0D, 0.0D + d)).yRot(-this.yRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
             passenger.setPos(this.getX() + vector3d.x, this.getY() + (double)f1, + this.getZ() + vector3d.z);
             passenger.yRot += this.deltaRotation;
-            passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
+            //passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
             applyYawToEntity(passenger);
         }
 
