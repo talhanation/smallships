@@ -73,7 +73,7 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.1-42.0.1'
+    minecraft "net.minecraftforge:forge:1.19.1-42.0.3"
 
     shadow fg.deobf("de.maxhenkel.corelib:corelib:1.19.1-1.0.0:api")
     runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:1.19.1-1.0.0")
