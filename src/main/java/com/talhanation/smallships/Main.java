@@ -81,6 +81,7 @@ public class Main {
     private void setup(final FMLCommonSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new InventoryEvents());
+        MinecraftForge.EVENT_BUS.register(new CommonEvents());
         SIMPLE_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("smallships", "default"), () -> "1.0.0", s -> true, s -> true);
 
         SIMPLE_CHANNEL.registerMessage(0, MessageControlShip.class, MessageControlShip::toBytes,

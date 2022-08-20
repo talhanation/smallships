@@ -1,38 +1,46 @@
----------------------------------
-to do heute 19.07:
-brigg:
-to much turn speed
 
-UPDATE
+
 
 ----------------------------------
-woche 18.07 - 22.07: (diese woche)
-climate faktor
-passenger faktor
-cannon faktor
-fix fish speed fleeing
-fix knockback radius
+woche  23.07 - 29.07: (diese woche)
+sunken ship despawn in 5 min and drop all items
+climate faktor - done
+passenger faktor - done
+rotation faktor - done
+cannon faktor - done
+fix fish speed fleeing - done
+fix knockback radius - done
+fix crash when hitting - done
+fix cannon ball particle when hitting water (1.18+) - done
 
-float 1 high bug
+fix crash placing banner on cog - done
+fix calculation of hit damage - done
+fix also waving on normal ground - done
+ 
+fix float 1 high bug - done
 
 
-UPDATE
-
-------------------------------------
-woche  23.07 - 29.07: (nächste woche)
-
-banner pattern on sail
-banner dynamics (speed)
-
-cannon + passenger cannon
-cannon shoot 1 by 1 while space-pressed
-fix cannon ball particle when hitting water (1.18+)
 
 
 UPDATE
 
 ------------------------------------
 woche  30.07 - 05.08:
+
+fix passenger pos
+
+banner pattern on sail
+models texturepack support
+banner dynamics (speed)
+
+cannon + passenger cannon shoot
+cannon shoot 1 by 1 while space-pressed
+
+
+UPDATE
+
+------------------------------------
+woche  06.08 - 12.08:
 
 add galley + ruder features
 
