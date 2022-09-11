@@ -178,7 +178,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
     }
 
     public Vector3d getShootVector(){
-        Vector3d forward = this.getForward().normalize();
+        Vector3d forward = Vector3d.directionFromRotation(this.getRotationVector()).normalize();
         Vector3d VecRight = forward.yRot(-3.14F/2).normalize();
         Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
 
@@ -203,7 +203,7 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
     public void shootCannons() {
         Vector3d shootVector = this.getShootVector();
-        Vector3d forward = this.getForward();
+        Vector3d forward = Vector3d.directionFromRotation(this.getRotationVector());
 
         Vector3d VecRight = forward.yRot(-3.14F/2).normalize();
         Vector3d VecLeft  = forward.yRot(3.14F/2).normalize();
