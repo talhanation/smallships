@@ -27,6 +27,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -73,8 +74,18 @@ public abstract class AbstractWaterVehicle extends Entity {
         checkInsideBlocks();
         handleCollisionWithEntity();
     }
-
-
+    @Override
+    public @NotNull AABB getBoundingBoxForCulling() {
+        return this.getBoundingBox().expandTowards(5D,5D,5D);
+    }
+    @Override
+    public boolean shouldRenderAtSqrDistance(double d) {
+        double d2 = this.getBoundingBox().getSize();
+        if (Double.isNaN(d2)) {
+            d2 = 1.0;
+        }
+        return d < (d2 *= 64.0 * 1.0D) * d2;
+    }
     public void handleCollisionWithEntity() {
         List<Entity> list = this.level.getEntities(this, this.getBoundingBoxForCulling().inflate(0.2F, -0.01F, 0.2F), EntitySelector.pushableBy(this));
         if (!list.isEmpty()) {
