@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "cog",
+  "pattern": [
+    "lsl",
+    "bbb"
+  ],
+  "key": {
+    "s": {
+      "item": "smallships:sail"
+    },
+    "l": {
+      "item": "minecraft:lead"
+    },
+    "b": {
+      "item": "minecraft:oak_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:oak_cog"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group":"brigg",
+  "pattern": [
+    "sls",
+    "bbb"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:lead"
+    },
+    "s": {
+      "item": "smallships:sail"
+    },
+    "b": {
+      "item": "minecraft:acacia_chest_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:acacia_brigg"
+  }
+}

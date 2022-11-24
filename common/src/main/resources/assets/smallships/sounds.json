@@ -1,0 +1,29 @@
+{
+  "sail_move":{
+    "category": "entity",
+    "subtitle": "subtitles.smallships.sail_move",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship/sail_move"
+      }
+    ]
+  },
+  "sail_pull":{
+    "category": "entity",
+    "subtitle": "subtitles.smallships.sail_pull",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship/sail_pull"
+      }
+    ]
+  },
+  "cannon_shoot":{
+    "category": "entity",
+    "subtitle": "subtitles.smallships.cannon_shoot",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship/cannon_shoot"
+      }
+    ]
+  }
+}

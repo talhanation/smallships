@@ -1,0 +1,62 @@
+package com.talhanation.smallships.network.forge;
+
+import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.network.ModPacket;
+import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.world.entity.ship.ContainerShip;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.simple.SimpleChannel;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class ModPacketsImpl {
+    private static int id = 0;
+    private static final Map<String, ModPackets.SendablePacket<ForgePacket>> entries = new HashMap<>();
+    public static final SimpleChannel SIMPLE_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(SmallshipsMod.MOD_ID, "default"), () -> "1.0.0", s -> true, s -> true);
+
+    static {
+        entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenForgePacket(((ContainerShip) params[0]), ((Integer) params[1])));
+        entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailForgePacket());
+        entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonForgePacket());
+    }
+
+    public static ModPackets.SendablePacket<ForgePacket> getPacket(String id) {
+        return entries.get(id);
+    }
+
+    public static void registerPackets() {
+        registerPacket(SIMPLE_CHANNEL, ServerboundOpenShipScreenForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
+        registerPacket(SIMPLE_CHANNEL, ServerboundToggleShipSailForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
+        registerPacket(SIMPLE_CHANNEL, ServerboundShootShipCannonForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
+    }
+
+    @SuppressWarnings({"SameParameterValue"})
+    private static <T extends ForgePacket> void registerPacket(SimpleChannel channel, Class<T> packetClass, NetworkDirection direction) {
+        channel.messageBuilder(packetClass, id++, direction)
+                .decoder((buf) -> {
+                    try {
+                        return packetClass.getConstructor(FriendlyByteBuf.class).newInstance(buf);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .encoder(ForgePacket::toBytes)
+                .consumerMainThread((ForgePacket::handle))
+                .add();
+    }
+
+    public static <T extends ModPacket> void serverSendPacket(ServerPlayer player, T packet) {
+        SIMPLE_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
+    }
+
+    public static <T extends ModPacket> void clientSendPacket(Player player, T packet) {
+        SIMPLE_CHANNEL.sendToServer(packet);
+    }
+}

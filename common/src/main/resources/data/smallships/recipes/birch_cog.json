@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group":"cog",
+  "pattern": [
+    "sls",
+    "bbb"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:lead"
+    },
+    "s": {
+      "item": "smallships:sail"
+    },
+    "b": {
+      "item": "minecraft:birch_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:birch_cog"
+  }
+}

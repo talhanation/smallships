@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.talhanation.smallships.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+  ],
+  "mixins": [
+    "BoatAccessor",
+    "BoatMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

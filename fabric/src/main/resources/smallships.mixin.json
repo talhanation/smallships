@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.talhanation.smallships.mixin.fabric",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "MouseHandlerAccessor",
+    "MinecraftMixin"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

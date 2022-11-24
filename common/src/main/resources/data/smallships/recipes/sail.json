@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "xxx",
+    "xIx",
+    "sIs"
+  ],
+  "key": {
+    "I": {
+      "tag": "minecraft:logs"
+    },
+    "x": {
+      "tag": "minecraft:wool"
+    },
+    "s": {
+      "item": "minecraft:lead"
+    }
+  },
+  "result": {
+    "item": "smallships:sail"
+  }
+}

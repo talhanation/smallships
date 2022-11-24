@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[41,)"
+#issueTrackerURL = ""
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "smallships"
+version = "${version}"
+displayName = "Small Ships"
+authors = "talhanation, metroite"
+description = '''
+This mod adds vanilla friendly ships into Minecraft!
+'''
+logoFile = "icon.png"
+
+[[dependencies.smallships]]
+modId = "forge"
+mandatory = true
+versionRange = "[41,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.smallships]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19,)"
+ordering = "NONE"
+side = "BOTH"
