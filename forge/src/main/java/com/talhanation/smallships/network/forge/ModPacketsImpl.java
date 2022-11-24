@@ -48,7 +48,7 @@ public class ModPacketsImpl {
                     }
                 })
                 .encoder(ForgePacket::toBytes)
-                .consumerMainThread((ForgePacket::handle))
+                .consumer((ForgePacket::handle))
                 .add();
     }
 

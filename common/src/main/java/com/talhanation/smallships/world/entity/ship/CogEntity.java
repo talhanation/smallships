@@ -113,7 +113,6 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
         }
     }
 
-    @Override
     protected float getSinglePassengerXOffset() {
         return -1.75F; // ^ ^ ^+
     }

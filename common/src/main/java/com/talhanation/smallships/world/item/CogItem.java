@@ -21,7 +21,7 @@ public class CogItem extends ShipItem {
     }
 
     @Override
-    protected Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
+    public Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
         return CogEntity.summon(level, hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
     }
 }

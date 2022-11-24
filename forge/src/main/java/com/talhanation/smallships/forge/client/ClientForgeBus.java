@@ -17,7 +17,7 @@ public class ClientForgeBus {
     }
 
     @SubscribeEvent
-    public void initRegisterInputEvents(InputEvent.Key event) {
+    public void initRegisterInputEvents(InputEvent.KeyInputEvent event) {
         Minecraft client = Minecraft.getInstance();
         com.talhanation.smallships.client.option.KeyEvent.onKeyInput(client);
     }

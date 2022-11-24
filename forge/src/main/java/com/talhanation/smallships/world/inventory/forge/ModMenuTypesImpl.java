@@ -19,7 +19,7 @@ public class ModMenuTypesImpl {
     public static <T extends AbstractContainerMenu> MenuType<T> getMenuType(String id) {
         return (MenuType<T>) entries.get(id).get();
     }
-    public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, SmallshipsMod.MOD_ID);
+    public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.CONTAINERS, SmallshipsMod.MOD_ID);
 
     static {
         entries.put("ship_container", MENU_TYPES.register("ship_container",

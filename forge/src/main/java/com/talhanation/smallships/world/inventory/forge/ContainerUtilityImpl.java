@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ContainerUtilityImpl {
     public static void openShipMenu(Player player, ContainerShip containerShip) {
-        NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
+        NetworkHooks.openGui((ServerPlayer) player, new MenuProvider() {
             @Override
             public @NotNull Component getDisplayName() {
                 return containerShip.getName();

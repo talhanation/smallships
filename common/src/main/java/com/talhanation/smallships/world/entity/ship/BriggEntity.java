@@ -134,7 +134,6 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
         }
     }
 
-    @Override
     protected float getSinglePassengerXOffset() {
         return -1.7F; // ^ ^ ^+
     }

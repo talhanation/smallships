@@ -23,7 +23,6 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -178,7 +177,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);
             if (!Mth.equal(bannerWaveAngle, 0F)) poseStack.mulPose(Vector3f.XP.rotationDegrees(bannerWaveAngle));
 
-            List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(bannerItem.getColor(), BannerBlockEntity.getItemPatterns(item));
+            List<Pair<BannerPattern, DyeColor>> patterns = BannerBlockEntity.createPatterns(bannerItem.getColor(), BannerBlockEntity.getItemPatterns(item));
             BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, patterns);
             poseStack.popPose();
         }

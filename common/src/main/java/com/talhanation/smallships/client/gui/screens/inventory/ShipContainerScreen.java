@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -55,13 +56,13 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         int zeroTopPos = topPos + 15;
 
         if (this.pageCount > 1 && this.pageIndex + 1 > 1){
-            this.addRenderableWidget(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, Component.literal("<-"), button -> {
+            this.addRenderableWidget(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, new TextComponent("<-"), button -> {
                 this.getMenu().clickMenuButton(this.minecraft.player, -1);
             }));
         }
 
         if(this.pageCount > 1 && this.pageIndex + 1 < this.pageCount){
-            this.addRenderableWidget(new Button(zeroLeftPos + 20, zeroTopPos, 40, 20, Component.literal("->"), button -> {
+            this.addRenderableWidget(new Button(zeroLeftPos + 20, zeroTopPos, 40, 20, new TextComponent("->"), button -> {
                 this.getMenu().clickMenuButton(this.minecraft.player, 1);
             }));
         }

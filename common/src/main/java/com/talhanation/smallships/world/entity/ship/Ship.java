@@ -5,13 +5,15 @@ import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +46,7 @@ public abstract class Ship extends Boat {
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
-        if (this.getCustomName() == null) this.setCustomName(Component.literal(StringUtils.capitalize(EntityType.getKey(this.getType()).getPath())));
+        if (this.getCustomName() == null) this.setCustomName(new TextComponent(StringUtils.capitalize(EntityType.getKey(this.getType()).getPath())));
         this.maxUpStep = 0.6F;
     }
 
@@ -180,6 +182,10 @@ public abstract class Ship extends Boat {
     }
 
     @Override
+    protected boolean canAddPassenger(@NotNull Entity entity) {
+        return this.getPassengers().size() < this.getMaxPassengers() && !this.isEyeInFluid(FluidTags.WATER);
+    }
+
     protected abstract int getMaxPassengers();
 
     @Override

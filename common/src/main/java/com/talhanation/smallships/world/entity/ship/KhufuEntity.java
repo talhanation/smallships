@@ -94,7 +94,6 @@ public class KhufuEntity extends Ship implements Bannerable, Paddleable, Repaira
         }
     }
 
-    @Override
     protected float getSinglePassengerXOffset() {
         return -1.75F; // ^ ^ ^+
     }

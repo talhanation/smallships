@@ -4,5 +4,3 @@ extendable method net/minecraft/world/entity/vehicle/Boat controlBoat ()V
 accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
 accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 accessible method net/minecraft/client/gui/screens/MenuScreens register (Lnet/minecraft/world/inventory/MenuType;Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;)V
-
-extendable method net/minecraft/world/item/BoatItem getBoat (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/HitResult;)Lnet/minecraft/world/entity/vehicle/Boat;

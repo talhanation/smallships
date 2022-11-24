@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class ShipItem extends BoatItem {
     public ShipItem(Boat.Type type, Properties properties) {
-        super(false, type, properties);
+        super(type, properties);
     }
 
-    protected abstract Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult);
+    public abstract Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult);
 }

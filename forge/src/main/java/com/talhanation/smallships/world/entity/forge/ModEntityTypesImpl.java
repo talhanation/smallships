@@ -22,7 +22,7 @@ public class ModEntityTypesImpl {
     public static <T extends Entity> EntityType<T> getEntityType(Class<T> entityClass) {
         return (EntityType<T>) entries.get(entityClass).get();
     }
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, SmallshipsMod.MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, SmallshipsMod.MOD_ID);
 
     static {
         entries.put(CannonBallEntity.class, ENTITY_TYPES.register("cannon_ball",

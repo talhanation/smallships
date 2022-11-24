@@ -11,9 +11,10 @@ import com.talhanation.smallships.client.renderer.entity.CannonBallRenderer;
 import com.talhanation.smallships.client.renderer.entity.CogRenderer;
 import com.talhanation.smallships.client.renderer.entity.KhufuRenderer;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import net.minecraft.client.KeyMapping;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -27,12 +28,12 @@ public class ClientModBus {
         modEventBus.addListener(this::init);
         modEventBus.addListener(this::initRendererRegisterRenderers);
         modEventBus.addListener(this::initRendererRegisterLayerDefinitions);
-        modEventBus.addListener(this::initRegisterKeyMappings);
     }
 
     @SubscribeEvent
     public void init(FMLClientSetupEvent event) {
         com.talhanation.smallships.client.ClientInitializer.init();
+        this.initRegisterKeyMappings(ClientRegistry::registerKeyBinding);
     }
 
     @SubscribeEvent
@@ -53,8 +54,11 @@ public class ClientModBus {
         event.registerLayerDefinition(KhufuModel.LAYER_LOCATION, KhufuModel::createBodyLayer);
     }
 
-    @SubscribeEvent
     public void initRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(ModGameOptions.SAIL_KEY);
+    }
+
+    interface RegisterKeyMappingsEvent {
+        void register(KeyMapping keyMapping);
     }
 }

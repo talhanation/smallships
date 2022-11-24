@@ -3,6 +3,7 @@
   "group":"brigg",
   "pattern": [
     "sls",
+    "ccc",
     "bbb"
   ],
   "key": {
@@ -12,8 +13,11 @@
     "s": {
       "item": "smallships:sail"
     },
+    "c": {
+      "item": "minecraft:chest"
+    },
     "b": {
-      "item": "minecraft:acacia_chest_boat"
+      "item": "minecraft:acacia_boat"
     }
   },
   "result": {

@@ -16,20 +16,21 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.HasCustomInventoryScreen;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import port.ContainerEntity;
+import port.HasCustomInventoryScreen;
 
 import java.util.Arrays;
 
@@ -96,9 +97,16 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public void destroy(@NotNull DamageSource damageSource) {
-        super.destroy(damageSource);
-        this.chestVehicleDestroyed(damageSource, this.level, this);
+    public boolean hurt(@NotNull DamageSource damageSource, float f) {
+        if (!this.level.isClientSide && !this.isRemoved()) {
+            boolean bl = damageSource.getEntity() instanceof Player && ((Player)damageSource.getEntity()).getAbilities().instabuild;
+            if (bl || this.getDamage() > this.getAttributes().maxHealth) {
+                if (!bl && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                    this.chestVehicleDestroyed(damageSource, this.level, this);
+                }
+            }
+        }
+        return super.hurt(damageSource, f);
     }
 
     @Override
@@ -294,7 +302,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
                 }
             }
             if (j < oldItemStacks.length) {  // Drop non-fitting leftover items
-                Containers.dropContents(containerEntity.getLevel(), (Entity) containerEntity, new SimpleContainer(Arrays.copyOfRange(oldItemStacks, j, oldItemStacks.length)));
+                Containers.dropContents(((Entity) containerEntity).getLevel(), (Entity) containerEntity, new SimpleContainer(Arrays.copyOfRange(oldItemStacks, j, oldItemStacks.length)));
             }
         } else {  // Increase container size (easier)
             newItemStacks = new ItemStack[containerSize];
