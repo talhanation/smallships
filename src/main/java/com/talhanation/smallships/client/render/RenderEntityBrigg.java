@@ -74,6 +74,7 @@ public class RenderEntityBrigg extends EntityRenderer<BriggEntity> {
         this.shadowRadius = 1.5F;
     }
 
+    @Override
     public void render(BriggEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         poseStack.translate(0.0D, -0.25D, 0.0D);

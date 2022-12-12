@@ -86,5 +86,6 @@ public class BasicShipContainer extends ContainerBase {
     public void broadcastChanges() {
         super.broadcastChanges();
         ship.updateCargo();
+        ship.updateInventory();
     }
 }

@@ -31,6 +31,8 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
         //updateCargo();
     }
 
+    public abstract void updateInventory();
+
     ////////////////////////////////////DATA////////////////////////////////////
 
     @Override

@@ -128,8 +128,12 @@ public class BriggEntity extends AbstractCannonShip{
             }
 
             if (itemInHand.getItem() instanceof BannerItem) {
-                this.onInteractionWithBanner(itemInHand, player);
-                return InteractionResult.SUCCESS;
+                if (this.getInventory().canAddItem(itemInHand)){
+                    this.onInteractionWithBanner(itemInHand, player);
+                    return InteractionResult.SUCCESS;
+                }
+                else
+                    return InteractionResult.FAIL;
             }
 
             if (itemInHand.getItem() instanceof AxeItem) {

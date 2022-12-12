@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.nbt.CompoundTag;
@@ -48,6 +49,25 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
             this.prevBannerWaveAngle = this.bannerWaveAngle;
             this.bannerWaveAngle = (float) Math.sin(getBannerWaveSpeed() * (float) tickCount) * getBannerWaveFactor();
         }
+    }
+
+    @Override
+    public void updateInventory() {
+        ItemStack bannerInSlot = null;
+
+        for(int i = 0; i< this.getInventory().getContainerSize(); i++){
+            ItemStack stackInSlot = getInventory().getItem(i);
+            if(stackInSlot.getItem() instanceof BannerItem){
+                bannerInSlot = stackInSlot;
+            }
+        }
+
+        if (bannerInSlot != null){
+            setHasBanner(true);
+            if (!getBanner().serializeNBT().equals(bannerInSlot.serializeNBT())) playBannerSound();
+            entityData.set(BANNER, bannerInSlot.copy());
+        } else
+            setHasBanner(false);
     }
 
     ////////////////////////////////////REGISTER////////////////////////////////////
@@ -95,15 +115,14 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
     ////////////////////////////////////SET////////////////////////////////////
 
     public void setBanner(Player player, ItemStack banner) {
-        playBannerSound();
-        setHasBanner(true);
-        entityData.set(BANNER, banner.copy());
+        this.getInventory().addItem(banner);
         if (!player.isCreative()) {
             banner.shrink(1);
         }
     }
 
     public void setHasBanner(boolean bool){
+        if (getHasBanner() != bool && bool) playBannerSound();
         entityData.set(HAS_BANNER, bool);
     }
 
@@ -117,18 +136,15 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
     ////////////////////////////////////ON FUNCTIONS////////////////////////////////////
 
     public boolean onInteractionWithBanner(ItemStack banner, Player player) {
-            if (getHasBanner())
-                dropBanner();
-
         setBanner(player,banner);
         return true;
     }
 
     public void onInteractionWithShears(Player playerEntity) {
-            if (getHasBanner()) {
-                dropBanner();
-                setHasBanner(false);
-            }
+        if (getHasBanner()) {
+            dropBanner();
+            setHasBanner(false);
+        }
     }
 
     ////////////////////////////////////OTHER FUNCTIONS////////////////////////////////////
@@ -147,7 +163,7 @@ public abstract class AbstractBannerUser extends AbstractInventoryEntity {
     public void dropBanner() {
         if (getHasBanner()) {
             getBanner().setCount(1);
-            this.spawnAtLocation(getBanner(),  3F );
+            this.spawnAtLocation(getBanner(),  3F);
         }
     }
 }

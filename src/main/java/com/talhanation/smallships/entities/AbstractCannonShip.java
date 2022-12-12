@@ -23,6 +23,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.function.Predicate;
+
 public abstract class AbstractCannonShip extends AbstractShipDamage{
     private static final EntityDataAccessor<Integer> RIGHT_CANNON_COUNT = SynchedEntityData.defineId(AbstractCannonShip.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> LEFT_CANNON_COUNT = SynchedEntityData.defineId(AbstractCannonShip.class, EntityDataSerializers.INT);
@@ -69,6 +71,30 @@ public abstract class AbstractCannonShip extends AbstractShipDamage{
 
         if (this.getLeftShootCoolDown() >= 0) {
             this.setLeftShootCoolDown(getLeftShootCoolDown() - 1);
+        }
+    }
+
+    @Override
+    public void updateInventory() {
+        super.updateInventory();
+        int x = 0;
+
+        for(int i = 0; i< this.getInventory().getContainerSize(); i++){
+            ItemStack stackInSlot = getInventory().getItem(i);
+            if(stackInSlot.is(ModItems.CANNON_ITEM.get())){
+                x++;
+            }
+        }
+        if (x > getMaxCannons()) {
+            x = getMaxCannons();
+        }
+
+        if (x % 2 == 0) {
+            setRightCannonCount(x/2);
+            setLeftCannonCount(x/2);
+        } else {
+            setRightCannonCount(x / 2);
+            setLeftCannonCount(x / 2 + 1);
         }
     }
 
