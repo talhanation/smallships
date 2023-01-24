@@ -6,10 +6,10 @@ import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -27,6 +27,7 @@ public interface Cannonable extends Ability {
     CannonPosition getCannonPosition();
     byte getMaxCannonCountRight();
     byte getMaxCannonCountLeft();
+    float getDefaultCannonPower();
 
     default void tickCannonShip() {
         if (self().tickCount % 2 == 0) {
@@ -42,35 +43,38 @@ public interface Cannonable extends Ability {
         self().getEntityData().define(Ship.CANNON_COUNT_LEFT, (byte) 0);
         self().getEntityData().define(Ship.CANNON_COOLDOWN_RIGHT, (byte) 0);
         self().getEntityData().define(Ship.CANNON_COOLDOWN_LEFT, (byte) 0);
+        self().getEntityData().define(Ship.CANNON_POWER, this.getDefaultCannonPower());
     }
 
     @SuppressWarnings("unused")
     default void readCannonShipSaveData(CompoundTag tag) {
         CompoundTag compoundTag = tag.getCompound("Cannon");
-        CompoundTag count = compoundTag.getCompound("Count");
-        self().setData(Ship.CANNON_COUNT_RIGHT, count.getByte("R"));
-        self().setData(Ship.CANNON_COUNT_LEFT, count.getByte("L"));
-        CompoundTag cooldown = tag.getCompound("Cooldown");
-        self().setData(Ship.CANNON_COOLDOWN_RIGHT, cooldown.getByte("R"));
-        self().setData(Ship.CANNON_COOLDOWN_LEFT, cooldown.getByte("L"));
+        CompoundTag countTag = compoundTag.getCompound("Count");
+        self().setData(Ship.CANNON_COUNT_RIGHT, countTag.getByte("R"));
+        self().setData(Ship.CANNON_COUNT_LEFT, countTag.getByte("L"));
+        CompoundTag cooldownTag = compoundTag.getCompound("Cooldown");
+        self().setData(Ship.CANNON_COOLDOWN_RIGHT, cooldownTag.getByte("R"));
+        self().setData(Ship.CANNON_COOLDOWN_LEFT, cooldownTag.getByte("L"));
+        self().setData(Ship.CANNON_POWER, compoundTag.getFloat("Power"));
     }
 
     @SuppressWarnings("unused")
     default void addCannonShipSaveData(CompoundTag tag) {
         CompoundTag compoundTag = new CompoundTag();
-        CompoundTag count = new CompoundTag();
-        count.putByte("R", self().getData(Ship.CANNON_COUNT_RIGHT));
-        count.putByte("L", self().getData(Ship.CANNON_COUNT_LEFT));
-        CompoundTag cooldown = new CompoundTag();
-        cooldown.putByte("R", self().getData(Ship.CANNON_COOLDOWN_RIGHT));
-        cooldown.putByte("L", self().getData(Ship.CANNON_COOLDOWN_LEFT));
-        compoundTag.put("Count", count);
-        compoundTag.put("Cooldown", cooldown);
+        CompoundTag countTag = new CompoundTag();
+        countTag.putByte("R", self().getData(Ship.CANNON_COUNT_RIGHT));
+        countTag.putByte("L", self().getData(Ship.CANNON_COUNT_LEFT));
+        CompoundTag cooldownTag = new CompoundTag();
+        cooldownTag.putByte("R", self().getData(Ship.CANNON_COOLDOWN_RIGHT));
+        cooldownTag.putByte("L", self().getData(Ship.CANNON_COOLDOWN_LEFT));
+        compoundTag.put("Count", countTag);
+        compoundTag.put("Cooldown", cooldownTag);
+        compoundTag.putFloat("Power", self().getData(Ship.CANNON_POWER));
         tag.put("Cannon", compoundTag);
     }
 
-    default double getCannonDamage() {
-        return 4.0D;
+    default float getCannonPower() {
+        return self().getData(Ship.CANNON_POWER);
     }
 
     default byte getCannonCountRight() {
@@ -108,7 +112,7 @@ public interface Cannonable extends Ability {
             }
 
             if (!player.isCreative()) item.shrink(1);
-            self().level.playSound(null, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
+            self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
             return true;
         } else if (item.getItem() instanceof AxeItem) {
             Pair<Vec3, Boolean> side = this.getInteractionSide(player);
@@ -122,13 +126,15 @@ public interface Cannonable extends Ability {
             }
 
             self().spawnAtLocation(ModItems.CANNON);
-            self().level.playSound(null, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
+            self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         }
         return false;
     }
 
-    default boolean canShoot() {
+    default boolean canShoot(boolean isRightSide) {
+        if ((isRightSide ? this.getCannonCooldownRight() : this.getCannonCooldownLeft()) > 0) return false;
+        if ((isRightSide ? this.getCannonCountRight() : this.getCannonCountLeft()) <= 0) return false;
         AtomicBoolean isPresent = new AtomicBoolean(false);
         if (self() instanceof ContainerEntity containerEntity) containerEntity.getItemStacks().stream()
                 .filter(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL))
@@ -150,9 +156,7 @@ public interface Cannonable extends Ability {
     default void shoot(LivingEntity triggeringEntity) {
         Pair<Vec3, Boolean> side = this.getInteractionSide(triggeringEntity);
         boolean isRightSide = side.getB();
-        if ((isRightSide ? this.getCannonCooldownRight() : this.getCannonCooldownLeft()) > 0) return;
-        if ((isRightSide ? this.getCannonCountRight() : this.getCannonCountLeft()) <= 0) return;
-        if (!this.canShoot()) return;
+        if (!this.canShoot(isRightSide)) return;
 
         double offset = -0.3F - ((isRightSide ? this.getCannonCountRight() : this.getCannonCountLeft()) - 1.0F) * 1.6F;
 
@@ -165,18 +169,30 @@ public interface Cannonable extends Ability {
         double f = self().getZ() - forwardVec.z * offset + (double) f1;
 
         CannonBallEntity cannonBall = new CannonBallEntity(ModEntityTypes.CANNON_BALL, d, e, f, triggeringEntity.getLevel());
-        cannonBall.setBaseDamage(this.getCannonDamage());
+        cannonBall.setBaseDamage(this.getCannonPower());
         cannonBall.setOwner(triggeringEntity);
 
         Vec3 positionVec = side.getA();
         double angleY = triggeringEntity.getLookAngle().y;
+        this.shootParticles(cannonBall, (int) (20 * this.getCannonPower()));
         cannonBall.shoot(positionVec.x, positionVec.y + (angleY > 0 ? angleY * 0.75D : positionVec.y * 0.25D), positionVec.z, 3.0F, 1.0F);
-        self().getLevel().playSound(null, self().getX(), self().getY() + 4, self().getZ(), ModSoundTypes.CANNON_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F / (self().getLevel().getRandom().nextFloat() * 0.4F + 1.2F) + 0.5F);
+        self().playSound(ModSoundTypes.CANNON_SHOOT, 1.0F, 1.0F / (self().getLevel().getRandom().nextFloat() * 0.4F + 1.2F) + 0.5F);
         self().getLevel().addFreshEntity(cannonBall);
 
         self().setData(isRightSide ? Ship.CANNON_COOLDOWN_RIGHT : Ship.CANNON_COOLDOWN_LEFT, this.getCooldownTime());
 
         if (triggeringEntity instanceof Player player) player.awardStat(Stats.ITEM_USED.get(ModItems.CANNON));
+    }
+
+    default void shootParticles(CannonBallEntity cannonBallEntity, int power){
+        for (int i = 0; i < power; ++i) {
+            self().getLevel().addParticle(ParticleTypes.POOF, cannonBallEntity.getRandomX(1.5D), cannonBallEntity.getRandomY(), cannonBallEntity.getRandomZ(1.5D), 0.0D, 0.0D, 0.0D);
+        }
+
+        for (int i = 0; i < power / 2; ++i) {
+            self().getLevel().addParticle(ParticleTypes.LARGE_SMOKE, cannonBallEntity.getRandomX(1.0D), cannonBallEntity.getRandomY(), cannonBallEntity.getRandomZ(1.0D), 0.0D, 0.0D, 0.0D);
+            self().getLevel().addParticle(ParticleTypes.FLAME, cannonBallEntity.getRandomX(0.5D), cannonBallEntity.getRandomY(), cannonBallEntity.getRandomZ(0.5D), 0.0D, 0.0D, 0.0D);
+        }
     }
 
     default Pair<Vec3, Boolean> getInteractionSide(LivingEntity entity){

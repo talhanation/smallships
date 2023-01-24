@@ -163,4 +163,9 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     public byte getMaxCannonCountLeft() {
         return 3;
     }
+
+    @Override
+    public float getDefaultCannonPower() {
+        return 4.0F;
+    }
 }

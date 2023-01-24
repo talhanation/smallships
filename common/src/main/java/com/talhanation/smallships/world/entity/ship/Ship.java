@@ -36,6 +36,7 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<Byte> CANNON_COUNT_LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> CANNON_COOLDOWN_RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> CANNON_COOLDOWN_LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
+    public static final EntityDataAccessor<Float> CANNON_POWER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
 
     private float prevWaveAngle;
     private float waveAngle;
@@ -162,11 +163,11 @@ public abstract class Ship extends Boat {
     }
 
     private float getWaveFactor() {
-        return this.level.isRaining() ? 3F : 1.25F;
+        return this.getLevel().isRaining() ? 3F : 1.25F;
     }
 
     private float getWaveSpeed() {
-        return this.level.isRaining() ? 0.12F : 0.03F;
+        return this.getLevel().isRaining() ? 0.12F : 0.03F;
     }
 
     public float getWaveAngle(float partialTicks) {

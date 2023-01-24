@@ -62,7 +62,7 @@ public interface Sailable extends Ability {
             if (color.equals(self().getData(Ship.SAIL_COLOR))) return false;
             self().setData(Ship.SAIL_COLOR, color);
             if (!player.isCreative()) item.shrink(1);
-            self().getLevel().playSound(null, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.5F);
+            self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.5F);
             return true;
         }
         return false;
@@ -78,7 +78,7 @@ public interface Sailable extends Ability {
 
     default void playSailSound(int state) {
         BiConsumer<SoundEvent, Pair<Float, Float>> play = (sound, modifier) -> {
-            if (!self().getLevel().isClientSide()) self().getLevel().playSound(null, self().getX(), self().getY() + 4, self().getZ(), sound, self().getSoundSource(), modifier.getFirst(), modifier.getSecond());
+            if (!self().getLevel().isClientSide()) self().playSound(sound, modifier.getFirst(), modifier.getSecond());
             else self().getLevel().playLocalSound(self().getX(), self().getY() + 4, self().getZ(), sound, self().getSoundSource(), modifier.getFirst(), modifier.getSecond(), false);
         };
         if (state != 0) play.accept(ModSoundTypes.SAIL_MOVE, Pair.of(15.0F, Math.max(0.5F, 1.4F - ((float) state / 5.0F))));

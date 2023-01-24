@@ -98,13 +98,13 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Override
     public void destroy(@NotNull DamageSource damageSource) {
         super.destroy(damageSource);
-        this.chestVehicleDestroyed(damageSource, this.level, this);
+        this.chestVehicleDestroyed(damageSource, this.getLevel(), this);
     }
 
     @Override
     public void remove(@NotNull RemovalReason removalReason) {
-        if (!this.level.isClientSide && removalReason.shouldDestroy()) {
-            Containers.dropContents(this.level, this, this);
+        if (!this.getLevel().isClientSide() && removalReason.shouldDestroy()) {
+            Containers.dropContents(this.getLevel(), this, this);
         }
 
         super.remove(removalReason);

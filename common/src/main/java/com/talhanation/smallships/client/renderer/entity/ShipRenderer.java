@@ -60,7 +60,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     protected abstract ResourceLocation getTextureLocation(Boat.Type type);
 
     @Override
-    public ResourceLocation getTextureLocation(@NotNull T shipEntity) {
+    public @NotNull ResourceLocation getTextureLocation(@NotNull T shipEntity) {
         return this.boatResources.get(shipEntity.getBoatType()).getFirst();
     }
 
@@ -73,7 +73,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             j = 0.0F;
         } else {
             if (j > shipAttributes.maxHealth * 0.5F) {
-                shipEntity.level.addParticle(ParticleTypes.LARGE_SMOKE, shipEntity.getRandomX(0.5D), shipEntity.getY() + 1.0D, shipEntity.getRandomZ(0.5D), 0.0D, 0.0D, 0.0D);
+                shipEntity.getLevel().addParticle(ParticleTypes.LARGE_SMOKE, shipEntity.getRandomX(0.5D), shipEntity.getY() + 1.0D, shipEntity.getRandomZ(0.5D), 0.0D, 0.0D, 0.0D);
             }
         }
 
