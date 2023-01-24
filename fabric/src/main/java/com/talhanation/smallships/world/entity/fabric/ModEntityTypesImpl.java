@@ -1,10 +1,10 @@
 package com.talhanation.smallships.world.entity.fabric;
 
 import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.world.entity.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;
-import com.talhanation.smallships.world.entity.ship.abilities.CannonBallEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +30,7 @@ public class ModEntityTypesImpl {
 
     static {
         entries.put(CannonBallEntity.class, register("cannon_ball", FabricEntityTypeBuilder
-                .create(MobCategory.MISC, CannonBallEntity::new)
+                .create(MobCategory.MISC, CannonBallEntity::factory)
                 .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
                 .trackedUpdateRate(10)
                 .forceTrackedVelocityUpdates(true)

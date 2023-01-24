@@ -1,6 +1,7 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.world.entity.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.item.ModItems;
@@ -68,40 +69,6 @@ public interface Cannonable extends Ability {
         tag.put("Cannon", compoundTag);
     }
 
-    default boolean interactCannon(Player player, InteractionHand interactionHand) {
-        ItemStack item = player.getItemInHand(interactionHand);
-        if (item.getItem() == ModItems.CANNON) {
-            Pair<Vec3, Boolean> side = this.getSide(player);
-
-            if (!side.getB()) {
-                if (this.getCannonCountRight() >= this.getMaxCannonCountRight()) return false;
-                else self().setData(Ship.CANNON_COUNT_RIGHT, (byte) (this.getCannonCountRight() + 1));
-            } else {
-                if (this.getCannonCountLeft() >= this.getMaxCannonCountLeft()) return false;
-                else self().setData(Ship.CANNON_COUNT_LEFT, (byte) (this.getCannonCountLeft() + 1));
-            }
-
-            if (!player.isCreative()) item.shrink(1);
-            self().level.playSound(null, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
-            return true;
-        } else if (item.getItem() instanceof AxeItem) {
-            Pair<Vec3, Boolean> side = this.getSide(player);
-
-            if (!side.getB()) {
-                if (this.getCannonCountRight() <= 0) return false;
-                else self().setData(Ship.CANNON_COUNT_RIGHT, (byte) (this.getCannonCountRight() - 1));
-            } else {
-                if (this.getCannonCountLeft() <= 0) return false;
-                else self().setData(Ship.CANNON_COUNT_LEFT, (byte) (this.getCannonCountLeft() - 1));
-            }
-
-            self().spawnAtLocation(ModItems.CANNON);
-            self().level.playSound(null, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
-            return true;
-        }
-        return false;
-    }
-
     default double getCannonDamage() {
         return 4.0D;
     }
@@ -126,6 +93,41 @@ public interface Cannonable extends Ability {
         return 50;
     }
 
+    default boolean interactCannon(Player player, InteractionHand interactionHand) {
+        ItemStack item = player.getItemInHand(interactionHand);
+        if (item.getItem() == ModItems.CANNON) {
+            Pair<Vec3, Boolean> side = this.getInteractionSide(player);
+            boolean isRightSide = side.getB();
+
+            if (!isRightSide) {
+                if (this.getCannonCountRight() >= this.getMaxCannonCountRight()) return false;
+                else self().setData(Ship.CANNON_COUNT_RIGHT, (byte) (this.getCannonCountRight() + 1));
+            } else {
+                if (this.getCannonCountLeft() >= this.getMaxCannonCountLeft()) return false;
+                else self().setData(Ship.CANNON_COUNT_LEFT, (byte) (this.getCannonCountLeft() + 1));
+            }
+
+            if (!player.isCreative()) item.shrink(1);
+            self().level.playSound(null, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
+            return true;
+        } else if (item.getItem() instanceof AxeItem) {
+            Pair<Vec3, Boolean> side = this.getInteractionSide(player);
+
+            if (!side.getB()) {
+                if (this.getCannonCountRight() <= 0) return false;
+                else self().setData(Ship.CANNON_COUNT_RIGHT, (byte) (this.getCannonCountRight() - 1));
+            } else {
+                if (this.getCannonCountLeft() <= 0) return false;
+                else self().setData(Ship.CANNON_COUNT_LEFT, (byte) (this.getCannonCountLeft() - 1));
+            }
+
+            self().spawnAtLocation(ModItems.CANNON);
+            self().level.playSound(null, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
+            return true;
+        }
+        return false;
+    }
+
     default boolean canShoot() {
         AtomicBoolean isPresent = new AtomicBoolean(false);
         if (self() instanceof ContainerEntity containerEntity) containerEntity.getItemStacks().stream()
@@ -145,38 +147,39 @@ public interface Cannonable extends Ability {
         return isPresent.get();
     }
 
-    default void shoot(LivingEntity shootingEntity) {
-        Pair<Vec3, Boolean> side = this.getSide(shootingEntity);
-        if ((side.getB() ? this.getCannonCooldownRight() : this.getCannonCooldownLeft()) > 0) return;
-        if ((side.getB() ? this.getCannonCountRight() : this.getCannonCountLeft()) <= 0) return;
+    default void shoot(LivingEntity triggeringEntity) {
+        Pair<Vec3, Boolean> side = this.getInteractionSide(triggeringEntity);
+        boolean isRightSide = side.getB();
+        if ((isRightSide ? this.getCannonCooldownRight() : this.getCannonCooldownLeft()) > 0) return;
+        if ((isRightSide ? this.getCannonCountRight() : this.getCannonCountLeft()) <= 0) return;
         if (!this.canShoot()) return;
 
-        double offset = -0.3F - ((side.getB() ? this.getCannonCountRight() : this.getCannonCountLeft()) - 1.0F) * 1.6F;
+        double offset = -0.3F - ((isRightSide ? this.getCannonCountRight() : this.getCannonCountLeft()) - 1.0F) * 1.6F;
 
-        float f0 = Mth.cos(self().getYRot() * ((float) Math.PI / 180F)) * (side.getB() ? -1.0F : 1.0F);
-        float f1 = Mth.sin(self().getYRot() * ((float) Math.PI / 180F)) * (side.getB() ? -1.0F : 1.0F);
+        float f0 = Mth.cos(self().getYRot() * ((float) Math.PI / 180F)) * (isRightSide ? -1.0F : 1.0F);
+        float f1 = Mth.sin(self().getYRot() * ((float) Math.PI / 180F)) * (isRightSide ? -1.0F : 1.0F);
 
         Vec3 forwardVec = self().getForward().normalize();
         double d = self().getX() - forwardVec.x * offset + (double) f0;
         double e = self().getY() - forwardVec.y + 1;
         double f = self().getZ() - forwardVec.z * offset + (double) f1;
 
-        CannonBallEntity cannonBall = new CannonBallEntity(ModEntityTypes.CANNON_BALL, d, e, f, shootingEntity.getLevel());
+        CannonBallEntity cannonBall = new CannonBallEntity(ModEntityTypes.CANNON_BALL, d, e, f, triggeringEntity.getLevel());
         cannonBall.setBaseDamage(this.getCannonDamage());
-        cannonBall.setOwner(shootingEntity);
+        cannonBall.setOwner(triggeringEntity);
 
-        Vec3 vec = side.getA();
-        double angleY = shootingEntity.getLookAngle().y;
-        cannonBall.shoot(vec.x, vec.y + (angleY > 0 ? angleY * 0.75D : vec.y * 0.25D), vec.z, 3.0F, 1.0F);
+        Vec3 positionVec = side.getA();
+        double angleY = triggeringEntity.getLookAngle().y;
+        cannonBall.shoot(positionVec.x, positionVec.y + (angleY > 0 ? angleY * 0.75D : positionVec.y * 0.25D), positionVec.z, 3.0F, 1.0F);
         self().getLevel().playSound(null, self().getX(), self().getY() + 4, self().getZ(), ModSoundTypes.CANNON_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F / (self().getLevel().getRandom().nextFloat() * 0.4F + 1.2F) + 0.5F);
         self().getLevel().addFreshEntity(cannonBall);
 
-        self().setData(side.getB() ? Ship.CANNON_COOLDOWN_RIGHT : Ship.CANNON_COOLDOWN_LEFT, this.getCooldownTime());
+        self().setData(isRightSide ? Ship.CANNON_COOLDOWN_RIGHT : Ship.CANNON_COOLDOWN_LEFT, this.getCooldownTime());
 
-        if (shootingEntity instanceof Player player) player.awardStat(Stats.ITEM_USED.get(ModItems.CANNON));
+        if (triggeringEntity instanceof Player player) player.awardStat(Stats.ITEM_USED.get(ModItems.CANNON));
     }
 
-    default Pair<Vec3, Boolean> getSide(LivingEntity entity){
+    default Pair<Vec3, Boolean> getInteractionSide(LivingEntity entity){
         Vec3 forwardVec = self().getForward().normalize();
         Vec3 rightVec = forwardVec.yRot(-3.14F/2).normalize();
         Vec3 leftVec  = forwardVec.yRot(3.14F/2).normalize();

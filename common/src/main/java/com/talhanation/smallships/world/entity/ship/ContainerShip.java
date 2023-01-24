@@ -111,7 +111,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
+    public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         return this.canAddPassenger(player) && !player.isSecondaryUseActive() ? super.interact(player, interactionHand) : this.interactWithChestVehicle(this::gameEvent, player);
     }
 
@@ -147,7 +147,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public NonNullList<ItemStack> getItemStacks() {
+    public @NotNull NonNullList<ItemStack> getItemStacks() {
         return this.itemStacks;
     }
 
@@ -162,17 +162,17 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public ItemStack getItem(int i) {
+    public @NotNull ItemStack getItem(int i) {
         return this.getChestVehicleItem(i);
     }
 
     @Override
-    public ItemStack removeItem(int i, int j) {
+    public @NotNull ItemStack removeItem(int i, int j) {
         return this.removeChestVehicleItem(i, j);
     }
 
     @Override
-    public ItemStack removeItemNoUpdate(int i) {
+    public @NotNull ItemStack removeItemNoUpdate(int i) {
         return this.removeChestVehicleItemNoUpdate(i);
     }
 
@@ -182,7 +182,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public SlotAccess getSlot(int n) {
+    public @NotNull SlotAccess getSlot(int n) {
         return this.getChestVehicleSlot(n);
     }
 

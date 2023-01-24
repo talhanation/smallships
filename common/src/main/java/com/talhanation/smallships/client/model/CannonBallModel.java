@@ -7,7 +7,7 @@ package com.talhanation.smallships.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallshipsMod;
-import com.talhanation.smallships.world.entity.ship.abilities.CannonBallEntity;
+import com.talhanation.smallships.world.entity.CannonBallEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;

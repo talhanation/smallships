@@ -1,9 +1,8 @@
 package com.talhanation.smallships.world.entity;
 
-import com.talhanation.smallships.world.entity.ship.KhufuEntity;
-import com.talhanation.smallships.world.entity.ship.abilities.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
+import com.talhanation.smallships.world.entity.ship.KhufuEntity;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

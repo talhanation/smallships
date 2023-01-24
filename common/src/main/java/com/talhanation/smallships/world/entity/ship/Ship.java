@@ -139,14 +139,14 @@ public abstract class Ship extends Boat {
     }
 
     @Override
-    public InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
+    public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
         return super.interact(player, interactionHand);
     }
     @Override
-    public Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
+    public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
         if (this instanceof Sailable sailShip && this.getData(SAIL_STATE) != 0) sailShip.toggleSail();
         return super.getDismountLocationForPassenger(livingEntity);
     }
@@ -183,7 +183,7 @@ public abstract class Ship extends Boat {
     protected abstract int getMaxPassengers();
 
     @Override
-    public abstract Item getDropItem();
+    public abstract @NotNull Item getDropItem();
 
     public abstract CompoundTag createDefaultAttributes();
 }

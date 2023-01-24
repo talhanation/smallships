@@ -1,4 +1,4 @@
-package com.talhanation.smallships.world.entity.ship.abilities;
+package com.talhanation.smallships.world.entity;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvent;
@@ -22,7 +22,11 @@ public class CannonBallEntity extends AbstractArrow {
         this.init();
     }
 
-    protected CannonBallEntity(EntityType<? extends AbstractArrow> entityType, double d, double e, double f, Level level) {
+    public static CannonBallEntity factory(EntityType<? extends AbstractArrow> entityType, Level level) {
+        return new CannonBallEntity(entityType, level);
+    }
+
+    public CannonBallEntity(EntityType<? extends AbstractArrow> entityType, double d, double e, double f, Level level) {
         super(entityType, d, e, f, level);
         this.init();
     }
@@ -48,8 +52,8 @@ public class CannonBallEntity extends AbstractArrow {
     }
 
     @Override
-    protected ItemStack getPickupItem() {
-        return null;
+    protected @NotNull ItemStack getPickupItem() {
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -71,7 +75,7 @@ public class CannonBallEntity extends AbstractArrow {
     }
 
     @Override
-    protected SoundEvent getDefaultHitGroundSoundEvent() {
+    protected @NotNull SoundEvent getDefaultHitGroundSoundEvent() {
         return SoundEvents.ANVIL_LAND;
     }
 

@@ -1,10 +1,10 @@
 package com.talhanation.smallships.world.entity.forge;
 
 import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.world.entity.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;
-import com.talhanation.smallships.world.entity.ship.abilities.CannonBallEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -26,7 +26,7 @@ public class ModEntityTypesImpl {
 
     static {
         entries.put(CannonBallEntity.class, ENTITY_TYPES.register("cannon_ball",
-                () -> EntityType.Builder.of(CannonBallEntity::new, MobCategory.MISC)
+                () -> EntityType.Builder.of(CannonBallEntity::factory, MobCategory.MISC)
                         .sized(0.25F, 0.25F)
                         .clientTrackingRange(20)
                         .setUpdateInterval(10)

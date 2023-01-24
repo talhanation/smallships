@@ -2,8 +2,8 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.mixin.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
-import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
+import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Repairable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import com.talhanation.smallships.world.item.ModItems;
@@ -59,7 +59,7 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     }
 
     @Override
-    public Item getDropItem() {
+    public @NotNull Item getDropItem() {
         return ModItems.COG_ITEMS.get(this.getBoatType());
     }
 

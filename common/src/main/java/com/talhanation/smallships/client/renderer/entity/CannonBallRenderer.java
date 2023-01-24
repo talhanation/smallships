@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallshipsMod;
 import com.talhanation.smallships.client.model.CannonBallModel;
-import com.talhanation.smallships.world.entity.ship.abilities.CannonBallEntity;
+import com.talhanation.smallships.world.entity.CannonBallEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -34,7 +34,7 @@ public class CannonBallRenderer extends EntityRenderer<CannonBallEntity>{
     }
 
     @Override
-    public ResourceLocation getTextureLocation(@NotNull CannonBallEntity entity) {
+    public @NotNull ResourceLocation getTextureLocation(@NotNull CannonBallEntity entity) {
         return new ResourceLocation(SmallshipsMod.MOD_ID,"textures/entity/cannon/cannon_ball.png");
     }
 

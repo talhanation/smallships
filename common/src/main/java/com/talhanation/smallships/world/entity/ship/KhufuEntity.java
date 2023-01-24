@@ -1,7 +1,9 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.mixin.BoatAccessor;
-import com.talhanation.smallships.world.entity.ship.abilities.*;
+import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
+import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
+import com.talhanation.smallships.world.entity.ship.abilities.Repairable;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -40,7 +42,7 @@ public class KhufuEntity extends Ship implements Bannerable, Paddleable, Repaira
     }
 
     @Override
-    public Item getDropItem() {
+    public @NotNull Item getDropItem() {
         return ModItems.COG_ITEMS.get(this.getBoatType());
     }
 
