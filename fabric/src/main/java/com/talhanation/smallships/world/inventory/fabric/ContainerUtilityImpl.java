@@ -21,7 +21,7 @@ public class ContainerUtilityImpl {
             }
 
             @Override
-            public Component getDisplayName() {
+            public @NotNull Component getDisplayName() {
                 return containerShip.getName();
             }
 

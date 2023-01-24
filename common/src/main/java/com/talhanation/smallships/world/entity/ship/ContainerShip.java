@@ -84,15 +84,15 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        this.readChestVehicleSaveData(tag);
         this.readContainerSizeSaveData(tag);
+        this.readChestVehicleSaveData(tag);
     }
 
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        this.addChestVehicleSaveData(tag);
         this.addContainerSizeSaveData(tag);
+        this.addChestVehicleSaveData(tag);
     }
 
     @Override
@@ -112,12 +112,13 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
+        if (player.getLevel().isClientSide() && this.getContainerSize() != this.itemStacks.size()) this.itemStacks = resizeItemStacks(this, this.getContainerSize()); // ensures correct size
         return this.canAddPassenger(player) && !player.isSecondaryUseActive() ? super.interact(player, interactionHand) : this.interactWithChestVehicle(this::gameEvent, player);
     }
 
     @Override
     public void openCustomInventoryScreen(@NotNull Player player) {
-        if (player.getLevel().isClientSide() && this.getContainerSize() != this.itemStacks.size()) this.itemStacks = resizeItemStacks(this, this.getContainerSize());
+        if (player.getLevel().isClientSide() && this.getContainerSize() != this.itemStacks.size()) this.itemStacks = resizeItemStacks(this, this.getContainerSize()); // ensure correct size again... just in case
         ContainerUtility.openShipMenu(player, this);
         if (!player.getLevel().isClientSide()) {
             this.gameEvent(GameEvent.CONTAINER_OPEN, player);
@@ -286,13 +287,13 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
             oldItemStacks = Arrays.stream(Arrays.copyOfRange(oldItemStacks, containerSize, oldItemStacks.length)).filter(stack -> !stack.isEmpty()).toArray(ItemStack[]::new);
 
             int j = 0;
-            for (int i = 0; i < newItemStacks.length; i++) {  // Copy leftover items
-                if (newItemStacks[i].isEmpty()) {
-                    if (j == oldItemStacks.length) break;
-                    newItemStacks[i] = oldItemStacks[j];
-                    j++;
-                }
-            }
+//            for (int i = 0; i < newItemStacks.length; i++) {  // Copy leftover items (somehow not working with readSaveData order)
+//                if (newItemStacks[i].isEmpty()) {
+//                    if (j == oldItemStacks.length) break;
+//                    newItemStacks[i] = oldItemStacks[j];
+//                    j++;
+//                }
+//            }
             if (j < oldItemStacks.length) {  // Drop non-fitting leftover items
                 Containers.dropContents(containerEntity.getLevel(), (Entity) containerEntity, new SimpleContainer(Arrays.copyOfRange(oldItemStacks, j, oldItemStacks.length)));
             }
