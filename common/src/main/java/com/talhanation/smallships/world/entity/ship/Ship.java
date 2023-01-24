@@ -19,6 +19,7 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -178,6 +179,12 @@ public abstract class Ship extends Boat {
         Attributes attributes = new Attributes();
         attributes.loadSaveData(this.getData(ATTRIBUTES));
         return attributes;
+    }
+
+    @Override
+    // keep until multi part entity, otherwise entity just vanishes (stops rendering) on screen edges
+    public @NotNull AABB getBoundingBoxForCulling() {
+        return this.getBoundingBox().inflate(5.0D);
     }
 
     @Override
