@@ -23,9 +23,9 @@ public class SmallshipsModForge {
 
         modEventBus.addListener(this::setup);
 
+        ModItemsImpl.ITEMS.register(modEventBus);
         ModEntityTypesImpl.ENTITY_TYPES.register(modEventBus);
         ModMenuTypesImpl.MENU_TYPES.register(modEventBus);
-        ModItemsImpl.ITEMS.register(modEventBus);
         ModSoundTypesImpl.SOUND_EVENTS.register(modEventBus);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientInitializer::new);
