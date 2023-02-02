@@ -122,7 +122,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         ContainerUtility.openShipMenu(player, this);
         if (!player.getLevel().isClientSide()) {
             this.gameEvent(GameEvent.CONTAINER_OPEN, player);
-            PiglinAi.angerNearbyPiglins(player, true);
+            PiglinAi.angerNearbyPiglins(player, true);//lol
         }
     }
 
