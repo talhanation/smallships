@@ -9,6 +9,9 @@ architectury {
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
+    runClient {
+        args = ['--username', "talhanation${new Random().nextInt(1000)}"]
+    }
 }
 
 configurations {
