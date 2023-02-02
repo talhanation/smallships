@@ -88,7 +88,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
         float l = shipEntity.getWaveAngle(partialTicks);
         if (!Mth.equal(l, 0.0F)) {
-            poseStack.mulPose(Vector3f.ZP.rotationDegrees(l));
+            poseStack.mulPose(Vector3f.XP.rotationDegrees(l));
         }
 
         Pair<ResourceLocation, ShipModel<T>> pair = this.boatResources.get(shipEntity.getBoatType());
