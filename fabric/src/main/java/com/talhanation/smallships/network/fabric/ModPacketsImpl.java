@@ -22,6 +22,7 @@ public class ModPacketsImpl {
         entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenFabricPacket(((ContainerShip) params[0]), ((Integer) params[1])));
         entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailFabricPacket());
         entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonFabricPacket());
+        entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateFabricPacket((Byte) params[0], (Float) params[1], (Float) params[2]));
     }
 
     public static ModPackets.SendablePacket<FabricPacket> getPacket(String id) {
@@ -43,6 +44,12 @@ public class ModPacketsImpl {
             ServerboundShootShipCannonFabricPacket packet = new ServerboundShootShipCannonFabricPacket(buf);
             packet.receive(server, player, handler, buf, responseSender);
         });
+
+        registerServerPacket(ModPackets.id("server_set_sail_state"), (server, player, handler, buf, responseSender) -> {
+            ServerboundSetSailStateFabricPacket packet = new ServerboundSetSailStateFabricPacket(buf);
+            packet.receive(server, player, handler, buf, responseSender);
+        });
+
     }
 
     @SuppressWarnings({"SameParameterValue", "unused"})

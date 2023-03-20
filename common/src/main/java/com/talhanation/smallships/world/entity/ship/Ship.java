@@ -140,6 +140,12 @@ public abstract class Ship extends Boat {
         }
     }
 
+    public void setSailState(byte state) {
+        this.setData(SAIL_STATE, state);
+    }
+    public byte getSailState() {
+        return this.getData(SAIL_STATE);
+    }
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
@@ -149,7 +155,7 @@ public abstract class Ship extends Boat {
     }
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if (this instanceof Sailable sailShip && this.getData(SAIL_STATE) != 0) sailShip.toggleSail();
+        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
         return super.getDismountLocationForPassenger(livingEntity);
     }
 

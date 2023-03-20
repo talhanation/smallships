@@ -10,6 +10,7 @@ public class ModPackets {
     public static final SendablePacket<ModPacket> serverOpenShipScreen = getPacket("server_open_ship_screen");
     public static final SendablePacket<ModPacket> serverToggleShipSail = getPacket("server_toggle_ship_sail");
     public static final SendablePacket<ModPacket> serverShootShipCannon = getPacket("server_shoot_ship_cannon");
+    public static final SendablePacket<ModPacket> serverSetSailState = getPacket("server_set_sail_state");
 
     @ExpectPlatform
     public static SendablePacket<ModPacket> getPacket(String id) {

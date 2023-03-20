@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.client.model.sail.SailModel;
+import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -15,25 +16,8 @@ import net.minecraft.world.item.ItemStack;
 import java.util.function.BiConsumer;
 
 public interface Sailable extends Ability {
+
     default void tickSailShip() {
-        if (self().getPassengers().size() > 0 && self().getControllingPassenger() instanceof Player) {
-            float speed = self().getData(Ship.SPEED);
-            int currentState = self().getData(Ship.SAIL_STATE);
-
-            if (currentState == 0 && speed > 0) {
-                self().setData(Ship.SPEED, Math.max(0F, speed - self().getAttributes().acceleration * 1.1F));
-            } else if (currentState > 0 && self().tickCount % 20 == 0) {
-                float maxSpeedRatio = self().getAttributes().maxSpeed / 4;
-
-                if (speed < maxSpeedRatio) self().setData(Ship.SAIL_STATE, (byte) 1);
-                else if (speed < maxSpeedRatio * 2) self().setData(Ship.SAIL_STATE, (byte) 2);
-                else if (speed < maxSpeedRatio * 3) self().setData(Ship.SAIL_STATE, (byte) 3);
-                else self().setData(Ship.SAIL_STATE, (byte) 4);
-
-                int newState = self().getData(Ship.SAIL_STATE);
-                if (currentState != newState) this.playSailSound(newState);
-            }
-        }
     }
 
     default void defineSailShipSynchedData() {
@@ -69,11 +53,44 @@ public interface Sailable extends Ability {
     }
 
     default void toggleSail() {
-        byte state = self().getData(Ship.SAIL_STATE);
-        if (state > 0) state = 0;
-        else state = 1;
+        byte state = self().getSailState();
+
+        if (state != (byte) 1){
+            state = (byte) 1;
+
+        }else{
+            state = (byte) 0;
+        }
         self().setData(Ship.SAIL_STATE, state);
         this.playSailSound(state);
+    }
+
+    default void increaseSail(Player player, float speed, float rot_speed){
+        if(self().cooldown == 0){
+            byte state = self().getSailState();
+
+            if (state != (byte) 4){
+                state++;
+
+            }
+            this.playSailSound(state);
+            ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(state, speed, rot_speed));
+            self().cooldown = 30;
+        }
+    }
+
+    default void decreaseSail(Player player, float speed, float rot_speed){
+        if(self().cooldown == 0) {
+            byte state = self().getSailState();
+
+            if (state != (byte) 1) {
+                state--;
+
+            }
+            this.playSailSound(state);
+            ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(state, speed, rot_speed));
+            self().cooldown = 30;
+        }
     }
 
     default void playSailSound(int state) {
@@ -81,7 +98,8 @@ public interface Sailable extends Ability {
             if (!self().getLevel().isClientSide()) self().playSound(sound, modifier.getFirst(), modifier.getSecond());
             else self().getLevel().playLocalSound(self().getX(), self().getY() + 4, self().getZ(), sound, self().getSoundSource(), modifier.getFirst(), modifier.getSecond(), false);
         };
-        if (state != 0) play.accept(ModSoundTypes.SAIL_MOVE, Pair.of(15.0F, Math.max(0.5F, 1.4F - ((float) state / 5.0F))));
+        if (state != 0)
+            play.accept(ModSoundTypes.SAIL_MOVE, Pair.of(15.0F, Math.max(0.5F, 1.4F - ((float) state / 5.0F))));
         else play.accept(ModSoundTypes.SAIL_PULL, Pair.of(10.0F, 1.0F));
     }
 }
