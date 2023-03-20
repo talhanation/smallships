@@ -2,12 +2,14 @@ package com.talhanation.smallships.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,12 +19,14 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     private final int rowCount;
     private final int pageCount;
     private final int pageIndex;
+    private final Ship ship;
 
     public ShipContainerScreen(ShipContainerMenu shipContainerMenu, Inventory inventory, Component component) {
         super(shipContainerMenu, inventory, component);
         this.passEvents = false;
         this.imageHeight = 114 + this.getMenu().getRowCount() * 18;
         this.inventoryLabelY = this.imageHeight - 94;
+        this.ship = shipContainerMenu.getShip();
 
         this.rowCount = this.getMenu().getRowCount();
         this.pageCount = this.getMenu().getPageCount();
@@ -70,6 +74,8 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     @Override
     protected void renderLabels(@NotNull PoseStack poseStack, int i, int j) {
         super.renderLabels(poseStack, i, j);
+        font.draw(poseStack, (Mth.ceil(ship.getDamage()) + "%"), 80, 6, FONT_COLOR);
+
         if (this.pageCount > 1) font.draw(poseStack, (this.pageIndex + 1) + "/"  + this.pageCount, 50, 6, FONT_COLOR);
     }
 }
