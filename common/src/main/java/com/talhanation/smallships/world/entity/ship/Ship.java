@@ -47,6 +47,7 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<ItemStack> BANNER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<Float> CANNON_POWER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
 
+    private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     private float prevWaveAngle;
     private float waveAngle;
     public float prevBannerWaveAngle;
@@ -95,6 +96,7 @@ public abstract class Ship extends Boat {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.getEntityData().define(SPEED, 0.0F);
+        this.getEntityData().define(DAMAGE, 0.0F);
         this.getEntityData().define(ROT_SPEED, 0.0F);
         this.getEntityData().define(ATTRIBUTES, this.createDefaultAttributes());
 
