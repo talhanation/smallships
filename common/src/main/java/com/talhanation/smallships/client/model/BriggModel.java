@@ -25,20 +25,20 @@ public class BriggModel extends ShipModel<BriggEntity> {
 
 	public BriggModel(ModelPart modelPart) {
 		this.root = modelPart;
-		this.brigg = this.root.getChild("brigg");
+		this.brigg = this.root.getChild("ModelBrigg");
 		this.chest1 = brigg.getChild("chest_1");
 		this.chest2 = brigg.getChild("chest_2");
 		this.chest3 = brigg.getChild("chest_3");
 		this.chest4 = brigg.getChild("chest_4");
 		this.steer = brigg.getChild("steer");
-		this.banner_stick = brigg.getChild("banner_stick");
+		this.banner_stick = brigg.getChild("BannerStick");
 	}
 
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition ModelBrigg = partdefinition.addOrReplaceChild("brigg", CubeListBuilder.create(), PartPose.offset(3.0F, 24.0F, 0.0F));
+		PartDefinition ModelBrigg = partdefinition.addOrReplaceChild("ModelBrigg", CubeListBuilder.create(), PartPose.offset(3.0F, 24.0F, 0.0F));
 
 		PartDefinition bottom_brigg = ModelBrigg.addOrReplaceChild("bottom_brigg", CubeListBuilder.create().texOffs(0, 12).addBox(-3.0F, -112.0F, -20.0F, 25.0F, 2.0F, 2.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 12).addBox(-3.0F, -114.0F, 23.0F, 25.0F, 2.0F, 2.0F, new CubeDeformation(0.0F))
@@ -185,7 +185,7 @@ public class BriggModel extends ShipModel<BriggEntity> {
 
 		PartDefinition cube_r26 = chest_4.addOrReplaceChild("cube_r26", CubeListBuilder.create().texOffs(64, 29).addBox(-3.0F, 1.5F, -3.75F, 6.0F, 5.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.1667F, -1.5833F, 1.4167F, 0.0F, 1.5708F, 0.0F));
 
-		PartDefinition BannerStick = ModelBrigg.addOrReplaceChild("banner_stick", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition BannerStick = ModelBrigg.addOrReplaceChild("BannerStick", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition cube_r27 = BannerStick.addOrReplaceChild("cube_r27", CubeListBuilder.create().texOffs(6, 0).addBox(26.0F, -3.5F, -137.0F, 1.0F, 1.0F, 15.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -1.5708F, -1.5708F, 0.0F));
 
