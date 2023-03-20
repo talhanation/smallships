@@ -153,11 +153,10 @@ public class CogModel extends ShipModel<CogEntity> {
 
 	@Override
 	public void setupAnim(@NotNull CogEntity cogEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		int invSize = cogEntity.getItemStacks().stream().map(ItemStack::getCount).reduce(0, Integer::sum);
-		this.chest1.visible = invSize >= cogEntity.getContainerSize() / 4;
-		this.chest2.visible = invSize >= cogEntity.getContainerSize() / 2;
-		this.chest3.visible = invSize >= cogEntity.getContainerSize() / 1.33333;
-		this.chest4.visible = invSize >= cogEntity.getContainerSize();
+		this.chest1.visible = cogEntity.getCargo() >= 1;
+		this.chest2.visible = cogEntity.getCargo() >= 2;
+		this.chest3.visible = cogEntity.getCargo() >= 3;
+		this.chest4.visible = cogEntity.getCargo() >= 4;
 
 		this.steer.yRot = -((BoatAccessor) cogEntity).getDeltaRotation() * 0.25F;
 	}

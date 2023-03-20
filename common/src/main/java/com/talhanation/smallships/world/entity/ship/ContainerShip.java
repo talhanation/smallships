@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.core.NonNullList;
@@ -38,6 +39,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public static final EntityDataAccessor<Byte> ROWS = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> PAGES = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> PAGE_INDEX = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
+    public static final EntityDataAccessor<Byte> CARGO = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
 
     private final int originalContainerSize;
     NonNullList<ItemStack> itemStacks;
@@ -79,6 +81,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.getEntityData().define(ROWS, (byte) 6);
         this.getEntityData().define(PAGES, (byte) 1);
         this.getEntityData().define(PAGE_INDEX, (byte) 0);
+        this.getEntityData().define(CARGO, ((byte) 0));
     }
 
     @Override
@@ -86,6 +89,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         super.readAdditionalSaveData(tag);
         this.readContainerSizeSaveData(tag);
         this.readChestVehicleSaveData(tag);
+
+        this.setCargo(tag.getByte("Cargo"));
     }
 
     @Override
@@ -93,6 +98,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         super.addAdditionalSaveData(tag);
         this.addContainerSizeSaveData(tag);
         this.addChestVehicleSaveData(tag);
+
+        tag.putByte("Cargo", this.getCargo());
     }
 
     @Override
@@ -180,6 +187,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Override
     public void setItem(int i, @NotNull ItemStack itemStack) {
         this.setChestVehicleItem(i, itemStack);
+        this.updateCargo();
+        if(this instanceof Cannonable cannonable) cannonable.updateCannonCount();
     }
 
     @Override
@@ -278,6 +287,29 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.setData(PAGE_INDEX, (byte) 0);
     }
 
+    private void updateCargo(){
+        int invSize = this.getItemStacks().stream().map(ItemStack::getCount).reduce(0, Integer::sum);
+        byte x = 0;
+
+        if (invSize >= 10 * getContainerSize()) {
+            x = 4;
+        }
+        else if (invSize >= 8 * getContainerSize()) {
+            x = 3;
+        }
+        else if (invSize >= 4 * getContainerSize()) {
+            x = 2;
+        }
+        else if (invSize >= 2 * getContainerSize()) {
+            x = 1;
+        }
+        else {
+            x = 0;
+        }
+
+        this.setCargo(x);
+    }
+
     private static NonNullList<ItemStack> resizeItemStacks(ContainerEntity containerEntity, int containerSize) {
         ItemStack[] oldItemStacks = containerEntity.getItemStacks().toArray(ItemStack[]::new);
         ItemStack[] newItemStacks;
@@ -309,5 +341,26 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         }
 
         return NonNullList.of(ItemStack.EMPTY, newItemStacks);
+    }
+
+    public byte getCargo() {
+        return entityData.get(CARGO);
+    }
+
+    public void setCargo(byte b) {
+        this.entityData.set(CARGO, b);
+    }
+
+    public void addItemToFreeSlot(ItemStack itemStack){
+        for(int i = 0; i < this.getContainerSize(); i++){
+            if(this.getSlot(i).get().is(ItemStack.EMPTY.getItem())){
+                this.setItem(i, itemStack);
+                break;
+            }
+            if(i >= this.getContainerSize()){
+                this.spawnAtLocation(itemStack, 4);
+                break;
+            }
+        }
     }
 }

@@ -198,15 +198,12 @@ public class BriggModel extends ShipModel<BriggEntity> {
 
 	@Override
 	public void setupAnim(BriggEntity briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		int invSize = briggEntity.getItemStacks().stream().map(ItemStack::getCount).reduce(0, Integer::sum);
-		this.chest1.visible = invSize >= briggEntity.getContainerSize() / 4;
-		this.chest2.visible = invSize >= briggEntity.getContainerSize() / 2;
-		this.chest3.visible = invSize >= briggEntity.getContainerSize() / 1.33333;
-		this.chest4.visible = invSize >= briggEntity.getContainerSize();
+		this.chest1.visible = briggEntity.getCargo() >= 1;
+		this.chest2.visible = briggEntity.getCargo() >= 2;
+		this.chest3.visible = briggEntity.getCargo() >= 3;
+		this.chest4.visible = briggEntity.getCargo() >= 4;
 
 		this.steer.yRot = -((BoatAccessor) briggEntity).getDeltaRotation() * 0.25F;
-
-//		this.banner_stick.visible = briggEntity.getHasBanner();
 	}
 
 	@Override

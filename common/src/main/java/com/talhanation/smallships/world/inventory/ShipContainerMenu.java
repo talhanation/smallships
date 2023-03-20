@@ -2,14 +2,13 @@ package com.talhanation.smallships.world.inventory;
 
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
+import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,6 +19,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final Inventory inventory;
     private final Container container;
     private final ContainerData containerData;
+    private final ContainerShip containerShip;
 
     public ShipContainerMenu(MenuType<ShipContainerMenu> type, int syncId, Inventory inventory, ContainerShip containerShip) {
         super(type, syncId);
@@ -27,7 +27,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         checkContainerSize(containerShip, this.getRowCount() * 9);
         this.container = containerShip;
         this.inventory = inventory;
-
+        this.containerShip = containerShip;
         this.addDataSlots(this.containerData);
         this.openPage(this.getPageIndex());
     }
@@ -121,6 +121,17 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public Container getContainer() {
         return container;
+    }
+
+    public Ship getShip() {
+        return containerShip;
+    }
+
+    @Override
+    public void addSlotListener(ContainerListener containerListener) {
+        super.addSlotListener(containerListener);
+
+
     }
 
     @Override
