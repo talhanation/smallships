@@ -8,6 +8,7 @@ public class Attributes {
     public float maxReverseSpeed;
     public float maxRotationSpeed;
     public float acceleration;
+    public float rotationAcceleration;
     public float friction;
 
     public void addSaveData(CompoundTag tag) {
@@ -16,6 +17,7 @@ public class Attributes {
         compoundtag.putFloat("maxSpeed", this.maxSpeed);
         compoundtag.putFloat("maxReverseSpeed", this.maxReverseSpeed);
         compoundtag.putFloat("acceleration", this.acceleration);
+        compoundtag.putFloat("rotationAcceleration", this.rotationAcceleration);
         compoundtag.putFloat("maxRotationSpeed", this.maxRotationSpeed);
         compoundtag.putFloat("friction", this.friction);
         tag.put("Attributes", compoundtag);
@@ -34,6 +36,7 @@ public class Attributes {
             this.maxSpeed = compoundtag.getFloat("maxSpeed");
             this.maxReverseSpeed = compoundtag.getFloat("maxReverseSpeed");
             this.acceleration = compoundtag.getFloat("acceleration");
+            this.rotationAcceleration = compoundtag.getFloat("rotationAcceleration");
             this.maxRotationSpeed = compoundtag.getFloat("maxRotationSpeed");
             this.friction = compoundtag.getFloat("friction");
         }
