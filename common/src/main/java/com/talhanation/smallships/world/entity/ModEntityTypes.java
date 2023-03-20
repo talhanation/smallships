@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity;
 
+import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;

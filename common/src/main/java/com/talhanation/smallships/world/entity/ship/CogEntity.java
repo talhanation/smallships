@@ -112,6 +112,24 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
             }
         }
     }
+    /**********************************************
+     *  Cannon Positioning:
+     *  offset X: Defines the X offset -> positive will increase a placement in ships forward
+     *  offset Y: Defines the Y offset -> positive will increase a placement in height
+     *  offset X: Defines the Z offset -> positive will increase a placement in ships left
+     *
+     * **********************************************/
+    public void setCannonPos(){
+        this.CANNON_POS = new ArrayList<>();
+        CannonPosition pos1 = new CannonPosition(-1.4, 0, -0.7, true);
+        CannonPosition pos2 = new CannonPosition(-1.4, 0, 0.7, false);
+        CannonPosition pos3 = new CannonPosition(0.6, 0, -0.7, true);
+        CannonPosition pos4 = new CannonPosition(0.6, 0, 0.7, false);
+        this.CANNON_POS.add(pos1);
+        this.CANNON_POS.add(pos2);
+        this.CANNON_POS.add(pos3);
+        this.CANNON_POS.add(pos4);
+    }
 
     @Override
     protected float getSinglePassengerXOffset() {
@@ -124,23 +142,16 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
         return new BannerPosition(-180.0F, 90.0F, -3.1D, 0.87D, 0.05D);
     }
 
-    @Override
-    public CannonPosition getCannonPosition() {
-        return new CannonPosition(0.03D, -0.65D, 0.0F);
-    }
 
-    @Override
-    public byte getMaxCannonCountRight() {
-        return 2;
-    }
-
-    @Override
-    public byte getMaxCannonCountLeft() {
+    public byte getMaxCannonPerSide() {
         return 2;
     }
 
     @Override
     public float getDefaultCannonPower() {
         return 4.0F;
+    }
+
+    @Override
     }
 }

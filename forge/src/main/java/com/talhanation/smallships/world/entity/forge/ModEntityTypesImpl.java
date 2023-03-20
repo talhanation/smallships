@@ -1,7 +1,7 @@
 package com.talhanation.smallships.world.entity.forge;
 
-import com.talhanation.smallships.world.entity.CannonBallEntity;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;

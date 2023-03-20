@@ -24,7 +24,7 @@ public class ModPacketsImpl {
     static {
         entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenForgePacket(((ContainerShip) params[0]), ((Integer) params[1])));
         entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailForgePacket());
-        entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonForgePacket());
+        entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonForgePacket((Boolean) params[0]));
         entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateForgePacket((Byte) params[0], (Float) params[1], (Float) params[2]));
     }
 

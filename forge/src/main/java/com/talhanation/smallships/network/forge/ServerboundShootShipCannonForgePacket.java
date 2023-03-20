@@ -8,16 +8,20 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class ServerboundShootShipCannonForgePacket implements ForgePacket {
+    private final boolean trigger;
     @SuppressWarnings("unused")
-    ServerboundShootShipCannonForgePacket() {
+    ServerboundShootShipCannonForgePacket(boolean trigger) {
+        this.trigger = trigger;
     }
 
     @SuppressWarnings("unused")
     public ServerboundShootShipCannonForgePacket(FriendlyByteBuf buf) {
+        this.trigger = buf.readBoolean();
     }
 
     @Override
     public void toBytes(FriendlyByteBuf buf) {
+        buf.writeBoolean(trigger);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -25,7 +29,7 @@ public class ServerboundShootShipCannonForgePacket implements ForgePacket {
             ServerPlayer player = ctx.get().getSender();
             assert player != null;
             if (player.getVehicle() != null && player.getVehicle() instanceof Cannonable cannonShip) {
-                cannonShip.shoot(player);
+                cannonShip.self().setCannonKeyPressed(trigger);
             }
             ctx.get().setPacketHandled(true);
         });

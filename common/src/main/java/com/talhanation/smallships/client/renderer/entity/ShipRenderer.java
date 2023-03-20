@@ -11,6 +11,7 @@ import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.BriggSailModel;
 import com.talhanation.smallships.client.model.sail.CogSailModel;
 import com.talhanation.smallships.client.model.sail.SailModel;
+import com.talhanation.smallships.world.entity.Cannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
@@ -88,7 +89,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
         float l = shipEntity.getWaveAngle(partialTicks);
         if (!Mth.equal(l, 0.0F)) {
-            poseStack.mulPose(Vector3f.XP.rotationDegrees(l));
+            poseStack.mulPose(getRotation().rotationDegrees(l));
         }
 
         Pair<ResourceLocation, ShipModel<T>> pair = this.boatResources.get(shipEntity.getBoatType());
@@ -119,13 +120,11 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @SuppressWarnings("unused")
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        Cannonable.CannonPosition cannonPosition = cannonShipEntity.getCannonPosition();
-        Consumer<Pair<Double, Float>> renderCannon = args -> {
+        for(Cannon cannon : cannonShipEntity.self().CANNONS){
             poseStack.pushPose();
-            poseStack.mulPose(Vector3f.YP.rotationDegrees(cannonPosition.angle + args.getSecond()));
-            poseStack.translate(args.getFirst(), cannonPosition.offsetY, cannonPosition.offsetZ);
+            poseStack.mulPose(Vector3f.YP.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
+            poseStack.translate(cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), cannon.getOffsetZ());
 
-            //scale
             poseStack.scale(0.75F, 0.75F, 0.75F);
 
             CannonModel cannonModel = new CannonModel();
@@ -133,29 +132,26 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(cannonModel.renderType(cannonShipEntity.getTextureLocation()));
             cannonModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
             poseStack.popPose();
-        };
-
-        for (int i = 0; i < cannonShipEntity.getCannonCountRight(); i++) {
-            double offsetX = switch (i) {
-                case 0 -> -1;
-                case 1 -> 0.2;
-                case 2 -> 1.5;
-                default -> 0;
-            };
-            renderCannon.accept(new Pair<>(offsetX, 180.0F));
-        }
-
-        for (int i = 0; i < cannonShipEntity.getCannonCountLeft(); i++) {
-            double offsetX = switch (i) {
-                case 0 -> 1;
-                case 1 -> -0.2;
-                case 2 -> -1.5;
-                default -> 0;
-            };
-            renderCannon.accept(new Pair<>(offsetX, 0.0F));
         }
     }
 
+    /*********************************************************
+     * Offset for Cannon Render:
+     * - Positive values will turn the cannon clockwise
+     * - Positive values will turn the cannon counter-clockwise
+     *********************************************************/
+    protected float getCannonAngleOffset() {
+        return 0;
+    }
+
+    /*********************************************************
+     * Offset for Cannon Render:
+     * - Positive values will decrease the height
+     * - Negative values will increase the height
+     *********************************************************/
+    protected float getCannonHeightOffset(){
+        return 0;
+    }
 
     private static final ModelPart bannerModel;
     static {
@@ -182,6 +178,10 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, patterns);
             poseStack.popPose();
         }
+    }
+
+    public Vector3f getRotation(){
+        return Vector3f.XN;
     }
 
     @SuppressWarnings("unused")
