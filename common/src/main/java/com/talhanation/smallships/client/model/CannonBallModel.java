@@ -6,8 +6,8 @@ package com.talhanation.smallships.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.talhanation.smallships.SmallshipsMod;
 import com.talhanation.smallships.world.entity.CannonBallEntity;
+import com.talhanation.smallships.SmallShipsMod;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CannonBallModel extends EntityModel<CannonBallEntity> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallshipsMod.MOD_ID, "model_cannonball"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, "model_cannonball"), "main");
 	private final ModelPart cannonball;
 
 	public CannonBallModel() {

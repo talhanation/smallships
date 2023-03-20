@@ -1,6 +1,6 @@
 package com.talhanation.smallships.forge;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.forge.client.ClientInitializer;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.forge.ModEntityTypesImpl;
@@ -14,10 +14,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod(SmallshipsMod.MOD_ID)
+@Mod(SmallShipsMod.MOD_ID)
 public class SmallshipsModForge {
     public SmallshipsModForge() {
-        SmallshipsMod.init();
+        SmallShipsMod.init();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 

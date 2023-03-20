@@ -1,7 +1,7 @@
 package com.talhanation.smallships.world.entity.forge;
 
-import com.talhanation.smallships.SmallshipsMod;
 import com.talhanation.smallships.world.entity.CannonBallEntity;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;
@@ -22,7 +22,7 @@ public class ModEntityTypesImpl {
     public static <T extends Entity> EntityType<T> getEntityType(Class<T> entityClass) {
         return (EntityType<T>) entries.get(entityClass).get();
     }
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, SmallshipsMod.MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, SmallShipsMod.MOD_ID);
 
     static {
         entries.put(CannonBallEntity.class, ENTITY_TYPES.register("cannon_ball",

@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.sound.forge;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.registries.DeferredRegister;
@@ -17,7 +17,7 @@ public class ModSoundTypesImpl {
         return entries.get(id).get();
     }
 
-    public static final DeferredRegister<SoundEvent> SOUND_EVENTS =  DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, SmallshipsMod.MOD_ID);
+    public static final DeferredRegister<SoundEvent> SOUND_EVENTS =  DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, SmallShipsMod.MOD_ID);
 
     static {
         entries.put("sail_move", register("sail_move"));
@@ -26,6 +26,6 @@ public class ModSoundTypesImpl {
     }
 
     private static RegistryObject<SoundEvent> register (String id) {
-        return SOUND_EVENTS.register(id, () -> new SoundEvent(new ResourceLocation(SmallshipsMod.MOD_ID, id)));
+        return SOUND_EVENTS.register(id, () -> new SoundEvent(new ResourceLocation(SmallShipsMod.MOD_ID, id)));
     }
 }

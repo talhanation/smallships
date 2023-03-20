@@ -2,7 +2,7 @@ package com.talhanation.smallships.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.KhufuModel;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,7 +23,7 @@ public class KhufuRenderer extends ShipRenderer<KhufuEntity> {
 
     @Override
     protected ResourceLocation getTextureLocation(Boat.Type type) {
-        return new ResourceLocation(SmallshipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+        return new ResourceLocation(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
     }
 
     @Override

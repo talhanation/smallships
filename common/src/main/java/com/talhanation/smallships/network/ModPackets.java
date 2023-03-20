@@ -1,6 +1,6 @@
 package com.talhanation.smallships.network;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,7 +34,7 @@ public class ModPackets {
 
     @SuppressWarnings("SameParameterValue")
     public static ResourceLocation id(String id) {
-        return new ResourceLocation(SmallshipsMod.MOD_ID, id);
+        return new ResourceLocation(SmallShipsMod.MOD_ID, id);
     }
 
     public interface SendablePacket<R> {

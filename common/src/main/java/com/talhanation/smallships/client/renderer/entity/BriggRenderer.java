@@ -2,7 +2,7 @@ package com.talhanation.smallships.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.BriggModel;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import net.minecraft.client.renderer.MultiBufferSource;

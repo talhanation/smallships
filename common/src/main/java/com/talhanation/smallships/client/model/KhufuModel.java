@@ -1,6 +1,6 @@
 package com.talhanation.smallships.client.model;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.mixin.BoatAccessor;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class KhufuModel extends ShipModel<KhufuEntity> {
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallshipsMod.MOD_ID, KhufuEntity.ID + "_model"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, KhufuEntity.ID + "_model"), "main");
 	private final ModelPart root;
 	private final ModelPart chest1;
 	private final ModelPart chest2;

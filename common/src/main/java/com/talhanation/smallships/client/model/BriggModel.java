@@ -1,6 +1,6 @@
 package com.talhanation.smallships.client.model;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.mixin.BoatAccessor;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class BriggModel extends ShipModel<BriggEntity> {
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallshipsMod.MOD_ID, BriggEntity.ID + "_model"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, BriggEntity.ID + "_model"), "main");
 	private final ModelPart root;
 	private final ModelPart brigg;
 	private final ModelPart chest1;

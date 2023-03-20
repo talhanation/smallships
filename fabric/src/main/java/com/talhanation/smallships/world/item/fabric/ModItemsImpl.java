@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.item.fabric;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.item.*;
@@ -34,7 +34,7 @@ public class ModItemsImpl {
     }
 
     private static void register(String id, Item item) {
-        entries.put(id, register(new ResourceLocation(SmallshipsMod.MOD_ID, id), item));
+        entries.put(id, register(new ResourceLocation(SmallShipsMod.MOD_ID, id), item));
     }
 
     private static Item register(ResourceLocation id, Item item) {

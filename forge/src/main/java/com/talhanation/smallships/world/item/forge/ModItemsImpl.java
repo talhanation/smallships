@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.item.forge;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.item.*;
@@ -23,7 +23,7 @@ public class ModItemsImpl {
         return entries.get(id).get();
     }
 
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, SmallshipsMod.MOD_ID);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, SmallShipsMod.MOD_ID);
 
     static {
         register("sail", () -> new SailItem((new Item.Properties()).stacksTo(16).tab(CreativeModeTab.TAB_MISC)));

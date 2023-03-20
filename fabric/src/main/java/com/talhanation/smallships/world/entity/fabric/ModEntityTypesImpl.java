@@ -1,7 +1,7 @@
 package com.talhanation.smallships.world.entity.fabric;
 
-import com.talhanation.smallships.SmallshipsMod;
 import com.talhanation.smallships.world.entity.CannonBallEntity;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;
@@ -25,7 +25,7 @@ public class ModEntityTypesImpl {
     }
 
     private static <T extends Entity> EntityType<T> register(String id, EntityType<T> type) {
-        return Registry.register(Registry.ENTITY_TYPE, new ResourceLocation(SmallshipsMod.MOD_ID, id), type);
+        return Registry.register(Registry.ENTITY_TYPE, new ResourceLocation(SmallShipsMod.MOD_ID, id), type);
     }
 
     static {

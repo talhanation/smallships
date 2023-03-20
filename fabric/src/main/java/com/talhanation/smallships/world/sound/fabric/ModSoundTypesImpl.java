@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.sound.fabric;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -22,7 +22,7 @@ public class ModSoundTypesImpl {
     }
 
     private static SoundEvent register (String id) {
-        ResourceLocation location = new ResourceLocation(SmallshipsMod.MOD_ID, id);
+        ResourceLocation location = new ResourceLocation(SmallShipsMod.MOD_ID, id);
         return Registry.register(Registry.SOUND_EVENT, location, new SoundEvent(location));
     }
 }
