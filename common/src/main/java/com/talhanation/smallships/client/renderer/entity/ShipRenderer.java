@@ -13,7 +13,7 @@ import com.talhanation.smallships.client.model.sail.BriggSailModel;
 import com.talhanation.smallships.client.model.sail.CogSailModel;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.duck.BoatLeashAccess;
-import com.talhanation.smallships.world.entity.Cannon;
+import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.model.geom.ModelPart;

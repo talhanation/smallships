@@ -1,8 +1,8 @@
-package com.talhanation.smallships;
+package com.talhanation.smallships.math;
 
 import net.minecraft.util.Mth;
 
-public class Kalkül {
+public class Kalkuel {
 
     /**
      * Subtracts from the provided number, but does not cross zero

@@ -1,4 +1,4 @@
-package com.talhanation.smallships;
+package com.talhanation.smallships.world.damagesource;
 
 import net.minecraft.world.damagesource.DamageSource;
 

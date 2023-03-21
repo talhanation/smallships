@@ -1,9 +1,9 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.DamageSourceShip;
-import com.talhanation.smallships.Kalkül;
+import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
-import com.talhanation.smallships.world.entity.Cannon;
+import com.talhanation.smallships.world.damagesource.DamageSourceShip;
+import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
@@ -18,7 +18,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -70,13 +73,11 @@ public abstract class Ship extends Boat {
 
         if (cooldown > 0) cooldown--;
 
-        /**
-         * Fixes the data after imminently stop of the ship if the driver ejected
-         **/
+        // Fixes the data after imminently stop of the ship if the driver ejected
         if ((this.getControllingPassenger() == null)){
             setSailState((byte) 0);
-            this.setRotSpeed(Kalkül.subtractToZero(this.getRotSpeed(), getVelocityResistance() * 2.5F));
-            this.setSpeed(Kalkül.subtractToZero(this.getSpeed(), getVelocityResistance()));
+            this.setRotSpeed(Kalkuel.subtractToZero(this.getRotSpeed(), getVelocityResistance() * 2.5F));
+            this.setSpeed(Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance()));
         }
 
         boolean isSwimming = (getSpeed() > 0.085F || getSpeed() < -0.085F);
@@ -154,10 +155,10 @@ public abstract class Ship extends Boat {
             float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F) * modifier;
             float acceleration = attributes.acceleration;
 
-            float speed = Kalkül.subtractToZero(this.getSpeed(), getVelocityResistance());
+            float speed = Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance());
 
             ((BoatAccessor) this).setDeltaRotation(0);
-            float rotationSpeed = Kalkül.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
+            float rotationSpeed = Kalkuel.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
             if (((BoatAccessor) this).isInputRight()) {
                 if (rotationSpeed <= maxRotSp) {
                     rotationSpeed = Math.min(rotationSpeed + this.getAttributes().rotationAcceleration * 1 / 8, maxRotSp);
@@ -233,7 +234,7 @@ public abstract class Ship extends Boat {
 
             setSpeed(speed * blockedmodf);
 
-            setDeltaMovement(Kalkül.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkül.calculateMotionZ(this.getSpeed(), this.getYRot()));
+            setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
         }
     }
 
@@ -358,7 +359,7 @@ public abstract class Ship extends Boat {
                 waterSplash();
 
                 //if (SmallShipsConfig.PlaySwimmSound.get()) {
-                this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SWIM, this.getSoundSource(), 0.05F, 0.8F + 0.4F * this.random.nextFloat());
+                this.getLevel().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SWIM, this.getSoundSource(), 0.05F, 0.8F + 0.4F * this.random.nextFloat());
                 //}
             }
         }
@@ -366,14 +367,14 @@ public abstract class Ship extends Boat {
 
     private void updateKnockBack(boolean isSwimming) {
         if (isSwimming) {
-            //this.knockBack(this.level.getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
+            //this.knockBack(this.getLevel().getEntities(this, this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
         }
     }
 
     public void updateWaterMobs() {
         //if (SmallShipsConfig.WaterMobFlee.get()) {
             double radius = 15.0D;
-            List<WaterAnimal> list1 = this.level.getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
+            List<WaterAnimal> list1 = this.getLevel().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
             for (WaterAnimal ent : list1)
                 fleeEntity(ent);
         //}
@@ -397,7 +398,7 @@ public abstract class Ship extends Boat {
     public boolean hurt(DamageSource damageSource, float f) {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
-        } else if (!this.level.isClientSide && !this.isRemoved()) {
+        } else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
             this.setHurtDir(-this.getHurtDir());
             this.setHurtTime(10);
             this.setDamage(this.getDamage() + f * 10.0F);
@@ -405,7 +406,7 @@ public abstract class Ship extends Boat {
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
             boolean bl = damageSource.getEntity() instanceof Player && ((Player)damageSource.getEntity()).getAbilities().instabuild;
             if (bl || this.getDamage() > 40.0F) {
-                if (!bl && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                if (!bl && this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                     this.destroy(damageSource);
                 }
 
