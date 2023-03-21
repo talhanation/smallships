@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "client.CameraMixin",
+    "client.MouseHandlerMixin"
   ],
   "mixins": [
     "BoatAccessor",
