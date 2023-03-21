@@ -4,12 +4,19 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "client.BoatRendererMixin",
     "client.CameraMixin",
+    "client.ClientPacketListenerMixin",
     "client.MouseHandlerMixin"
   ],
   "mixins": [
     "BoatAccessor",
-    "BoatMixin"
+    "BoatMixin",
+    "ChunkMapMixin",
+    "EntityMixin",
+    "LeadItemMixin",
+    "LeashFenceKnotEntityMixin",
+    "ServerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

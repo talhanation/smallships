@@ -2,10 +2,7 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.mixin.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
-import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
-import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
-import com.talhanation.smallships.world.entity.ship.abilities.Repairable;
-import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -18,11 +15,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 @SuppressWarnings("unused")
-public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable {
+public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
     public static final String ID = "cog";
     private static final int ORIGINAL_CONTAINER_SIZE = 54;
     public CogEntity(EntityType<? extends Boat> entityType, Level level) {
@@ -155,16 +153,15 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
         return 4.0F;
     }
 
-
     @Override
-    public void waterSplash(){
+    public void waterSplash() {
         Vec3 vector3d = this.getViewVector(0.0F);
-        float f0 = Mth.cos(this.getYRot() * ((float)Math.PI / 180F)) * 0.8F;
-        float f1 = Mth.sin(this.getYRot() * ((float)Math.PI / 180F)) * 0.8F;
-        float f0_1 = Mth.cos(this.getYRot() * ((float)Math.PI / 180F)) * 1.6F;
-        float f1_1 = Mth.sin(this.getYRot() * ((float)Math.PI / 180F)) * 1.6F;
-        float f2 =  2.5F - this.random.nextFloat() * 0.7F;
-        float f2_ =  -1.3F - this.random.nextFloat() * 0.7F;
+        float f0 = Mth.cos(this.getYRot() * ((float) Math.PI / 180F)) * 0.8F;
+        float f1 = Mth.sin(this.getYRot() * ((float) Math.PI / 180F)) * 0.8F;
+        float f0_1 = Mth.cos(this.getYRot() * ((float) Math.PI / 180F)) * 1.6F;
+        float f1_1 = Mth.sin(this.getYRot() * ((float) Math.PI / 180F)) * 1.6F;
+        float f2 = 2.5F - this.random.nextFloat() * 0.7F;
+        float f2_ = -1.3F - this.random.nextFloat() * 0.7F;
         float x = 0;
         for (int i = 0; i < 2; ++i) {
             this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 + (double) f1, 0.0D, 0.0D, 0.0D);
@@ -188,5 +185,10 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
             this.level.addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
 
         }
+    }
+
+    @Override
+    public @Nullable Vec3 applyLeashOffset() {
+        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 }

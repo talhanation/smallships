@@ -2,10 +2,7 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.mixin.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
-import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
-import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
-import com.talhanation.smallships.world.entity.ship.abilities.Repairable;
-import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -18,9 +15,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
-public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable {
+public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
     public static final String ID = "brigg";
     private static final int ORIGINAL_CONTAINER_SIZE = 108;
 
@@ -200,6 +198,9 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     @Override
     public void setCannonPos() {
+    }
 
+    public @Nullable Vec3 applyLeashOffset() {
+        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 }
