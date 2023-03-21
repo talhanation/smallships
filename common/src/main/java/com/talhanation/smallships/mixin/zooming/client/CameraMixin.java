@@ -1,4 +1,4 @@
-package com.talhanation.smallships.mixin.client;
+package com.talhanation.smallships.mixin.zooming.client;
 
 import com.talhanation.smallships.duck.CameraZoomAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;

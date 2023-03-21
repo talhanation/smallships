@@ -1,4 +1,4 @@
-package com.talhanation.smallships.mixin;
+package com.talhanation.smallships.mixin.leashing;
 
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.ship.abilities.Leashable;
@@ -18,8 +18,6 @@ public class EntityMixin {
     private Entity self() {
         return (Entity)(Object)this;
     }
-
-    //LEASH FEATURE
 
     @SuppressWarnings("DataFlowIssue")
     @Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", at = @At(value = "RETURN"))

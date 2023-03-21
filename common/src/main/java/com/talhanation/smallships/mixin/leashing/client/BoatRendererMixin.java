@@ -1,4 +1,4 @@
-package com.talhanation.smallships.mixin.client;
+package com.talhanation.smallships.mixin.leashing.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -36,8 +36,6 @@ public class BoatRendererMixin extends EntityRenderer<Boat> {
     public @NotNull ResourceLocation getTextureLocation(Boat entity) {
         throw new AssertionError();
     }
-
-    //LEASH FEATURE
 
     @SuppressWarnings("SimplifiableConditionalExpression")
     @Override

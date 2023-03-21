@@ -1,7 +1,6 @@
-package com.talhanation.smallships.mixin;
+package com.talhanation.smallships.mixin.leashing;
 
 import com.talhanation.smallships.duck.BoatLeashAccess;
-import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Leashable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -21,9 +20,7 @@ import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -39,18 +36,6 @@ public abstract class BoatMixin implements BoatLeashAccess {
     private boolean isClientSide() {
         return self().getLevel().isClientSide();
     }
-
-    //HEALTH FEATURE
-
-    @ModifyConstant(method = "hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", constant = @Constant(floatValue = 40.0F))
-    private float specifyMaxHealth(float defaultMaxHealth) { // could also just override hurt method, if there is more logic needed
-        if (self() instanceof Ship ship) {
-            return ship.getAttributes().maxHealth;
-        }
-        return defaultMaxHealth;
-    }
-
-    //LEASH FEATURE
 
     private static final String LEASH_TAG = "Leash";
 

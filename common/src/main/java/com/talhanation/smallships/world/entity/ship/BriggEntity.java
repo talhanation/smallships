@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.mixin.BoatAccessor;
+import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;

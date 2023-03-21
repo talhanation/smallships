@@ -1,4 +1,4 @@
-package com.talhanation.smallships.mixin;
+package com.talhanation.smallships.mixin.leashing;
 
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import net.minecraft.network.protocol.Packet;
@@ -17,8 +17,6 @@ import java.util.function.Consumer;
 
 @Mixin(ServerEntity.class)
 public class ServerEntityMixin {
-    //LEASH FEATURE
-
     @Shadow @Final private Entity entity;
 
     @Inject(method = "sendPairingData", at = @At(value = "TAIL"))

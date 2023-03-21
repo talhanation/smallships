@@ -2,13 +2,11 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.DamageSourceShip;
 import com.talhanation.smallships.Kalkül;
-import com.talhanation.smallships.mixin.BoatAccessor;
+import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.Cannon;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
-import com.talhanation.smallships.world.entity.ship.abilities.Damageable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
-import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;

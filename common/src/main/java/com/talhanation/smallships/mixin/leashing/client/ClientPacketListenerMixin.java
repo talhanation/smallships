@@ -1,4 +1,4 @@
-package com.talhanation.smallships.mixin.client;
+package com.talhanation.smallships.mixin.leashing.client;
 
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.ship.abilities.Leashable;
@@ -14,8 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
-    //LEASH FEATURE
-
     @SuppressWarnings("DataFlowIssue")
     @Inject(method = "handleEntityLinkPacket", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void handleEntityLinkPacketForShips(ClientboundSetEntityLinkPacket clientboundSetEntityLinkPacket, CallbackInfo ci, Entity entity) {

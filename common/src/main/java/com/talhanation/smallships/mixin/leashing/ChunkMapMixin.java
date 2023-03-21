@@ -1,4 +1,4 @@
-package com.talhanation.smallships.mixin;
+package com.talhanation.smallships.mixin.leashing;
 
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.ship.abilities.Leashable;
@@ -25,8 +25,6 @@ import java.util.List;
 
 @Mixin(ChunkMap.class)
 public class ChunkMapMixin {
-    //LEASH FEATURE
-
     private Entity entity;
 
     @SuppressWarnings("rawtypes")

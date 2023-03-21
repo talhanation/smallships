@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.mixin.BoatAccessor;
+import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import com.talhanation.smallships.world.entity.ship.abilities.Repairable;
