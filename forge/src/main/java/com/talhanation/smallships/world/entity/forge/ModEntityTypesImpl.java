@@ -4,6 +4,7 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
+import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.entity.ship.KhufuEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -25,13 +26,13 @@ public class ModEntityTypesImpl {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, SmallShipsMod.MOD_ID);
 
     static {
-        entries.put(CannonBallEntity.class, ENTITY_TYPES.register("cannon_ball",
+        entries.put(CannonBallEntity.class, ENTITY_TYPES.register(CannonBallEntity.ID,
                 () -> EntityType.Builder.of(CannonBallEntity::factory, MobCategory.MISC)
                         .sized(0.25F, 0.25F)
                         .clientTrackingRange(20)
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
-                        .build("cannon_ball")));
+                        .build(CannonBallEntity.ID)));
 
         entries.put(CogEntity.class, ENTITY_TYPES.register(CogEntity.ID,
                 () -> EntityType.Builder.of(CogEntity::new, MobCategory.MISC)
@@ -48,6 +49,14 @@ public class ModEntityTypesImpl {
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
                         .build(BriggEntity.ID)));
+
+        entries.put(GalleyEntity.class, ENTITY_TYPES.register(GalleyEntity.ID,
+                () -> EntityType.Builder.of(GalleyEntity::new, MobCategory.MISC)
+                        .sized(3.5F, 1.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(GalleyEntity.ID)));
 
         entries.put(KhufuEntity.class, ENTITY_TYPES.register(KhufuEntity.ID,
                 () -> EntityType.Builder.of(KhufuEntity::new, MobCategory.MISC)

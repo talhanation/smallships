@@ -17,16 +17,16 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
-    public static final String ID = "brigg";
-    private static final int ORIGINAL_CONTAINER_SIZE = 108;
+public class GalleyEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable, Paddleable {
+    public static final String ID = "galley";
+    private static final int ORIGINAL_CONTAINER_SIZE = 225;
 
-    public BriggEntity(EntityType<? extends Boat> entityType, Level level) {
+    public GalleyEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
 
-    private BriggEntity(Level level, double d, double e, double f) {
-        this(ModEntityTypes.BRIGG, level);
+    private GalleyEntity(Level level, double d, double e, double f) {
+        this(ModEntityTypes.GALLEY, level);
         this.setPos(d, e, f);
         this.xo = d;
         this.yo = e;
@@ -34,8 +34,8 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
         this.setData(CONTAINER_SIZE, ORIGINAL_CONTAINER_SIZE);
     }
 
-    public static BriggEntity summon(Level level, double d, double e, double f) {
-        return new BriggEntity(level, d, e, f);
+    public static GalleyEntity summon(Level level, double d, double e, double f) {
+        return new GalleyEntity(level, d, e, f);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     @Override
     public @NotNull Item getDropItem() {
-        return ModItems.BRIGG_ITEMS.get(this.getBoatType());
+        return ModItems.GALLEY_ITEMS.get(this.getBoatType());
     }
 
     @Override
@@ -144,8 +144,8 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     // Implement Able-Interfaces
     @Override
-    public BannerPosition getBannerPosition() {
-        return new BannerPosition(90.0F, 90.0F, -6.4D, 1.65D, 0.0D);
+    public Bannerable.BannerPosition getBannerPosition() {
+        return new Bannerable.BannerPosition(90.0F, 90.0F, -6.4D, 1.65D, 0.0D);
     }
 
     @Override
@@ -186,10 +186,10 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     @Override
     public void setCannonPos() {
-        CannonPosition pos1 = new CannonPosition(-1.4, 0, -0.7, true);
-        CannonPosition pos2 = new CannonPosition(-1.4, 0, 0.7, false);
-        CannonPosition pos3 = new CannonPosition(0.6, 0, -0.7, true);
-        CannonPosition pos4 = new CannonPosition(0.6, 0, 0.7, false);
+        Cannonable.CannonPosition pos1 = new Cannonable.CannonPosition(-1.4, 0, -0.7, true);
+        Cannonable.CannonPosition pos2 = new Cannonable.CannonPosition(-1.4, 0, 0.7, false);
+        Cannonable.CannonPosition pos3 = new Cannonable.CannonPosition(0.6, 0, -0.7, true);
+        Cannonable.CannonPosition pos4 = new Cannonable.CannonPosition(0.6, 0, 0.7, false);
         this.CANNON_POS.add(pos1);
         this.CANNON_POS.add(pos2);
         this.CANNON_POS.add(pos3);

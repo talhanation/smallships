@@ -11,6 +11,7 @@ import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.BriggSailModel;
 import com.talhanation.smallships.client.model.sail.CogSailModel;
+import com.talhanation.smallships.client.model.sail.GalleySailModel;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
@@ -204,6 +205,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     static {
         sailModels.put(CogEntity.class, new CogSailModel());
         sailModels.put(BriggEntity.class, new BriggSailModel());
+        sailModels.put(GalleyEntity.class, new GalleySailModel());
         sailModels.put(KhufuEntity.class, new CogSailModel());
     }
     @SuppressWarnings({"unused", "unchecked"})

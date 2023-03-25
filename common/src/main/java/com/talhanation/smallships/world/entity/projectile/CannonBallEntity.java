@@ -1,14 +1,13 @@
 package com.talhanation.smallships.world.entity.projectile;
 
 
-import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class CannonBallEntity extends AbstractCannonBall {
-
+    public static final String ID = "cannon_ball";
     public static CannonBallEntity factory(EntityType<? extends AbstractCannonBall> entityType, Level level) {
 
         return new CannonBallEntity(entityType, level);

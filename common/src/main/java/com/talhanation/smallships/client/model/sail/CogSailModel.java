@@ -31,6 +31,7 @@ public class CogSailModel extends SailModel {
 		this.Segel_4 = root.getChild("Segel_4");
 	}
 
+	@SuppressWarnings("unused")
 	public static LayerDefinition createBodyLayer(){
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();

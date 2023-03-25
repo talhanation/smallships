@@ -13,7 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class BriggSailModel extends SailModel {
-	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, BriggEntity.ID + "_sail_model"), "main");
 
 	private final ModelPart segel_brigg;
@@ -23,6 +22,7 @@ public class BriggSailModel extends SailModel {
 		this.segel_brigg = root.getChild("segel_brigg");
 	}
 
+	@SuppressWarnings("unused")
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
@@ -2044,6 +2044,7 @@ public class BriggSailModel extends SailModel {
 			}
 		}
 	}
+
 	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		segel_brigg.render(poseStack, vertexConsumer, packedLight, packedOverlay);
 	}

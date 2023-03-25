@@ -1,15 +1,9 @@
 package com.talhanation.smallships.forge.client;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.client.model.BriggModel;
-import com.talhanation.smallships.client.model.CannonBallModel;
-import com.talhanation.smallships.client.model.CogModel;
-import com.talhanation.smallships.client.model.KhufuModel;
+import com.talhanation.smallships.client.model.*;
 import com.talhanation.smallships.client.option.ModGameOptions;
-import com.talhanation.smallships.client.renderer.entity.BriggRenderer;
-import com.talhanation.smallships.client.renderer.entity.CannonBallRenderer;
-import com.talhanation.smallships.client.renderer.entity.CogRenderer;
-import com.talhanation.smallships.client.renderer.entity.KhufuRenderer;
+import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -41,6 +35,7 @@ public class ClientModBus {
 
         event.registerEntityRenderer(ModEntityTypes.COG, CogRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.BRIGG, BriggRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.GALLEY, GalleyRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.KHUFU, KhufuRenderer::new);
     }
 
@@ -50,6 +45,7 @@ public class ClientModBus {
 
         event.registerLayerDefinition(CogModel.LAYER_LOCATION, CogModel::createBodyLayer);
         event.registerLayerDefinition(BriggModel.LAYER_LOCATION, BriggModel::createBodyLayer);
+        event.registerLayerDefinition(GalleyModel.LAYER_LOCATION, GalleyModel::createBodyLayer);
         event.registerLayerDefinition(KhufuModel.LAYER_LOCATION, KhufuModel::createBodyLayer);
     }
 

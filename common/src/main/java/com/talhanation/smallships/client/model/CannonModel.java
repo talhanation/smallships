@@ -21,6 +21,7 @@ public class CannonModel extends EntityModel<Ship> {
         this.cannon = root.getChild("cannon");
     }
 
+    @SuppressWarnings("unused")
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();

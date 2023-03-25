@@ -9,16 +9,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Boat.class)
 public abstract class BoatMixin {
-    @SuppressWarnings("DataFlowIssue")
-    private Boat self() {
-        return (Boat)(Object)this;
-    }
-
     @Shadow protected abstract void controlBoat();
 
+    @SuppressWarnings("ConstantValue")
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V"))
     private void tickCancelControlBoatHere(Boat instance) {
-        if (!(self() instanceof Ship)) {
+        if (!((Boat)(Object)this instanceof Ship)) {
             this.controlBoat();
         }
     }

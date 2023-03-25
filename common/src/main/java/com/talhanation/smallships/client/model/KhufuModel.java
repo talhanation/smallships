@@ -10,6 +10,7 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class KhufuModel extends ShipModel<KhufuEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, KhufuEntity.ID + "_model"), "main");
 	private final ModelPart root;
@@ -29,6 +30,7 @@ public class KhufuModel extends ShipModel<KhufuEntity> {
 		this.steer = cog.getChild("steer");
 	}
 
+	@SuppressWarnings("unused")
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
@@ -156,7 +158,7 @@ public class KhufuModel extends ShipModel<KhufuEntity> {
 	}
 
 	@Override
-	public ModelPart root() {
+	public @NotNull ModelPart root() {
 		return this.root;
 	}
 }

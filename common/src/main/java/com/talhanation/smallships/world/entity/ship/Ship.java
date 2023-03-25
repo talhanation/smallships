@@ -6,6 +6,7 @@ import com.talhanation.smallships.world.damagesource.DamageSourceShip;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -47,8 +48,8 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<String>  SAIL_COLOR = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.STRING);
     public static final EntityDataAccessor<ItemStack> BANNER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<Float> CANNON_POWER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
-
     private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
+
     private float prevWaveAngle;
     private float waveAngle;
     public float prevBannerWaveAngle;
@@ -67,10 +68,11 @@ public abstract class Ship extends Boat {
     @Override
     public void tick() {
         super.tick();
-        this.controlBoat(); //This make the boat slide
+        this.controlBoat(); //This makes the boat slide
         if (this instanceof Sailable sailShip) sailShip.tickSailShip();
         if (this instanceof Bannerable bannerShip) bannerShip.tickBannerShip();
         if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
+        if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
 
         if (cooldown > 0) cooldown--;
 

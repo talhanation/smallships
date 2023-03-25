@@ -18,12 +18,14 @@ public class ModItems {
 
     public static final Map<Boat.Type, Item> COG_ITEMS = new HashMap<>(Boat.Type.values().length);
     public static final Map<Boat.Type, Item> BRIGG_ITEMS = new HashMap<>(Boat.Type.values().length);
+    public static final Map<Boat.Type, Item> GALLEY_ITEMS = new HashMap<>(Boat.Type.values().length);
 
     static {
         Boat.Type[] boatTypes = Boat.Type.values();
         for (Boat.Type type : boatTypes) {
             COG_ITEMS.put(type, getItem(type.getName() + "_" + CogEntity.ID));
             BRIGG_ITEMS.put(type, getItem(type.getName() + "_" + BriggEntity.ID));
+            GALLEY_ITEMS.put(type, getItem(type.getName() + "_" + BriggEntity.ID)); //TODO Implement Items
         }
     }
 

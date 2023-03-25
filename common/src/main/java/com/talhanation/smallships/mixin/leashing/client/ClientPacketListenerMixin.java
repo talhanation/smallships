@@ -17,7 +17,7 @@ public class ClientPacketListenerMixin {
     @SuppressWarnings("DataFlowIssue")
     @Inject(method = "handleEntityLinkPacket", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void handleEntityLinkPacketForShips(ClientboundSetEntityLinkPacket clientboundSetEntityLinkPacket, CallbackInfo ci, Entity entity) {
-        if (entity instanceof Leashable || entity.getClass().equals(Boat.class)) {
+        if (entity != null && (entity instanceof Leashable || entity.getClass().equals(Boat.class))) {
             ((BoatLeashAccess)entity).setDelayedLeashHolderId(clientboundSetEntityLinkPacket.getDestId());
         }
     }
