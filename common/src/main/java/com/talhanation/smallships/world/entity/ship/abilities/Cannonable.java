@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 
 public interface Cannonable extends Ability {
     float getDefaultCannonPower();
-    byte getMaxCannonPerSide();
     void setCannonPos();
 
     default void tickCannonShip() {
@@ -65,7 +64,7 @@ public interface Cannonable extends Ability {
 
         self().CANNONS.clear();
         for (int i = 0; i < cannons; i++) {
-            CannonPosition cannonPosition = self().getCannonPos(i);
+            CannonPosition cannonPosition = this.getCannonPos(i);
 
             if(cannonPosition!= null){
                 Cannon cannon = new Cannon(self(), cannonPosition);
@@ -74,13 +73,20 @@ public interface Cannonable extends Ability {
         }
     }
 
+    default CannonPosition getCannonPos(int index) {
+        return self().CANNON_POS.get(index);
+    }
+
+    default byte getMaxCannonPerSide() {
+        return (byte) (self().CANNON_POS.size() / 2);
+    }
+
     default boolean interactCannon(Player player, InteractionHand interactionHand) {
         ItemStack item = player.getItemInHand(interactionHand);
-        if (item.getItem() == ModItems.CANNON) {
-
+        if (item.getItem() == ModItems.CANNON && self() instanceof ContainerShip containerShip) {
             if (!player.isCreative()) item.shrink(1);
             self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
-            if(self() instanceof ContainerShip containerShip) containerShip.addItemToFreeSlot(item);
+            containerShip.addItemToFreeSlot(item);
             return true;
         }
         return false;
@@ -120,6 +126,7 @@ public interface Cannonable extends Ability {
             }
         }
     }
+
     default ResourceLocation getTextureLocation() {
         return new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/cannon/ship_cannon.png");
     }

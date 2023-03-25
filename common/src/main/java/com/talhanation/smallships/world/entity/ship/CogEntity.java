@@ -17,8 +17,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-
 @SuppressWarnings("unused")
 public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
     public static final String ID = "cog";
@@ -120,7 +118,6 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
      *  offset X: Defines the Z offset -> positive will increase a placement in ships left
      */
     public void setCannonPos(){
-        this.CANNON_POS = new ArrayList<>();
         CannonPosition pos1 = new CannonPosition(-1.4, 0, -0.7, true);
         CannonPosition pos2 = new CannonPosition(-1.4, 0, 0.7, false);
         CannonPosition pos3 = new CannonPosition(0.6, 0, -0.7, true);
@@ -140,11 +137,6 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     @Override
     public BannerPosition getBannerPosition() {
         return new BannerPosition(-180.0F, 90.0F, -3.1D, 0.87D, 0.05D);
-    }
-
-
-    public byte getMaxCannonPerSide() {
-        return 2;
     }
 
     @Override

@@ -39,13 +39,13 @@ public interface Bannerable extends Ability {
         ItemStack shipBanner = self().getData(Ship.BANNER);
         shipBanner.setCount(1);
         if (item.getItem() instanceof BannerItem) {
-            if (!shipBanner.isEmpty()) self().spawnAtLocation(shipBanner);
+            if (!shipBanner.isEmpty()) self().spawnAtLocation(shipBanner, 4);
             self().setData(Ship.BANNER, item.copy());
             if (!player.isCreative()) item.shrink(1);
             self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         } else if (item.getItem() instanceof ShearsItem && !shipBanner.isEmpty()) {
-            self().spawnAtLocation(shipBanner);
+            self().spawnAtLocation(shipBanner,4);
             self().setData(Ship.BANNER, ItemStack.EMPTY);
             self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
             return true;

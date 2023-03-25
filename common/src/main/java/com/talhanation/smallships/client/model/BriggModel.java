@@ -8,6 +8,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 
 @SuppressWarnings("FieldCanBeLocal")
@@ -20,7 +21,6 @@ public class BriggModel extends ShipModel<BriggEntity> {
 	private final ModelPart chest3;
 	private final ModelPart chest4;
 	private final ModelPart steer;
-	private final ModelPart banner_stick;
 
 	public BriggModel(ModelPart modelPart) {
 		this.root = modelPart;
@@ -30,9 +30,9 @@ public class BriggModel extends ShipModel<BriggEntity> {
 		this.chest3 = brigg.getChild("chest_3");
 		this.chest4 = brigg.getChild("chest_4");
 		this.steer = brigg.getChild("steer");
-		this.banner_stick = brigg.getChild("BannerStick");
 	}
 
+	@SuppressWarnings("unused")
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
@@ -197,16 +197,17 @@ public class BriggModel extends ShipModel<BriggEntity> {
 
 	@Override
 	public void setupAnim(BriggEntity briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.chest1.visible = briggEntity.getCargo() >= 1;
-		this.chest2.visible = briggEntity.getCargo() >= 2;
-		this.chest3.visible = briggEntity.getCargo() >= 3;
-		this.chest4.visible = briggEntity.getCargo() >= 4;
+		byte u_byteMaxValueFourth = (-Byte.MIN_VALUE + Byte.MAX_VALUE) / 4;
+		this.chest1.visible = briggEntity.getCargo() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
+		this.chest2.visible = briggEntity.getCargo() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
+		this.chest3.visible = briggEntity.getCargo() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
+		this.chest4.visible = briggEntity.getCargo() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
 		this.steer.yRot = -((BoatAccessor) briggEntity).getDeltaRotation() * 0.25F;
 	}
 
 	@Override
-	public ModelPart root() {
+	public @NotNull ModelPart root() {
 		return this.root;
 	}
 }

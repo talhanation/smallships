@@ -29,6 +29,7 @@ public class CogModel extends ShipModel<CogEntity> {
 		this.steer = cog.getChild("steer");
 	}
 
+	@SuppressWarnings("unused")
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
@@ -152,16 +153,17 @@ public class CogModel extends ShipModel<CogEntity> {
 
 	@Override
 	public void setupAnim(@NotNull CogEntity cogEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.chest1.visible = cogEntity.getCargo() >= 1;
-		this.chest2.visible = cogEntity.getCargo() >= 2;
-		this.chest3.visible = cogEntity.getCargo() >= 3;
-		this.chest4.visible = cogEntity.getCargo() >= 4;
+		byte u_byteMaxValueFourth = (-Byte.MIN_VALUE + Byte.MAX_VALUE) / 4;
+		this.chest1.visible = cogEntity.getCargo() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
+		this.chest2.visible = cogEntity.getCargo() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
+		this.chest3.visible = cogEntity.getCargo() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
+		this.chest4.visible = cogEntity.getCargo() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
 		this.steer.yRot = -((BoatAccessor) cogEntity).getDeltaRotation() * 0.25F;
 	}
 
 	@Override
-	public ModelPart root() {
+	public @NotNull ModelPart root() {
 		return this.root;
 	}
 }

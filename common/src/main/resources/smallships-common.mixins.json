@@ -5,12 +5,14 @@
   "minVersion": "0.8",
   "client": [
     "leashing.client.BoatRendererMixin",
-    "zooming.client.CameraMixin",
     "leashing.client.ClientPacketListenerMixin",
+    "zooming.client.CameraMixin",
     "zooming.client.MouseHandlerMixin"
   ],
   "mixins": [
     "controlling.BoatAccessor",
+    "controlling.BoatMixin",
+    "damaging.BoatMixin",
     "leashing.BoatMixin",
     "leashing.ChunkMapMixin",
     "leashing.EntityMixin",

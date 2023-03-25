@@ -156,15 +156,12 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
     */
 
+    @Override
     public float getDefaultCannonPower() {
         return 4.0F;
     }
 
     @Override
-    public byte getMaxCannonPerSide() {
-        return 3;
-    }
-
     public void waterSplash(){
         Vec3 vector3d = this.getViewVector(0.0F);
         float f0 = Mth.cos(this.getYRot() * ((float)Math.PI / 180F)) * 1.2F;
@@ -198,6 +195,14 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     @Override
     public void setCannonPos() {
+        CannonPosition pos1 = new CannonPosition(-1.4, 0, -0.7, true);
+        CannonPosition pos2 = new CannonPosition(-1.4, 0, 0.7, false);
+        CannonPosition pos3 = new CannonPosition(0.6, 0, -0.7, true);
+        CannonPosition pos4 = new CannonPosition(0.6, 0, 0.7, false);
+        this.CANNON_POS.add(pos1);
+        this.CANNON_POS.add(pos2);
+        this.CANNON_POS.add(pos3);
+        this.CANNON_POS.add(pos4);
     }
 
     public @Nullable Vec3 applyLeashOffset() {

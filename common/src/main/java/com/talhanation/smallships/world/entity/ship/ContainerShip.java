@@ -288,26 +288,10 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     private void updateCargo(){
-        int invSize = this.getItemStacks().stream().map(ItemStack::getCount).reduce(0, Integer::sum);
-        byte x = 0;
-
-        if (invSize >= 10 * getContainerSize()) {
-            x = 4;
-        }
-        else if (invSize >= 8 * getContainerSize()) {
-            x = 3;
-        }
-        else if (invSize >= 4 * getContainerSize()) {
-            x = 2;
-        }
-        else if (invSize >= 2 * getContainerSize()) {
-            x = 1;
-        }
-        else {
-            x = 0;
-        }
-
-        this.setCargo(x);
+        double invFillStateInPercent = this.getItemStacks().stream().map(i -> !i.isEmpty()? (double) i.getCount() / i.getMaxStackSize() : 0.0D).reduce(0.0D, Double::sum) / this.getItemStacks().size();
+        short u_byteMaxValue = -Byte.MIN_VALUE + Byte.MAX_VALUE;
+        byte invFillState = (byte) (invFillStateInPercent * u_byteMaxValue - (-Byte.MIN_VALUE));
+        this.setCargo(invFillState);
     }
 
     private static NonNullList<ItemStack> resizeItemStacks(ContainerEntity containerEntity, int containerSize) {
@@ -354,11 +338,11 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public void addItemToFreeSlot(ItemStack itemStack){
         for(int i = 0; i < this.getContainerSize(); i++){
             if(this.getSlot(i).get().is(ItemStack.EMPTY.getItem())){
-                this.setItem(i, itemStack);
+                this.setItem(i, itemStack.copy());
                 break;
             }
             if(i >= this.getContainerSize()){
-                this.spawnAtLocation(itemStack, 4);
+                this.spawnAtLocation(itemStack.getItem(), 4);
                 break;
             }
         }

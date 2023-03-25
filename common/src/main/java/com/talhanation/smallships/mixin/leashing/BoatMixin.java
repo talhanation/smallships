@@ -129,7 +129,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
             this.leashHolder = null;
             this.leashInfoTag = null;
             if (!this.isClientSide() && shouldDropItem) {
-                self().spawnAtLocation(Items.LEAD);
+                self().spawnAtLocation(Items.LEAD, 4);
             }
 
             if (!this.isClientSide() && shouldUnlink && self().getLevel() instanceof ServerLevel serverLevel) {
@@ -190,7 +190,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
             }
 
             if (self().tickCount > 100) {
-                self().spawnAtLocation(Items.LEAD);
+                self().spawnAtLocation(Items.LEAD, 4);
                 this.leashInfoTag = null;
             }
         }
