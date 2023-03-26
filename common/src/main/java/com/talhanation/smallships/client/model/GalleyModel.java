@@ -253,10 +253,10 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
     @Override
     public void setupAnim(GalleyEntity galleyEntity, float f, float g, float h, float i, float j) {
         byte u_byteMaxValueFourth = (-Byte.MIN_VALUE + Byte.MAX_VALUE) / 4;
-        this.chest1.visible = galleyEntity.getCargo() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
-        this.chest2.visible = galleyEntity.getCargo() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
-        this.chest3.visible = galleyEntity.getCargo() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
-        this.chest4.visible = galleyEntity.getCargo() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
+        this.chest1.visible = galleyEntity.getContainerFillState() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
+        this.chest2.visible = galleyEntity.getContainerFillState() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
+        this.chest3.visible = galleyEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
+        this.chest4.visible = galleyEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
         this.steer.yRot = -((BoatAccessor) galleyEntity).getDeltaRotation() * 0.25F;
 

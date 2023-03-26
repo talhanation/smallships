@@ -66,7 +66,7 @@ public interface Sailable extends Ability {
     }
 
     default void increaseSail(Player player, float speed, float rot_speed){
-        if(self().cooldown == 0){
+        if(self().sailStateCooldown == 0){
             byte state = self().getSailState();
 
             if (state != (byte) 4){
@@ -75,12 +75,12 @@ public interface Sailable extends Ability {
             }
             this.playSailSound(state);
             ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(state, speed, rot_speed));
-            self().cooldown = 30;
+            self().sailStateCooldown = 30; //CONFIG
         }
     }
 
     default void decreaseSail(Player player, float speed, float rot_speed){
-        if(self().cooldown == 0) {
+        if(self().sailStateCooldown == 0) {
             byte state = self().getSailState();
 
             if (state != (byte) 1) {
@@ -89,7 +89,7 @@ public interface Sailable extends Ability {
             }
             this.playSailSound(state);
             ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(state, speed, rot_speed));
-            self().cooldown = 30;
+            self().sailStateCooldown = 30;
         }
     }
 

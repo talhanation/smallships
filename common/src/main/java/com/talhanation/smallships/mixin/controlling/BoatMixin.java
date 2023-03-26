@@ -13,7 +13,7 @@ public abstract class BoatMixin {
 
     @SuppressWarnings("ConstantValue")
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V"))
-    private void tickCancelControlBoatHere(Boat instance) {
+    private void tickCancelControlBoatHereForShip(Boat instance) {
         if (!((Boat)(Object)this instanceof Ship)) {
             this.controlBoat();
         }

@@ -39,7 +39,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public static final EntityDataAccessor<Byte> ROWS = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> PAGES = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> PAGE_INDEX = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
-    public static final EntityDataAccessor<Byte> CARGO = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
+    public static final EntityDataAccessor<Byte> CONTAINER_FILL_STATE = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
 
     private final int originalContainerSize;
     NonNullList<ItemStack> itemStacks;
@@ -69,9 +69,10 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     public ContainerShip(EntityType<? extends Boat> entityType, Level level, int containerSize) {
         super(entityType, level);
-        this.updatePaging(containerSize);
         this.originalContainerSize = containerSize;
-        this.itemStacks = NonNullList.withSize(containerSize, ItemStack.EMPTY);
+        this.updatePaging(this.originalContainerSize);
+        this.setData(CONTAINER_SIZE, this.originalContainerSize);
+        this.itemStacks = NonNullList.withSize(this.originalContainerSize, ItemStack.EMPTY);
     }
 
     @Override
@@ -81,7 +82,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.getEntityData().define(ROWS, (byte) 6);
         this.getEntityData().define(PAGES, (byte) 1);
         this.getEntityData().define(PAGE_INDEX, (byte) 0);
-        this.getEntityData().define(CARGO, ((byte) 0));
+        this.getEntityData().define(CONTAINER_FILL_STATE, ((byte) 0));
     }
 
     @Override
@@ -90,7 +91,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.readContainerSizeSaveData(tag);
         this.readChestVehicleSaveData(tag);
 
-        this.setCargo(tag.getByte("Cargo"));
+        this.setContainerFillState(tag.getByte("ContainerFillState"));
     }
 
     @Override
@@ -99,7 +100,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.addContainerSizeSaveData(tag);
         this.addChestVehicleSaveData(tag);
 
-        tag.putByte("Cargo", this.getCargo());
+        tag.putByte("ContainerFillState", this.getContainerFillState());
     }
 
     @Override
@@ -187,7 +188,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Override
     public void setItem(int i, @NotNull ItemStack itemStack) {
         this.setChestVehicleItem(i, itemStack);
-        this.updateCargo();
+        this.updateContainerFillState();
         if(this instanceof Cannonable cannonable) cannonable.updateCannonCount();
     }
 
@@ -287,11 +288,11 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.setData(PAGE_INDEX, (byte) 0);
     }
 
-    private void updateCargo(){
+    private void updateContainerFillState(){
         double invFillStateInPercent = this.getItemStacks().stream().map(i -> !i.isEmpty()? (double) i.getCount() / i.getMaxStackSize() : 0.0D).reduce(0.0D, Double::sum) / this.getItemStacks().size();
         short u_byteMaxValue = -Byte.MIN_VALUE + Byte.MAX_VALUE;
         byte invFillState = (byte) (invFillStateInPercent * u_byteMaxValue - (-Byte.MIN_VALUE));
-        this.setCargo(invFillState);
+        this.setContainerFillState(invFillState);
     }
 
     private static NonNullList<ItemStack> resizeItemStacks(ContainerEntity containerEntity, int containerSize) {
@@ -303,13 +304,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
             oldItemStacks = Arrays.stream(Arrays.copyOfRange(oldItemStacks, containerSize, oldItemStacks.length)).filter(stack -> !stack.isEmpty()).toArray(ItemStack[]::new);
 
             int j = 0;
-//            for (int i = 0; i < newItemStacks.length; i++) {  // Copy leftover items (somehow not working with readSaveData order)
-//                if (newItemStacks[i].isEmpty()) {
-//                    if (j == oldItemStacks.length) break;
-//                    newItemStacks[i] = oldItemStacks[j];
-//                    j++;
-//                }
-//            }
+            // Copy leftover items is missing
             if (j < oldItemStacks.length) {  // Drop non-fitting leftover items
                 Containers.dropContents(containerEntity.getLevel(), (Entity) containerEntity, new SimpleContainer(Arrays.copyOfRange(oldItemStacks, j, oldItemStacks.length)));
             }
@@ -327,12 +322,12 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         return NonNullList.of(ItemStack.EMPTY, newItemStacks);
     }
 
-    public byte getCargo() {
-        return entityData.get(CARGO);
+    public byte getContainerFillState() {
+        return entityData.get(CONTAINER_FILL_STATE);
     }
 
-    public void setCargo(byte b) {
-        this.entityData.set(CARGO, b);
+    public void setContainerFillState(byte b) {
+        this.entityData.set(CONTAINER_FILL_STATE, b);
     }
 
     public void addItemToFreeSlot(ItemStack itemStack){

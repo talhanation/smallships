@@ -10,6 +10,7 @@
     "zooming.client.MouseHandlerMixin"
   ],
   "mixins": [
+    "damaging.DamageSourceAccessor",
     "controlling.BoatAccessor",
     "controlling.BoatMixin",
     "damaging.BoatMixin",

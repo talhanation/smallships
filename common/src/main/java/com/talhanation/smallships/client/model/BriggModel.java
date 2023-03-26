@@ -198,10 +198,10 @@ public class BriggModel extends ShipModel<BriggEntity> {
 	@Override
 	public void setupAnim(BriggEntity briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		byte u_byteMaxValueFourth = (-Byte.MIN_VALUE + Byte.MAX_VALUE) / 4;
-		this.chest1.visible = briggEntity.getCargo() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
-		this.chest2.visible = briggEntity.getCargo() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
-		this.chest3.visible = briggEntity.getCargo() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
-		this.chest4.visible = briggEntity.getCargo() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
+		this.chest1.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
+		this.chest2.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
+		this.chest3.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
+		this.chest4.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
 		this.steer.yRot = -((BoatAccessor) briggEntity).getDeltaRotation() * 0.25F;
 	}

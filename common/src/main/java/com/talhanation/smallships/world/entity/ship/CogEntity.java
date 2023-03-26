@@ -30,7 +30,6 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
         this.xo = d;
         this.yo = e;
         this.zo = f;
-        this.setData(CONTAINER_SIZE, ORIGINAL_CONTAINER_SIZE);
     }
 
     public static CogEntity summon(Level level, double d, double e, double f) {

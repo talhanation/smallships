@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.entity.projectile;
 
-import com.talhanation.smallships.world.damagesource.DamageSourceCannonBall;
+import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -23,7 +23,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
-
     public boolean inWater = false;
     public boolean wasShot = false;
     public int counter = 0;
@@ -119,19 +118,18 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult rayTraceResult) {
-        super.onHitEntity(rayTraceResult);
+    protected void onHitEntity(EntityHitResult hitResult) {
+        super.onHitEntity(hitResult);
         if (!this.getLevel().isClientSide()) {
-            Entity hit = rayTraceResult.getEntity();
-            Entity entity1 = this.getOwner();
-            hit.hurt(DamageSourceCannonBall.DAMAGE_CANNONBALL, 20.0F);
+            Entity hitEntity = hitResult.getEntity();
+            Entity ownerEntity = this.getOwner();
+            hitEntity.hurt(ModDamageSourceTypes.cannonBall(this, ownerEntity), 20.0F);
 
-            if (hit instanceof Ship shipDamage) {
-                shipDamage.hurt(DamageSource.ON_FIRE, random.nextInt(7) + 7);
+            if (hitEntity instanceof Ship shipHitEntity) {
+                shipHitEntity.hurt(DamageSource.ON_FIRE, random.nextInt(7) + 7);
                 this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_HURT, this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
-            }
-            else if (entity1 instanceof LivingEntity) {
-                this.doEnchantDamageEffects((LivingEntity) entity1, hit);
+            } else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
+                this.doEnchantDamageEffects(livingOwnerEntity, hitEntity);
                 this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_HURT, this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
             }
         }

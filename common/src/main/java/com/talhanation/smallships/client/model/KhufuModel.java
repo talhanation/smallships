@@ -14,19 +14,11 @@ import org.jetbrains.annotations.NotNull;
 public class KhufuModel extends ShipModel<KhufuEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, KhufuEntity.ID + "_model"), "main");
 	private final ModelPart root;
-	private final ModelPart chest1;
-	private final ModelPart chest2;
-	private final ModelPart chest3;
-	private final ModelPart chest4;
 	private final ModelPart steer;
 
 	public KhufuModel(ModelPart modelPart) {
 		this.root = modelPart;
 		ModelPart cog = this.root.getChild("cog");
-		this.chest1 = cog.getChild("chest_1");
-		this.chest2 = cog.getChild("chest_2");
-		this.chest3 = cog.getChild("chest_3");
-		this.chest4 = cog.getChild("chest_4");
 		this.steer = cog.getChild("steer");
 	}
 

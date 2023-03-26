@@ -31,7 +31,6 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
         this.xo = d;
         this.yo = e;
         this.zo = f;
-        this.setData(CONTAINER_SIZE, ORIGINAL_CONTAINER_SIZE);
     }
 
     public static BriggEntity summon(Level level, double d, double e, double f) {
