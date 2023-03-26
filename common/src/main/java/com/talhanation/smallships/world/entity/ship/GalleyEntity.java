@@ -144,7 +144,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     // Implement Able-Interfaces
     @Override
     public Bannerable.BannerPosition getBannerPosition() {
-        return new Bannerable.BannerPosition(90.0F, 90.0F, -6.4D, 1.65D, 0.0D);
+        return new Bannerable.BannerPosition(0.0F, 270.0F, 4.0D, 0.15D, 0.0D); //+x=up, +y=back, +z=right
     }
 
     @Override

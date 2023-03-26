@@ -144,7 +144,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     // Implement Able-Interfaces
     @Override
     public BannerPosition getBannerPosition() {
-        return new BannerPosition(90.0F, 90.0F, -6.4D, 1.65D, 0.0D);
+        return new BannerPosition(90.0F, 90.0F, -6.6D, 1.65D, 0.0D);
     }
 
     @Override
