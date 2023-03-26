@@ -1,4 +1,12 @@
 {
+  "entity.smallships.rowboat": "Chaloupe",
+  "item.smallships.acacia_rowboat": "Chaloupe en acacia",
+  "item.smallships.birch_rowboat": "Chaloupe en bouleau",
+  "item.smallships.jungle_rowboat": "Chaloupe en acajou",
+  "item.smallships.spruce_rowboat": "Chaloupe en sapin",
+  "item.smallships.oak_rowboat": "Chaloupe en chêne",
+  "item.smallships.dark_oak_rowboat": "Chaloupe en chêne noir",
+  
   "entity.smallships.cog": "Voilier",
   "item.smallships.acacia_cog": "Voilier en acacia",
   "item.smallships.birch_cog": "Voilier en bouleau",
@@ -17,12 +25,12 @@
   "item.smallships.dark_oak_galley": "Galère en chêne noir",
 
   "entity.smallships.war_galley": "Galère de guerre",
-  "item.smallships.acacia_war_galley": "\"Galère de guerre en acacia",
+  "item.smallships.acacia_war_galley": "Galère de guerre en acacia",
   "item.smallships.birch_war_galley": "Galère de guerre en bouleau",
   "item.smallships.jungle_war_galley": "Galère de guerre en acajou",
   "item.smallships.spruce_war_galley": "Galère de guerre en sapin",
   "item.smallships.oak_war_galley": "Galère de guerre en chêne",
-  "item.smallships.dark_war_oak_galley": "Galère de guerre en chêne noir",
+  "item.smallships.dark_oak_war_galley": "Galère de guerre en chêne noir",
 
   "entity.smallships.drakkar": "Bateau de viking",
   "item.smallships.acacia_drakkar": "Bateau de viking en acacia",
@@ -31,4 +39,20 @@
   "item.smallships.spruce_drakkar": "Bateau de viking en sapin",
   "item.smallships.oak_drakkar": "Bateau de viking en chêne",
   "item.smallships.dark_oak_drakkar": "Bateau de viking en chêne noir"
+  
+  "entity.smallships.brigg": "Brigantin",
+  "item.smallships.acacia_brigg": "Brigantin en acacia",
+  "item.smallships.birch_brigg": "Brigantin en bouleau",
+  "item.smallships.jungle_brigg": "Brigantin en acajou",
+  "item.smallships.spruce_brigg": "Brigantin en sapin",
+  "item.smallships.oak_brigg": "Brigantin en chêne",
+  "item.smallships.dark_oak_brigg": "Brigantin en chêne noir",
+  
+  "entity.smallships.dhow": "Boutre",
+  "item.smallships.acacia_dhow": "Boutre en acacia",
+  "item.smallships.birch_dhow": "Boutre en bouleau",
+  "item.smallships.jungle_dhow": "Boutre en acajou",
+  "item.smallships.spruce_dhow": "Boutre en sapin",
+  "item.smallships.oak_dhow": "Boutre en chêne",
+  "item.smallships.dark_oak_dhow": "Boutre en chêne noir",
 }
