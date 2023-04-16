@@ -74,7 +74,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     @Override
     protected void renderLabels(@NotNull PoseStack poseStack, int i, int j) {
         super.renderLabels(poseStack, i, j);
-        font.draw(poseStack, (Mth.ceil(ship.getDamage()) + "%"), 140, 6, FONT_COLOR);
+        font.draw(poseStack, (Mth.ceil(ship.getDamage()) + "%"), 150, 6, FONT_COLOR);
 
         if (this.pageCount > 1) font.draw(poseStack, (this.pageIndex + 1) + "/"  + this.pageCount, 50, 6, FONT_COLOR);
     }
