@@ -65,7 +65,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
 
         if(isInWater()){
-            if (this.getLevel().isClientSide()) waterParticles();
+            if (this.getLevel().isClientSide() && !isUnderWater()) waterParticles();
 
             this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -f2, 0.0D));
             this.setInWater(true);

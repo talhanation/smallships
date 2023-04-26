@@ -133,12 +133,14 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @SuppressWarnings({"unused", "unchecked"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        for(Cannon cannon : cannonShipEntity.self().CANNONS){
-            poseStack.pushPose();
-            poseStack.mulPose(Vector3f.YP.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
-            poseStack.translate(cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), cannon.getOffsetZ());
+        for(byte i = 0; i < cannonShipEntity.self().getCannonCount(); i++){
+            Cannon cannon = new Cannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
 
-            poseStack.scale(0.75F, 0.75F, 0.75F);
+            poseStack.pushPose();
+            poseStack.mulPose(Vector3f.YN.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
+            poseStack.translate(cannon.isRightSided() ? -cannon.getOffsetX() : cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), -cannon.getOffsetZ());
+
+            poseStack.scale(0.6F, 0.6F, 0.6F);
 
             CannonModel cannonModel = new CannonModel();
             cannonModel.setupAnim((T)cannonShipEntity, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
@@ -151,7 +153,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     /*********************************************************
      * Offset for Cannon Render:
      * - Positive values will turn the cannon clockwise
-     * - Positive values will turn the cannon counter-clockwise
+     * - Negative values will turn the cannon counter-clockwise
      *********************************************************/
     protected float getCannonAngleOffset() {
         return 0;

@@ -17,6 +17,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GalleyEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable, Paddleable {
     public static final String ID = "galley";
     private static final int ORIGINAL_CONTAINER_SIZE = 225;
@@ -183,16 +186,23 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
         }
     }
 
+    public CannonPosition getCannonPosition(int index){
+        List<CannonPosition> positionList = new ArrayList<>();
+        CannonPosition pos1 = new CannonPosition(1.4, 0, 0.6, true);
+        CannonPosition pos2 = new CannonPosition(1.4, 0, 0.6, false);
+        CannonPosition pos3 = new CannonPosition(-0.6, 0, 0.6, true);
+        CannonPosition pos4 = new CannonPosition(-0.6, 0, 0.6, false);
+        positionList.add(pos1);
+        positionList.add(pos2);
+        positionList.add(pos3);
+        positionList.add(pos4);
+
+        return positionList.get(index);
+    }
+
     @Override
-    public void setCannonPos() {
-        Cannonable.CannonPosition pos1 = new Cannonable.CannonPosition(-1.4, 0, -0.7, true);
-        Cannonable.CannonPosition pos2 = new Cannonable.CannonPosition(-1.4, 0, 0.7, false);
-        Cannonable.CannonPosition pos3 = new Cannonable.CannonPosition(0.6, 0, -0.7, true);
-        Cannonable.CannonPosition pos4 = new Cannonable.CannonPosition(0.6, 0, 0.7, false);
-        this.CANNON_POS.add(pos1);
-        this.CANNON_POS.add(pos2);
-        this.CANNON_POS.add(pos3);
-        this.CANNON_POS.add(pos4);
+    public byte getMaxCannonPerSide(){
+        return 2;
     }
 
     public @Nullable Vec3 applyLeashOffset() {

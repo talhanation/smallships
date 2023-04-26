@@ -48,6 +48,7 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<String>  SAIL_COLOR = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.STRING);
     public static final EntityDataAccessor<ItemStack> BANNER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<Float> CANNON_POWER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Byte> CANNON_COUNT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
 
     private float prevWaveAngle;
     private float waveAngle;
@@ -56,7 +57,6 @@ public abstract class Ship extends Boat {
     protected boolean cannonKeyPressed;
     public int sailStateCooldown = 0;
     public List<Cannon> CANNONS = new ArrayList<>();
-    public List<Cannonable.CannonPosition> CANNON_POS = new ArrayList<>();
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
@@ -216,7 +216,7 @@ public abstract class Ship extends Boat {
 
             if (((BoatAccessor) this).isInputDown()) {
                 if (sailstate == (byte) 0) {
-                    if (speed >= -maxBackSp) speed = Math.max(speed - acceleration, -maxBackSp);
+                    if (speed >= -maxBackSp) speed = Math.max(speed - acceleration * 3 / 8, -maxBackSp);
                 } else {
                     if (this instanceof Sailable sailShip && sailstate != 1) {
                         Entity entity = this.getControllingPassenger();
@@ -253,6 +253,12 @@ public abstract class Ship extends Boat {
     }
     public void setRotSpeed(float f) {
         this.entityData.set(ROT_SPEED, f);
+    }
+    public void setCannonCount(byte x) {
+        this.entityData.set(CANNON_COUNT, x);
+    }
+    public byte getCannonCount() {
+        return entityData.get(CANNON_COUNT);
     }
 
     @Override

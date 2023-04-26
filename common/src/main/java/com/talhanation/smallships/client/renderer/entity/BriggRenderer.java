@@ -33,7 +33,7 @@ public class BriggRenderer extends ShipRenderer<BriggEntity> {
 
     @Override
     protected float getCannonHeightOffset(){
-        return -0.50F;
+        return -0.25F;
     }
 
     @Override

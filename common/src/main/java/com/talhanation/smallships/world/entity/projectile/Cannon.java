@@ -2,21 +2,21 @@ package com.talhanation.smallships.world.entity.projectile;
 
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Objects;
 
-public class Cannon {
+public class Cannon extends Entity {
     private final RandomSource random;
-    private double x;
-    private double y;
-    private double z;
-
     private final double offsetX;
     private final double offsetY;
     private final double offsetZ;
@@ -33,6 +33,7 @@ public class Cannon {
     }
 
     public Cannon(Ship ship, double offsetX, double offsetY, double offsetZ, boolean isRightSided, boolean isLeftSided) {
+        super(EntityType.ARMOR_STAND, ship.getLevel());
         this.ship = ship;
         this.level = ship.getLevel();
         this.random = level.getRandom();
@@ -46,28 +47,28 @@ public class Cannon {
         if (isLeftSided) this.setLeftSided();
     }
 
-    public void tick() {
-    /*
-    this.setX(ship.getX() + this.getOffsetX());
-    this.setY(ship.getY() + this.getOffsetY());
-    this.setZ(ship.getZ() + this.getOffsetZ());
-     */
 
-        this.updatePosition();
+    public void tick(){
         if (coolDown > 0) coolDown--;
+        this.updatePosition();
     }
 
-    public void updatePosition() {
-        Vec3 forward = ship.getForward();
-        float x0 = 0; // /-/rechst /+/links //no need
+    @Override
+    protected void defineSynchedData() {
+    }
 
-        float f0 = Mth.cos(ship.getYRot() * ((float) Math.PI / 180F)) * x0;
-        float f1 = Mth.sin(ship.getYRot() * ((float) Math.PI / 180F)) * x0;
-        float f2 = 0; // /-/vorne /+/zurück
 
-        this.setX(ship.getX() + this.getOffsetX() - forward.x * (double) f2 + (double) f0);
-        this.setY(ship.getY() + this.getOffsetY() - forward.y);//hoch
-        this.setZ(ship.getZ() + this.getOffsetZ() - forward.z * (double) f2 + (double) f1);
+    @Override
+    protected void readAdditionalSaveData(CompoundTag compoundTag) {
+    }
+
+    @Override
+    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+    }
+
+    @Override
+    public Packet<?> getAddEntityPacket() {
+        return null;
     }
 
     public void trigger() {
@@ -82,8 +83,22 @@ public class Cannon {
         }
     }
 
+    public void updatePosition(){
+        Vec3 forward = this.ship.getForward();
+        float x0 = 0; // /-/rechst /+/links //no need
+
+        double f0 = (Math.cos(this.ship.getYRot() * ((float)Math.PI / 180F)) * x0);
+        double f1 = (Math.sin(this.ship.getYRot() * ((float)Math.PI / 180F)) * x0);
+        double f2 = this.getOffsetX(); // /-/vorne /+/zurück
+        double d1 = this.ship.getX() - forward.x * f2 + f0;
+        double d2 = this.ship.getY() - forward.y + this.getOffsetY();//hoch
+        double d3 = this.ship.getZ() - forward.z * f2 + f1;
+
+        this.moveTo(d1, d2, d3);
+    }
+
     private void resetTimer() {
-        this.time = random.nextInt(20);
+        this.time = 5 + random.nextInt(10);
     }
 
     private void setCoolDown() {
@@ -97,25 +112,15 @@ public class Cannon {
         Vec3 forward = ship.getForward().normalize();
         Vec3 shootVec = getShootVector(forward, driverEntity);
 
-
-        float f2 = 0.2F;//foward backward
-        float x0 = 1F;//right/left pos
-        float speed = 2.0F;
-        float k = 2F;
+        double speed = 2.2F;
+        double k = 3F;
 
         if (shootVec != null) {
             boolean playerView = driverEntity.getLookAngle().y >= 0;
-            double yShootVec = playerView ? shootVec.y() + driverEntity.getLookAngle().y * 0.95F : shootVec.y() + 0.25F;
+            double yShootVec = playerView ? shootVec.y() + driverEntity.getLookAngle().y * 0.95F : shootVec.y() + 0.15F;
 
-            float f0 = Mth.cos(ship.getYRot() * ((float) Math.PI / 180F)) * x0;
-            float f1 = Mth.sin(ship.getYRot() * ((float) Math.PI / 180F)) * x0;
-            //float f2 = 0.2F; // /-/vorne /+/zurück
-            double d1 = this.getX() - forward.x * (double) f2 + (double) f0;
-            double d2 = this.getY() - forward.y + 1;//hoch
-            double d3 = this.getZ() - forward.z * (double) f2 + (double) f1;
-
-            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, (LivingEntity) ship.getControllingPassenger(), d1, d2, d3);
-            cannonBallEntity.shoot(shootVec.x(), yShootVec, shootVec.z(), speed, k);
+            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, (LivingEntity) ship.getControllingPassenger(), this.getX(), this.getY(), this.getZ());
+            cannonBallEntity.shoot(shootVec.x(), yShootVec, shootVec.z(), (float) speed, (float) k);
             this.level.addFreshEntity(cannonBallEntity);
             ship.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
             ship.playSound(SoundEvents.GENERIC_EXPLODE, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
@@ -140,17 +145,6 @@ public class Cannon {
         return null;
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public double getZ() {
-        return z;
-    }
 
     public double getOffsetX() {
         return offsetX;
@@ -168,18 +162,6 @@ public class Cannon {
         return (float) this.angle;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public void setZ(double z) {
-        this.z = z;
-    }
-
     public void setAngle(double angle) {
         this.angle = angle;
     }
@@ -192,6 +174,9 @@ public class Cannon {
     public void setRightSided() {
         this.isRightSided = true;
         this.setAngle(180F);
+    }
+    public boolean isRightSided() {
+        return isRightSided;
     }
 
     public boolean canShootDirection() {
@@ -208,5 +193,14 @@ public class Cannon {
         } else {
             return isLeftSided && Objects.equals(shootVec, VecLeft);
         }
+    }
+
+    public CompoundTag getData(){
+        CompoundTag compoundtag = new CompoundTag();
+        compoundtag.putDouble("x", this.getOffsetX());
+        compoundtag.putDouble("y", this.getOffsetY());
+        compoundtag.putDouble("z", this.getOffsetZ());
+        compoundtag.putBoolean("isRightSided", this.isRightSided());
+        return compoundtag;
     }
 }

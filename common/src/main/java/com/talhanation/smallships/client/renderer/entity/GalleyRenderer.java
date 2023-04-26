@@ -28,12 +28,12 @@ public class GalleyRenderer extends ShipRenderer<GalleyEntity> {
 
     @Override
     protected float getCannonAngleOffset() {
-        return -90.0F;
+        return 0.0F;
     }
 
     @Override
     protected float getCannonHeightOffset(){
-        return -0.50F;
+        return 0.1F;
     }
 
     @Override

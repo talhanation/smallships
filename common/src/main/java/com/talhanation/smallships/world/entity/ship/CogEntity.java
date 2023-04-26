@@ -17,6 +17,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
     public static final String ID = "cog";
     private static final int ORIGINAL_CONTAINER_SIZE = 54;
@@ -111,19 +114,29 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     }
     /**
      *  Cannon Positioning:
-     *  offset X: Defines the X offset -> positive will increase a placement in ships forward
+     *  offset X: Defines the X offset -> positive will increase a placement in ships backward
      *  offset Y: Defines the Y offset -> positive will increase a placement in height
-     *  offset X: Defines the Z offset -> positive will increase a placement in ships left
-     */
-    public void setCannonPos(){
-        CannonPosition pos1 = new CannonPosition(-1.4, 0, -0.7, true);
-        CannonPosition pos2 = new CannonPosition(-1.4, 0, 0.7, false);
-        CannonPosition pos3 = new CannonPosition(0.6, 0, -0.7, true);
-        CannonPosition pos4 = new CannonPosition(0.6, 0, 0.7, false);
-        this.CANNON_POS.add(pos1);
-        this.CANNON_POS.add(pos2);
-        this.CANNON_POS.add(pos3);
-        this.CANNON_POS.add(pos4);
+     *  offset X: Defines the Z offset -> positive will increase a placement in ships left if its right-sided it will auto negate
+     **/
+    public CannonPosition getCannonPosition(int index){
+        List<CannonPosition> positionList = new ArrayList<>();
+        CannonPosition pos1 = new CannonPosition(1.4, 0.2, 0.6, true);
+        CannonPosition pos2 = new CannonPosition(1.4, 0.2, 0.6, false);
+
+        CannonPosition pos3 = new CannonPosition(-0.6, 0.2, 0.6, true);
+        CannonPosition pos4 = new CannonPosition(-0.6, 0.2, 0.6, false);
+
+        positionList.add(pos1);
+        positionList.add(pos2);
+        positionList.add(pos3);
+        positionList.add(pos4);
+
+        return positionList.get(index);
+    }
+
+    @Override
+    public byte getMaxCannonPerSide(){
+        return 2;
     }
 
     @Override

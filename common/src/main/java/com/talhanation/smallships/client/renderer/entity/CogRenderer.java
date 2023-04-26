@@ -30,7 +30,7 @@ public class CogRenderer extends ShipRenderer<CogEntity> {
 
     @Override
     protected float getCannonHeightOffset(){
-        return 0.05F;
+        return 0.5F;
     }
 
     public Vector3f getRotation(){

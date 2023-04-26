@@ -1,6 +1,5 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.core.NonNullList;
@@ -189,7 +188,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public void setItem(int i, @NotNull ItemStack itemStack) {
         this.setChestVehicleItem(i, itemStack);
         this.updateContainerFillState();
-        if(this instanceof Cannonable cannonable) cannonable.updateCannonCount();
     }
 
     @Override
@@ -330,6 +328,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.entityData.set(CONTAINER_FILL_STATE, b);
     }
 
+    /*
     public void addItemToFreeSlot(ItemStack itemStack){
         for(int i = 0; i < this.getContainerSize(); i++){
             if(this.getSlot(i).get().is(ItemStack.EMPTY.getItem())){
@@ -342,4 +341,5 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
             }
         }
     }
+   */
 }
