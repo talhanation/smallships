@@ -204,7 +204,7 @@ public abstract class Ship extends Boat {
             if (((BoatAccessor) this).isInputUp()) {
                 if (sailstate == (byte) 0) {
                     if (speed <= maxSp)
-                        speed = Math.min(speed + acceleration, maxSp); //speed = Math.min(speed + acceleration * 1 / 8, maxSp);
+                        speed = Math.min(speed + acceleration * 3 / 8, maxSp);
                 } else {
                     if (this instanceof Sailable sailShip && sailstate != 4) {
                         Entity entity = this.getControllingPassenger();

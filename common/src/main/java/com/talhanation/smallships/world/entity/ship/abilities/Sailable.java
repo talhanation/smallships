@@ -55,7 +55,7 @@ public interface Sailable extends Ability {
     default void toggleSail() {
         byte state = self().getSailState();
 
-        if (state != (byte) 1){
+        if (state == (byte) 0){
             state = (byte) 1;
 
         }else{
