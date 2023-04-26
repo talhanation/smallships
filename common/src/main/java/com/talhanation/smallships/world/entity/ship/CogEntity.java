@@ -147,7 +147,7 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     // Implement Able-Interfaces
     @Override
     public BannerPosition getBannerPosition() {
-        return new BannerPosition(-180.0F, 90.0F, -3.1D, 0.87D, 0.05D);
+        return new BannerPosition(-180.0F, 90.0F, -4.0D, 0.78D, 0.05D);
     }
 
     @Override
