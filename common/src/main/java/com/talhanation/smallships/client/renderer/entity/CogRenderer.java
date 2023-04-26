@@ -33,7 +33,7 @@ public class CogRenderer extends ShipRenderer<CogEntity> {
         return 0.5F;
     }
 
-    public Vector3f getRotation(){
+    public Vector3f getWaveAngleRotation(){
         return Vector3f.ZN;//wtf
     }
     @Override

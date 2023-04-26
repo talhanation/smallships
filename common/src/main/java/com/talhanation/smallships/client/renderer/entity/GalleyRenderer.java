@@ -36,6 +36,10 @@ public class GalleyRenderer extends ShipRenderer<GalleyEntity> {
         return 0.1F;
     }
 
+    public Vector3f getWaveAngleRotation(){
+        return Vector3f.ZN;
+    }
+
     @Override
     public void render(@NotNull GalleyEntity galleyEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();

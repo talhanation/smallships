@@ -96,7 +96,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
         float l = shipEntity.getWaveAngle(partialTicks);
         if (!Mth.equal(l, 0.0F)) {
-            poseStack.mulPose(getRotation().rotationDegrees(l));
+            poseStack.mulPose(getWaveAngleRotation().rotationDegrees(l));
         }
 
         Pair<ResourceLocation, ShipModel<T>> pair = this.boatResources.get(shipEntity.getBoatType());
@@ -195,7 +195,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
     }
 
-    public Vector3f getRotation(){
+    public Vector3f getWaveAngleRotation(){
         return Vector3f.XN;
     }
 
