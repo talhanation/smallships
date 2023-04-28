@@ -33,7 +33,7 @@ public class GalleyRenderer extends ShipRenderer<GalleyEntity> {
 
     @Override
     protected float getCannonHeightOffset(){
-        return 0.1F;
+        return 0.25F;
     }
 
     public Vector3f getWaveAngleRotation(){

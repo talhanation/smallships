@@ -25,15 +25,13 @@ public class BriggRenderer extends ShipRenderer<BriggEntity> {
     protected ResourceLocation getTextureLocation(Boat.Type type) {
         return new ResourceLocation(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
     }
-
-    @Override
-    protected float getCannonAngleOffset() {
-        return -90.0F;
-    }
-
     @Override
     protected float getCannonHeightOffset(){
         return -0.25F;
+    }
+
+    public Vector3f getWaveAngleRotation(){
+        return Vector3f.ZN;//wtf
     }
 
     @Override
@@ -41,7 +39,6 @@ public class BriggRenderer extends ShipRenderer<BriggEntity> {
         poseStack.pushPose();
         poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityYaw));
         poseStack.translate(0.0D, 2.0D,0.0D);
-        poseStack.mulPose(Vector3f.YP.rotationDegrees(-90.0F));
         super.render(briggEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 }
