@@ -36,7 +36,7 @@ public class ClientModBus {
         event.registerEntityRenderer(ModEntityTypes.COG, CogRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.BRIGG, BriggRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.GALLEY, GalleyRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.KHUFU, KhufuRenderer::new);
+        //event.registerEntityRenderer(ModEntityTypes.KHUFU, KhufuRenderer::new);
     }
 
     @SubscribeEvent

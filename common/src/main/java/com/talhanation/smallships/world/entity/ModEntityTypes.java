@@ -15,7 +15,7 @@ public class ModEntityTypes {
     public static final EntityType<CogEntity> COG = getEntityType(CogEntity.class);
     public static final EntityType<BriggEntity> BRIGG = getEntityType(BriggEntity.class);
     public static final EntityType<GalleyEntity> GALLEY = getEntityType(GalleyEntity.class);
-    public static final EntityType<KhufuEntity> KHUFU = getEntityType(KhufuEntity.class);
+    //public static final EntityType<KhufuEntity> KHUFU = getEntityType(KhufuEntity.class);
 
     @ExpectPlatform
     public static <T extends Entity> EntityType<T> getEntityType(Class<T> entityClass) {
