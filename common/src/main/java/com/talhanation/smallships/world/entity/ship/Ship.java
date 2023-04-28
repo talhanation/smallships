@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
@@ -20,11 +21,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
+import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
@@ -85,6 +84,7 @@ public abstract class Ship extends Boat {
 
         boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
         this.updateShipAmbience(isCruising);
+        this.updateCollision(isCruising);
         this.updateWaveAngle();
         this.updateWaterMobs();
         this.floatUp();
@@ -365,19 +365,6 @@ public abstract class Ship extends Boat {
         }
     }
 
-    private void collisionDamage(Entity entity) {
-        if (entity instanceof LivingEntity && !getPassengers().contains(entity)) {
-            if (entity.getBoundingBox().intersects(getBoundingBox().expandTowards(1,1,1))) {
-                float speed = getSpeed();
-                if (speed > 0.1F) {
-                    float damage = speed * 10;
-                    entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
-                }
-
-            }
-        }
-    }
-
     private void updateShipAmbience(boolean isSwimming) {
         if (isSwimming) {
             if (this.isInWater()) {
@@ -433,5 +420,40 @@ public abstract class Ship extends Boat {
         } else {
             return true;
         }
+    }
+
+
+    private void knockBack(Entity entity, double speed, AABB boundingBox) {
+        double d0 = (boundingBox.minX + boundingBox.maxX) / 2.0D;
+        double d1 = (boundingBox.minZ + boundingBox.maxZ) / 2.0D;
+
+        if (entity instanceof LivingEntity) {
+            double d2 = entity.getX() - d0;
+            double d3 = entity.getZ() - d1;
+            double d4 = Math.max(d2 * d2 + d3 * d3, 0.1D);
+            entity.setDeltaMovement(getDeltaMovement().add(d2 / d4 * (1.0 + speed), 0.0F, d3 / d4 * (1.0 + speed)));
+        }
+    }
+
+    private void updateCollision(boolean isCruising){
+        if(isCruising) {
+            AABB boundingBox = this.getBoundingBox().inflate(2.25, 1.25, 2.25).move(0.0, -2.0, 0.0);
+            List<Entity> list = this.level.getEntities(this, boundingBox, EntitySelector.pushableBy(this));
+            for(Entity entity: list) {
+                if (entity instanceof LivingEntity && !getPassengers().contains(entity)){
+                    this.knockBack(entity, this.getSpeed(), boundingBox);
+                    this.collisionDamage(entity, this.getSpeed());
+                }
+            }
+        }
+    }
+
+    private void collisionDamage(Entity entity, float speed) {
+        if (speed > 0.1F) {
+            float damage = speed * 7.5F;
+            entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
+            SmallShipsMod.LOGGER.info("Damage: " + damage);
+        }
+
     }
 }
