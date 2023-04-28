@@ -19,10 +19,11 @@
   },
   "cannon_shoot":{
     "category": "entity",
-    "subtitle": "subtitles.smallships.cannon_shoot",
+    "subtitle": "subtitles.smallships.cannon_sho0t",
     "sounds": [
       {
-        "name": "smallships:entity/ship/cannon_shoot"
+        "name": "smallships:entity/ship/cannon_shot_1",
+        "name": "smallships:entity/ship/cannon_shot_2"
       }
     ]
   }

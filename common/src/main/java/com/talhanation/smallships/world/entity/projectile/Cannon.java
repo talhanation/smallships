@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.entity.projectile;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 
+import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvents;
@@ -123,7 +124,8 @@ public class Cannon extends Entity {
             cannonBallEntity.shoot(shootVec.x(), yShootVec, shootVec.z(), (float) speed, (float) k);
             this.level.addFreshEntity(cannonBallEntity);
             ship.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
-            ship.playSound(SoundEvents.GENERIC_EXPLODE, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
+
+            ship.playSound(ModSoundTypes.CANNON_SHOOT, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
 
             if (ship instanceof Cannonable cannonable) cannonable.consumeCannonBall();
         }
