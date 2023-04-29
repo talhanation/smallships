@@ -34,7 +34,7 @@ public class ClientInitializer implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.COG, CogRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.BRIGG, BriggRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.GALLEY, GalleyRenderer::new);
-        EntityRendererRegistry.register(ModEntityTypes.KHUFU, KhufuRenderer::new);
+        //EntityRendererRegistry.register(ModEntityTypes.KHUFU, KhufuRenderer::new);
     }
 
     public void initRendererRegisterLayerDefinitions() {

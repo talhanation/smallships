@@ -22,7 +22,7 @@ public class ModSoundTypesImpl {
     static {
         entries.put("sail_move", register("sail_move"));
         entries.put("sail_pull", register("sail_pull"));
-        entries.put("cannon_shoot", register("cannon_shoot"));
+        entries.put("cannon_shot", register("cannon_shot"));
     }
 
     private static RegistryObject<SoundEvent> register (String id) {
