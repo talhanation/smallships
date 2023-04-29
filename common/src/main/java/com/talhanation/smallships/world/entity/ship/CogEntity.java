@@ -22,7 +22,7 @@ import java.util.List;
 
 public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
     public static final String ID = "cog";
-    private static final int ORIGINAL_CONTAINER_SIZE = 54;
+    private static final int ORIGINAL_CONTAINER_SIZE = 108;
     public CogEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
@@ -42,12 +42,12 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = 100.0F;
+        attributes.maxHealth = 300.0F;
         attributes.maxSpeed = 6F;
         attributes.maxReverseSpeed = 0.1F;
-        attributes.maxRotationSpeed = 6F;
+        attributes.maxRotationSpeed = 4.0F;
         attributes.acceleration = 0.015F;
-        attributes.rotationAcceleration = 0.575F;
+        attributes.rotationAcceleration = 0.5F;
         CompoundTag tag = new CompoundTag();
         attributes.addSaveData(tag);
         return tag;

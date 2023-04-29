@@ -22,7 +22,7 @@ import java.util.List;
 
 public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
     public static final String ID = "brigg";
-    private static final int ORIGINAL_CONTAINER_SIZE = 108;
+    private static final int ORIGINAL_CONTAINER_SIZE = 162;
 
     public BriggEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -43,12 +43,12 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = 300.0F;
+        attributes.maxHealth = 450.0F;
         attributes.maxSpeed = 7F;
         attributes.maxReverseSpeed = 0.1F;
-        attributes.maxRotationSpeed = 1.4F;
-        attributes.acceleration = 0.0135F;
-        attributes.rotationAcceleration = 0.31F;
+        attributes.maxRotationSpeed = 4.5F;
+        attributes.acceleration = 0.015F;
+        attributes.rotationAcceleration = 0.6F;
         CompoundTag tag = new CompoundTag();
         attributes.addSaveData(tag);
         return tag;

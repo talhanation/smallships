@@ -22,7 +22,7 @@ import java.util.List;
 
 public class GalleyEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable, Paddleable {
     public static final String ID = "galley";
-    private static final int ORIGINAL_CONTAINER_SIZE = 225;
+    private static final int ORIGINAL_CONTAINER_SIZE = 54;
 
     public GalleyEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -43,12 +43,12 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = 300.0F;
-        attributes.maxSpeed = 7F;
+        attributes.maxHealth = 200.0F;
+        attributes.maxSpeed = 6F;
         attributes.maxReverseSpeed = 0.1F;
-        attributes.maxRotationSpeed = 1.4F;
-        attributes.acceleration = 0.0135F;
-        attributes.rotationAcceleration = 0.31F;
+        attributes.maxRotationSpeed = 5.0F;
+        attributes.acceleration = 0.015F;
+        attributes.rotationAcceleration = 1.00F;
         CompoundTag tag = new CompoundTag();
         attributes.addSaveData(tag);
         return tag;
@@ -56,7 +56,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
 
     @Override
     protected int getMaxPassengers() {
-        return 10;
+        return 9;
     }
 
     @Override
