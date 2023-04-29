@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.projectile;
 
 import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
@@ -95,7 +96,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
 
     public void setInWater(boolean bool){
         if (bool != inWater){
-            this.getLevel().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 10.0F, 0.8F + 0.4F * this.random.nextFloat());
+            this.getLevel().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             inWater = true;
             //this.discard();
         }
@@ -123,14 +124,15 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         if (!this.getLevel().isClientSide()) {
             Entity hitEntity = hitResult.getEntity();
             Entity ownerEntity = this.getOwner();
-            hitEntity.hurt(ModDamageSourceTypes.cannonBall(this, ownerEntity), 20.0F);
+            hitEntity.hurt(ModDamageSourceTypes.cannonBall(this, ownerEntity), 19.0F);
 
             if (hitEntity instanceof Ship shipHitEntity) {
-                shipHitEntity.hurt(DamageSource.ON_FIRE, random.nextInt(7) + 7);
-                this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_HURT, this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
-            } else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
+                shipHitEntity.hurt(ModDamageSourceTypes.cannonBall(this, ownerEntity), random.nextInt(7) + 7);
+                this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+            }
+            else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
                 this.doEnchantDamageEffects(livingOwnerEntity, hitEntity);
-                this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_HURT, this.getSoundSource(), 15.0F, 0.8F + 0.4F * this.random.nextFloat());
+                this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
         }
     }
@@ -153,7 +155,6 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             double d2 = this.random.nextGaussian() * 0.03D;
             double d3 = 20.0D;
             this.getLevel().addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3  + i * 0.012, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
-            //this.getLevel().addParticle(ParticleTypes.BUBBLE_COLUMN_UP, this.getX(), this.getY() + i * 0.005, this.getZ(), 0, 0, 0);
         }
     }
 
@@ -183,7 +184,6 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
 
         for (int i = 0; i < 50; ++i) {
-            //this.getLevel().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(), this.getY(), this.getZ() , 0, 0, 0);
             this.getLevel().addParticle(ParticleTypes.FLAME, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
         }
     }

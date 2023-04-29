@@ -44,5 +44,31 @@
         "stream": true
       }
     ]
+  },
+  "ship_hit":{
+    "category": "entity",
+    "subtitle": "subtitles.smallships.ship_hit",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship/ship_hit_1",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/ship_hit_2",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/ship_hit_3",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/ship_hit_4",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/ship_hit_5",
+        "stream": true
+      }
+    ]
   }
 }

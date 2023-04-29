@@ -89,5 +89,6 @@
 
   "subtitles.smallships.sail_move": "Sail moves",
   "subtitles.smallships.sail_pull": "Sail is pulled",
-  "subtitles.smallships.cannon_shoot": "Cannon shoots"
+  "subtitles.smallships.cannon_shot": "Cannon shoots",
+  "subtitles.smallships.ship_hit": "Ship gets hit"
 }
