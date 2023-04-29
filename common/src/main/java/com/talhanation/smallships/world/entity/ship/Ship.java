@@ -23,7 +23,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
-import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
@@ -67,6 +66,10 @@ public abstract class Ship extends Boat {
     public void tick() {
         super.tick();
         this.controlBoat();
+
+        if (this.getDamage() > 0.0F) {
+            this.setDamage(this.getDamage() + 1.0F); //TODO: Replace with Mixin for performance
+        }
 
         if (this instanceof Sailable sailShip) sailShip.tickSailShip();
         if (this instanceof Bannerable bannerShip) bannerShip.tickBannerShip();
@@ -404,13 +407,15 @@ public abstract class Ship extends Boat {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
         } else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
-            this.setHurtDir(-this.getHurtDir());
-            this.setHurtTime(10);
-            this.setDamage(this.getDamage() + f * 10.0F);
+            //this.setHurtDir(-this.getHurtDir());
+            //this.setHurtTime(10);
+            this.setDamage(this.getDamage() + f);
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
+
             boolean bl = damageSource.getEntity() instanceof Player && ((Player)damageSource.getEntity()).getAbilities().instabuild;
-            if (bl || this.getDamage() > 40.0F) {
+
+            if (this.getDamage() > this.getAttributes().maxHealth) {
                 if (!bl && this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                     this.destroy(damageSource);
                 }
