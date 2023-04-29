@@ -123,7 +123,7 @@ public class Cannon extends Entity {
             boolean playerView = driverEntity.getLookAngle().y >= 0;
             double yShootVec = playerView ? shootVec.y() + driverEntity.getLookAngle().y * 0.95F : shootVec.y() + 0.15F;
 
-            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, (LivingEntity) ship.getControllingPassenger(), this.getX(), this.getY(), this.getZ());
+            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, (LivingEntity) ship.getControllingPassenger(), this.getX(), this.getY() + 1, this.getZ());
             cannonBallEntity.shoot(shootVec.x(), yShootVec, shootVec.z(), (float) speed, (float) k);
             this.level.addFreshEntity(cannonBallEntity);
             ship.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
