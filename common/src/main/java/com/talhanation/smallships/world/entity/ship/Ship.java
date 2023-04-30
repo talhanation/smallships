@@ -415,7 +415,7 @@ public abstract class Ship extends Boat {
 
             boolean bl = damageSource.getEntity() instanceof Player && ((Player)damageSource.getEntity()).getAbilities().instabuild;
 
-            if (this.getDamage() > this.getAttributes().maxHealth) {
+            if (bl || this.getDamage() > this.getAttributes().maxHealth) {
                 if (!bl && this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                     this.destroy(damageSource);
                 }
