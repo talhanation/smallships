@@ -67,6 +67,8 @@ public abstract class Ship extends Boat {
         super.tick();
         this.controlBoat();
 
+        SmallShipsMod.LOGGER.info("Speed: " + this.getSpeed());
+
         if (this.getDamage() > 0.0F) {
             this.setDamage(this.getDamage() + 1.0F); //TODO: Replace with Mixin for performance
         }
@@ -143,84 +145,46 @@ public abstract class Ship extends Boat {
 
     @Override
     protected void controlBoat() {
-        if(this.isInWater()) {
+        if(this.isInWater()){
             byte sailstate = this.getSailState();
-            float modifier = ((BoatAccessor)this).isInputUp() && this instanceof Paddleable paddleShip? paddleShip.getPaddlingModifier() : 1.0F;// - (getBiomesModifier() + getPassengerModifier() + getCannonModifier() + getCargoModifier());
-
-            float blockedmodf = 1;
-
-            //blockedmodf = 0.00001F;
             Attributes attributes = this.getAttributes();
-            float maxSp = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
-            float maxBackSp = attributes.maxReverseSpeed * modifier;
-            float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F) * modifier;
+            float maxSp = (attributes.maxSpeed / (12F * 1.15F));
+            float maxBackSp = attributes.maxReverseSpeed;
+            float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
             float acceleration = attributes.acceleration;
-
-            float speed = Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance());
 
             ((BoatAccessor) this).setDeltaRotation(0);
             float rotationSpeed = Kalkuel.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
             if (((BoatAccessor) this).isInputRight()) {
-                if (rotationSpeed <= maxRotSp) {
+                if (rotationSpeed < maxRotSp) {
                     rotationSpeed = Math.min(rotationSpeed + this.getAttributes().rotationAcceleration * 1 / 8, maxRotSp);
                 }
             }
 
             if (((BoatAccessor) this).isInputLeft()) {
-                if (rotationSpeed >= -maxRotSp) {
+                if (rotationSpeed > -maxRotSp) {
                     rotationSpeed = Math.max(rotationSpeed - this.getAttributes().rotationAcceleration * 1 / 8, -maxRotSp);
                 }
             }
 
             setRotSpeed(rotationSpeed);
-
             ((BoatAccessor) this).setDeltaRotation(rotationSpeed);
-
             setYRot(getYRot() + ((BoatAccessor) this).getDeltaRotation());
 
-            if (sailstate != (byte) 0) {
-                switch (sailstate) {
-                    case (byte) 1 -> {
-                        maxSp *= 4 / 16F;
-                        if (speed <= maxSp)
-                            speed = Math.min(speed + acceleration * 9F / 16, maxSp);
-                    }
-                    case (byte) 2 -> {
-                        maxSp *= 8 / 16F;
-                        if (speed <= maxSp)
-                            speed = Math.min(speed + acceleration * 11F / 16, maxSp);
-                    }
-                    case (byte) 3 -> {
-                        maxSp *= 12 / 16F;
-                        if (speed <= maxSp)
-                            speed = Math.min(speed + acceleration * 13F / 16, maxSp);
-                    }
-                    case (byte) 4 -> {
-                        maxSp *= 1F;
-                        if (speed <= maxSp) {
-                            speed = Math.min(speed + acceleration, maxSp);
-                        }
-                    }
-                }
-            }
+            //Speed calc dependent on sail or paddle
+            float speed = this.calculateSpeed(this.getSpeed(), acceleration, maxSp, sailstate);
 
-            if (((BoatAccessor) this).isInputUp()) {
-                if (sailstate == (byte) 0) {
-                    if (speed <= maxSp)
-                        speed = Math.min(speed + acceleration * 3 / 8, maxSp);
-                } else {
+            if(sailstate != 0){
+                //handle sails
+                if (((BoatAccessor) this).isInputUp()) {
                     if (this instanceof Sailable sailShip && sailstate != 4) {
                         Entity entity = this.getControllingPassenger();
                         if(entity instanceof Player player)
                             sailShip.increaseSail(player, speed, rotationSpeed);
                     }
                 }
-            }
 
-            if (((BoatAccessor) this).isInputDown()) {
-                if (sailstate == (byte) 0) {
-                    if (speed >= -maxBackSp) speed = Math.max(speed - acceleration * 3 / 8, -maxBackSp);
-                } else {
+                if (((BoatAccessor) this).isInputDown()) {
                     if (this instanceof Sailable sailShip && sailstate != 1) {
                         Entity entity = this.getControllingPassenger();
                         if (entity instanceof Player player)
@@ -229,14 +193,32 @@ public abstract class Ship extends Boat {
                 }
             }
 
-            if (((BoatAccessor) this).isInputLeft() || ((BoatAccessor) this).isInputRight()) {
-                speed = speed * (1.0F - (Mth.abs(getRotSpeed()) * 0.015F));
-            }
-
-            setSpeed(speed * blockedmodf);
-
+            setSpeed(speed);
             setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
         }
+    }
+
+    private float calculateSpeed(float speed, float acceleration, float maxSp, byte sailState) {
+        float sollSpeed = 0;
+
+        boolean paddling = this instanceof Paddleable && ((BoatAccessor)this).isInputUp();
+        float paddleSpeed = maxSp * 14/16F;
+
+        switch (sailState){ // Speed depending on sail state
+            case 0 -> sollSpeed = paddling ? paddleSpeed : 0;
+            case 1 -> sollSpeed = paddling ? paddleSpeed : maxSp * 4/16F;
+            case 2 -> sollSpeed = paddling ? paddleSpeed : maxSp * 8/16F;
+            case 3 -> sollSpeed = paddling ? paddleSpeed : maxSp * 11/16F;
+            case 4 -> sollSpeed = paddling ? paddleSpeed : maxSp * 16/16F;
+        }
+
+        if (((BoatAccessor) this).isInputLeft() || ((BoatAccessor) this).isInputRight()) { // Speed decrease when rotating
+            sollSpeed = sollSpeed * (1.0F - (Mth.abs(getRotSpeed()) * 0.02F));
+        }
+
+        speed = Kalkuel.changeToSoll(speed, acceleration, this.getVelocityResistance(), sollSpeed);
+
+        return speed;
     }
 
     public float getSpeed() {
@@ -426,7 +408,6 @@ public abstract class Ship extends Boat {
             return true;
         }
     }
-
 
     private void knockBack(Entity entity, double speed, AABB boundingBox) {
         double d0 = (boundingBox.minX + boundingBox.maxX) / 2.0D;
