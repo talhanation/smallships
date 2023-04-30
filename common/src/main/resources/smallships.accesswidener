@@ -1,5 +1,6 @@
 accessWidener v2 named
 extendable method net/minecraft/world/entity/vehicle/Boat controlBoat ()V
+accessible field net/minecraft/world/entity/vehicle/Boat paddlePositions [F
 
 accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
 accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
@@ -9,3 +10,4 @@ extendable method net/minecraft/world/item/BoatItem getBoat (Lnet/minecraft/worl
 
 accessible method net/minecraft/client/renderer/entity/EntityRenderer getBlockLightLevel (Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;)I
 accessible method net/minecraft/client/renderer/entity/MobRenderer addVertexPair (Lcom/mojang/blaze3d/vertex/VertexConsumer;Lcom/mojang/math/Matrix4f;FFFIIIIFFFFIZ)V
+
