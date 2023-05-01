@@ -67,7 +67,7 @@ public abstract class Ship extends Boat {
         super.tick();
         this.controlBoat();
 
-        SmallShipsMod.LOGGER.info("Speed: " + this.getSpeed());
+        //SmallShipsMod.LOGGER.info("Speed: " + this.getSpeed());// Debug the speed
 
         if (this.getDamage() > 0.0F) {
             this.setDamage(this.getDamage() + 1.0F); //TODO: Replace with Mixin for performance
@@ -226,7 +226,7 @@ public abstract class Ship extends Boat {
             sollSpeed = sollSpeed * (1.0F - (Mth.abs(getRotSpeed()) * 0.02F));
         }
 
-        speed = Kalkuel.changeToSoll(speed, acceleration, 0.003F, sollSpeed);
+        speed = Kalkuel.changeToSoll(speed, acceleration, getVelocityResistance(), sollSpeed);
 
         return speed;
     }
@@ -324,7 +324,7 @@ public abstract class Ship extends Boat {
      * decrease -> slowdown will be lower
      ************************************/
     public float getVelocityResistance() {
-        return 0.009F;
+        return 0.005F;
     }
 
     protected void waterSplash() {
@@ -371,7 +371,7 @@ public abstract class Ship extends Boat {
 
     private void updateWaterMobs() {
         //if (!SmallShipsConfig.WaterMobFlee.get()) return; //CONFIG
-        double radius = 15.0D; //CONFIG
+        double radius = 15.0D; //TODO: CONFIG
         List<WaterAnimal> waterAnimals = this.getLevel().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
         for (WaterAnimal waterAnimal : waterAnimals) {
             fleeEntity(waterAnimal);
@@ -379,8 +379,8 @@ public abstract class Ship extends Boat {
     }
 
     private void fleeEntity(Mob entity) {
-        double fleeDistance = 10.0D; //CONFIG
-        double fleeSpeed = 1.5D; //CONFIG
+        double fleeDistance = 10.0D;
+        double fleeSpeed = 1.5D; //TODO: CONFIG
         Vec3 vecBoat = new Vec3(getX(), getY(), getZ());
         Vec3 vecEntity = new Vec3(entity.getX(), entity.getY(), entity.getZ());
         Vec3 fleeDir = vecEntity.subtract(vecBoat);
