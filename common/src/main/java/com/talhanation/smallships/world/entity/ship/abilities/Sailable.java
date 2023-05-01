@@ -63,6 +63,7 @@ public interface Sailable extends Ability {
         }
         self().setData(Ship.SAIL_STATE, state);
         this.playSailSound(state);
+        self().sailStateCooldown = 30;
     }
 
     default void increaseSail(Player player, float speed, float rot_speed){
