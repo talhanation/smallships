@@ -152,49 +152,59 @@ public abstract class Ship extends Boat {
             float maxBackSp = attributes.maxReverseSpeed;
             float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
             float acceleration = attributes.acceleration;
+            float rotAcceleration = attributes.rotationAcceleration;
 
-            ((BoatAccessor) this).setDeltaRotation(0);
+            //CALCULATE SPEED//
+            //Speed calc dependent on sail or paddle
+            //Speed needs to calculate before rotation because fabric is shit
+            float speed = this.calculateSpeed(this.getSpeed(), acceleration, maxSp, sailstate);
+            this.setSpeed(speed);
+
+            //CALCULATE ROTATION SPEED//
+
+            //((BoatAccessor) this).setDeltaRotation(0); // IDK WHAT THIS IS FOR BUT IT WORKS WITHOUT IT
             float rotationSpeed = Kalkuel.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
             if (((BoatAccessor) this).isInputRight()) {
                 if (rotationSpeed < maxRotSp) {
-                    rotationSpeed = Math.min(rotationSpeed + this.getAttributes().rotationAcceleration * 1 / 8, maxRotSp);
+                    rotationSpeed = Math.min(rotationSpeed + rotAcceleration * 1 / 8, maxRotSp);
                 }
             }
 
             if (((BoatAccessor) this).isInputLeft()) {
                 if (rotationSpeed > -maxRotSp) {
-                    rotationSpeed = Math.max(rotationSpeed - this.getAttributes().rotationAcceleration * 1 / 8, -maxRotSp);
+                    rotationSpeed = Math.max(rotationSpeed - rotAcceleration * 1 / 8, -maxRotSp);
                 }
             }
-
             setRotSpeed(rotationSpeed);
             ((BoatAccessor) this).setDeltaRotation(rotationSpeed);
             setYRot(getYRot() + ((BoatAccessor) this).getDeltaRotation());
 
-            //Speed calc dependent on sail or paddle
-            float speed = this.calculateSpeed(this.getSpeed(), acceleration, maxSp, sailstate);
+            //CONTROL SAIL STATE//
+            this.controlSailState(sailstate, speed, rotationSpeed);
 
-            if(sailstate != 0){
-                //handle sails
-                if (((BoatAccessor) this).isInputUp()) {
-                    if (this instanceof Sailable sailShip && sailstate != 4) {
-                        Entity entity = this.getControllingPassenger();
-                        if(entity instanceof Player player)
-                            sailShip.increaseSail(player, speed, rotationSpeed);
-                    }
-                }
+            //SET
+            setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), 0.0F, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
+        }
+    }
 
-                if (((BoatAccessor) this).isInputDown()) {
-                    if (this instanceof Sailable sailShip && sailstate != 1) {
-                        Entity entity = this.getControllingPassenger();
-                        if (entity instanceof Player player)
-                            sailShip.decreaseSail(player, speed, rotationSpeed);
-                    }
+    private void controlSailState(byte sailState, float speed, float rotationSpeed) {
+        if(sailState != 0){
+            //handle sails
+            if (((BoatAccessor) this).isInputUp()) {
+                if (this instanceof Sailable sailShip && sailState != 4) {
+                    Entity entity = this.getControllingPassenger();
+                    if(entity instanceof Player player)
+                        sailShip.increaseSail(player, speed, rotationSpeed);
                 }
             }
 
-            setSpeed(speed);
-            setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
+            if (((BoatAccessor) this).isInputDown()) {
+                if (this instanceof Sailable sailShip && sailState != 1) {
+                    Entity entity = this.getControllingPassenger();
+                    if (entity instanceof Player player)
+                        sailShip.decreaseSail(player, speed, rotationSpeed);
+                }
+            }
         }
     }
 
@@ -205,18 +215,18 @@ public abstract class Ship extends Boat {
         float paddleSpeed = maxSp * 14/16F;
 
         switch (sailState){ // Speed depending on sail state
-            case 0 -> sollSpeed = paddling ? paddleSpeed : 0;
-            case 1 -> sollSpeed = paddling ? paddleSpeed : maxSp * 4/16F;
-            case 2 -> sollSpeed = paddling ? paddleSpeed : maxSp * 8/16F;
-            case 3 -> sollSpeed = paddling ? paddleSpeed : maxSp * 11/16F;
-            case 4 -> sollSpeed = paddling ? paddleSpeed : maxSp * 16/16F;
+            case 0 -> sollSpeed =  0;
+            case 1 -> sollSpeed = maxSp * 4/16F;
+            case 2 -> sollSpeed = maxSp * 8/16F;
+            case 3 -> sollSpeed = maxSp * 11/16F;
+            case 4 -> sollSpeed = maxSp * 16/16F;
         }
 
         if (((BoatAccessor) this).isInputLeft() || ((BoatAccessor) this).isInputRight()) { // Speed decrease when rotating
             sollSpeed = sollSpeed * (1.0F - (Mth.abs(getRotSpeed()) * 0.02F));
         }
 
-        speed = Kalkuel.changeToSoll(speed, acceleration, this.getVelocityResistance(), sollSpeed);
+        speed = Kalkuel.changeToSoll(speed, acceleration, 0.003F, sollSpeed);
 
         return speed;
     }

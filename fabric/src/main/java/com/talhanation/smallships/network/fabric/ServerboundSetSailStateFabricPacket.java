@@ -46,8 +46,8 @@ public class ServerboundSetSailStateFabricPacket implements FabricPacket, Server
     public void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
         if (player.getVehicle() != null && player.getVehicle() instanceof Sailable ship) {
             ship.self().setSailState(state);
-            ship.self().setSpeed(speed);
-            ship.self().setSpeed(rotSpeed);
+            //ship.self().setSpeed(speed);
+            //ship.self().setSpeed(rotSpeed); //FABRIC IS SHIT
         }
     }
 }
