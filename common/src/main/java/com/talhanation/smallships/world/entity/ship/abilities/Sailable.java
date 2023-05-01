@@ -63,7 +63,7 @@ public interface Sailable extends Ability {
         }
         self().setData(Ship.SAIL_STATE, state);
         this.playSailSound(state);
-        self().sailStateCooldown = 30;
+        self().sailStateCooldown = getSailStateCooldown();
     }
 
     default void increaseSail(Player player, float speed, float rot_speed){
@@ -76,7 +76,7 @@ public interface Sailable extends Ability {
             }
             this.playSailSound(state);
             ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(state, speed, rot_speed));
-            self().sailStateCooldown = 30; //CONFIG
+            self().sailStateCooldown = getSailStateCooldown();
         }
     }
 
@@ -90,7 +90,7 @@ public interface Sailable extends Ability {
             }
             this.playSailSound(state);
             ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(state, speed, rot_speed));
-            self().sailStateCooldown = 30;
+            self().sailStateCooldown = getSailStateCooldown();
         }
     }
 
@@ -102,5 +102,10 @@ public interface Sailable extends Ability {
         if (state != 0)
             play.accept(ModSoundTypes.SAIL_MOVE, Pair.of(15.0F, Math.max(0.5F, 1.4F - ((float) state / 5.0F))));
         else play.accept(ModSoundTypes.SAIL_PULL, Pair.of(10.0F, 1.0F));
+    }
+
+
+    default int getSailStateCooldown(){
+        return 30; //TODO: CONFIG;
     }
 }
