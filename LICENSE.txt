@@ -1,2 +1,5 @@
+Copyright 2023 Talha Kantar
 
-All Rights Reserved unless otherwise explicitly stated.
+All rights reserved. This work and any accompanying documentation is the intellectual property of Talha Kantar. Any unauthorized reproduction, modification, distribution, transmission, or other exploitation is strictly prohibited and may be a violation of applicable laws.
+
+This work is provided "as is" without warranty of any kind, either expressed or implied, including but not limited to the implied warranties of merchantability and/or fitness for a particular purpose.
