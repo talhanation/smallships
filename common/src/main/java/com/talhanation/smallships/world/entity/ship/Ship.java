@@ -79,13 +79,6 @@ public abstract class Ship extends Boat {
 
         if (sailStateCooldown > 0) sailStateCooldown--;
 
-        // Fixes the data after imminently stop of the ship if the driver ejected
-        if ((this.getControllingPassenger() == null)){
-            this.setSailState((byte) 0);
-            this.setRotSpeed(Kalkuel.subtractToZero(this.getRotSpeed(), getVelocityResistance() * 2.5F));
-            this.setSpeed(Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance()));
-        }
-
         boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
         this.updateShipAmbience(isCruising);
         this.updateCollision(isCruising);
@@ -265,7 +258,9 @@ public abstract class Ship extends Boat {
     }
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
+        if(livingEntity.equals(this.getControllingPassenger())){
+            if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
+        }
         return super.getDismountLocationForPassenger(livingEntity);
     }
 
@@ -323,41 +318,10 @@ public abstract class Ship extends Boat {
      * decrease -> slowdown will be lower
      ************************************/
     public float getVelocityResistance() {
-        return 0.005F;
+        return 0.007F;
     }
 
-    protected void waterSplash() {
-        Vec3 vector3d = this.getViewVector(0.0F);
-        float f0 = (float) (Mth.cos(this.getYRot() * ((float) Math.PI / 180F)) * this.getBoundingBox().maxX);
-        float f1 = (float) (Mth.sin(this.getYRot() * ((float) Math.PI / 180F)) * this.getBoundingBox().maxX);
-        float f0_1 = (float) (Mth.cos(this.getYRot() * ((float) Math.PI / 180F)) * this.getBoundingBox().maxX * 2);
-        float f1_1 = (float) (Mth.sin(this.getYRot() * ((float) Math.PI / 180F)) * this.getBoundingBox().maxX * 2);
-        float f2 =  2.5F - this.random.nextFloat() * 0.7F;
-        float f2_ =  -1.3F - this.random.nextFloat() * 0.7F;
-        float x = 0;
-        for (int i = 0; i < 2; ++i) {
-            this.getLevel().addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 + (double) f1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 - (double) f1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 + (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.DOLPHIN, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.5D, this.getZ() - vector3d.z * (double) f2 - (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
-
-            this.getLevel().addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) f2 + (double) f1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) f2 - (double) f1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2 + (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) f2 + (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2 - (double) f0, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) f2 - (double) f1 * 1.1, 0.0D, 0.0D, 0.0D);
-
-            this.getLevel().addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ + (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1_1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ + (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.SPLASH, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
-
-            this.getLevel().addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ + (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1_1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ + (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) + (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
-            this.getLevel().addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
-
-        }
-    }
+    protected void waterSplash() {}
 
     private void updateShipAmbience(boolean isSwimming) {
         if (isSwimming) {
