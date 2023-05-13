@@ -5,7 +5,6 @@ import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
-import com.talhanation.smallships.world.entity.ship.KhufuEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -57,13 +56,5 @@ public class ModEntityTypesImpl {
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
                         .build(GalleyEntity.ID)));
-
-        entries.put(KhufuEntity.class, ENTITY_TYPES.register(KhufuEntity.ID,
-                () -> EntityType.Builder.of(KhufuEntity::new, MobCategory.MISC)
-                        .sized(3.5F, 1.25F)
-                        .clientTrackingRange(20)
-                        .setUpdateInterval(10)
-                        .setShouldReceiveVelocityUpdates(true)
-                        .build(KhufuEntity.ID)));
     }
 }

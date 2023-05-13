@@ -208,7 +208,6 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         sailModels.put(CogEntity.class, new CogSailModel());
         sailModels.put(BriggEntity.class, new BriggSailModel());
         sailModels.put(GalleyEntity.class, new GalleySailModel());
-        sailModels.put(KhufuEntity.class, new CogSailModel());
     }
     @SuppressWarnings({"unused", "unchecked"})
     private void renderSail(Sailable sailShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
