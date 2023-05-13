@@ -258,9 +258,7 @@ public abstract class Ship extends Boat {
     }
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if(livingEntity.equals(this.getControllingPassenger())){
-            if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
-        }
+        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
         return super.getDismountLocationForPassenger(livingEntity);
     }
 
