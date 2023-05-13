@@ -42,8 +42,8 @@ public class ServerboundOpenShipScreenForgePacket implements ForgePacket {
                     .filter(Entity::isAlive)
                     .findAny()
                     .ifPresent(containerShip -> {
-                        int pageIndex = Mth.clamp(this.pageIndex, 0, containerShip.dataAccess.get(1) - 1);
-                        containerShip.dataAccess.set(2, pageIndex);
+                        int pageIndex = Mth.clamp(this.pageIndex, 0, containerShip.containerData.get(1) - 1);
+                        containerShip.containerData.set(2, pageIndex);
                         ContainerUtility.openShipMenu(player, containerShip);
                     });
         });

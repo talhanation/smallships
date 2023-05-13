@@ -1,6 +1,5 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
@@ -448,7 +447,7 @@ public abstract class Ship extends Boat {
         if (speed > 0.1F) {
             float damage = speed * 7.5F;
             entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
-            SmallShipsMod.LOGGER.info("Damage: " + damage);
+            //SmallShipsMod.LOGGER.info("Damage: " + damage);
         }
 
     }

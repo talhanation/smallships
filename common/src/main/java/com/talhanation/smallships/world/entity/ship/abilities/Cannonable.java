@@ -11,6 +11,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 
 public interface Cannonable extends Ability {
@@ -63,9 +64,8 @@ public interface Cannonable extends Ability {
     }
     default boolean interactCannon(Player player, InteractionHand interactionHand) {
         ItemStack item = player.getItemInHand(interactionHand);
-        if (item.getItem() == ModItems.CANNON && self() instanceof ContainerShip containerShip) {
-
-            byte cannons = self().getCannonCount();
+        byte cannons = self().getCannonCount();
+        if (item.getItem() == ModItems.CANNON && self() instanceof ContainerShip) {
             if (cannons >= getMaxCannonPerSide() * 2) {
                 return false;
             }
@@ -77,6 +77,12 @@ public interface Cannonable extends Ability {
 
                 this.updateCannonCount();
             }
+            return true;
+        } else if (item.getItem() instanceof AxeItem && cannons > 0) {
+            self().setCannonCount((byte) (cannons - 1));
+
+            self().spawnAtLocation(ModItems.CANNON);
+            self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         }
         return false;

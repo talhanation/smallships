@@ -45,7 +45,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Nullable
     private ResourceLocation lootTable;
     private long lootTableSeed;
-    public final ContainerData dataAccess = new ContainerData() {
+    public final ContainerData containerData = new ContainerData() {
         public int get(int index) {
             return switch (index) {
                 case 0 -> ContainerShip.this.getData(ROWS);
@@ -81,7 +81,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.getEntityData().define(ROWS, (byte) 6);
         this.getEntityData().define(PAGES, (byte) 1);
         this.getEntityData().define(PAGE_INDEX, (byte) 0);
-        this.getEntityData().define(CONTAINER_FILL_STATE, ((byte) 0));
+        this.getEntityData().define(CONTAINER_FILL_STATE, Byte.MIN_VALUE);
     }
 
     @Override

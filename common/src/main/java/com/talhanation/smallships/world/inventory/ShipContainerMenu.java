@@ -3,7 +3,6 @@ package com.talhanation.smallships.world.inventory;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.Ship;
-import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,7 +22,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public ShipContainerMenu(MenuType<ShipContainerMenu> type, int syncId, Inventory inventory, ContainerShip containerShip) {
         super(type, syncId);
-        this.containerData = containerShip.dataAccess;
+        this.containerData = containerShip.containerData;
         checkContainerSize(containerShip, this.getRowCount() * 9);
         this.container = containerShip;
         this.inventory = inventory;
@@ -72,7 +71,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack quickMoveStack(@NotNull Player player, int i) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int i) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(i);
         if (slot.hasItem()) {
