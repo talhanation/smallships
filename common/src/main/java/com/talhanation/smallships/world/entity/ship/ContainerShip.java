@@ -286,7 +286,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.setData(PAGE_INDEX, (byte) 0);
     }
 
-    private void updateContainerFillState(){
+    protected void updateContainerFillState(){
         double invFillStateInPercent = this.getItemStacks().stream().map(i -> !i.isEmpty()? (double) i.getCount() / i.getMaxStackSize() : 0.0D).reduce(0.0D, Double::sum) / this.getItemStacks().size();
         short u_byteMaxValue = -Byte.MIN_VALUE + Byte.MAX_VALUE;
         byte invFillState = (byte) (invFillStateInPercent * u_byteMaxValue - (-Byte.MIN_VALUE));

@@ -9,9 +9,11 @@ public interface Paddleable extends Ability {
         if (self().isVehicle()) {
             self().setPaddleState(this.shouldPaddleLeft(), this.shouldPaddleRight());
         }
-        //Fixes paddle jittering TODO: better fix for this issue
-        if(!this.shouldPaddleRight()) self().paddlePositions[1] = 0F;
-        if(!this.shouldPaddleLeft()) self().paddlePositions[0] = 0F;
+        for(int i = 0; i <= 1; ++i) {
+            if (!self().getPaddleState(i)) {
+                self().paddlePositions[i] = 0.3F;
+            }
+        }
     }
     default float getPaddlingModifier() {
         return 1.5F;
@@ -25,8 +27,7 @@ public interface Paddleable extends Ability {
         if (side.equals(PaddleSide.LEFT)) {
             modelPart.yRot = -yRotChange;
             modelPart.xRot = 4.55F - (Mth.PI - xRotChange);
-        }
-        else {
+        } else {
             modelPart.yRot = Mth.PI + yRotChange;
             modelPart.xRot = (Mth.PI + 1.4F) + xRotChange;
         }
