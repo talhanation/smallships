@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.item.forge;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
+import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.item.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -34,6 +35,7 @@ public class ModItemsImpl {
         for (Boat.Type type: Boat.Type.values()) {
             register(new ResourceLocation(type.getName()).getPath() + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
             register(new ResourceLocation(type.getName()).getPath() + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
+            register(new ResourceLocation(type.getName()).getPath() + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
         }
     }
 

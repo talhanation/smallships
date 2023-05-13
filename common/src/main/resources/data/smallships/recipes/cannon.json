@@ -2,11 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "group": "cannon",
   "pattern": [
-    "II ",
+    "  s",
     "III",
     " LL"
   ],
   "key": {
+    "s": {
+      "tag": "minecraft:string"
+    },
     "L": {
       "tag": "minecraft:logs"
     },
