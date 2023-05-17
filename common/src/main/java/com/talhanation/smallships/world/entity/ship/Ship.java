@@ -167,7 +167,7 @@ public abstract class Ship extends Boat {
             //Speed needs to calculate before rotation because fabric is shit
             if(this instanceof Paddleable){
                 if(isForward()){
-                    setPoint = maxSpeed * (1 + (int) getSailState() * 0.1F);
+                    setPoint = (maxSpeed * 12/16F) * (1 + (int) getSailState() * 0.1F);
                 }
             }
             else{
@@ -254,7 +254,7 @@ public abstract class Ship extends Boat {
             speed = Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance() * 0.8F);
 
         if (isLeft() || isRight()) { // Speed decrease when rotating
-            speed = speed * (1.0F - (Mth.abs(getRotSpeed()) * 0.1F));
+            speed = speed * (1F - (Mth.abs(getRotSpeed()) * 0.05F));
         }
 
         this.setSpeed(speed);
