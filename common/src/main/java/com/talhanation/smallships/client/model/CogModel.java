@@ -165,7 +165,7 @@ public class CogModel extends ShipModel<CogEntity> {
 		this.chest3.visible = cogEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
 		this.chest4.visible = cogEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
-		this.steer.yRot = -((BoatAccessor) cogEntity).getDeltaRotation() * 0.25F;
+		this.steer.yRot = -cogEntity.getRotSpeed();
 	}
 
 	@Override

@@ -119,6 +119,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             renderSail(sailShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
         }
 
+
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(shipModel.renderType(resourceLocation));
         shipModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
@@ -201,6 +202,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @SuppressWarnings("unused")
     private void renderPaddle(Paddleable paddleShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+
     }
 
     private static final Map<Class<? extends Ship>, SailModel> sailModels = new HashMap<>();

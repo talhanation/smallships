@@ -231,7 +231,7 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
         this.chest3.visible = galleyEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
         this.chest4.visible = galleyEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
-        this.steer.yRot = -((BoatAccessor) galleyEntity).getDeltaRotation() * 0.25F;
+        this.steer.yRot = -galleyEntity.getRotSpeed() * 0.25F;
 
         galleyEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1 , f);
         galleyEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2 , f);

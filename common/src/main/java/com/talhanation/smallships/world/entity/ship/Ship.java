@@ -1,7 +1,9 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
+import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
@@ -45,6 +47,10 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<ItemStack> BANNER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<Float> CANNON_POWER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Byte> CANNON_COUNT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Boolean> FORWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> BACKWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
 
     private float prevWaveAngle;
     private float waveAngle;
@@ -52,6 +58,7 @@ public abstract class Ship extends Boat {
     public float bannerWaveAngle;
     protected boolean cannonKeyPressed;
     public int sailStateCooldown = 0;
+    private float setPoint;
     public List<Cannon> CANNONS = new ArrayList<>();
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
@@ -83,7 +90,6 @@ public abstract class Ship extends Boat {
         this.updateWaveAngle();
         this.updateWaterMobs();
         this.floatUp();
-
     }
 
     @Override
@@ -92,6 +98,10 @@ public abstract class Ship extends Boat {
         this.getEntityData().define(SPEED, 0.0F);
         this.getEntityData().define(ROT_SPEED, 0.0F);
         this.getEntityData().define(ATTRIBUTES, this.createDefaultAttributes());
+        this.getEntityData().define(FORWARD, false);
+        this.getEntityData().define(BACKWARD, false);
+        this.getEntityData().define(LEFT, false);
+        this.getEntityData().define(RIGHT, false);
 
         if (this instanceof Sailable sailShip) sailShip.defineSailShipSynchedData();
         if (this instanceof Bannerable bannerShip) bannerShip.defineBannerShipSynchedData();
@@ -132,13 +142,21 @@ public abstract class Ship extends Boat {
         this.getEntityData().set(accessor, value);
     }
 
+    public float getKilometerPerHour() {
+        return (this.getSpeed() * 20 * 60 * 60) / 1000;
+    }
 
     @Override
     protected void controlBoat() {
+        if(this.level.isClientSide()){
+            if(this.getControllingPassenger() instanceof Player player)
+                updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
+        }
+
         if(this.isInWater()){
-            byte sailstate = this.getSailState();
+            SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
             Attributes attributes = this.getAttributes();
-            float maxSp = (attributes.maxSpeed / (12F * 1.15F));
+            float maxSpeed = (attributes.maxSpeed / (12F * 1.15F));
             float maxBackSp = attributes.maxReverseSpeed;
             float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
             float acceleration = attributes.acceleration;
@@ -147,81 +165,99 @@ public abstract class Ship extends Boat {
             //CALCULATE SPEED//
             //Speed calc dependent on sail or paddle
             //Speed needs to calculate before rotation because fabric is shit
-            float speed = this.calculateSpeed(this.getSpeed(), acceleration, maxSp, sailstate);
-            this.setSpeed(speed);
+            if(this instanceof Paddleable){
+                if(isForward()){
+                    setPoint = maxSpeed * (1 + (int) getSailState() * 0.1F);
+                }
+            }
+            else{
+                switch (this.getSailState()){ // Speed depending on sail state
+                    case 0 -> setPoint =  0;
+                    case 1 -> setPoint = maxSpeed * 4/16F;
+                    case 2 -> setPoint = maxSpeed * 8/16F;
+                    case 3 -> setPoint = maxSpeed * 11/16F;
+                    case 4 -> setPoint = maxSpeed * 16/16F;
+                }
+            }
+            this.calculateSpeed(acceleration, this.getSailState());
 
             //CALCULATE ROTATION SPEED//
-
             //((BoatAccessor) this).setDeltaRotation(0); // IDK WHAT THIS IS FOR BUT IT WORKS WITHOUT IT
             float rotationSpeed = Kalkuel.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
-            if (((BoatAccessor) this).isInputRight()) {
+            if (isRight()) {
                 if (rotationSpeed < maxRotSp) {
                     rotationSpeed = Math.min(rotationSpeed + rotAcceleration * 1 / 8, maxRotSp);
                 }
             }
 
-            if (((BoatAccessor) this).isInputLeft()) {
+            if (isLeft()) {
                 if (rotationSpeed > -maxRotSp) {
                     rotationSpeed = Math.max(rotationSpeed - rotAcceleration * 1 / 8, -maxRotSp);
                 }
             }
-            setRotSpeed(rotationSpeed);
+            this.setRotSpeed(rotationSpeed);
+
             ((BoatAccessor) this).setDeltaRotation(rotationSpeed);
             setYRot(getYRot() + ((BoatAccessor) this).getDeltaRotation());
 
             //CONTROL SAIL STATE//
-            this.controlSailState(sailstate, speed, rotationSpeed);
+            if(this instanceof Sailable sailShip)
+                this.controlSailState(sailShip, this.getSailState());
+
+            //Paddle
+            if (this instanceof Paddleable paddleShip) paddleShip.controlBoatPaddleShip();
 
             //SET
             setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), 0.0F, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
-
-            //Paddle
-            if (this instanceof Paddleable paddleShip && this.isControlledByLocalInstance()) paddleShip.controlBoatPaddleShip();
+        }
+        else {
+            setForward(false);
+            setBackward(false);
+            setLeft(false);
+            setRight(false);
         }
     }
 
-    private void controlSailState(byte sailState, float speed, float rotationSpeed) {
+    private void controlSailState(Sailable sailShip, byte sailState) {
         if(sailState != 0){
-            //handle sails
-            if (((BoatAccessor) this).isInputUp()) {
-                if (this instanceof Sailable sailShip && sailState != 4) {
-                    Entity entity = this.getControllingPassenger();
-                    if(entity instanceof Player player)
-                        sailShip.increaseSail(player, speed, rotationSpeed);
+            if (isForward()) {
+                if (sailState != 4) {
+                    if(this.sailStateCooldown == 0){
+                        sailState++;
+                        sailShip.playSailSound(sailState);
+                        this.sailStateCooldown = sailShip.getSailStateCooldown();
+                    }
                 }
             }
 
-            if (((BoatAccessor) this).isInputDown()) {
-                if (this instanceof Sailable sailShip && sailState != 1) {
-                    Entity entity = this.getControllingPassenger();
-                    if (entity instanceof Player player)
-                        sailShip.decreaseSail(player, speed, rotationSpeed);
+            if (isBackward()) {
+                if (sailState != 1) {
+                    if(this.sailStateCooldown == 0) {
+                        sailState--;
+                        sailShip.playSailSound(sailState);
+                        this.sailStateCooldown = sailShip.getSailStateCooldown();
+                    }
                 }
             }
+
+            this.setSailState(sailState);
         }
     }
 
-    private float calculateSpeed(float speed, float acceleration, float maxSp, byte sailState) {
-        float sollSpeed = 0;
-
-        boolean paddling = this instanceof Paddleable && ((BoatAccessor)this).isInputUp();
-        float paddleSpeed = maxSp * 14/16F;
-
-        switch (sailState){ // Speed depending on sail state
-            case 0 -> sollSpeed =  0;
-            case 1 -> sollSpeed = maxSp * 4/16F;
-            case 2 -> sollSpeed = maxSp * 8/16F;
-            case 3 -> sollSpeed = maxSp * 11/16F;
-            case 4 -> sollSpeed = maxSp * 16/16F;
+    private void calculateSpeed(float acceleration, byte sailState) {
+        if (isLeft() || isRight()) { // Speed decrease when rotating
+            setPoint = setPoint * (1.0F - (Mth.abs(getRotSpeed()) * 0.1F));
         }
 
-        if (((BoatAccessor) this).isInputLeft() || ((BoatAccessor) this).isInputRight()) { // Speed decrease when rotating
-            sollSpeed = sollSpeed * (1.0F - (Mth.abs(getRotSpeed()) * 0.02F));
+        // If there is no interaction the speed should get reduced
+        float speed;
+        if(sailState != 0 || (this.isForward() && this instanceof Paddleable)){
+            speed = Kalkuel.addToSetPoint(this.getSpeed(), acceleration, setPoint);
         }
+        else
+            speed = Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance() * 0.8F);
 
-        speed = Kalkuel.changeToSoll(speed, acceleration, getVelocityResistance(), sollSpeed);
-
-        return speed;
+        this.setSpeed(speed);
     }
 
     public float getSpeed() {
@@ -247,6 +283,44 @@ public abstract class Ship extends Boat {
     }
     public byte getCannonCount() {
         return entityData.get(CANNON_COUNT);
+    }
+
+    public void setForward(boolean forward) {
+        entityData.set(FORWARD, forward);
+    }
+
+    public void setBackward(boolean backward) {
+        entityData.set(BACKWARD, backward);
+    }
+
+    public void setLeft(boolean left) {
+        entityData.set(LEFT, left);
+    }
+
+    public void setRight(boolean right) {
+        entityData.set(RIGHT, right);
+    }
+
+    public boolean isForward() {
+        if (this.getControllingPassenger() == null) {
+            return false;
+        }
+        return entityData.get(FORWARD);
+    }
+
+    public boolean isBackward() {
+        if (this.getControllingPassenger() == null) {
+            return false;
+        }
+        return entityData.get(BACKWARD);
+    }
+
+    public boolean isLeft() {
+        return entityData.get(LEFT);
+    }
+
+    public boolean isRight() {
+        return entityData.get(RIGHT);
     }
 
     @Override
@@ -413,5 +487,32 @@ public abstract class Ship extends Boat {
             //SmallShipsMod.LOGGER.info("Damage: " + damage);
         }
 
+    }
+
+    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, Player player) {
+        boolean needsUpdate = false;
+
+        if (this.isForward() != forward) {
+            this.setForward(forward);
+            needsUpdate = true;
+        }
+
+        if (this.isBackward() != backward) {
+            this.setBackward(backward);
+            needsUpdate = true;
+        }
+
+        if (this.isLeft() != left) {
+            this.setLeft(left);
+            needsUpdate = true;
+        }
+
+        if (this.isRight() != right) {
+            this.setRight(right);
+            needsUpdate = true;
+        }
+        if (this.level.isClientSide && needsUpdate) {
+            ModPackets.clientSendPacket(player, ModPackets.updateShipControl.apply(forward, backward, left, right));
+        }
     }
 }

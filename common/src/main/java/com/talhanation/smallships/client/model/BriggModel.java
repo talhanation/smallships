@@ -204,7 +204,7 @@ public class BriggModel extends ShipModel<BriggEntity> {
 		this.chest3.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
 		this.chest4.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
-		this.steer.yRot = -((BoatAccessor) briggEntity).getDeltaRotation() * 0.25F;
+		this.steer.yRot = -briggEntity.getRotSpeed() * 0.25F;
 	}
 
 	@Override

@@ -22,7 +22,8 @@ public class ModPacketsImpl {
         entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenFabricPacket(((ContainerShip) params[0]), ((Integer) params[1])));
         entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailFabricPacket());
         entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonFabricPacket((Boolean) params[0]));
-        entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateFabricPacket((Byte) params[0], (Float) params[1], (Float) params[2]));
+        entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateFabricPacket((Byte) params[0]));
+        entries.put("server_update_ship_control", (params) -> new ServerboundUpdateShipControlFabricPacket((Boolean) params[0], (Boolean) params[1], (Boolean) params[2], (Boolean) params[3]));
     }
 
     public static ModPackets.SendablePacket<FabricPacket> getPacket(String id) {

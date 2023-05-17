@@ -2,7 +2,6 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.client.model.sail.SailModel;
-import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -61,37 +60,9 @@ public interface Sailable extends Ability {
         }else{
             state = (byte) 0;
         }
-        self().setData(Ship.SAIL_STATE, state);
         this.playSailSound(state);
         self().sailStateCooldown = getSailStateCooldown();
-    }
-
-    default void increaseSail(Player player, float speed, float rot_speed){
-        if(self().sailStateCooldown == 0){
-            byte state = self().getSailState();
-
-            if (state != (byte) 4){
-                state++;
-
-            }
-            this.playSailSound(state);
-            ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(state, speed, rot_speed));
-            self().sailStateCooldown = getSailStateCooldown();
-        }
-    }
-
-    default void decreaseSail(Player player, float speed, float rot_speed){
-        if(self().sailStateCooldown == 0) {
-            byte state = self().getSailState();
-
-            if (state != (byte) 1) {
-                state--;
-
-            }
-            this.playSailSound(state);
-            ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(state, speed, rot_speed));
-            self().sailStateCooldown = getSailStateCooldown();
-        }
+        self().setSailState(state);
     }
 
     default void playSailSound(int state) {
