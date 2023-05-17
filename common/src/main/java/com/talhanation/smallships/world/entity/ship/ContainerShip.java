@@ -333,6 +333,11 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.entityData.set(CONTAINER_FILL_STATE, b);
     }
 
+    @Override
+    public float getCargoModifier() {
+        return (int) this.getContainerFillState() * 0.02F;
+    }
+
     /*
     public void addItemToFreeSlot(ItemStack itemStack){
         for(int i = 0; i < this.getContainerSize(); i++){

@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.google.common.collect.ImmutableSet;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
@@ -10,11 +11,14 @@ import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -29,6 +33,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -37,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class Ship extends Boat {
     public static final EntityDataAccessor<CompoundTag> ATTRIBUTES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
@@ -156,11 +163,13 @@ public abstract class Ship extends Boat {
         if(this.isInWater()){
             //SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
             Attributes attributes = this.getAttributes();
-            float maxSpeed = (attributes.maxSpeed / (12F * 1.15F));
+            float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getCargoModifier());
+
+            float maxSpeed = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
             float maxBackSp = attributes.maxReverseSpeed;
-            float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
-            float acceleration = attributes.acceleration;
-            float rotAcceleration = attributes.rotationAcceleration;
+            float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F) * modifier;
+            float acceleration = attributes.acceleration * modifier;
+            float rotAcceleration = attributes.rotationAcceleration * modifier;
 
             //CALCULATE SPEED//
             //Speed calc dependent on sail or paddle
@@ -323,6 +332,56 @@ public abstract class Ship extends Boat {
         return entityData.get(RIGHT);
     }
 
+    public static final ImmutableSet<ResourceKey<Biome>> COLD_BIOMES = ImmutableSet.of(
+            Biomes.COLD_OCEAN,
+            Biomes.DEEP_COLD_OCEAN,
+            Biomes.FROZEN_OCEAN,
+            Biomes.DEEP_FROZEN_OCEAN,
+            Biomes.FROZEN_RIVER
+    );
+
+    public static final ImmutableSet<ResourceKey<Biome>> WARM_BIOMES = ImmutableSet.of(
+            Biomes.WARM_OCEAN,
+            Biomes.LUKEWARM_OCEAN,
+            Biomes.DEEP_LUKEWARM_OCEAN
+    );
+
+    public static final ImmutableSet<ResourceKey<Biome>> NEUTRAL_BIOMES = ImmutableSet.of(
+            Biomes.OCEAN,
+            Biomes.DEEP_OCEAN,
+            Biomes.RIVER
+    );
+
+    public float getBiomesModifier() {
+        int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
+        BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
+        Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos).value());;
+
+
+        if(biome.isPresent()) {
+            boolean coldBiomes = COLD_BIOMES.contains(biome.get());;
+            boolean neutralBiomes = NEUTRAL_BIOMES.contains(biome.get());
+            boolean warmBiomes = WARM_BIOMES.contains(biome.get());
+
+            boolean coldType = biomeType == 0;
+            boolean neutralType = biomeType == 1;
+            boolean warmType = biomeType == 2;
+
+            if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
+                return -0.1F;
+            } else if (
+                    (coldBiomes && warmType || warmBiomes && coldType) ||
+                            ((coldBiomes || warmBiomes) && neutralType)
+            ) {
+                return 0.1F;
+            } else if (neutralBiomes && warmType || neutralBiomes && coldType) {
+                return 0.05F;
+            } else
+                return 0;
+        }
+        return 0;
+    }
+
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
@@ -379,10 +438,13 @@ public abstract class Ship extends Boat {
 
     @Override
     protected abstract int getMaxPassengers();
-
     @Override
     public abstract @NotNull Item getDropItem();
-
+    public abstract int getBiomesModifierType();
+    public abstract float getCargoModifier();
+    public float getCannonModifier() {
+        return (int)this.getCannonCount() * 0.02F;
+    }
     public abstract CompoundTag createDefaultAttributes();
 
     /************************************
