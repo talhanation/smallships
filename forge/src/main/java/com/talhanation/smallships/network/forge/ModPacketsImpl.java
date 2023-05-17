@@ -26,6 +26,7 @@ public class ModPacketsImpl {
         entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailForgePacket());
         entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonForgePacket((Boolean) params[0]));
         entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateForgePacket((Byte) params[0]));
+        entries.put("server_update_ship_control", (params) -> new ServerboundUpdateShipControlForgePacket((Boolean) params[0], (Boolean) params[1], (Boolean) params[2], (Boolean) params[3]));
     }
 
     public static ModPackets.SendablePacket<ForgePacket> getPacket(String id) {
@@ -37,6 +38,7 @@ public class ModPacketsImpl {
         registerPacket(SIMPLE_CHANNEL, ServerboundToggleShipSailForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
         registerPacket(SIMPLE_CHANNEL, ServerboundShootShipCannonForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
         registerPacket(SIMPLE_CHANNEL, ServerboundSetSailStateForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
+        registerPacket(SIMPLE_CHANNEL, ServerboundUpdateShipControlForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
     }
 
     @SuppressWarnings({"SameParameterValue"})
