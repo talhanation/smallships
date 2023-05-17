@@ -154,7 +154,7 @@ public abstract class Ship extends Boat {
         }
 
         if(this.isInWater()){
-            SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
+            //SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
             Attributes attributes = this.getAttributes();
             float maxSpeed = (attributes.maxSpeed / (12F * 1.15F));
             float maxBackSp = attributes.maxReverseSpeed;
