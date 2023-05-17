@@ -154,7 +154,7 @@ public abstract class Ship extends Boat {
         }
 
         if(this.isInWater()){
-            //SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
+            SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
             Attributes attributes = this.getAttributes();
             float maxSpeed = (attributes.maxSpeed / (12F * 1.15F));
             float maxBackSp = attributes.maxReverseSpeed;
@@ -175,7 +175,7 @@ public abstract class Ship extends Boat {
                     case 0 -> setPoint =  0;
                     case 1 -> setPoint = maxSpeed * 4/16F;
                     case 2 -> setPoint = maxSpeed * 8/16F;
-                    case 3 -> setPoint = maxSpeed * 11/16F;
+                    case 3 -> setPoint = maxSpeed * 12/16F;
                     case 4 -> setPoint = maxSpeed * 16/16F;
                 }
             }
@@ -245,17 +245,17 @@ public abstract class Ship extends Boat {
     }
 
     private void calculateSpeed(float acceleration, byte sailState) {
-        if (isLeft() || isRight()) { // Speed decrease when rotating
-            setPoint = setPoint * (1.0F - (Mth.abs(getRotSpeed()) * 0.1F));
-        }
-
         // If there is no interaction the speed should get reduced
         float speed;
         if(sailState != 0 || (this.isForward() && this instanceof Paddleable)){
-            speed = Kalkuel.addToSetPoint(this.getSpeed(), acceleration, setPoint);
+            speed = Kalkuel.changeToSetPoint(this.getSpeed(), acceleration, getVelocityResistance() * 0.5F, setPoint);
         }
         else
             speed = Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance() * 0.8F);
+
+        if (isLeft() || isRight()) { // Speed decrease when rotating
+            speed = speed * (1.0F - (Mth.abs(getRotSpeed()) * 0.1F));
+        }
 
         this.setSpeed(speed);
     }

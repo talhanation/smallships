@@ -36,9 +36,13 @@ public class Kalkuel {
      * @param setPoint the amount to not cross
      * @return the resulting number
      */
-    public static float addToSetPoint(float current, float positiveChange, float setPoint) {
+    public static float changeToSetPoint(float current, float positiveChange, float negativeChange, float setPoint) {
         if (current < setPoint) {
             current = current + positiveChange;
+        }
+        else {
+            current = current - negativeChange;
+
         }
         return current;
     }
