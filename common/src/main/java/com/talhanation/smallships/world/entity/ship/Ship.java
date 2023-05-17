@@ -161,15 +161,18 @@ public abstract class Ship extends Boat {
         }
 
         if(this.isInWater()){
-            //SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
+            SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
+            SmallShipsMod.LOGGER.info("getBiomesModifier: " + getBiomesModifier());
+            SmallShipsMod.LOGGER.info("getCannonModifier: " + getCannonModifier());
+            SmallShipsMod.LOGGER.info("getCargoModifier: " + getCargoModifier());
             Attributes attributes = this.getAttributes();
             float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getCargoModifier());
 
             float maxSpeed = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
             float maxBackSp = attributes.maxReverseSpeed;
-            float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F) * modifier;
-            float acceleration = attributes.acceleration * modifier;
-            float rotAcceleration = attributes.rotationAcceleration * modifier;
+            float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
+            float acceleration = attributes.acceleration ;
+            float rotAcceleration = attributes.rotationAcceleration;
 
             //CALCULATE SPEED//
             //Speed calc dependent on sail or paddle
@@ -263,7 +266,7 @@ public abstract class Ship extends Boat {
             speed = Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance() * 0.8F);
 
         if (isLeft() || isRight()) { // Speed decrease when rotating
-            speed = speed * (1F - (Mth.abs(getRotSpeed()) * 0.05F));
+            speed = speed * (1F - (Mth.abs(getRotSpeed()) * 0.025F));
         }
 
         this.setSpeed(speed);
@@ -368,15 +371,16 @@ public abstract class Ship extends Boat {
             boolean warmType = biomeType == 2;
 
             if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
-                return -0.1F;
-            } else if (
-                    (coldBiomes && warmType || warmBiomes && coldType) ||
-                            ((coldBiomes || warmBiomes) && neutralType)
-            ) {
+                return -0.2F;
+            }
+            else if (
+                    (coldBiomes && warmType || warmBiomes && coldType) || ((coldBiomes || warmBiomes) && neutralType)) {
+                return 0.2F;
+            }
+            else if (neutralBiomes && warmType || neutralBiomes && coldType) {
                 return 0.1F;
-            } else if (neutralBiomes && warmType || neutralBiomes && coldType) {
-                return 0.05F;
-            } else
+            }
+            else
                 return 0;
         }
         return 0;
@@ -443,7 +447,7 @@ public abstract class Ship extends Boat {
     public abstract int getBiomesModifierType();
     public abstract float getCargoModifier();
     public float getCannonModifier() {
-        return (int)this.getCannonCount() * 0.02F;
+        return (int)this.getCannonCount() * 0.025F;
     }
     public abstract CompoundTag createDefaultAttributes();
 
