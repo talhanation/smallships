@@ -71,6 +71,11 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     @Override
+    public int getBiomesModifierType() {
+        return 2;
+    }
+
+    @Override
     public void positionRider(@NotNull Entity entity) {
         if (this.hasPassenger(entity)) {
             float d = this.getSinglePassengerXOffset(); // ^ ^ ^+

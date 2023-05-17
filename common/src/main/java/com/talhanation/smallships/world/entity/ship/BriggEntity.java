@@ -65,6 +65,11 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
+    public int getBiomesModifierType() {
+        return 0;
+    }
+
+    @Override
     public void positionRider(@NotNull Entity entity) {
         if (this.hasPassenger(entity)) {
             float d = this.getSinglePassengerXOffset(); // ^ ^ ^+
