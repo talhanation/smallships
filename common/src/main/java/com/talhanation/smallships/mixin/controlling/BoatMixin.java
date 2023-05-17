@@ -14,22 +14,18 @@ public abstract class BoatMixin {
     @Shadow protected abstract void controlBoat();
 
     @SuppressWarnings("ConstantValue")
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V"))
-    private void tickCancelControlBoatHereForShip(Boat instance) {
-        if (!(instance instanceof Ship)) {
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;tickLerp()V"))
+    private void tickClientAndServerControlBoat(CallbackInfo ci) {
+        if (((Boat)(Object)this instanceof Ship)) {
             this.controlBoat();
         }
     }
-    /*
+
     @SuppressWarnings("ConstantValue")
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setDamage()V"))
-    private void tickCancelDamageHereForShip(Boat instance) {
-        if (!(instance instanceof Ship)) {
-            instance.setDamage(instance.getDamage() - 1.0F);
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V"))
+    private void tickCancelControlBoatHereForShip(Boat instance) {
+        if (!(((Boat)(Object)this) instanceof Ship)) {
+            this.controlBoat();
         }
-
     }
-     */
-
-    //net.minecraft.world.entity.vehicle.Boat.getDamage
 }

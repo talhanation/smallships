@@ -8,7 +8,6 @@ import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -64,7 +63,6 @@ public abstract class Ship extends Boat {
     @Override
     public void tick() {
         super.tick();
-        this.controlBoat();
 
         //SmallShipsMod.LOGGER.info("Speed: " + this.getSpeed());// Debug the speed
 
@@ -176,6 +174,9 @@ public abstract class Ship extends Boat {
 
             //SET
             setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), 0.0F, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
+
+            //Paddle
+            if (this instanceof Paddleable paddleShip && this.isControlledByLocalInstance()) paddleShip.controlBoatPaddleShip();
         }
     }
 

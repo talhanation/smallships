@@ -6,17 +6,10 @@ import net.minecraft.util.Mth;
 
 public interface Paddleable extends Ability {
     default void tickPaddleShip() {
-        if (self().isVehicle()) {
-            self().setPaddleState(this.shouldPaddleLeft(), this.shouldPaddleRight());
-        }
-        for(int i = 0; i <= 1; ++i) {
-            if (!self().getPaddleState(i)) {
-                self().paddlePositions[i] = 0.3F;
-            }
-        }
     }
-    default float getPaddlingModifier() {
-        return 1.5F;
+
+    default void controlBoatPaddleShip() {
+        self().setPaddleState(this.shouldPaddleLeft(), this.shouldPaddleRight());
     }
 
     default void animatePaddle(PaddleSide side, ModelPart modelPart, float f) {
