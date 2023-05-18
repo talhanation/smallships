@@ -2,6 +2,7 @@ package com.talhanation.smallships.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.client.gui.components.Button;
@@ -77,6 +78,10 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         float dmg = ship.getDamage() * 100 / ship.getAttributes().maxHealth;
         font.draw(poseStack, (Mth.ceil(dmg) + "%"), 150, 6, FONT_COLOR);
 
-        if (this.pageCount > 1) font.draw(poseStack, (this.pageIndex + 1) + "/"  + this.pageCount, 50, 6, FONT_COLOR);
+        float maxSpeed = (Mth.ceil(Kalkuel.getKilometerPerHour(ship.maxSpeed)));
+        float currentSpeed = (Mth.ceil(Kalkuel.getKilometerPerHour(ship.getSpeed())));
+        font.draw(poseStack,  currentSpeed + "/" + maxSpeed + " km/h", 50, 6, FONT_COLOR);
+
+        if (this.pageCount > 1) font.draw(poseStack, (this.pageIndex + 1) + "/"  + this.pageCount, 150, 128, FONT_COLOR);
     }
 }

@@ -70,4 +70,14 @@ public class Kalkuel {
     public static double calculateMotionZ(float speed, float rotationYaw) {
         return Mth.cos(rotationYaw * 0.017453292F) * speed;
     }
+
+    public static float getKilometerPerHour(float speed) {
+        return (speed * 20 * 60 * 60) / 1000;
+    }
+    public static float getKnots(float speed) {
+        return (getKilometerPerHour(speed)) / 1.852F;
+    }
+    public static float getMeterPerSecond(float speed) {
+        return (getKilometerPerHour(speed)) / 3.6F;
+    }
 }

@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.google.common.primitives.Bytes;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.core.NonNullList;
@@ -336,7 +337,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public float getCargoModifier() {
-        return 0; //(int) Mth.abs(this.getContainerFillState() / 5400F); //TODO: @Metroite
+        return (float) (0.0008 *((getContainerFillState() + Byte.MIN_VALUE)/(Byte.MIN_VALUE + Byte.MAX_VALUE))); //(int) Mth.abs(this.getContainerFillState() / 5400F); //TODO: @Metroite
     }
 
     /*

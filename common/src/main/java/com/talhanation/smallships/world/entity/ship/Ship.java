@@ -67,6 +67,7 @@ public abstract class Ship extends Boat {
     public int sailStateCooldown = 0;
     private float setPoint;
     public List<Cannon> CANNONS = new ArrayList<>();
+    public float maxSpeed;
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
@@ -149,39 +150,30 @@ public abstract class Ship extends Boat {
         this.getEntityData().set(accessor, value);
     }
 
-    public float getKilometerPerHour() {
-        return (this.getSpeed() * 20 * 60 * 60) / 1000;
-    }
-    public float getKnots() {
-        return (getKilometerPerHour()) / 1.852F;
-    }
-    public float getMeterPerSecond() {
-        return (getKilometerPerHour()) / 3.6F;
-    }
-
     @Override
     protected void controlBoat() {
+        /*
+        SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
+        SmallShipsMod.LOGGER.info("getBiomesModifier: " + getBiomesModifier());
+        SmallShipsMod.LOGGER.info("getCannonModifier: " + getCannonModifier());
+        SmallShipsMod.LOGGER.info("getCargoModifier: " + getCargoModifier());
+         */
+
+        Attributes attributes = this.getAttributes();
+        float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getCargoModifier());
+
+        this.maxSpeed = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
+        //float maxBackSp = attributes.maxReverseSpeed;
+        float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
+        float acceleration = attributes.acceleration ;
+        float rotAcceleration = attributes.rotationAcceleration;
+
         if(this.level.isClientSide()){
             if(this.getControllingPassenger() instanceof Player player)
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
         }
 
         if(this.isInWater()){
-            /*
-            SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
-            SmallShipsMod.LOGGER.info("getBiomesModifier: " + getBiomesModifier());
-            SmallShipsMod.LOGGER.info("getCannonModifier: " + getCannonModifier());
-            SmallShipsMod.LOGGER.info("getCargoModifier: " + getCargoModifier());
-             */
-            Attributes attributes = this.getAttributes();
-            float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getCargoModifier());
-
-            float maxSpeed = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
-            //float maxBackSp = attributes.maxReverseSpeed;
-            float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
-            float acceleration = attributes.acceleration ;
-            float rotAcceleration = attributes.rotationAcceleration;
-
             //CALCULATE SPEED//
             //Speed calc dependent on sail or paddle
             //Speed needs to calculate before rotation because fabric is shit
