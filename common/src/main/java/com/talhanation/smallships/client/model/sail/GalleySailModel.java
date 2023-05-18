@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class GalleySailModel extends SailModel {
+    @SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_sail_model"), "main");
     private final ModelPart GalleySail;
 

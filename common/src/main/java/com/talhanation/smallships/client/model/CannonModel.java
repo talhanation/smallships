@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class CannonModel extends EntityModel<Ship> {
+    @SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, "cannon_model"), "main");
     private final ModelPart Cannon;
 
@@ -22,6 +23,7 @@ public class CannonModel extends EntityModel<Ship> {
     }
 
 
+    @SuppressWarnings("unused")
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();

@@ -334,8 +334,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public float getCargoModifier() {
-        return (float)(0.0008 *(((short)getContainerFillState() + Byte.MIN_VALUE)/((short)Byte.MIN_VALUE + Byte.MAX_VALUE)));
+    public float getContainerModifier() {
+        return 0.0008F * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
     }
 
     /*

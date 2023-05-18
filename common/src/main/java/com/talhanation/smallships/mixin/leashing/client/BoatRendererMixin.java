@@ -27,6 +27,7 @@ import static net.minecraft.client.renderer.entity.MobRenderer.addVertexPair;
 
 @Mixin(BoatRenderer.class)
 public class BoatRendererMixin extends EntityRenderer<Boat> {
+    @SuppressWarnings("unused")
     protected BoatRendererMixin(EntityRendererProvider.Context context) {
         super(context);
         throw new AssertionError();

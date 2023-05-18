@@ -14,7 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class CogSailModel extends SailModel {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, CogEntity.ID + "_sail_model"), "main");
+	@SuppressWarnings("unused")
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, CogEntity.ID + "_sail_model"), "main");
 
 	private final ModelPart Segel_0;
 	private final ModelPart Segel_1;

@@ -31,7 +31,7 @@ public class SmallshipsModForge {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientInitializer::new);
     }
 
-    private void setup(FMLCommonSetupEvent event) {
+    private void setup(@SuppressWarnings("unused") FMLCommonSetupEvent event) {
         ModPackets.registerPackets();
     }
 }

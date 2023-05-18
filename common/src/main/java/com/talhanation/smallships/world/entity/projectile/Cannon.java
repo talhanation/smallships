@@ -3,7 +3,6 @@ package com.talhanation.smallships.world.entity.projectile;
 import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
-
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -70,6 +69,7 @@ public class Cannon extends Entity {
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Packet<?> getAddEntityPacket() {
         return null;

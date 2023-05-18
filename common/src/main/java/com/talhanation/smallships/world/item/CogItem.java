@@ -16,12 +16,12 @@ public class CogItem extends ShipItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand interactionHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand interactionHand) {
         return super.use(level, player, interactionHand);
     }
 
     @Override
-    protected Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
+    protected @NotNull Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
         return CogEntity.summon(level, hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
     }
 }

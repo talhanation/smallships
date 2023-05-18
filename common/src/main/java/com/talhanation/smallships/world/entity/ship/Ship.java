@@ -1,7 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.google.common.collect.ImmutableSet;
-import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -66,7 +65,7 @@ public abstract class Ship extends Boat {
     protected boolean cannonKeyPressed;
     public int sailStateCooldown = 0;
     private float setPoint;
-    public List<Cannon> CANNONS = new ArrayList<>();
+    public final List<Cannon> CANNONS = new ArrayList<>();
     public float maxSpeed;
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
@@ -152,15 +151,8 @@ public abstract class Ship extends Boat {
 
     @Override
     protected void controlBoat() {
-        /*
-        SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
-        SmallShipsMod.LOGGER.info("getBiomesModifier: " + getBiomesModifier());
-        SmallShipsMod.LOGGER.info("getCannonModifier: " + getCannonModifier());
-        SmallShipsMod.LOGGER.info("getCargoModifier: " + getCargoModifier());
-         */
-
         Attributes attributes = this.getAttributes();
-        float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getCargoModifier());
+        float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getContainerModifier());
 
         this.maxSpeed = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
         //float maxBackSp = attributes.maxReverseSpeed;
@@ -363,11 +355,11 @@ public abstract class Ship extends Boat {
     public float getBiomesModifier() {
         int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
         BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
-        Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos).value());;
+        Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos).value());
 
 
         if(biome.isPresent()) {
-            boolean coldBiomes = COLD_BIOMES.contains(biome.get());;
+            boolean coldBiomes = COLD_BIOMES.contains(biome.get());
             boolean neutralBiomes = NEUTRAL_BIOMES.contains(biome.get());
             boolean warmBiomes = WARM_BIOMES.contains(biome.get());
 
@@ -450,7 +442,7 @@ public abstract class Ship extends Boat {
     @Override
     public abstract @NotNull Item getDropItem();
     public abstract int getBiomesModifierType();
-    public abstract float getCargoModifier();
+    public abstract float getContainerModifier();
     public float getCannonModifier() {
         return (int)this.getCannonCount() * 0.025F;
     }

@@ -1,7 +1,6 @@
 package com.talhanation.smallships.client.model;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;

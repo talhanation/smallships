@@ -12,7 +12,7 @@ public class GalleyItem extends ShipItem {
     }
 
     @Override
-    protected Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
+    protected @NotNull Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
         return GalleyEntity.summon(level, hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
     }
 }

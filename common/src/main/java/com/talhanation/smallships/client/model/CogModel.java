@@ -1,7 +1,6 @@
 package com.talhanation.smallships.client.model;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -165,7 +164,7 @@ public class CogModel extends ShipModel<CogEntity> {
 		this.chest3.visible = cogEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
 		this.chest4.visible = cogEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
-		this.steer.yRot = -cogEntity.getRotSpeed() * 0.25F;;
+		this.steer.yRot = -cogEntity.getRotSpeed() * 0.25F;
 	}
 
 	@Override

@@ -11,5 +11,5 @@ public abstract class ShipItem extends BoatItem {
         super(false, type, properties);
     }
 
-    protected abstract Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult);
+    protected abstract @NotNull Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult);
 }

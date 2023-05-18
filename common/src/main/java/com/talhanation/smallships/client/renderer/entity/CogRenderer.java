@@ -5,11 +5,9 @@ import com.mojang.math.Vector3f;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.CogModel;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jetbrains.annotations.NotNull;
 

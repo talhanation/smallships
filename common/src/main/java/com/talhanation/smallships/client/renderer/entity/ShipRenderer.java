@@ -200,7 +200,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         return Vector3f.XN;
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     private void renderPaddle(Paddleable paddleShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
 
     }

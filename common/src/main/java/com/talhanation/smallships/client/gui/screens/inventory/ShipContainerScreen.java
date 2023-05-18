@@ -52,7 +52,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         this.blit(poseStack, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
     }
 
-    @SuppressWarnings({"CodeBlock2Expr", "ConstantConditions"})
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void init() {
         super.init();
@@ -60,15 +60,11 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         int zeroTopPos = topPos + 15;
 
         if (this.pageCount > 1 && this.pageIndex + 1 > 1){
-            this.addRenderableWidget(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, Component.literal("<-"), button -> {
-                this.getMenu().clickMenuButton(this.minecraft.player, -1);
-            }));
+            this.addRenderableWidget(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, Component.literal("<-"), button -> this.getMenu().clickMenuButton(this.minecraft.player, -1)));
         }
 
         if(this.pageCount > 1 && this.pageIndex + 1 < this.pageCount){
-            this.addRenderableWidget(new Button(zeroLeftPos + 20, zeroTopPos, 40, 20, Component.literal("->"), button -> {
-                this.getMenu().clickMenuButton(this.minecraft.player, 1);
-            }));
+            this.addRenderableWidget(new Button(zeroLeftPos + 20, zeroTopPos, 40, 20, Component.literal("->"), button -> this.getMenu().clickMenuButton(this.minecraft.player, 1)));
         }
     }
 
