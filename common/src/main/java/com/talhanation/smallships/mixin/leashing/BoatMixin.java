@@ -140,7 +140,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
     }
 
     public boolean canBeLeashed() {
-        return !this.isLeashed();
+        return !this.isLeashed() && !(self().getFirstPassenger() instanceof Player);
     }
 
     public boolean isLeashed() {

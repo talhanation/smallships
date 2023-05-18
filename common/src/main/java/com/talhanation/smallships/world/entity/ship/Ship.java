@@ -1,6 +1,7 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.google.common.collect.ImmutableSet;
+import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -165,7 +166,7 @@ public abstract class Ship extends Boat {
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
         }
 
-        if(this.isInWater()){
+        if(this.isInWater() && !((BoatLeashAccess) this).isLeashed()){
             //CALCULATE SPEED//
             //Speed calc dependent on sail or paddle
             //Speed needs to calculate before rotation because fabric is shit

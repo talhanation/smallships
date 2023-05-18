@@ -29,7 +29,7 @@ public class LeadItemMixin {
         success = false;
         List<Boat> list = level.getEntitiesOfClass(Boat.class, new AABB((double)blockPos.getX() - 7.0, (double) blockPos.getY() - 7.0, (double) blockPos.getZ() - 7.0, (double)blockPos.getX() + 7.0, (double)blockPos.getY() + 7.0, (double) blockPos.getZ() + 7.0));
         for (Boat boat : list) {
-            if (((BoatLeashAccess)boat).getLeashHolder() != player || !(boat instanceof Leashable || boat.getClass().equals(Boat.class))) continue;
+            if (((BoatLeashAccess)boat).getLeashHolder() != player || !(boat instanceof Leashable || boat.getClass().equals(Boat.class)))  continue;
             if (leashFenceKnotEntity == null) {
                 leashFenceKnotEntity = LeashFenceKnotEntity.getOrCreateKnot(level, blockPos);
                 leashFenceKnotEntity.playPlacementSound();

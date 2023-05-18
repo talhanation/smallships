@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.client.model.sail.SailModel;
+import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -52,17 +53,19 @@ public interface Sailable extends Ability {
     }
 
     default void toggleSail() {
-        byte state = self().getSailState();
+        if(!((BoatLeashAccess)this).isLeashed()) {
+            byte state = self().getSailState();
 
-        if (state == (byte) 0){
-            state = (byte) 1;
+            if (state == (byte) 0) {
+                state = (byte) 1;
 
-        }else{
-            state = (byte) 0;
+            } else {
+                state = (byte) 0;
+            }
+            this.playSailSound(state);
+            self().sailStateCooldown = getSailStateCooldown();
+            self().setSailState(state);
         }
-        this.playSailSound(state);
-        self().sailStateCooldown = getSailStateCooldown();
-        self().setSailState(state);
     }
 
     default void playSailSound(int state) {

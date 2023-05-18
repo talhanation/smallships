@@ -18,16 +18,17 @@ public class EntityMixin {
     private Entity self() {
         return (Entity)(Object)this;
     }
-
+    /*
     @SuppressWarnings("DataFlowIssue")
     @Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", at = @At(value = "RETURN"))
     private void startRidingLeashedShip(Entity entity, boolean bl, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof Leashable || entity.getClass().equals(Boat.class)) {
             if (cir.getReturnValue() && ((BoatLeashAccess)entity).isLeashed()) {
-                ((BoatLeashAccess)entity).dropLeash(true, true);
+                //((BoatLeashAccess)entity).dropLeash(true, true);
             }
         }
     }
+    */
 
     @Inject(method = "removeAfterChangingDimensions", at = @At(value = "RETURN"))
     private void removeAfterChangingDimensionsLeashedShip(CallbackInfo ci) {
