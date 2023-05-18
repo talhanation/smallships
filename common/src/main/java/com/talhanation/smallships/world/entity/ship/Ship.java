@@ -152,6 +152,12 @@ public abstract class Ship extends Boat {
     public float getKilometerPerHour() {
         return (this.getSpeed() * 20 * 60 * 60) / 1000;
     }
+    public float getKnots() {
+        return (getKilometerPerHour()) / 1.852F;
+    }
+    public float getMeterPerSecond() {
+        return (getKilometerPerHour()) / 3.6F;
+    }
 
     @Override
     protected void controlBoat() {
