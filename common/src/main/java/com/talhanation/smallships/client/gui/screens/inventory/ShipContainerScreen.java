@@ -72,12 +72,12 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     protected void renderLabels(@NotNull PoseStack poseStack, int i, int j) {
         super.renderLabels(poseStack, i, j);
         float dmg = ship.getDamage() * 100 / ship.getAttributes().maxHealth;
-        font.draw(poseStack, (Mth.ceil(dmg) + "%"), 150, 6, FONT_COLOR);
+        font.draw(poseStack, (Mth.ceil(dmg) + "%"), 156 - (float)(Mth.floor(Math.log10(Mth.ceil(dmg)))) * 6, 6, FONT_COLOR);
 
         float maxSpeed = (Mth.ceil(Kalkuel.getKilometerPerHour(ship.maxSpeed)));
         float currentSpeed = (Mth.ceil(Kalkuel.getKilometerPerHour(ship.getSpeed())));
         font.draw(poseStack,  currentSpeed + "/" + maxSpeed + " km/h", 50, 6, FONT_COLOR);
 
-        if (this.pageCount > 1) font.draw(poseStack, (this.pageIndex + 1) + "/"  + this.pageCount, 150, 128, FONT_COLOR);
+        if (this.pageCount > 1) font.draw(poseStack, (this.pageIndex + 1) + "/"  + this.pageCount, 150 - (float)(Mth.floor(Math.log10(this.pageCount))) * 6, this.rowCount*18+19, FONT_COLOR);
     }
 }

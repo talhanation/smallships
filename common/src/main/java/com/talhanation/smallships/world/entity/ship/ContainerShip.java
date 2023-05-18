@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.mixin.container.SimpleContainerAccessor;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.core.NonNullList;
@@ -119,7 +120,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
-        if(player.isCrouching() && !this.getPassengers().isEmpty()){
+        if(player.isSecondaryUseActive() && !this.getPassengers().isEmpty()){
             this.ejectPassengers();
             return InteractionResult.SUCCESS;
         }
@@ -232,6 +233,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
             this.setLootTableSeed(compoundTag.getLong("LootTableSeed"));
         } else {
             ContainerUtility.loadAllItems(compoundTag, this.getItemStacks());
+            this.itemStacks = resizeItemStacks(this, this.getContainerSize());
         }
     }
 
@@ -252,7 +254,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         int containerSize = tag.getInt("ContainerSize");
         if (containerSize == 0) containerSize = this.originalContainerSize;
         this.updatePaging(containerSize);
-        this.itemStacks = resizeItemStacks(this, containerSize);
         this.setData(CONTAINER_SIZE, containerSize);
         if (!this.getLevel().isClientSide()) this.getLevel().players()
                 .stream()
@@ -300,29 +301,34 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     private static NonNullList<ItemStack> resizeItemStacks(ContainerEntity containerEntity, int containerSize) {
         ItemStack[] oldItemStacks = containerEntity.getItemStacks().toArray(ItemStack[]::new);
-        ItemStack[] newItemStacks;
+        SimpleContainer newContainer;
 
-        if (containerSize < oldItemStacks.length) { // Decrease container size (harder)
-            newItemStacks = Arrays.copyOfRange(oldItemStacks, 0, containerSize);
+        if (containerSize < oldItemStacks.length) {
+            // Decrease container size (harder)
+            newContainer = new SimpleContainer(Arrays.copyOfRange(oldItemStacks, 0, containerSize));
             oldItemStacks = Arrays.stream(Arrays.copyOfRange(oldItemStacks, containerSize, oldItemStacks.length)).filter(stack -> !stack.isEmpty()).toArray(ItemStack[]::new);
+            SimpleContainer leftoverContainer = new SimpleContainer(oldItemStacks.length);
 
-            int j = 0;
-            // Copy leftover items is missing
-            if (j < oldItemStacks.length) {  // Drop non-fitting leftover items
-                Containers.dropContents(containerEntity.getLevel(), (Entity) containerEntity, new SimpleContainer(Arrays.copyOfRange(oldItemStacks, j, oldItemStacks.length)));
+            // Move fitting leftover items
+            for (ItemStack oldItemStack : oldItemStacks) {
+                leftoverContainer.addItem(newContainer.addItem(oldItemStack));
             }
-        } else {  // Increase container size (easier)
-            newItemStacks = new ItemStack[containerSize];
+
+            // Drop non-fitting leftover items
+            if (!leftoverContainer.isEmpty()) {
+                Containers.dropContents(containerEntity.getLevel(), (Entity) containerEntity, leftoverContainer);
+            }
+        } else {
+            // Increase container size (easier)
+            newContainer = new SimpleContainer(containerSize);
             for (int i = 0; i < containerSize; i++) {
                 if (i < oldItemStacks.length) {
-                    newItemStacks[i] = oldItemStacks[i];
-                } else {
-                    newItemStacks[i] = ItemStack.EMPTY;
+                    newContainer.setItem(i, oldItemStacks[i]);
                 }
             }
         }
 
-        return NonNullList.of(ItemStack.EMPTY, newItemStacks);
+        return ((SimpleContainerAccessor)newContainer).getItems();
     }
 
     public byte getContainerFillState() {
@@ -335,21 +341,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public float getContainerModifier() {
-        return 0.0008F * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
+        return 0.2F * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
     }
-
-    /*
-    public void addItemToFreeSlot(ItemStack itemStack){
-        for(int i = 0; i < this.getContainerSize(); i++){
-            if(this.getSlot(i).get().is(ItemStack.EMPTY.getItem())){
-                this.setItem(i, itemStack.copy());
-                break;
-            }
-            if(i >= this.getContainerSize()){
-                this.spawnAtLocation(itemStack.getItem(), 4);
-                break;
-            }
-        }
-    }
-   */
 }

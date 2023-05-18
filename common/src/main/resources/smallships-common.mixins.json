@@ -10,10 +10,11 @@
     "zooming.client.MouseHandlerMixin"
   ],
   "mixins": [
-    "damaging.DamageSourceAccessor",
+    "container.SimpleContainerAccessor",
     "controlling.BoatAccessor",
     "controlling.BoatMixin",
     "damaging.BoatMixin",
+    "damaging.DamageSourceAccessor",
     "leashing.BoatMixin",
     "leashing.ChunkMapMixin",
     "leashing.EntityMixin",
