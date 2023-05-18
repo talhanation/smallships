@@ -11,6 +11,7 @@ import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -29,6 +30,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
@@ -40,6 +42,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,7 +165,8 @@ public abstract class Ship extends Boat {
         float rotAcceleration = attributes.rotationAcceleration;
 
         if(this.level.isClientSide()){
-            if(this.getControllingPassenger() instanceof Player player)
+            Player player = getDriver();
+            if(player != null)
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
         }
 
@@ -171,7 +175,7 @@ public abstract class Ship extends Boat {
             //Speed calc dependent on sail or paddle
             //Speed needs to calculate before rotation because fabric is shit
             if(this instanceof Paddleable){
-                if(isForward()){
+                if(isForward() && getDriver() != null){
                     setPoint = (maxSpeed * 12/16F) * (1 + (int) getSailState() * 0.1F);
                 } else if(getSailState() == 0)
                     setPoint = Kalkuel.subtractToZero(setPoint, getVelocityResistance());
@@ -190,15 +194,18 @@ public abstract class Ship extends Boat {
             //CALCULATE ROTATION SPEED//
             //((BoatAccessor) this).setDeltaRotation(0); // IDK WHAT THIS IS FOR BUT IT WORKS WITHOUT IT
             float rotationSpeed = Kalkuel.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
-            if (isRight()) {
-                if (rotationSpeed < maxRotSp) {
-                    rotationSpeed = Math.min(rotationSpeed + rotAcceleration * 1 / 8, maxRotSp);
-                }
-            }
 
-            if (isLeft()) {
-                if (rotationSpeed > -maxRotSp) {
-                    rotationSpeed = Math.max(rotationSpeed - rotAcceleration * 1 / 8, -maxRotSp);
+            if(getDriver() != null) {
+                if (isRight()) {
+                    if (rotationSpeed < maxRotSp) {
+                        rotationSpeed = Math.min(rotationSpeed + rotAcceleration * 1 / 8, maxRotSp);
+                    }
+                }
+
+                if (isLeft()) {
+                    if (rotationSpeed > -maxRotSp) {
+                        rotationSpeed = Math.max(rotationSpeed - rotAcceleration * 1 / 8, -maxRotSp);
+                    }
                 }
             }
             this.setRotSpeed(rotationSpeed);
@@ -206,13 +213,15 @@ public abstract class Ship extends Boat {
             ((BoatAccessor) this).setDeltaRotation(rotationSpeed);
             setYRot(getYRot() + ((BoatAccessor) this).getDeltaRotation());
 
-            //CONTROL SAIL STATE//
-            if(this instanceof Sailable sailShip)
-                this.controlSailState(sailShip, this.getSailState());
 
-            //Paddle
-            if (this instanceof Paddleable paddleShip) paddleShip.controlBoatPaddleShip();
+            if(getDriver() != null) {
+                //CONTROL SAIL STATE//
+                if (this instanceof Sailable sailShip)
+                    this.controlSailState(sailShip, this.getSailState());
 
+                //Paddle
+                if (this instanceof Paddleable paddleShip) paddleShip.controlBoatPaddleShip();
+            }
             //SET
             setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), 0.0F, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
         }
@@ -225,7 +234,7 @@ public abstract class Ship extends Boat {
     }
 
     private void controlSailState(Sailable sailShip, byte sailState) {
-        if(sailState != 0){
+        if(sailState != 0) {
             if (isForward()) {
                 if (sailState != 4) {
                     if(this.sailStateCooldown == 0){
@@ -551,6 +560,25 @@ public abstract class Ship extends Boat {
             //SmallShipsMod.LOGGER.info("Damage: " + damage);
         }
 
+    }
+    @Nullable
+    public Player getDriver() {
+        List<Entity> passengers = getPassengers();
+        if (passengers.size() <= 0) {
+            return null;
+        }
+
+        if (passengers.get(0) instanceof Player player) {
+            if(this.level.isClientSide){
+                Minecraft minecraft = Minecraft.getInstance();
+                Player instancePlayer = minecraft.player;
+
+                return player.equals(instancePlayer) ? player : null;
+            }
+            else return (Player) passengers.get(0);
+        }
+
+        return null;
     }
 
     public void updateControls(boolean forward, boolean backward, boolean left, boolean right, Player player) {
