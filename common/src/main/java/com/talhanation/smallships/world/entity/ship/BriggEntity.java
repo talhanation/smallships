@@ -43,8 +43,8 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = 450.0F;
-        attributes.maxSpeed = 7F;
+        attributes.maxHealth = 450.0F; //TODO: CONFIG
+        attributes.maxSpeed = 7F; //TODO: CONFIG
         attributes.maxReverseSpeed = 0.1F;
         attributes.maxRotationSpeed = 4.5F;
         attributes.acceleration = 0.015F;

@@ -518,7 +518,7 @@ public abstract class Ship extends Boat {
 
             if (bl || this.getDamage() > this.getAttributes().maxHealth) {
                 if (!bl && this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                    this.destroy(damageSource);
+                    this.destroy(damageSource); //TODO: CONFIG spawn item on destroy
                 }
                 this.discard();
             }
@@ -555,7 +555,7 @@ public abstract class Ship extends Boat {
 
     private void collisionDamage(Entity entity, float speed) {
         if (speed > 0.1F) {
-            float damage = speed * 7.5F;
+            float damage = speed * 7.5F; //TODO: CONFIG
             entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
             //SmallShipsMod.LOGGER.info("Damage: " + damage);
         }

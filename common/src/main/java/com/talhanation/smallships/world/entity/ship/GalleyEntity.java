@@ -49,8 +49,8 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = 200.0F;
-        attributes.maxSpeed = 6F;
+        attributes.maxHealth = 200.0F;//TODO: CONFIG
+        attributes.maxSpeed = 6F;//TODO: CONFIG
         attributes.maxReverseSpeed = 0.1F;
         attributes.maxRotationSpeed = 5.0F;
         attributes.acceleration = 0.015F;

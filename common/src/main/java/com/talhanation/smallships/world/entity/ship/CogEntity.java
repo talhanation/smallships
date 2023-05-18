@@ -42,8 +42,8 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = 300.0F;
-        attributes.maxSpeed = 6F;
+        attributes.maxHealth = 300.0F;//TODO: CONFIG
+        attributes.maxSpeed = 6F;//TODO: CONFIG
         attributes.maxReverseSpeed = 0.1F;
         attributes.maxRotationSpeed = 4.0F;
         attributes.acceleration = 0.015F;
