@@ -194,8 +194,6 @@ public class BriggModel extends ShipModel<BriggEntity> {
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
 
-
-
 	@Override
 	public void setupAnim(BriggEntity briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		byte u_byteMaxValueFourth = (-Byte.MIN_VALUE + Byte.MAX_VALUE) / 4;

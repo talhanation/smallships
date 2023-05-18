@@ -161,15 +161,17 @@ public abstract class Ship extends Boat {
         }
 
         if(this.isInWater()){
+            /*
             SmallShipsMod.LOGGER.info("Speed kmh: " + getKilometerPerHour());
             SmallShipsMod.LOGGER.info("getBiomesModifier: " + getBiomesModifier());
             SmallShipsMod.LOGGER.info("getCannonModifier: " + getCannonModifier());
             SmallShipsMod.LOGGER.info("getCargoModifier: " + getCargoModifier());
+             */
             Attributes attributes = this.getAttributes();
             float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getCargoModifier());
 
             float maxSpeed = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
-            float maxBackSp = attributes.maxReverseSpeed;
+            //float maxBackSp = attributes.maxReverseSpeed;
             float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
             float acceleration = attributes.acceleration ;
             float rotAcceleration = attributes.rotationAcceleration;
@@ -180,7 +182,8 @@ public abstract class Ship extends Boat {
             if(this instanceof Paddleable){
                 if(isForward()){
                     setPoint = (maxSpeed * 12/16F) * (1 + (int) getSailState() * 0.1F);
-                }
+                } else if(getSailState() == 0)
+                    setPoint = Kalkuel.subtractToZero(setPoint, getVelocityResistance());
             }
             else{
                 switch (this.getSailState()){ // Speed depending on sail state
@@ -191,7 +194,7 @@ public abstract class Ship extends Boat {
                     case 4 -> setPoint = maxSpeed * 16/16F;
                 }
             }
-            this.calculateSpeed(acceleration, this.getSailState());
+            this.calculateSpeed(acceleration);
 
             //CALCULATE ROTATION SPEED//
             //((BoatAccessor) this).setDeltaRotation(0); // IDK WHAT THIS IS FOR BUT IT WORKS WITHOUT IT
@@ -238,6 +241,7 @@ public abstract class Ship extends Boat {
                         sailState++;
                         sailShip.playSailSound(sailState);
                         this.sailStateCooldown = sailShip.getSailStateCooldown();
+
                     }
                 }
             }
@@ -252,21 +256,24 @@ public abstract class Ship extends Boat {
                 }
             }
 
-            this.setSailState(sailState);
+            if (this.level.isClientSide && this.getControllingPassenger() instanceof Player player)
+                ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(sailState));
+            else
+                this.setSailState(sailState);
         }
     }
 
-    private void calculateSpeed(float acceleration, byte sailState) {
+    private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced
-        float speed;
-        if(sailState != 0 || (this.isForward() && this instanceof Paddleable)){
-            speed = Kalkuel.changeToSetPoint(this.getSpeed(), acceleration, getVelocityResistance() * 0.5F, setPoint);
+        float speed = this.getSpeed();
+        if(speed < setPoint){
+            speed = Kalkuel.addToSetPoint(speed, acceleration, setPoint); //getVelocityResistance() * 0.5F
         }
         else
-            speed = Kalkuel.subtractToZero(this.getSpeed(), getVelocityResistance() * 0.8F);
+            speed = Kalkuel.subtractToZero(speed, getVelocityResistance() * 0.8F);
 
         if (isLeft() || isRight()) { // Speed decrease when rotating
-            speed = speed * (1F - (Mth.abs(getRotSpeed()) * 0.025F));
+            speed = speed * (1F - (Mth.abs(getRotSpeed()) * 0.02F));
         }
 
         this.setSpeed(speed);
@@ -529,7 +536,7 @@ public abstract class Ship extends Boat {
             double d2 = entity.getX() - d0;
             double d3 = entity.getZ() - d1;
             double d4 = Math.max(d2 * d2 + d3 * d3, 0.1D);
-            entity.setDeltaMovement(getDeltaMovement().add(d2 / d4 * (1.0 + speed), 0.0F, d3 / d4 * (1.0 + speed)));
+            entity.setDeltaMovement(getDeltaMovement().add(d2 / d4 * (1.0 + speed * 1.1), 0.0F, d3 / d4 * (1.0 + speed * 1.1)));
         }
     }
 
@@ -578,7 +585,7 @@ public abstract class Ship extends Boat {
             needsUpdate = true;
         }
         if (this.level.isClientSide && needsUpdate) {
-            ModPackets.clientSendPacket(player, ModPackets.updateShipControl.apply(forward, backward, left, right));
+            ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
     }
 }
