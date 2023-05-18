@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.config.SmallshipsConfig;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +24,7 @@ import java.util.List;
 
 public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
     public static final String ID = "brigg";
-    private static final int ORIGINAL_CONTAINER_SIZE = 162;
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallshipsConfig.Common.shipContainerBriggContainerSize.get();
 
     public BriggEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -43,12 +45,12 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = 450.0F; //TODO: CONFIG
-        attributes.maxSpeed = 7F; //TODO: CONFIG
-        attributes.maxReverseSpeed = 0.1F;
-        attributes.maxRotationSpeed = 4.5F;
-        attributes.acceleration = 0.015F;
-        attributes.rotationAcceleration = 0.6F;
+        attributes.maxHealth = SmallshipsConfig.Common.shipAttributeBriggMaxHealth.get().floatValue();
+        attributes.maxSpeed = SmallshipsConfig.Common.shipAttributeBriggMaxSpeed.get().floatValue();
+        attributes.maxReverseSpeed = SmallshipsConfig.Common.shipAttributeBriggMaxReverseSpeed.get().floatValue();
+        attributes.maxRotationSpeed = SmallshipsConfig.Common.shipAttributeBriggMaxRotationSpeed.get().floatValue();
+        attributes.acceleration = SmallshipsConfig.Common.shipAttributeBriggAcceleration.get().floatValue();
+        attributes.rotationAcceleration = SmallshipsConfig.Common.shipAttributeBriggRotationAcceleration.get().floatValue();
         CompoundTag tag = new CompoundTag();
         attributes.addSaveData(tag);
         return tag;
@@ -61,12 +63,13 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     @Override
     public @NotNull Item getDropItem() {
+        if (!SmallshipsConfig.Common.shipDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.BRIGG_ITEMS.get(this.getBoatType());
     }
 
     @Override
     public int getBiomesModifierType() {
-        return 0;
+        return SmallshipsConfig.Common.shipModifierBriggBiome.get();
     }
 
     @Override

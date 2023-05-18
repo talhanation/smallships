@@ -1,5 +1,7 @@
 package com.talhanation.smallships;
 
+import com.talhanation.smallships.config.SmallshipsConfig;
+import net.minecraftforge.fml.config.ModConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,8 +10,7 @@ public class SmallShipsMod {
     @SuppressWarnings("unused")
     public static final Logger LOGGER = LoggerFactory.getLogger(SmallShipsMod.MOD_ID);
 
-    @SuppressWarnings("EmptyMethod")
     public static void init() {
-        //common server
+        SmallshipsConfig.registerConfigs(MOD_ID, ModConfig.Type.COMMON, SmallshipsConfig.COMMON_SPEC);
     }
 }

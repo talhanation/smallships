@@ -30,6 +30,10 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+    maven {
+        name = "ModMenu"
+        url "https://maven.terraformersmc.com/releases/"
+    }
 }
 
 dependencies {
@@ -37,9 +41,14 @@ dependencies {
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
     modImplementation "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
+    modImplementation "curse.maven:configured-fabric-667378:4010582"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+
+    implementation "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    implementation "com.electronwill.night-config:toml:${rootProject.night_config_version}"
+    modImplementation(include("net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forge_config_api_port_version}"))
 
     modRuntimeOnly "maven.modrinth:here-be-no-dragons:1.0.0"
     modRuntimeOnly "maven.modrinth:lazydfu:0.1.3"

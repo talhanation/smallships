@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.google.common.collect.ImmutableSet;
 import com.talhanation.smallships.duck.BoatLeashAccess;
+import com.talhanation.smallships.config.SmallshipsConfig;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -30,7 +31,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
@@ -85,7 +85,7 @@ public abstract class Ship extends Boat {
         //SmallShipsMod.LOGGER.info("Speed: " + this.getSpeed());// Debug the speed
 
         if (this.getDamage() > 0.0F) {
-            this.setDamage(this.getDamage() + 1.0F); //TODO: Replace with Mixin for performance
+            this.setDamage(this.getDamage() + 1.0F);
         }
 
         if (this instanceof Sailable sailShip) sailShip.tickSailShip();
@@ -364,6 +364,7 @@ public abstract class Ship extends Boat {
 
     public float getBiomesModifier() {
         int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
+        if (biomeType == -1) return 0;
         BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
         Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos).value());
 
@@ -479,8 +480,7 @@ public abstract class Ship extends Boat {
     }
 
     private void updateWaterMobs() {
-        //if (!SmallShipsConfig.WaterMobFlee.get()) return; //CONFIG
-        double radius = 15.0D; //TODO: CONFIG
+        double radius = SmallshipsConfig.Common.waterAnimalFleeRadius.get();
         List<WaterAnimal> waterAnimals = this.getLevel().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
         for (WaterAnimal waterAnimal : waterAnimals) {
             fleeEntity(waterAnimal);
@@ -488,8 +488,8 @@ public abstract class Ship extends Boat {
     }
 
     private void fleeEntity(Mob entity) {
-        double fleeDistance = 10.0D;
-        double fleeSpeed = 1.5D; //TODO: CONFIG
+        double fleeDistance = SmallshipsConfig.Common.waterAnimalFleeDistance.get();
+        double fleeSpeed = SmallshipsConfig.Common.waterAnimalFleeSpeed.get();
         Vec3 vecBoat = new Vec3(getX(), getY(), getZ());
         Vec3 vecEntity = new Vec3(entity.getX(), entity.getY(), entity.getZ());
         Vec3 fleeDir = vecEntity.subtract(vecBoat);
@@ -518,7 +518,7 @@ public abstract class Ship extends Boat {
 
             if (bl || this.getDamage() > this.getAttributes().maxHealth) {
                 if (!bl && this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                    this.destroy(damageSource); //TODO: CONFIG spawn item on destroy
+                    this.destroy(damageSource);
                 }
                 this.discard();
             }
@@ -555,7 +555,7 @@ public abstract class Ship extends Boat {
 
     private void collisionDamage(Entity entity, float speed) {
         if (speed > 0.1F) {
-            float damage = speed * 7.5F; //TODO: CONFIG
+            float damage = speed * SmallshipsConfig.Common.shipCollisionDamage.get().floatValue();
             entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
             //SmallShipsMod.LOGGER.info("Damage: " + damage);
         }

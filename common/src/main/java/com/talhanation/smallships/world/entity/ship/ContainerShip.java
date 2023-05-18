@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.config.SmallshipsConfig;
 import com.talhanation.smallships.mixin.container.SimpleContainerAccessor;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
@@ -341,6 +342,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public float getContainerModifier() {
-        return 0.1F * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
+        return SmallshipsConfig.Common.shipContainerModifier.get().floatValue() * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
     }
 }

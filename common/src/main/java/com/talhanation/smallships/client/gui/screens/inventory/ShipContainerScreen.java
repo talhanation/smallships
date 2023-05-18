@@ -2,6 +2,7 @@ package com.talhanation.smallships.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
@@ -52,12 +53,16 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         this.blit(poseStack, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     protected void init() {
         super.init();
         int zeroLeftPos = leftPos + 160;
         int zeroTopPos = topPos + 15;
+
+        if (this.minecraft == null || this.minecraft.player == null) {
+            SmallShipsMod.LOGGER.error("Minecraft client or LocalPlayer is null?! Couldn't render page buttons.");
+            return;
+        }
 
         if (this.pageCount > 1 && this.pageIndex + 1 > 1){
             this.addRenderableWidget(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, Component.literal("<-"), button -> this.getMenu().clickMenuButton(this.minecraft.player, -1)));
