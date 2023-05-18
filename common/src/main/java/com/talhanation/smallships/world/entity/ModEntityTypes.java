@@ -10,7 +10,6 @@ import net.minecraft.world.entity.EntityType;
 
 public class ModEntityTypes {
     public static final EntityType<CannonBallEntity> CANNON_BALL = getEntityType(CannonBallEntity.class);
-
     public static final EntityType<CogEntity> COG = getEntityType(CogEntity.class);
     public static final EntityType<BriggEntity> BRIGG = getEntityType(BriggEntity.class);
     public static final EntityType<GalleyEntity> GALLEY = getEntityType(GalleyEntity.class);

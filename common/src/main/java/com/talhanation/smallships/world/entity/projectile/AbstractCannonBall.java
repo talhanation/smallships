@@ -16,6 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -106,7 +107,9 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     protected void onHitBlock(BlockHitResult blockHitResult) {
         super.onHitBlock(blockHitResult);
         if (!this.getLevel().isClientSide()) {
-            if(!isInWater()) this.getLevel().explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, Explosion.BlockInteraction.BREAK);
+            Explosion.BlockInteraction blockInteraction = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
+            boolean doesSpreadFire = false;
+            if(!isInWater()) this.getLevel().explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, doesSpreadFire, blockInteraction);
             this.remove(RemovalReason.KILLED);
         }
     }
