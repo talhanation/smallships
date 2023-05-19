@@ -70,8 +70,13 @@ public class SmallshipsConfig {
         Common.schematicVersion = builder
                 .define("schematicVersion", 1);
 
-        builder.comment(" This category holds configs that define general ship behaviour.");
-        builder.push("Ship General");
+        builder.comment(" This category holds configs that define ship behaviour.");
+        builder.push("Ship");
+
+
+
+        builder.comment("This category holds configs that define general ship behaviour.");
+        builder.push("General");
 
         Common.shipSailCooldown = builder
                 .define("shipSailCooldown", 30);
@@ -89,10 +94,19 @@ public class SmallshipsConfig {
 
         builder.pop();
 
+        builder.comment("This category holds configs that define behaviour of fleeing water animals.");
+        builder.push("Fleeing Water Animals");
+
+        Common.waterAnimalFleeRadius = builder
+                .define("waterAnimalFleeRadius", 15.0D);
+        Common.waterAnimalFleeSpeed = builder
+                .define("waterAnimalFleeSpeed", 1.5D);
+        Common.waterAnimalFleeDistance = builder
+                .define("waterAnimalFleeDistance", 10.0D);
+
         builder.pop();
 
-        builder.comment(" This category holds configs that define ship specific behaviour.");
-        builder.push("Ship");
+        builder.pop();
 
 
 
@@ -162,7 +176,7 @@ public class SmallshipsConfig {
         builder.push("Container");
 
         Common.shipContainerBriggContainerSize = builder
-                .define("shipContainerBriggContainerSize", 162);
+                .define("shipContainerBriggContainerSize", 162, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
 
@@ -199,11 +213,12 @@ public class SmallshipsConfig {
 
         builder.pop();
 
+
         builder.comment("Default configs for the container of the Galley.");
         builder.push("Container");
 
         Common.shipContainerGalleyContainerSize = builder
-                .define("shipContainerGalleyContainerSize", 54);
+                .define("shipContainerGalleyContainerSize", 54, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
 
@@ -219,18 +234,6 @@ public class SmallshipsConfig {
         builder.pop();
 
 
-
-        builder.pop();
-
-        builder.comment(" This category holds configs that define behaviour of fleeing water animals.");
-        builder.push("Fleeing Water Animals");
-
-        Common.waterAnimalFleeRadius = builder
-                .define("waterAnimalFleeRadius", 15.0D);
-        Common.waterAnimalFleeSpeed = builder
-                .define("waterAnimalFleeSpeed", 1.5D);
-        Common.waterAnimalFleeDistance = builder
-                .define("waterAnimalFleeDistance", 10.0D);
 
         builder.pop();
     }
