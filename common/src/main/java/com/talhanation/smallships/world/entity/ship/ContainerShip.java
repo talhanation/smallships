@@ -126,13 +126,11 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
             return InteractionResult.SUCCESS;
         }
 
-        if (player.getLevel().isClientSide() && this.getContainerSize() != this.itemStacks.size()) this.itemStacks = resizeItemStacks(this, this.getContainerSize()); // ensures correct size
         return this.canAddPassenger(player) && !player.isSecondaryUseActive() ? super.interact(player, interactionHand) : this.interactWithChestVehicle(this::gameEvent, player);
     }
 
     @Override
     public void openCustomInventoryScreen(@NotNull Player player) {
-        if (player.getLevel().isClientSide() && this.getContainerSize() != this.itemStacks.size()) this.itemStacks = resizeItemStacks(this, this.getContainerSize()); // ensure correct size again... just in case
         ContainerUtility.openShipMenu(player, this);
         if (!player.getLevel().isClientSide()) {
             this.gameEvent(GameEvent.CONTAINER_OPEN, player);
@@ -234,7 +232,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
             this.setLootTableSeed(compoundTag.getLong("LootTableSeed"));
         } else {
             ContainerUtility.loadAllItems(compoundTag, this.getItemStacks());
-            this.itemStacks = resizeItemStacks(this, this.getContainerSize());
+            this.resizeContainer(this.getContainerSize());
         }
     }
 
@@ -260,7 +258,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
                 .stream()
                 .filter(player ->
                         player.containerMenu instanceof ShipContainerMenu shipContainerMenu &&
-                                shipContainerMenu.getContainer().equals(this))
+                                shipContainerMenu.getContainerShip().equals(this))
                 .map(player -> (ServerPlayer) player)
                 .forEach(ServerPlayer::closeContainer);
     }
@@ -298,6 +296,10 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         short u_byteMaxValue = -Byte.MIN_VALUE + Byte.MAX_VALUE;
         byte invFillState = (byte) (invFillStateInPercent * u_byteMaxValue - (-Byte.MIN_VALUE));
         this.setContainerFillState(invFillState);
+    }
+
+    public void resizeContainer(int containerSize) {
+        this.itemStacks = resizeItemStacks(this, containerSize);
     }
 
     private static NonNullList<ItemStack> resizeItemStacks(ContainerEntity containerEntity, int containerSize) {

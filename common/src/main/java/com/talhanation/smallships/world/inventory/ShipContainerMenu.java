@@ -2,7 +2,6 @@ package com.talhanation.smallships.world.inventory;
 
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
-import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,7 +17,6 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final Inventory inventory;
     private final Container container;
     private final ContainerData containerData;
-    private final ContainerShip containerShip;
 
     public ShipContainerMenu(MenuType<ShipContainerMenu> type, int syncId, Inventory inventory, ContainerShip containerShip) {
         super(type, syncId);
@@ -26,18 +24,17 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         checkContainerSize(containerShip, this.getRowCount() * 9);
         this.container = containerShip;
         this.inventory = inventory;
-        this.containerShip = containerShip;
         this.addDataSlots(this.containerData);
-        this.openPage(this.getPageIndex());
+        this.openPage();
     }
 
-    private void openPage(int pageIndex) {
+    private void openPage() {
         this.container.startOpen(this.inventory.player);
         int k = (this.getRowCount() - 4) * 18;
 
         for(int l = 0; l < this.getRowCount(); ++l) {
             for(int m = 0; m < 9; ++m) {
-                this.addSlot(new Slot(this.container, m + l * 9 + pageIndex * this.getRowCount() * COLUMNS, 8 + m * 18, 18 + l * 18));
+                this.addSlot(new Slot(this.container, m + l * 9 + this.getPageIndex() * this.getRowCount() * COLUMNS, 8 + m * 18, 18 + l * 18));
             }
         }
 
@@ -101,15 +98,15 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     }
 
     public int getRowCount() {
-        return this.containerData.get(0); //rows;
+        return this.containerData.get(0);
     }
 
     public int getPageCount() {
-        return this.containerData.get(1); //pages;
+        return this.containerData.get(1);
     }
 
     public int getPageIndex() {
-        return this.containerData.get(2); //pageIndex;
+        return this.containerData.get(2);
     }
 
     public void updatePaging(int rows, int pages, int pageIndex) {
@@ -118,12 +115,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.containerData.set(2, pageIndex);
     }
 
-    public Container getContainer() {
-        return container;
-    }
-
-    public Ship getShip() {
-        return containerShip;
+    public ContainerShip getContainerShip() {
+        return (ContainerShip) container;
     }
 
     @Override
@@ -139,7 +132,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 "rows=" + this.getRowCount() +
                 ", pages=" + this.getPageCount() +
                 ", pageIndex=" + this.getPageIndex() +
-                ", itemStacksSize=" + ((ContainerShip)this.container).getItemStacks().size() +
+                ", itemStacksSize=" + this.getContainerShip().getItemStacks().size() +
                 '}';
     }
 }
