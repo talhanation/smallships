@@ -1,6 +1,7 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.google.common.collect.ImmutableSet;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.config.SmallshipsConfig;
 import com.talhanation.smallships.math.Kalkuel;
@@ -165,6 +166,9 @@ public abstract class Ship extends Boat {
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
 
+
+        SmallShipsMod.LOGGER.info("Speed kmh: " +  Kalkuel.getKilometerPerHour(this.getSpeed()));
+
         if(this.level.isClientSide()){
             Player player = getDriver();
             if(player != null)
@@ -177,9 +181,15 @@ public abstract class Ship extends Boat {
             //Speed needs to calculate before rotation because fabric is shit
             if(this instanceof Paddleable){
                 if(isForward() && getDriver() != null){
-                    setPoint = (maxSpeed * 12/16F) * (1 + (int) getSailState() * 0.1F);
-                } else if(getSailState() == 0)
-                    setPoint = Kalkuel.subtractToZero(setPoint, getVelocityResistance());
+                    setPoint = (maxSpeed * 12/16F) * (1 + (1 + getSailState()) * 0.1F);
+                } else
+                    switch (this.getSailState()){ // Speed depending on sail state
+                    case 0 -> setPoint =  0;
+                    case 1 -> setPoint = maxSpeed * 4/16F;
+                    case 2 -> setPoint = maxSpeed * 8/16F;
+                    case 3 -> setPoint = maxSpeed * 12/16F;
+                    case 4 -> setPoint = maxSpeed * 16/16F;
+                }
             }
             else{
                 switch (this.getSailState()){ // Speed depending on sail state
