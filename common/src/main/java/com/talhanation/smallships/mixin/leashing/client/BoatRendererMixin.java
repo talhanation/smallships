@@ -19,6 +19,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,17 +27,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static net.minecraft.client.renderer.entity.MobRenderer.addVertexPair;
 
 @Mixin(BoatRenderer.class)
-public class BoatRendererMixin extends EntityRenderer<Boat> {
+public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
     @SuppressWarnings("unused")
     protected BoatRendererMixin(EntityRendererProvider.Context context) {
         super(context);
         throw new AssertionError();
     }
 
-    @Override
-    public @NotNull ResourceLocation getTextureLocation(Boat entity) {
-        throw new AssertionError();
-    }
+    @Shadow public abstract @NotNull ResourceLocation getTextureLocation(Boat boat);
 
     @SuppressWarnings("SimplifiableConditionalExpression")
     @Override
