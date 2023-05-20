@@ -158,10 +158,9 @@ public abstract class Ship extends Boat {
     @Override
     protected void controlBoat() {
         Attributes attributes = this.getAttributes();
-        float modifier = 1 - (getBiomesModifier()/100 + getCannonModifier()/100 + getContainerModifier()/100 + getPaddleModifier()/100);
+        float modifier = 1 - (getBiomesModifier()/100 + getCannonModifier()/100 + getContainerModifier()/100); // getPaddleModifier()/100);
 
         this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * modifier;
-        //float maxBackSp = attributes.maxReverseSpeed;
         float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
@@ -244,9 +243,9 @@ public abstract class Ship extends Boat {
                         sailShip.playSailSound(sailState);
                         this.sailStateCooldown = sailShip.getSailStateCooldown();
 
-                    }
                 }
             }
+        }
 
             if (((BoatAccessor) this).isInputDown()) {
                 if (sailState != 1) {
@@ -262,6 +261,7 @@ public abstract class Ship extends Boat {
                 ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(sailState));
         }
     }
+
 
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced

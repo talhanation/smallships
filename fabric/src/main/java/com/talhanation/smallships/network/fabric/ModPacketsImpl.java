@@ -51,6 +51,10 @@ public class ModPacketsImpl {
             packet.receive(server, player, handler, buf, responseSender);
         });
 
+        registerServerPacket(ModPackets.id("server_update_ship_control"), (server, player, handler, buf, responseSender) -> {
+            ServerboundUpdateShipControlFabricPacket packet = new ServerboundUpdateShipControlFabricPacket(buf);
+            packet.receive(server, player, handler, buf, responseSender);
+        });
     }
 
     @SuppressWarnings({"SameParameterValue", "unused"})
