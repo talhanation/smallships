@@ -81,6 +81,6 @@ public interface Sailable extends Ability {
 
 
     default int getSailStateCooldown(){
-        return SmallshipsConfig.Common.shipSailCooldown.get();
+        return SmallshipsConfig.Common.shipGeneralSailCooldown.get();
     }
 }

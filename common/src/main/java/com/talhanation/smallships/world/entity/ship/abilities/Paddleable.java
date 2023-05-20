@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
+import com.talhanation.smallships.config.SmallshipsConfig;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -8,9 +9,14 @@ public interface Paddleable extends Ability {
     default void tickPaddleShip() {
     }
 
+    default float getPaddlingModifier() {
+        return SmallshipsConfig.Common.shipGeneralPaddlingModifier.get().floatValue();
+    }
+
     default void controlBoatPaddleShip() {
-        if(self().isControlledByLocalInstance())
+        if(self().isControlledByLocalInstance()) {
             self().setPaddleState(this.shouldPaddleLeft(), this.shouldPaddleRight());
+        }
     }
 
     default void animatePaddle(PaddleSide side, ModelPart modelPart, float f) {

@@ -156,7 +156,7 @@ public abstract class Ship extends Boat {
     @Override
     protected void controlBoat() {
         Attributes attributes = this.getAttributes();
-        float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getContainerModifier());
+        float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getContainerModifier() + getPaddleModifier());
 
         this.maxSpeed = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
         //float maxBackSp = attributes.maxReverseSpeed;
@@ -457,6 +457,10 @@ public abstract class Ship extends Boat {
     public float getCannonModifier() {
         return (int)this.getCannonCount() * 0.025F;
     }
+    public float getPaddleModifier() {
+        if (this instanceof Paddleable paddleShip && this.getPaddleState(0) && this.getPaddleState(1)) return -paddleShip.getPaddlingModifier() * this.getSailState()/4;
+        return 0;
+    }
     public abstract CompoundTag createDefaultAttributes();
 
     /************************************
@@ -555,9 +559,8 @@ public abstract class Ship extends Boat {
 
     private void collisionDamage(Entity entity, float speed) {
         if (speed > 0.1F) {
-            float damage = speed * SmallshipsConfig.Common.shipCollisionDamage.get().floatValue();
+            float damage = speed * SmallshipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
             entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
-            //SmallShipsMod.LOGGER.info("Damage: " + damage);
         }
 
     }

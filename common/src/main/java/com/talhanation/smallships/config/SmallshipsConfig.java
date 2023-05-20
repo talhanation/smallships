@@ -22,10 +22,11 @@ public class SmallshipsConfig {
     public static class Common {
         public static ForgeConfigSpec.ConfigValue<Integer> schematicVersion;
 
-        public static ForgeConfigSpec.ConfigValue<Integer> shipSailCooldown;
-        public static ForgeConfigSpec.ConfigValue<Double> shipCollisionDamage;
-        public static ForgeConfigSpec.BooleanValue shipDoItemDrop;
-        public static ForgeConfigSpec.ConfigValue<Double> shipContainerModifier;
+        public static ForgeConfigSpec.ConfigValue<Integer> shipGeneralSailCooldown;
+        public static ForgeConfigSpec.ConfigValue<Double> shipGeneralCollisionDamage;
+        public static ForgeConfigSpec.BooleanValue shipGeneralDoItemDrop;
+        public static ForgeConfigSpec.ConfigValue<Double> shipGeneralContainerModifier;
+        public static ForgeConfigSpec.ConfigValue<Double> shipGeneralPaddlingModifier;
 
         public static ForgeConfigSpec.ConfigValue<Double> shipAttributeCogMaxHealth;
         public static ForgeConfigSpec.ConfigValue<Double> shipAttributeCogMaxSpeed;
@@ -78,19 +79,22 @@ public class SmallshipsConfig {
         builder.comment("This category holds configs that define general ship behaviour.");
         builder.push("General");
 
-        Common.shipSailCooldown = builder
-                .define("shipSailCooldown", 30);
-        Common.shipCollisionDamage = builder
-                .define("shipCollisionDamage", 7.5D);
-        Common.shipDoItemDrop = builder
-                .define("shipDoItemDrop", true);
+        Common.shipGeneralSailCooldown = builder
+                .define("shipGeneralSailCooldown", 30);
+        Common.shipGeneralCollisionDamage = builder
+                .define("shipGeneralCollisionDamage", 7.5D);
+        Common.shipGeneralDoItemDrop = builder
+                .define("shipGeneralDoItemDrop", true);
 
         builder.comment("General speed modifier for ships.");
         builder.push("Modifier");
 
         builder.comment("Maximum speed penalty for a filled container in percent.");
-        Common.shipContainerModifier = builder
-                .define("shipContainerModifier", 0.1D);
+        Common.shipGeneralContainerModifier = builder
+                .define("shipGeneralContainerModifier", 0.1D);
+        builder.comment("Speed bonus for a paddle ship while paddling in percent.");
+        Common.shipGeneralPaddlingModifier = builder
+                .define("shipGeneralPaddlingModifier", 0.2D);
 
         builder.pop();
 
