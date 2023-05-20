@@ -11,11 +11,11 @@ public class KeyEvent {
     public static void onKeyInput(Minecraft client) {
         Player player = client.player;
         if (player == null) return;
-        boolean pressedSailKey = ModGameOptions.SAIL_KEY.consumeClick();
+        boolean pressedSailKey = ModGameOptions.SAIL_KEY.isDown();
         boolean pressedJumpKey = client.options.keyJump.isDown();
         if (player.getVehicle() instanceof Ship ship) {
             if (player.equals(ship.getDriver())) { // is driver
-                if (pressedSailKey && ship instanceof Sailable sailable)
+                if (pressedSailKey && ship instanceof Sailable)
                     ModPackets.clientSendPacket(player, ModPackets.serverToggleShipSail.apply());
 
                 if (ship instanceof Cannonable cannonable){

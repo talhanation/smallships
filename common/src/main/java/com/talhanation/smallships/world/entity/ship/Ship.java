@@ -68,6 +68,7 @@ public abstract class Ship extends Boat {
     public float bannerWaveAngle;
     protected boolean cannonKeyPressed;
     public int sailStateCooldown = 0;
+    public int toggleCooldown = 0;
     private float setPoint;
     public final List<Cannon> CANNONS = new ArrayList<>();
     public float maxSpeed;
@@ -94,6 +95,7 @@ public abstract class Ship extends Boat {
         if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
 
         if (sailStateCooldown > 0) sailStateCooldown--;
+        if (toggleCooldown > 0) toggleCooldown--;
 
         boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
         this.updateShipAmbience(isCruising);
@@ -216,7 +218,7 @@ public abstract class Ship extends Boat {
 
             if(getDriver() != null) {
                 //CONTROL SAIL STATE//
-                if (this instanceof Sailable sailShip)
+                if (this instanceof Sailable sailShip && this.getLevel().isClientSide())
                     this.controlSailState(sailShip, this.getSailState());
 
                 //Paddle
@@ -235,7 +237,7 @@ public abstract class Ship extends Boat {
 
     private void controlSailState(Sailable sailShip, byte sailState) {
         if(sailState != 0) {
-            if (isForward()) {
+            if (((BoatAccessor) this).isInputUp()) {
                 if (sailState != 4) {
                     if(this.sailStateCooldown == 0){
                         sailState++;
@@ -246,7 +248,7 @@ public abstract class Ship extends Boat {
                 }
             }
 
-            if (isBackward()) {
+            if (((BoatAccessor) this).isInputDown()) {
                 if (sailState != 1) {
                     if(this.sailStateCooldown == 0) {
                         sailState--;
@@ -256,10 +258,8 @@ public abstract class Ship extends Boat {
                 }
             }
 
-            if (this.level.isClientSide && this.getControllingPassenger() instanceof Player player)
+            if (this.getControllingPassenger() instanceof Player player)
                 ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(sailState));
-            else
-                this.setSailState(sailState);
         }
     }
 
@@ -404,7 +404,7 @@ public abstract class Ship extends Boat {
     }
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
+        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail(this);
         return super.getDismountLocationForPassenger(livingEntity);
     }
 

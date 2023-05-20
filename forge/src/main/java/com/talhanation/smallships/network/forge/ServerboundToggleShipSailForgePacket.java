@@ -1,5 +1,6 @@
 package com.talhanation.smallships.network.forge;
 
+import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,8 +25,8 @@ public class ServerboundToggleShipSailForgePacket implements ForgePacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             assert player != null;
-            if (player.getVehicle() != null && player.getVehicle() instanceof Sailable sailShip) {
-                sailShip.toggleSail();
+            if (player.getVehicle() != null && player.getVehicle() instanceof Ship ship && ship instanceof Sailable sailable) {
+                sailable.toggleSail(ship);
             }
             ctx.get().setPacketHandled(true);
         });
