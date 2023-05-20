@@ -14,16 +14,19 @@ public class KeyEvent {
         boolean pressedSailKey = ModGameOptions.SAIL_KEY.consumeClick();
         boolean pressedJumpKey = client.options.keyJump.isDown();
         if (player.getVehicle() instanceof Ship ship) {
-            if (player.equals(ship.getControllingPassenger())) { // is driver
-                if (pressedSailKey && ship instanceof Sailable) ModPackets.clientSendPacket(player, ModPackets.serverToggleShipSail.apply());
+            if (player.equals(ship.getDriver())) { // is driver
+                if (pressedSailKey && ship instanceof Sailable sailable)
+                    ModPackets.clientSendPacket(player, ModPackets.serverToggleShipSail.apply());
 
-                if (ship instanceof Cannonable){
+                if (ship instanceof Cannonable cannonable){
                     if(pressedJumpKey)
                         ModPackets.clientSendPacket(player, ModPackets.serverShootShipCannon.apply(true));
                     else
+                    if (!cannonable.self().isCannonKeyPressed())
                         ModPackets.clientSendPacket(player, ModPackets.serverShootShipCannon.apply(false));
                 }
-            } // else {} // is passenger
+
+            }
         }
     }
 }
