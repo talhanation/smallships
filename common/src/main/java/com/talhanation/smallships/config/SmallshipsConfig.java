@@ -74,8 +74,6 @@ public class SmallshipsConfig {
         builder.comment(" This category holds configs that define ship behaviour.");
         builder.push("Ship");
 
-
-
         builder.comment("This category holds configs that define general ship behaviour.");
         builder.push("General");
 
@@ -91,10 +89,11 @@ public class SmallshipsConfig {
 
         builder.comment("Maximum speed penalty for a filled container in percent.");
         Common.shipGeneralContainerModifier = builder
-                .define("shipGeneralContainerModifier", 0.1D);
+                .define("shipGeneralContainerModifier", 10D);
+
         builder.comment("Speed bonus for a paddle ship while paddling in percent.");
         Common.shipGeneralPaddlingModifier = builder
-                .define("shipGeneralPaddlingModifier", 0.2D);
+                .define("shipGeneralPaddlingModifier", 20D);
 
         builder.pop();
 
@@ -116,13 +115,13 @@ public class SmallshipsConfig {
 
         builder.push("Cog");
 
-        builder.comment("Default attributes for the Cog.");
+        builder.comment("Default attributes for the Cog. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
         Common.shipAttributeCogMaxHealth = builder
                 .define("shipAttributeCogMaxHealth", 300.0D);
         Common.shipAttributeCogMaxSpeed = builder
-                .define("shipAttributeCogMaxSpeed", 8.0D);
+                .define("shipAttributeCogMaxSpeed", 40.0D);
         Common.shipAttributeCogMaxReverseSpeed = builder
                 .define("shipAttributeCogMaxReverseSpeed", 0.1D);
         Common.shipAttributeCogMaxRotationSpeed = builder
@@ -158,13 +157,13 @@ public class SmallshipsConfig {
 
         builder.push("Brigg");
 
-        builder.comment("Default attributes for the Brigg.");
+        builder.comment("Default attributes for the Brigg. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
         Common.shipAttributeBriggMaxHealth = builder
                 .define("shipAttributeBriggMaxHealth", 450.0D);
         Common.shipAttributeBriggMaxSpeed = builder
-                .define("shipAttributeBriggMaxSpeed", 10.0D);
+                .define("shipAttributeBriggMaxSpeed", 45.0D);
         Common.shipAttributeBriggMaxReverseSpeed = builder
                 .define("shipAttributeBriggMaxReverseSpeed", 0.1D);
         Common.shipAttributeBriggMaxRotationSpeed = builder
@@ -199,13 +198,13 @@ public class SmallshipsConfig {
 
         builder.push("Galley");
 
-        builder.comment("Default attributes for the Galley.");
+        builder.comment("Default attributes for the Galley. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
         Common.shipAttributeGalleyMaxHealth = builder
                 .define("shipAttributeGalleyMaxHealth", 200.0D);
         Common.shipAttributeGalleyMaxSpeed = builder
-                .define("shipAttributeGalleyMaxSpeed", 8.0D);
+                .define("shipAttributeGalleyMaxSpeed", 40.0D);
         Common.shipAttributeGalleyMaxReverseSpeed = builder
                 .define("shipAttributeGalleyMaxReverseSpeed", 0.1D);
         Common.shipAttributeGalleyMaxRotationSpeed = builder

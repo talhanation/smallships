@@ -156,12 +156,12 @@ public abstract class Ship extends Boat {
     @Override
     protected void controlBoat() {
         Attributes attributes = this.getAttributes();
-        float modifier = 1 - (getBiomesModifier() + getCannonModifier() + getContainerModifier() + getPaddleModifier());
+        float modifier = 1 - (getBiomesModifier()/100 + getCannonModifier()/100 + getContainerModifier()/100 + getPaddleModifier()/100);
 
-        this.maxSpeed = (attributes.maxSpeed / (12F * 1.15F)) * modifier;
+        this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * modifier;
         //float maxBackSp = attributes.maxReverseSpeed;
         float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
-        float acceleration = attributes.acceleration ;
+        float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
 
         if(this.level.isClientSide()){
@@ -379,14 +379,14 @@ public abstract class Ship extends Boat {
             boolean warmType = biomeType == 2;
 
             if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
-                return -0.2F;
+                return -20F;
             }
             else if (
                     (coldBiomes && warmType || warmBiomes && coldType) || ((coldBiomes || warmBiomes) && neutralType)) {
-                return 0.2F;
+                return 20F;
             }
             else if (neutralBiomes && warmType || neutralBiomes && coldType) {
-                return 0.1F;
+                return 10F;
             }
             else
                 return 0;
