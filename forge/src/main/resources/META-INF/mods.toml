@@ -8,7 +8,7 @@ modId = "smallships"
 version = "${version}"
 displayName = "Small Ships"
 authors = "talhanation, metroite"
-updateJSONURL="https://raw.githubusercontent.com/talhanation/Ship-Mod/main/update.json"
+updateJSONURL="https://raw.githubusercontent.com/talhanation/smallships/main/update.json"
 description = '''
 This mod adds vanilla friendly ships into Minecraft!
 '''
