@@ -7,10 +7,10 @@
   },
   "1.18.2": {
     "2.0.0a2.0": "various fixes, added config system,  rework cannon mechanics. added the galley, added leashing, added new sail control.",
-    "2.0.0a2.1": "fixed sail-key issues, fixed crafting recipes, fixed speed log spamming.",
+    "2.0.0a2.1": "fixed sail-key issues, fixed crafting recipes, fixed speed log spamming."
   },
   "1.19.2": {
      "2.0.0a2.0": "various fixes, added config system,  rework cannon mechanics. added the galley, added leashing, added new sail control.",
-     "2.0.0a2.1": "fixed sail-key issues, fixed crafting recipes, fixed speed log spamming.",
+     "2.0.0a2.1": "fixed sail-key issues, fixed crafting recipes, fixed speed log spamming."
   }
 }
