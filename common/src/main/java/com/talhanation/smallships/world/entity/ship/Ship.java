@@ -1,7 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.google.common.collect.ImmutableSet;
-import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.config.SmallshipsConfig;
 import com.talhanation.smallships.math.Kalkuel;
@@ -84,8 +83,6 @@ public abstract class Ship extends Boat {
     public void tick() {
         super.tick();
 
-        //SmallShipsMod.LOGGER.info("Speed: " + this.getSpeed());// Debug the speed
-
         if (this.getDamage() > 0.0F) {
             this.setDamage(this.getDamage() + 1.0F);
         }
@@ -166,8 +163,7 @@ public abstract class Ship extends Boat {
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
 
-
-        SmallShipsMod.LOGGER.info("Speed kmh: " +  Kalkuel.getKilometerPerHour(this.getSpeed()));
+        //SmallShipsMod.LOGGER.info("Speed kmh: " +  Kalkuel.getKilometerPerHour(this.getSpeed()));
 
         if(this.level.isClientSide()){
             Player player = getDriver();
@@ -227,7 +223,7 @@ public abstract class Ship extends Boat {
 
             if(getDriver() != null) {
                 //CONTROL SAIL STATE//
-                if (this instanceof Sailable sailShip && this.getLevel().isClientSide())
+                if (this instanceof Sailable sailShip)
                     this.controlSailState(sailShip, this.getSailState());
 
                 //Paddle
@@ -246,29 +242,27 @@ public abstract class Ship extends Boat {
 
     private void controlSailState(Sailable sailShip, byte sailState) {
         if(sailState != 0) {
-            if (((BoatAccessor) this).isInputUp()) {
+            if (isForward()) {
                 if (sailState != 4) {
                     if(this.sailStateCooldown == 0){
                         sailState++;
                         sailShip.playSailSound(sailState);
                         this.sailStateCooldown = sailShip.getSailStateCooldown();
-
+                        this.setSailState(sailState);
+                    }
                 }
             }
-        }
 
-            if (((BoatAccessor) this).isInputDown()) {
+            if (isBackward()) {
                 if (sailState != 1) {
                     if(this.sailStateCooldown == 0) {
                         sailState--;
                         sailShip.playSailSound(sailState);
                         this.sailStateCooldown = sailShip.getSailStateCooldown();
+                        this.setSailState(sailState);
                     }
                 }
             }
-
-            if (this.getControllingPassenger() instanceof Player player)
-                ModPackets.clientSendPacket(player, ModPackets.serverSetSailState.apply(sailState));
         }
     }
 
@@ -467,10 +461,6 @@ public abstract class Ship extends Boat {
     public float getCannonModifier() {
         return (int)this.getCannonCount() * 0.025F;
     }
-    public float getPaddleModifier() {
-        if (this instanceof Paddleable paddleShip && this.getPaddleState(0) && this.getPaddleState(1)) return -paddleShip.getPaddlingModifier() * this.getSailState()/4;
-        return 0;
-    }
     public abstract CompoundTag createDefaultAttributes();
 
     /************************************
@@ -522,8 +512,6 @@ public abstract class Ship extends Boat {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
         } else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
-            //this.setHurtDir(-this.getHurtDir());
-            //this.setHurtTime(10);
             this.setDamage(this.getDamage() + f);
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
@@ -577,7 +565,7 @@ public abstract class Ship extends Boat {
     @Nullable
     public Player getDriver() {
         List<Entity> passengers = getPassengers();
-        if (passengers.size() <= 0) {
+        if (passengers.size() == 0) {
             return null;
         }
 
