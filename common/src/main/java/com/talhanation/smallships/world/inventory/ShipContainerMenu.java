@@ -6,10 +6,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,22 +20,21 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public ShipContainerMenu(MenuType<ShipContainerMenu> type, int syncId, Inventory inventory, ContainerShip containerShip) {
         super(type, syncId);
-        this.containerData = containerShip.dataAccess;
+        this.containerData = containerShip.containerData;
         checkContainerSize(containerShip, this.getRowCount() * 9);
         this.container = containerShip;
         this.inventory = inventory;
-
         this.addDataSlots(this.containerData);
-        this.openPage(this.getPageIndex());
+        this.openPage();
     }
 
-    private void openPage(int pageIndex) {
+    private void openPage() {
         this.container.startOpen(this.inventory.player);
         int k = (this.getRowCount() - 4) * 18;
 
         for(int l = 0; l < this.getRowCount(); ++l) {
             for(int m = 0; m < 9; ++m) {
-                this.addSlot(new Slot(this.container, m + l * 9 + pageIndex * this.getRowCount() * COLUMNS, 8 + m * 18, 18 + l * 18));
+                this.addSlot(new Slot(this.container, m + l * 9 + this.getPageIndex() * this.getRowCount() * COLUMNS, 8 + m * 18, 18 + l * 18));
             }
         }
 
@@ -72,7 +68,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack quickMoveStack(@NotNull Player player, int i) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int i) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(i);
         if (slot.hasItem()) {
@@ -102,15 +98,15 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     }
 
     public int getRowCount() {
-        return this.containerData.get(0); //rows;
+        return this.containerData.get(0);
     }
 
     public int getPageCount() {
-        return this.containerData.get(1); //pages;
+        return this.containerData.get(1);
     }
 
     public int getPageIndex() {
-        return this.containerData.get(2); //pageIndex;
+        return this.containerData.get(2);
     }
 
     public void updatePaging(int rows, int pages, int pageIndex) {
@@ -119,8 +115,15 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.containerData.set(2, pageIndex);
     }
 
-    public Container getContainer() {
-        return container;
+    public ContainerShip getContainerShip() {
+        return (ContainerShip) container;
+    }
+
+    @Override
+    public void addSlotListener(ContainerListener containerListener) {
+        super.addSlotListener(containerListener);
+
+
     }
 
     @Override
@@ -129,7 +132,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 "rows=" + this.getRowCount() +
                 ", pages=" + this.getPageCount() +
                 ", pageIndex=" + this.getPageIndex() +
-                ", itemStacksSize=" + ((ContainerShip)this.container).getItemStacks().size() +
+                ", itemStacksSize=" + this.getContainerShip().getItemStacks().size() +
                 '}';
     }
 }

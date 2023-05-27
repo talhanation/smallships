@@ -12,7 +12,7 @@ public class BriggItem extends ShipItem {
     }
 
     @Override
-    public Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
+    public @NotNull Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
         return BriggEntity.summon(level, hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
     }
 }

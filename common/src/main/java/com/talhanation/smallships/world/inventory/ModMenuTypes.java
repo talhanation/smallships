@@ -21,12 +21,16 @@ public class ModMenuTypes {
 
     public static @Nullable ShipContainerMenu extendedShipContainerMenuTypeSupplier(int syncId, Inventory inventory, FriendlyByteBuf buf) {
         UUID shipUUID = buf.readUUID();
-        ContainerShip ship = inventory.player.getLevel().getEntitiesOfClass(ContainerShip.class, inventory.player.getBoundingBoxForCulling()
-                        .inflate(16.0D), containerShip -> containerShip.getUUID().equals(shipUUID))
+        ContainerShip containerShip = inventory.player.getLevel().getEntitiesOfClass(ContainerShip.class, inventory.player.getBoundingBoxForCulling()
+                        .inflate(16.0D), ship -> ship.getUUID().equals(shipUUID))
                 .stream()
                 .filter(Entity::isAlive)
                 .findAny().orElse(null);
-        if (ship == null) return null;
-        return new ShipContainerMenu(ModMenuTypes.SHIP_CONTAINER, syncId, inventory, ship);
+        if (containerShip == null) return null;
+
+        //check if clientside container size is equal to serverside container size
+        if (containerShip.getContainerSize() != containerShip.getItemStacks().size()) containerShip.resizeContainer(containerShip.getContainerSize());
+
+        return new ShipContainerMenu(ModMenuTypes.SHIP_CONTAINER, syncId, inventory, containerShip);
     }
 }

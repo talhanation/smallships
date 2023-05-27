@@ -4,7 +4,8 @@
     "subtitle": "subtitles.smallships.sail_move",
     "sounds": [
       {
-        "name": "smallships:entity/ship/sail_move"
+        "name": "smallships:entity/ship/sail_move",
+        "stream": true
       }
     ]
   },
@@ -13,16 +14,60 @@
     "subtitle": "subtitles.smallships.sail_pull",
     "sounds": [
       {
-        "name": "smallships:entity/ship/sail_pull"
+        "name": "smallships:entity/ship/sail_pull",
+        "stream": true
       }
     ]
   },
-  "cannon_shoot":{
+  "cannon_shot":{
     "category": "entity",
-    "subtitle": "subtitles.smallships.cannon_shoot",
+    "subtitle": "subtitles.smallships.cannon_shot",
     "sounds": [
       {
-        "name": "smallships:entity/ship/cannon_shoot"
+        "name": "smallships:entity/ship/cannon_shot_1",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/cannon_shot_2",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/cannon_shot_3",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/cannon_shot_4",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/cannon_shot_5",
+        "stream": true
+      }
+    ]
+  },
+  "ship_hit":{
+    "category": "entity",
+    "subtitle": "subtitles.smallships.ship_hit",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship/ship_hit_1",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/ship_hit_2",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/ship_hit_3",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/ship_hit_4",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/ship_hit_5",
+        "stream": true
       }
     ]
   }

@@ -1,6 +1,7 @@
 package com.talhanation.smallships.network.fabric;
 
 import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -31,8 +32,8 @@ public class ServerboundToggleShipSailFabricPacket implements FabricPacket, Serv
     @SuppressWarnings("unused")
     @Override
     public void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
-        if (player.getVehicle() != null && player.getVehicle() instanceof Sailable sailShip) {
-            sailShip.toggleSail();
+        if (player.getVehicle() != null && player.getVehicle() instanceof Ship ship && ship instanceof Sailable sailable) {
+            sailable.toggleSail(ship);
         }
     }
 }

@@ -4,11 +4,24 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "leashing.client.BoatRendererMixin",
+    "leashing.client.ClientPacketListenerMixin",
+    "zooming.client.CameraMixin",
+    "zooming.client.MouseHandlerMixin"
   ],
   "mixins": [
     "port.BoatItemMixin",
-    "BoatAccessor",
-    "BoatMixin"
+    "container.SimpleContainerAccessor",
+    "controlling.BoatAccessor",
+    "controlling.BoatMixin",
+    "damaging.BoatMixin",
+    "damaging.DamageSourceAccessor",
+    "leashing.BoatMixin",
+    "leashing.ChunkMapMixin",
+    "leashing.EntityMixin",
+    "leashing.LeadItemMixin",
+    "leashing.LeashFenceKnotEntityMixin",
+    "leashing.ServerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

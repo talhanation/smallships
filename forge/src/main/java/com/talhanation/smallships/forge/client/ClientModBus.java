@@ -1,15 +1,15 @@
 package com.talhanation.smallships.forge.client;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.BriggModel;
 import com.talhanation.smallships.client.model.CannonBallModel;
 import com.talhanation.smallships.client.model.CogModel;
-import com.talhanation.smallships.client.model.KhufuModel;
+import com.talhanation.smallships.client.model.GalleyModel;
 import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.BriggRenderer;
 import com.talhanation.smallships.client.renderer.entity.CannonBallRenderer;
 import com.talhanation.smallships.client.renderer.entity.CogRenderer;
-import com.talhanation.smallships.client.renderer.entity.KhufuRenderer;
+import com.talhanation.smallships.client.renderer.entity.GalleyRenderer;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod.EventBusSubscriber(modid = SmallshipsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientModBus {
     public ClientModBus() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -42,7 +42,7 @@ public class ClientModBus {
 
         event.registerEntityRenderer(ModEntityTypes.COG, CogRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.BRIGG, BriggRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.KHUFU, KhufuRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.GALLEY, GalleyRenderer::new);
     }
 
     @SubscribeEvent
@@ -51,7 +51,7 @@ public class ClientModBus {
 
         event.registerLayerDefinition(CogModel.LAYER_LOCATION, CogModel::createBodyLayer);
         event.registerLayerDefinition(BriggModel.LAYER_LOCATION, BriggModel::createBodyLayer);
-        event.registerLayerDefinition(KhufuModel.LAYER_LOCATION, KhufuModel::createBodyLayer);
+        event.registerLayerDefinition(GalleyModel.LAYER_LOCATION, GalleyModel::createBodyLayer);
     }
 
     public void initRegisterKeyMappings(RegisterKeyMappingsEvent event) {

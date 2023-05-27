@@ -1,6 +1,6 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
+    id "dev.architectury.loom" version "1.1-SNAPSHOT" apply false
 }
 
 architectury {
@@ -32,12 +32,21 @@ allprojects {
 
     repositories {
         maven {
-            url "https://maven.terraformersmc.com/releases/"
+            name = "Fuzs Mod Resources"
+            url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
+        }
+        maven {
+            url "https://cursemaven.com"
+            content {
+                includeGroup "curse.maven"
+            }
         }
     }
 
+    //noinspection ConfigurationAvoidance
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
+        //noinspection GroovyAccessibility
         options.release = 17
     }
 

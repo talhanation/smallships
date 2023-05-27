@@ -1,6 +1,6 @@
 package com.talhanation.smallships.network;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,6 +10,8 @@ public class ModPackets {
     public static final SendablePacket<ModPacket> serverOpenShipScreen = getPacket("server_open_ship_screen");
     public static final SendablePacket<ModPacket> serverToggleShipSail = getPacket("server_toggle_ship_sail");
     public static final SendablePacket<ModPacket> serverShootShipCannon = getPacket("server_shoot_ship_cannon");
+    public static final SendablePacket<ModPacket> serverUpdateShipControl = getPacket("server_update_ship_control");
+    public static final SendablePacket<ModPacket> serverSetSailState = getPacket("server_set_sail_state");
 
     @ExpectPlatform
     public static SendablePacket<ModPacket> getPacket(String id) {
@@ -34,7 +36,7 @@ public class ModPackets {
 
     @SuppressWarnings("SameParameterValue")
     public static ResourceLocation id(String id) {
-        return new ResourceLocation(SmallshipsMod.MOD_ID, id);
+        return new ResourceLocation(SmallShipsMod.MOD_ID, id);
     }
 
     public interface SendablePacket<R> {

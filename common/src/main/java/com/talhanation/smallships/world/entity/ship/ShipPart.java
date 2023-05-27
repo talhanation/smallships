@@ -8,13 +8,14 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class ShipPart<T extends Entity> extends Entity {
     public final T parentShip;
     public final String name;
     private final EntityDimensions size;
 
     public ShipPart(T parentShip, String string, float f, float g) {
-        super(parentShip.getType(), parentShip.level);
+        super(parentShip.getType(), parentShip.getLevel());
         this.size = EntityDimensions.scalable(f, g);
         this.refreshDimensions();
         this.parentShip = parentShip;
@@ -43,11 +44,11 @@ public class ShipPart<T extends Entity> extends Entity {
         return this == entity || this.parentShip == entity;
     }
 
-    public Packet<?> getAddEntityPacket() {
+    public @NotNull Packet<?> getAddEntityPacket() {
         throw new UnsupportedOperationException();
     }
 
-    public EntityDimensions getDimensions(@NotNull Pose pose) {
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
         return this.size;
     }
 

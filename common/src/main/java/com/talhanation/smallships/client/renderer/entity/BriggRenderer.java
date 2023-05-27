@@ -2,7 +2,7 @@ package com.talhanation.smallships.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.BriggModel;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,15 +23,22 @@ public class BriggRenderer extends ShipRenderer<BriggEntity> {
 
     @Override
     protected ResourceLocation getTextureLocation(Boat.Type type) {
-        return new ResourceLocation(SmallshipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+        return new ResourceLocation(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+    }
+    @Override
+    protected float getCannonHeightOffset(){
+        return -0.25F;
+    }
+
+    public Vector3f getWaveAngleRotation(){
+        return Vector3f.ZN;//wtf
     }
 
     @Override
     public void render(@NotNull BriggEntity briggEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
         poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityYaw));
-        poseStack.translate(0.0D, 2.0D,-1.75D);
-        poseStack.mulPose(Vector3f.YP.rotationDegrees(-90.0F));
+        poseStack.translate(0.0D, 2.0D,0.0D);
         super.render(briggEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 }

@@ -1,6 +1,6 @@
 package com.talhanation.smallships.network.forge;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
@@ -19,12 +19,14 @@ import java.util.Map;
 public class ModPacketsImpl {
     private static int id = 0;
     private static final Map<String, ModPackets.SendablePacket<ForgePacket>> entries = new HashMap<>();
-    public static final SimpleChannel SIMPLE_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(SmallshipsMod.MOD_ID, "default"), () -> "1.0.0", s -> true, s -> true);
+    public static final SimpleChannel SIMPLE_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(SmallShipsMod.MOD_ID, "default"), () -> "1.0.0", s -> true, s -> true);
 
     static {
         entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenForgePacket(((ContainerShip) params[0]), ((Integer) params[1])));
         entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailForgePacket());
-        entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonForgePacket());
+        entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonForgePacket((Boolean) params[0]));
+        entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateForgePacket((Byte) params[0]));
+        entries.put("server_update_ship_control", (params) -> new ServerboundUpdateShipControlForgePacket((Boolean) params[0], (Boolean) params[1], (Boolean) params[2], (Boolean) params[3]));
     }
 
     public static ModPackets.SendablePacket<ForgePacket> getPacket(String id) {
@@ -35,6 +37,8 @@ public class ModPacketsImpl {
         registerPacket(SIMPLE_CHANNEL, ServerboundOpenShipScreenForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
         registerPacket(SIMPLE_CHANNEL, ServerboundToggleShipSailForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
         registerPacket(SIMPLE_CHANNEL, ServerboundShootShipCannonForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
+        registerPacket(SIMPLE_CHANNEL, ServerboundSetSailStateForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
+        registerPacket(SIMPLE_CHANNEL, ServerboundUpdateShipControlForgePacket.class, NetworkDirection.PLAY_TO_SERVER);
     }
 
     @SuppressWarnings({"SameParameterValue"})

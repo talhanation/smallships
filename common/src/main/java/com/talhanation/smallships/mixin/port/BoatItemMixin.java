@@ -27,6 +27,7 @@ public class BoatItemMixin {
         this.hitResult = hitResult;
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Redirect(method = "use(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResultHolder;", at = @At(value = "NEW", target = "net/minecraft/world/entity/vehicle/Boat"))
     private Boat modifyBoatEntity(Level level, double d, double e, double f) {
         if (((BoatItem)(Object)this) instanceof ShipItem shipItem) return shipItem.getBoat(this.level, this.hitResult);

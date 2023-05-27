@@ -1,9 +1,9 @@
 {
   "category.smallships" : "Small Ships",
-  "key.ship_sail" : "Toggle Sail",
-  "key.higher_ship_sail" : "Higher Sail",
-  "key.lower_ship_sail" : "Lower Sail",
-  "key.ship_inventory" : "Open Ship Inventory",
+  "key.smallships.ship_sail" : "Toggle Sail",
+  "key.smallships.higher_ship_sail" : "Higher Sail",
+  "key.smallships.lower_ship_sail" : "Lower Sail",
+  "key.smallships.ship_inventory" : "Open Ship Inventory",
 
   "death.attack.cannonball": "%s was shot with a cannon.",
   "death.attack.cannonball.player": "%s was shot with a cannon by %s.",
@@ -89,5 +89,6 @@
 
   "subtitles.smallships.sail_move": "Sail moves",
   "subtitles.smallships.sail_pull": "Sail is pulled",
-  "subtitles.smallships.cannon_shoot": "Cannon shoots"
+  "subtitles.smallships.cannon_shot": "Cannon shoots",
+  "subtitles.smallships.ship_hit": "Ship gets hit"
 }

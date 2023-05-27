@@ -30,8 +30,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 
 public interface ContainerEntity
@@ -159,7 +159,7 @@ MenuProvider, Ability {
             return new SlotAccess(){
 
                 @Override
-                public ItemStack get() {
+                public @NotNull ItemStack get() {
                     return ContainerEntity.this.getChestVehicleItem(n);
                 }
 

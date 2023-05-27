@@ -1,10 +1,10 @@
 package com.talhanation.smallships.world.entity.forge;
 
-import com.talhanation.smallships.SmallshipsMod;
+import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.KhufuEntity;
-import com.talhanation.smallships.world.entity.ship.abilities.CannonBallEntity;
+import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -22,16 +22,16 @@ public class ModEntityTypesImpl {
     public static <T extends Entity> EntityType<T> getEntityType(Class<T> entityClass) {
         return (EntityType<T>) entries.get(entityClass).get();
     }
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, SmallshipsMod.MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, SmallShipsMod.MOD_ID);
 
     static {
-        entries.put(CannonBallEntity.class, ENTITY_TYPES.register("cannon_ball",
-                () -> EntityType.Builder.of(CannonBallEntity::new, MobCategory.MISC)
+        entries.put(CannonBallEntity.class, ENTITY_TYPES.register(CannonBallEntity.ID,
+                () -> EntityType.Builder.of(CannonBallEntity::factory, MobCategory.MISC)
                         .sized(0.25F, 0.25F)
                         .clientTrackingRange(20)
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
-                        .build("cannon_ball")));
+                        .build(CannonBallEntity.ID)));
 
         entries.put(CogEntity.class, ENTITY_TYPES.register(CogEntity.ID,
                 () -> EntityType.Builder.of(CogEntity::new, MobCategory.MISC)
@@ -49,12 +49,12 @@ public class ModEntityTypesImpl {
                         .setShouldReceiveVelocityUpdates(true)
                         .build(BriggEntity.ID)));
 
-        entries.put(KhufuEntity.class, ENTITY_TYPES.register(KhufuEntity.ID,
-                () -> EntityType.Builder.of(KhufuEntity::new, MobCategory.MISC)
+        entries.put(GalleyEntity.class, ENTITY_TYPES.register(GalleyEntity.ID,
+                () -> EntityType.Builder.of(GalleyEntity::new, MobCategory.MISC)
                         .sized(3.5F, 1.25F)
                         .clientTrackingRange(20)
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
-                        .build(KhufuEntity.ID)));
+                        .build(GalleyEntity.ID)));
     }
 }

@@ -21,7 +21,9 @@ public class ModPacketsImpl {
     static {
         entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenFabricPacket(((ContainerShip) params[0]), ((Integer) params[1])));
         entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailFabricPacket());
-        entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonFabricPacket());
+        entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonFabricPacket((Boolean) params[0]));
+        entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateFabricPacket((Byte) params[0]));
+        entries.put("server_update_ship_control", (params) -> new ServerboundUpdateShipControlFabricPacket((Boolean) params[0], (Boolean) params[1], (Boolean) params[2], (Boolean) params[3]));
     }
 
     public static ModPackets.SendablePacket<FabricPacket> getPacket(String id) {
@@ -41,6 +43,16 @@ public class ModPacketsImpl {
 
         registerServerPacket(ModPackets.id("server_shoot_ship_cannon"), (server, player, handler, buf, responseSender) -> {
             ServerboundShootShipCannonFabricPacket packet = new ServerboundShootShipCannonFabricPacket(buf);
+            packet.receive(server, player, handler, buf, responseSender);
+        });
+
+        registerServerPacket(ModPackets.id("server_set_sail_state"), (server, player, handler, buf, responseSender) -> {
+            ServerboundSetSailStateFabricPacket packet = new ServerboundSetSailStateFabricPacket(buf);
+            packet.receive(server, player, handler, buf, responseSender);
+        });
+
+        registerServerPacket(ModPackets.id("server_update_ship_control"), (server, player, handler, buf, responseSender) -> {
+            ServerboundUpdateShipControlFabricPacket packet = new ServerboundUpdateShipControlFabricPacket(buf);
             packet.receive(server, player, handler, buf, responseSender);
         });
     }

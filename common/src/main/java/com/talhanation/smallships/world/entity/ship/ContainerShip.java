@@ -1,5 +1,7 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.mixin.container.SimpleContainerAccessor;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.core.NonNullList;
@@ -24,7 +26,6 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
@@ -39,13 +40,14 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public static final EntityDataAccessor<Byte> ROWS = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> PAGES = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> PAGE_INDEX = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
+    public static final EntityDataAccessor<Byte> CONTAINER_FILL_STATE = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
 
     private final int originalContainerSize;
     NonNullList<ItemStack> itemStacks;
     @Nullable
     private ResourceLocation lootTable;
     private long lootTableSeed;
-    public final ContainerData dataAccess = new ContainerData() {
+    public final ContainerData containerData = new ContainerData() {
         public int get(int index) {
             return switch (index) {
                 case 0 -> ContainerShip.this.getData(ROWS);
@@ -68,9 +70,10 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     public ContainerShip(EntityType<? extends Boat> entityType, Level level, int containerSize) {
         super(entityType, level);
-        this.updatePaging(containerSize);
         this.originalContainerSize = containerSize;
-        this.itemStacks = NonNullList.withSize(containerSize, ItemStack.EMPTY);
+        this.updatePaging(this.originalContainerSize);
+        this.setData(CONTAINER_SIZE, this.originalContainerSize);
+        this.itemStacks = NonNullList.withSize(this.originalContainerSize, ItemStack.EMPTY);
     }
 
     @Override
@@ -80,56 +83,57 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.getEntityData().define(ROWS, (byte) 6);
         this.getEntityData().define(PAGES, (byte) 1);
         this.getEntityData().define(PAGE_INDEX, (byte) 0);
+        this.getEntityData().define(CONTAINER_FILL_STATE, Byte.MIN_VALUE);
     }
 
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        this.readChestVehicleSaveData(tag);
         this.readContainerSizeSaveData(tag);
+        this.readChestVehicleSaveData(tag);
+
+        this.setContainerFillState(tag.getByte("ContainerFillState"));
     }
 
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        this.addChestVehicleSaveData(tag);
         this.addContainerSizeSaveData(tag);
+        this.addChestVehicleSaveData(tag);
+
+        tag.putByte("ContainerFillState", this.getContainerFillState());
     }
 
-    @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (!this.level.isClientSide && !this.isRemoved()) {
-            boolean bl = damageSource.getEntity() instanceof Player && ((Player)damageSource.getEntity()).getAbilities().instabuild;
-            if (bl || this.getDamage() > this.getAttributes().maxHealth) {
-                if (!bl && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                    this.chestVehicleDestroyed(damageSource, this.level, this);
-                }
-            }
-        }
-        return super.hurt(damageSource, f);
+    public void destroy(@NotNull DamageSource damageSource) {
+        super.destroy(damageSource);
+        this.chestVehicleDestroyed(damageSource, this.getLevel(), this);
     }
 
     @Override
     public void remove(@NotNull RemovalReason removalReason) {
-        if (!this.level.isClientSide && removalReason.shouldDestroy()) {
-            Containers.dropContents(this.level, this, this);
+        if (!this.getLevel().isClientSide() && removalReason.shouldDestroy()) {
+            Containers.dropContents(this.getLevel(), this, this);
         }
 
         super.remove(removalReason);
     }
 
     @Override
-    public InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
+    public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
+        if(player.isSecondaryUseActive() && !this.getPassengers().isEmpty()){
+            this.ejectPassengers();
+            return InteractionResult.SUCCESS;
+        }
+
         return this.canAddPassenger(player) && !player.isSecondaryUseActive() ? super.interact(player, interactionHand) : this.interactWithChestVehicle(this::gameEvent, player);
     }
 
     @Override
     public void openCustomInventoryScreen(@NotNull Player player) {
-        if (player.getLevel().isClientSide() && this.getContainerSize() != this.itemStacks.size()) this.itemStacks = resizeItemStacks(this, this.getContainerSize());
         ContainerUtility.openShipMenu(player, this);
         if (!player.getLevel().isClientSide()) {
             this.gameEvent(GameEvent.CONTAINER_OPEN, player);
-            PiglinAi.angerNearbyPiglins(player, true);
+            PiglinAi.angerNearbyPiglins(player, true);//lol
         }
     }
 
@@ -155,7 +159,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public NonNullList<ItemStack> getItemStacks() {
+    public @NotNull NonNullList<ItemStack> getItemStacks() {
         return this.itemStacks;
     }
 
@@ -170,27 +174,28 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public ItemStack getItem(int i) {
+    public @NotNull ItemStack getItem(int i) {
         return this.getChestVehicleItem(i);
     }
 
     @Override
-    public ItemStack removeItem(int i, int j) {
+    public @NotNull ItemStack removeItem(int i, int j) {
         return this.removeChestVehicleItem(i, j);
     }
 
     @Override
-    public ItemStack removeItemNoUpdate(int i) {
+    public @NotNull ItemStack removeItemNoUpdate(int i) {
         return this.removeChestVehicleItemNoUpdate(i);
     }
 
     @Override
     public void setItem(int i, @NotNull ItemStack itemStack) {
         this.setChestVehicleItem(i, itemStack);
+        this.updateContainerFillState();
     }
 
     @Override
-    public SlotAccess getSlot(int n) {
+    public @NotNull SlotAccess getSlot(int n) {
         return this.getChestVehicleSlot(n);
     }
 
@@ -226,6 +231,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
             this.setLootTableSeed(compoundTag.getLong("LootTableSeed"));
         } else {
             ContainerUtility.loadAllItems(compoundTag, this.getItemStacks());
+            this.resizeContainer(this.getContainerSize());
         }
     }
 
@@ -246,13 +252,12 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         int containerSize = tag.getInt("ContainerSize");
         if (containerSize == 0) containerSize = this.originalContainerSize;
         this.updatePaging(containerSize);
-        this.itemStacks = resizeItemStacks(this, containerSize);
         this.setData(CONTAINER_SIZE, containerSize);
         if (!this.getLevel().isClientSide()) this.getLevel().players()
                 .stream()
                 .filter(player ->
                         player.containerMenu instanceof ShipContainerMenu shipContainerMenu &&
-                        shipContainerMenu.getContainer().equals(this))
+                                shipContainerMenu.getContainerShip().equals(this))
                 .map(player -> (ServerPlayer) player)
                 .forEach(ServerPlayer::closeContainer);
     }
@@ -285,36 +290,59 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.setData(PAGE_INDEX, (byte) 0);
     }
 
+    protected void updateContainerFillState(){
+        double invFillStateInPercent = this.getItemStacks().stream().map(i -> !i.isEmpty()? (double) i.getCount() / i.getMaxStackSize() : 0.0D).reduce(0.0D, Double::sum) / this.getItemStacks().size();
+        short u_byteMaxValue = -Byte.MIN_VALUE + Byte.MAX_VALUE;
+        byte invFillState = (byte) (invFillStateInPercent * u_byteMaxValue - (-Byte.MIN_VALUE));
+        this.setContainerFillState(invFillState);
+    }
+
+    public void resizeContainer(int containerSize) {
+        this.itemStacks = resizeItemStacks(this, containerSize);
+    }
+
     private static NonNullList<ItemStack> resizeItemStacks(ContainerEntity containerEntity, int containerSize) {
         ItemStack[] oldItemStacks = containerEntity.getItemStacks().toArray(ItemStack[]::new);
-        ItemStack[] newItemStacks;
+        SimpleContainer newContainer;
 
-        if (containerSize < oldItemStacks.length) { // Decrease container size (harder)
-            newItemStacks = Arrays.copyOfRange(oldItemStacks, 0, containerSize);
+        if (containerSize < oldItemStacks.length) {
+            // Decrease container size (harder)
+            newContainer = new SimpleContainer(Arrays.copyOfRange(oldItemStacks, 0, containerSize));
             oldItemStacks = Arrays.stream(Arrays.copyOfRange(oldItemStacks, containerSize, oldItemStacks.length)).filter(stack -> !stack.isEmpty()).toArray(ItemStack[]::new);
+            SimpleContainer leftoverContainer = new SimpleContainer(oldItemStacks.length);
 
-            int j = 0;
-            for (int i = 0; i < newItemStacks.length; i++) {  // Copy leftover items
-                if (newItemStacks[i].isEmpty()) {
-                    if (j == oldItemStacks.length) break;
-                    newItemStacks[i] = oldItemStacks[j];
-                    j++;
-                }
+            // Move fitting leftover items
+            for (ItemStack oldItemStack : oldItemStacks) {
+                leftoverContainer.addItem(newContainer.addItem(oldItemStack));
             }
-            if (j < oldItemStacks.length) {  // Drop non-fitting leftover items
-                Containers.dropContents(((Entity) containerEntity).getLevel(), (Entity) containerEntity, new SimpleContainer(Arrays.copyOfRange(oldItemStacks, j, oldItemStacks.length)));
+
+            // Drop non-fitting leftover items
+            if (!leftoverContainer.isEmpty()) {
+                Containers.dropContents(((Entity)containerEntity).getLevel(), (Entity) containerEntity, leftoverContainer);
             }
-        } else {  // Increase container size (easier)
-            newItemStacks = new ItemStack[containerSize];
+        } else {
+            // Increase container size (easier)
+            newContainer = new SimpleContainer(containerSize);
             for (int i = 0; i < containerSize; i++) {
                 if (i < oldItemStacks.length) {
-                    newItemStacks[i] = oldItemStacks[i];
-                } else {
-                    newItemStacks[i] = ItemStack.EMPTY;
+                    newContainer.setItem(i, oldItemStacks[i]);
                 }
             }
         }
 
-        return NonNullList.of(ItemStack.EMPTY, newItemStacks);
+        return ((SimpleContainerAccessor)newContainer).getItems();
+    }
+
+    public byte getContainerFillState() {
+        return entityData.get(CONTAINER_FILL_STATE);
+    }
+
+    public void setContainerFillState(byte b) {
+        this.entityData.set(CONTAINER_FILL_STATE, b);
+    }
+
+    @Override
+    public float getContainerModifier() {
+        return SmallshipsConfig.Common.shipGeneralContainerModifier.get().floatValue() * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
     }
 }

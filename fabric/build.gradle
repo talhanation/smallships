@@ -9,6 +9,9 @@ architectury {
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
+    runClient {
+        args = ['--username', "talhanation${new Random().nextInt(1000)}"]
+    }
 }
 
 configurations {
@@ -19,6 +22,20 @@ configurations {
     developmentFabric.extendsFrom common
 }
 
+repositories {
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven {
+        name = "ModMenu"
+        url "https://maven.terraformersmc.com/releases/"
+    }
+}
+
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
@@ -27,6 +44,15 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+
+    implementation "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    implementation "com.electronwill.night-config:toml:${rootProject.night_config_version}"
+    modImplementation(include("net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forge_config_api_port_version}"))
+
+    modRuntimeOnly "maven.modrinth:here-be-no-dragons:1.0.0"
+    modRuntimeOnly "maven.modrinth:lazydfu:0.1.2"
+    modRuntimeOnly "maven.modrinth:c2me-fabric:0.2.0+alpha.7.38+1.18.2"
+    modRuntimeOnly "maven.modrinth:starlight:1.0.2+1.18.2"
 }
 
 processResources {
