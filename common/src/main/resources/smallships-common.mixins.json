@@ -6,11 +6,11 @@
   "client": [
     "leashing.client.BoatRendererMixin",
     "leashing.client.ClientPacketListenerMixin",
+    "port.MultiPlayerGameModeMixin",
     "zooming.client.CameraMixin",
     "zooming.client.MouseHandlerMixin"
   ],
   "mixins": [
-    "port.BoatItemMixin",
     "container.SimpleContainerAccessor",
     "controlling.BoatAccessor",
     "controlling.BoatMixin",
@@ -21,7 +21,10 @@
     "leashing.EntityMixin",
     "leashing.LeadItemMixin",
     "leashing.LeashFenceKnotEntityMixin",
-    "leashing.ServerEntityMixin"
+    "leashing.ServerEntityMixin",
+    "port.AbstractHorseMixin",
+    "port.BoatItemMixin",
+    "port.ServerGamePacketListenerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
