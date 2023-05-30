@@ -55,6 +55,13 @@ dependencies {
     modRuntimeOnly "maven.modrinth:minecraftclientgobrrr:1.0"
     modRuntimeOnly "maven.modrinth:c2me-fabric:0.2.0+alpha.9.9+1.19.2"
     modRuntimeOnly "maven.modrinth:starlight:1.1.1+1.19"
+
+//    compat check biomesyougo
+//    modRuntimeOnly "maven.modrinth:geckolib:ATPZfRS1"
+//    modRuntimeOnly "maven.modrinth:terrablender:nZwFn2MJ"
+//    modRuntimeOnly "maven.modrinth:biomesyougo:1.19.2-2.0.1.1-fabric"
+//    modRuntimeOnly "maven.modrinth:corgilib:1.19.2-1.0.0.34-fabric"
+
 }
 
 processResources {
