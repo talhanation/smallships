@@ -58,7 +58,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     @Override
     protected int getMaxPassengers() {
-        return 10;
+        return 11;
     }
 
     @Override
@@ -82,49 +82,54 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
             if (this.getPassengers().size() > 1) {
                 int i = this.getPassengers().indexOf(entity);
                 switch (i) {
-                    case(0) -> {
-                        d = -1.5F;
-                        f = 0.75F;
+                    case (0) -> {
+                        d = -4.0F;
+                        f = 0.0F;
                     }
                     case(1) -> {
-                        d = -1.5F;
-                        f = -0.75F;
+                        d = -2.5F;
+                        f = 0.75F;
                     }
                     case(2) -> {
-                        d = -0.5F;
+                        d = -2.5F;
                         f = -0.75F;
                     }
                     case(3) -> {
+                        d = -1.5F;
+                        f = -0.75F;
+                    }
+                    case(4) -> {
+                        d = -1.5F;
+                        f = 0.75F;
+                    }
+                    case(5) -> {
+                        d = -0.5F;
+                        f = -0.75F;
+                    }
+                    case(6) -> {
                         d = -0.5F;
                         f = 0.75F;
                     }
-                    case(4) -> {
-                        d = 0.5F;
-                        f = -0.75F;
-                    }
-                    case(5) -> {
-                        d = 0.5F;
-                        f = 0.75F;
-                    }
-                    case(6) -> {
-                        d = 1.5F;
-                        f = -0.75F;
-                    }
                     case(7) -> {
-                        d = 1.5F;
-                        f = 0.75F;
+                        d = 0.5F;
+                        f = -0.75F;
                     }
                     case(8) -> {
-                        d = 2.75F;
-                        f = 0.5F;
+                        d = 0.5F;
+                        f = 0.75F;
                     }
                     case(9) -> {
-                        d = 2.75F;
+                        d = 1.5F;
+                        f = 0.5F;
+                    }
+                    case(10) -> {
+                        d = 1.5F;
                         f = -0.5F;
                     }
                     default -> {
-                        d = -1.5F;
-                        f = 0.5F;
+                        d = 2.0F;
+                        e = 0.75F;
+                        f = 0.0F;
                     }
                 }
             }

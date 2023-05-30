@@ -82,28 +82,28 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
                 int i = this.getPassengers().indexOf(entity);
                 switch (i) {
                     case(0) -> {
-                        d = -1.75F;
+                        d = -2.25F;
                         f = 0.0F;
                     }
                     case(1) -> {
-                        d = 1.25F;
-                        f = -0.90F;
+                        d = -0.9F;
+                        f = 0.9F;
                     }
                     case(2) -> {
-                        d = 1.25F;
-                        f = 0.90F;
+                        d = -0.9F;
+                        f = -0.9F;
                     }
                     case(3) -> {
-                        d = 0.0F;
-                        f = 0.90F;
+                        d = 0.65F;
+                        f = -0.75F;
                     }
                     case(4) -> {
-                        d = 0.0F;
-                        f = -0.90F;
+                        d = 0.65F;
+                        f = 0.75F;
                     }
                     default -> {
-                        d = -1.75F;
-                        f = 0.90F;
+                        d = 1.5F;
+                        f = 0.0F;
                     }
                 }
             }
