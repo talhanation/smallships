@@ -1,6 +1,7 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.mojang.datafixers.util.Pair;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.config.SmallshipsConfig;
@@ -63,7 +64,9 @@ public interface Sailable extends Ability {
             } else {
                 state = (byte) 0;
             }
-            this.playSailSound(state);
+            if (!self().getLevel().isClientSide()) {
+                this.playSailSound(state);
+            }
             self().sailStateCooldown = getSailStateCooldown();
             self().setSailState(state);
         }
@@ -74,9 +77,13 @@ public interface Sailable extends Ability {
             if (!self().getLevel().isClientSide()) self().playSound(sound, modifier.getFirst(), modifier.getSecond());
             else self().getLevel().playLocalSound(self().getX(), self().getY() + 4, self().getZ(), sound, self().getSoundSource(), modifier.getFirst(), modifier.getSecond(), false);
         };
-        if (state != 0)
+        if (state != 0) {
+            SmallShipsMod.LOGGER.warn("yes");
             play.accept(ModSoundTypes.SAIL_MOVE, Pair.of(15.0F, Math.max(0.5F, 1.4F - ((float) state / 5.0F))));
-        else play.accept(ModSoundTypes.SAIL_PULL, Pair.of(10.0F, 1.0F));
+        }
+        else {
+            play.accept(ModSoundTypes.SAIL_PULL, Pair.of(10.0F, 1.0F));
+        }
     }
 
 
