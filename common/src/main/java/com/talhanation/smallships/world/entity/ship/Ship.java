@@ -1,8 +1,8 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.google.common.collect.ImmutableSet;
-import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -68,7 +68,6 @@ public abstract class Ship extends Boat {
     public float bannerWaveAngle;
     protected boolean cannonKeyPressed;
     public int sailStateCooldown = 0;
-    public int toggleCooldown = 0;
     private float setPoint;
     public final List<Cannon> CANNONS = new ArrayList<>();
     public float maxSpeed;
@@ -91,9 +90,6 @@ public abstract class Ship extends Boat {
         if (this instanceof Bannerable bannerShip) bannerShip.tickBannerShip();
         if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
         if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
-
-        if (sailStateCooldown > 0) sailStateCooldown--;
-        if (toggleCooldown > 0) toggleCooldown--;
 
         boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
         this.updateShipAmbience(isCruising);
@@ -156,7 +152,7 @@ public abstract class Ship extends Boat {
     @Override
     protected void controlBoat() {
         Attributes attributes = this.getAttributes();
-        float modifier = 1 - (getBiomesModifier()/100 + getCannonModifier()/100 + getContainerModifier()/100); // getPaddleModifier()/100);
+        float modifier = 1 - (getBiomesModifier()/100 + (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0) + getContainerModifier()/100 + (this instanceof Paddleable paddleShip? paddleShip.getPaddlingModifier()/100 : 0));
 
         this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * modifier;
         float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
@@ -222,11 +218,7 @@ public abstract class Ship extends Boat {
 
 
             if(getDriver() != null) {
-                //CONTROL SAIL STATE//
-                if (this instanceof Sailable sailShip)
-                    this.controlSailState(sailShip, this.getSailState());
-
-                //Paddle
+                if (this instanceof Sailable sailShip) sailShip.controlBoatSailShip();
                 if (this instanceof Paddleable paddleShip) paddleShip.controlBoatPaddleShip();
             }
             //SET
@@ -239,33 +231,6 @@ public abstract class Ship extends Boat {
             setRight(false);
         }
     }
-
-    private void controlSailState(Sailable sailShip, byte sailState) {
-        if(sailState != 0) {
-            if (isForward()) {
-                if (sailState != 4) {
-                    if(this.sailStateCooldown == 0){
-                        sailState++;
-                        sailShip.playSailSound(sailState);
-                        this.sailStateCooldown = sailShip.getSailStateCooldown();
-                        this.setSailState(sailState);
-                    }
-                }
-            }
-
-            if (isBackward()) {
-                if (sailState != 1) {
-                    if(this.sailStateCooldown == 0) {
-                        sailState--;
-                        sailShip.playSailSound(sailState);
-                        this.sailStateCooldown = sailShip.getSailStateCooldown();
-                        this.setSailState(sailState);
-                    }
-                }
-            }
-        }
-    }
-
 
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced
@@ -408,7 +373,7 @@ public abstract class Ship extends Boat {
     }
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail(this);
+        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
         return super.getDismountLocationForPassenger(livingEntity);
     }
 
@@ -458,9 +423,6 @@ public abstract class Ship extends Boat {
     public abstract @NotNull Item getDropItem();
     public abstract int getBiomesModifierType();
     public abstract float getContainerModifier();
-    public float getCannonModifier() {
-        return (int)this.getCannonCount() * 0.025F;
-    }
     public abstract CompoundTag createDefaultAttributes();
 
     /************************************

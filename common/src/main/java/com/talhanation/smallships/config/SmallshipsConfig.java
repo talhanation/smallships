@@ -93,7 +93,7 @@ public class SmallshipsConfig {
 
         builder.comment("Speed bonus for a paddle ship while paddling in percent.");
         Common.shipGeneralPaddlingModifier = builder
-                .define("shipGeneralPaddlingModifier", 20D);
+                .define("shipGeneralPaddlingModifier", 35D);
 
         builder.pop();
 
@@ -121,15 +121,15 @@ public class SmallshipsConfig {
         Common.shipAttributeCogMaxHealth = builder
                 .define("shipAttributeCogMaxHealth", 300.0D);
         Common.shipAttributeCogMaxSpeed = builder
-                .define("shipAttributeCogMaxSpeed", 40.0D);
+                .define("shipAttributeCogMaxSpeed", 30.0D);
         Common.shipAttributeCogMaxReverseSpeed = builder
                 .define("shipAttributeCogMaxReverseSpeed", 0.1D);
         Common.shipAttributeCogMaxRotationSpeed = builder
-                .define("shipAttributeCogMaxRotationSpeed", 4.0D);
+                .define("shipAttributeCogMaxRotationSpeed", 4.5D);
         Common.shipAttributeCogAcceleration = builder
                 .define("shipAttributeCogAcceleration", 0.015D);
         Common.shipAttributeCogRotationAcceleration = builder
-                .define("shipAttributeCogRotationAcceleration", 0.5D);
+                .define("shipAttributeCogRotationAcceleration", 0.7D);
 
         builder.pop();
 
@@ -163,15 +163,15 @@ public class SmallshipsConfig {
         Common.shipAttributeBriggMaxHealth = builder
                 .define("shipAttributeBriggMaxHealth", 450.0D);
         Common.shipAttributeBriggMaxSpeed = builder
-                .define("shipAttributeBriggMaxSpeed", 45.0D);
+                .define("shipAttributeBriggMaxSpeed", 35.0D);
         Common.shipAttributeBriggMaxReverseSpeed = builder
                 .define("shipAttributeBriggMaxReverseSpeed", 0.1D);
         Common.shipAttributeBriggMaxRotationSpeed = builder
-                .define("shipAttributeBriggMaxRotationSpeed", 4.5D);
+                .define("shipAttributeBriggMaxRotationSpeed", 4.0D);
         Common.shipAttributeBriggAcceleration = builder
                 .define("shipAttributeBriggAcceleration", 0.015D);
         Common.shipAttributeBriggRotationAcceleration = builder
-                .define("shipAttributeBriggRotationAcceleration", 0.6D);
+                .define("shipAttributeBriggRotationAcceleration", 0.55D);
 
         builder.pop();
 
@@ -204,7 +204,7 @@ public class SmallshipsConfig {
         Common.shipAttributeGalleyMaxHealth = builder
                 .define("shipAttributeGalleyMaxHealth", 200.0D);
         Common.shipAttributeGalleyMaxSpeed = builder
-                .define("shipAttributeGalleyMaxSpeed", 40.0D);
+                .define("shipAttributeGalleyMaxSpeed", 30.0D);
         Common.shipAttributeGalleyMaxReverseSpeed = builder
                 .define("shipAttributeGalleyMaxReverseSpeed", 0.1D);
         Common.shipAttributeGalleyMaxRotationSpeed = builder
