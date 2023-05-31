@@ -56,7 +56,7 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     }
 
     @Override
-    protected int getMaxPassengers() {
+    public int getMaxPassengers() {
         return 5;
     }
 

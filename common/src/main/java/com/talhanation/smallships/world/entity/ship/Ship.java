@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.entity.ship;
 import com.google.common.collect.ImmutableSet;
 import com.talhanation.smallships.config.SmallshipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
+import com.talhanation.smallships.duck.port.PassengerSizeAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -45,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class Ship extends Boat {
+public abstract class Ship extends Boat implements PassengerSizeAccess {
     public static final EntityDataAccessor<CompoundTag> ATTRIBUTES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     public static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ROT_SPEED = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
@@ -419,7 +420,8 @@ public abstract class Ship extends Boat {
         return this.getPassengers().size() < this.getMaxPassengers() && !this.isEyeInFluid(FluidTags.WATER);
     }
 
-    protected abstract int getMaxPassengers();
+    @Override
+    public abstract int getMaxPassengers();
     @Override
     public abstract @NotNull Item getDropItem();
     public abstract int getBiomesModifierType();

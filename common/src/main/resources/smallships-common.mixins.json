@@ -23,6 +23,7 @@
     "leashing.ServerEntityMixin",
     "port.AbstractHorseMixin",
     "port.BoatItemMixin",
+    "port.BoatMixin",
     "port.ServerGamePacketListenerMixin"
   ],
   "injectors": {
