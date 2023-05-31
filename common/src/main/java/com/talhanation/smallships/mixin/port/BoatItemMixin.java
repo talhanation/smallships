@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+@SuppressWarnings({"UnresolvedMixinReference", "InvalidInjectorMethodSignature", "MixinAnnotationTarget"}) //somehow fixing the issues by specifying the correct descriptor "(Lnet/minecraft/world/level/Level;DDD)net/minecraft/world/entity/vehicle/Boat" for the constructor does not help
 @Mixin(BoatItem.class)
 public class BoatItemMixin {
     private Level level;
