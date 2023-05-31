@@ -26,7 +26,7 @@ public class ServerboundToggleShipSailForgePacket implements ForgePacket {
             ServerPlayer player = ctx.get().getSender();
             assert player != null;
             if (player.getVehicle() != null && player.getVehicle() instanceof Ship ship && ship instanceof Sailable sailable) {
-                sailable.toggleSail(ship);
+                sailable.toggleSail();
             }
             ctx.get().setPacketHandled(true);
         });

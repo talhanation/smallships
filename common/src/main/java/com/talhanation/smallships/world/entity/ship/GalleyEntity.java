@@ -89,48 +89,44 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
                 int i = this.getPassengers().indexOf(entity);
                 switch (i) {
                     case(0) -> {
-                        d = -1.5F;
-                        f = 0.75F;
+                        d = -4.0F;
+                        f = 0.0F;
                     }
                     case(1) -> {
-                        d = -1.5F;
-                        f = -0.75F;
+                        d = -2.5F;
+                        f = 0.75F;
                     }
                     case(2) -> {
-                        d = -0.5F;
+                        d = -2.5F;
                         f = -0.75F;
                     }
                     case(3) -> {
+                        d = -1.5F;
+                        f = -0.75F;
+                    }
+                    case(4) -> {
+                        d = -1.5F;
+                        f = 0.75F;
+                    }
+                    case(5) -> {
+                        d = -0.5F;
+                        f = -0.75F;
+                    }
+                    case(6) -> {
                         d = -0.5F;
                         f = 0.75F;
                     }
-                    case(4) -> {
-                        d = 0.5F;
-                        f = -0.75F;
-                    }
-                    case(5) -> {
-                        d = 0.5F;
-                        f = 0.75F;
-                    }
-                    case(6) -> {
-                        d = 1.5F;
-                        f = -0.75F;
-                    }
                     case(7) -> {
-                        d = 1.5F;
-                        f = 0.75F;
+                        d = 0.5F;
+                        f = -0.75F;
                     }
                     case(8) -> {
-                        d = 2.75F;
-                        f = 0.5F;
-                    }
-                    case(9) -> {
-                        d = 2.75F;
-                        f = -0.5F;
+                        d = 0.5F;
+                        f = 0.75F;
                     }
                     default -> {
-                        d = -1.5F;
-                        f = 0.5F;
+                        d = 1.5F;
+                        f = 0.0F;
                     }
                 }
             }

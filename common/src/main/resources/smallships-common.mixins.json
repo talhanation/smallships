@@ -17,7 +17,6 @@
     "damaging.BoatMixin",
     "damaging.DamageSourceAccessor",
     "leashing.BoatMixin",
-    "leashing.ChunkMapMixin",
     "leashing.EntityMixin",
     "leashing.LeadItemMixin",
     "leashing.LeashFenceKnotEntityMixin",

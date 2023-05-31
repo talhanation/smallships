@@ -2,8 +2,8 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.client.model.sail.SailModel;
-import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -19,6 +19,7 @@ import java.util.function.BiConsumer;
 public interface Sailable extends Ability {
 
     default void tickSailShip() {
+        if (self().sailStateCooldown > 0) self().sailStateCooldown--;
     }
 
     default void defineSailShipSynchedData() {
@@ -40,6 +41,37 @@ public interface Sailable extends Ability {
         tag.put("Sail", compoundTag);
     }
 
+    default void controlBoatSailShip() {
+        byte sailState = self().getSailState();
+        if(sailState != 0) {
+            if (self().isForward()) {
+                if (sailState != 4) {
+                    if(self().sailStateCooldown == 0){
+                        sailState++;
+                        if (!self().getLevel().isClientSide()) {
+                            this.toggleSail();
+                        }
+                        self().sailStateCooldown = this.getSailStateCooldown();
+                        self().setSailState(sailState);
+                    }
+                }
+            }
+
+            if (self().isBackward()) {
+                if (sailState != 1) {
+                    if(self().sailStateCooldown == 0) {
+                        sailState--;
+                        if (!self().getLevel().isClientSide()) {
+                            this.toggleSail();
+                        }
+                        self().sailStateCooldown = this.getSailStateCooldown();
+                        self().setSailState(sailState);
+                    }
+                }
+            }
+        }
+    }
+
     default boolean interactSail(Player player, InteractionHand interactionHand) {
         ItemStack item = player.getItemInHand(interactionHand);
         if (item.getItem() instanceof DyeItem dyeItem) {
@@ -53,10 +85,10 @@ public interface Sailable extends Ability {
         return false;
     }
 
-    default void toggleSail(Ship ship) {
-        byte state = ship.getSailState();
+    default void toggleSail() {
+        byte state = self().getSailState();
         //self().toggleCooldown == 0 &&
-        if(!((BoatLeashAccess)ship).isLeashed()) {
+        if(!((BoatLeashAccess)this).isLeashed()) {
             if (state == (byte) 0) {
                 state = (byte) 1;
 
@@ -74,9 +106,12 @@ public interface Sailable extends Ability {
             if (!self().getLevel().isClientSide()) self().playSound(sound, modifier.getFirst(), modifier.getSecond());
             else self().getLevel().playLocalSound(self().getX(), self().getY() + 4, self().getZ(), sound, self().getSoundSource(), modifier.getFirst(), modifier.getSecond(), false);
         };
-        if (state != 0)
+        if (state != 0) {
             play.accept(ModSoundTypes.SAIL_MOVE, Pair.of(15.0F, Math.max(0.5F, 1.4F - ((float) state / 5.0F))));
-        else play.accept(ModSoundTypes.SAIL_PULL, Pair.of(10.0F, 1.0F));
+        }
+        else {
+            play.accept(ModSoundTypes.SAIL_PULL, Pair.of(10.0F, 1.0F));
+        }
     }
 
 

@@ -47,6 +47,10 @@ public interface Cannonable extends Ability {
         tag.putInt("CannonCount", self().getCannonCount());
     }
 
+    default float getCannonModifier() {
+        return (int)self().getCannonCount() * 0.025F;
+    }
+
     default void updateCannonCount(){
         byte cannons = self().getCannonCount();
 

@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "package": "com.talhanation.smallships.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+  ],
+  "mixins": [
+    "leashing.ChunkMapMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
