@@ -2,6 +2,7 @@
   "required": true,
   "package": "com.talhanation.smallships.mixin.forge",
   "compatibilityLevel": "JAVA_17",
+  "refmap": "smallships-forge-refmap.json",
   "minVersion": "0.8",
   "client": [
   ],
