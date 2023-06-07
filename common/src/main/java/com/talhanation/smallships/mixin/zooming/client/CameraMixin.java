@@ -1,5 +1,6 @@
 package com.talhanation.smallships.mixin.zooming.client;
 
+import com.talhanation.smallships.config.SmallshipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.Camera;
@@ -7,7 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin implements CameraZoomAccess {
@@ -15,6 +17,7 @@ public abstract class CameraMixin implements CameraZoomAccess {
 
     @ModifyConstant(method = "setup", constant = @Constant(doubleValue = 4.0))
     private double setupShipZoom(double constant) {
+        if (!SmallshipsConfig.Client.shipGeneralCameraZoomEnable.get()) return constant;
         if (this.getEntity().getVehicle() instanceof Ship && !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
             return this.getShipZoomData();
         } else {

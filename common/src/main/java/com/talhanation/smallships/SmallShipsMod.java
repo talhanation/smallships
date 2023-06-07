@@ -12,5 +12,6 @@ public class SmallShipsMod {
 
     public static void init() {
         SmallshipsConfig.registerConfigs(MOD_ID, ModConfig.Type.COMMON, SmallshipsConfig.COMMON_SPEC);
+        SmallshipsConfig.registerConfigs(MOD_ID, ModConfig.Type.CLIENT, SmallshipsConfig.CLIENT_SPEC);
     }
 }

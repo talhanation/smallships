@@ -12,6 +12,9 @@ import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -46,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public abstract class Ship extends Boat {
@@ -71,6 +75,8 @@ public abstract class Ship extends Boat {
     private float setPoint;
     public final List<Cannon> CANNONS = new ArrayList<>();
     public float maxSpeed;
+    @Environment(EnvType.CLIENT)
+    private CameraType previousCameraType;
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
@@ -371,10 +377,30 @@ public abstract class Ship extends Boat {
 
         return super.interact(player, interactionHand);
     }
+
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
         if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
         return super.getDismountLocationForPassenger(livingEntity);
+    }
+
+    @Override
+    protected void addPassenger(Entity entity) {
+        // Auto third person: Enable
+        if (this.getLevel().isClientSide() && SmallshipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+            this.previousCameraType = Minecraft.getInstance().options.getCameraType();
+            Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
+        }
+        super.addPassenger(entity);
+    }
+
+    @Override
+    protected void removePassenger(Entity entity) {
+        // Auto third person: Disable
+        if (this.getLevel().isClientSide() && SmallshipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+            Minecraft.getInstance().options.setCameraType(this.previousCameraType);
+        }
+        super.removePassenger(entity);
     }
 
     @Override

@@ -7,11 +7,15 @@ import net.minecraftforge.fml.config.ModConfig;
 
 public class SmallshipsConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
+    public static final ForgeConfigSpec CLIENT_SPEC;
 
     static {
-        ForgeConfigSpec.Builder configBuilder = new ForgeConfigSpec.Builder();
-        setupConfig(configBuilder);
-        COMMON_SPEC = configBuilder.build();
+        ForgeConfigSpec.Builder commonConfigBuilder = new ForgeConfigSpec.Builder();
+        ForgeConfigSpec.Builder clientConfigBuilder = new ForgeConfigSpec.Builder();
+        setupCommonConfig(commonConfigBuilder);
+        setupClientConfig(clientConfigBuilder);
+        COMMON_SPEC = commonConfigBuilder.build();
+        CLIENT_SPEC = clientConfigBuilder.build();
     }
 
     @ExpectPlatform
@@ -66,7 +70,14 @@ public class SmallshipsConfig {
         public static ForgeConfigSpec.ConfigValue<Double> waterAnimalFleeDistance;
     }
 
-    private static void setupConfig(ForgeConfigSpec.Builder builder) {
+    public static class Client {
+        public static ForgeConfigSpec.BooleanValue shipGeneralCameraZoomEnable;
+        public static ForgeConfigSpec.BooleanValue shipGeneralCameraAutoThirdPerson;
+        public static ForgeConfigSpec.ConfigValue<Double> shipGeneralCameraZoomMax;
+        public static ForgeConfigSpec.ConfigValue<Double> shipGeneralCameraZoomMin;
+    }
+
+    private static void setupCommonConfig(ForgeConfigSpec.Builder builder) {
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
         Common.schematicVersion = builder
                 .define("schematicVersion", 1);
@@ -136,7 +147,7 @@ public class SmallshipsConfig {
         builder.comment("Default configs for the container of the Cog.");
         builder.push("Container");
 
-        builder.comment("Default container size. Must be divisible by 9.");
+        builder.comment("Set container size for the Cog (value must be divisible by 9 and bigger than 0).");
         Common.shipContainerCogContainerSize = builder
                 .define("shipContainerCogContainerSize", 108, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
@@ -178,6 +189,7 @@ public class SmallshipsConfig {
         builder.comment("Default configs for the container of the Brigg.");
         builder.push("Container");
 
+        builder.comment("Set container size for the Brigg (value must be divisible by 9 and bigger than 0).");
         Common.shipContainerBriggContainerSize = builder
                 .define("shipContainerBriggContainerSize", 162, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
@@ -220,6 +232,7 @@ public class SmallshipsConfig {
         builder.comment("Default configs for the container of the Galley.");
         builder.push("Container");
 
+        builder.comment("Set container size for the Galley (value must be divisible by 9 and bigger than 0).");
         Common.shipContainerGalleyContainerSize = builder
                 .define("shipContainerGalleyContainerSize", 54, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
@@ -237,6 +250,48 @@ public class SmallshipsConfig {
         builder.pop();
 
 
+
+        builder.pop();
+    }
+
+    private static void setupClientConfig(ForgeConfigSpec.Builder builder) {
+        builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
+        Common.schematicVersion = builder
+                .define("schematicVersion", 1);
+
+        builder.comment(" This category holds configs that define ship behaviour.");
+        builder.push("Ship");
+
+        builder.comment("This category holds configs that define general ship behaviour.");
+        builder.push("General");
+
+        builder.comment("General camera settings for ships.");
+        builder.push("Camera");
+
+        builder.comment("Zoom camera settings for third person view in ships.");
+        builder.push("Zoom");
+
+        builder.comment("Generally enable the zooming feature.");
+        Client.shipGeneralCameraZoomEnable = builder
+                .define("shipGeneralCameraZoomEnable", true);
+
+        builder.comment("Set maximum distance of zoom (value must be smaller than or equal to 50.0).");
+        Client.shipGeneralCameraZoomMax = builder
+                .define("shipGeneralCameraZoomMax", 20.0D, e -> e instanceof Double d && d <= 50.0D && d >= 1.0D);
+
+        builder.comment("Set minimum distance of zoom (value must be bigger than or equal to 1.0).");
+        Client.shipGeneralCameraZoomMin = builder
+                .define("shipGeneralCameraZoomMin", 5.0D, e -> e instanceof Double d && d <= 50.0D && d >= 1.0D);
+
+        builder.pop();
+
+        builder.comment("Automatically enable third person camera when entering a ship.");
+        Client.shipGeneralCameraAutoThirdPerson = builder
+                .define("shipGeneralCameraAutoThirdPerson", true);
+
+        builder.pop();
+
+        builder.pop();
 
         builder.pop();
     }
