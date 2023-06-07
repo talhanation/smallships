@@ -2,7 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.client.model.sail.SailModel;
-import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
@@ -116,6 +116,6 @@ public interface Sailable extends Ability {
 
 
     default int getSailStateCooldown(){
-        return SmallshipsConfig.Common.shipGeneralSailCooldown.get();
+        return SmallShipsConfig.Common.shipGeneralSailCooldown.get();
     }
 }

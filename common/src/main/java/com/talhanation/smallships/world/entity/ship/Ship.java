@@ -1,7 +1,7 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.google.common.collect.ImmutableSet;
-import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
@@ -387,7 +387,7 @@ public abstract class Ship extends Boat {
     @Override
     protected void addPassenger(Entity entity) {
         // Auto third person: Enable
-        if (this.getLevel().isClientSide() && SmallshipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+        if (this.getLevel().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
             this.previousCameraType = Minecraft.getInstance().options.getCameraType();
             Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
         }
@@ -397,7 +397,7 @@ public abstract class Ship extends Boat {
     @Override
     protected void removePassenger(Entity entity) {
         // Auto third person: Disable
-        if (this.getLevel().isClientSide() && SmallshipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+        if (this.getLevel().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
             Minecraft.getInstance().options.setCameraType(this.previousCameraType);
         }
         super.removePassenger(entity);
@@ -472,7 +472,7 @@ public abstract class Ship extends Boat {
     }
 
     private void updateWaterMobs() {
-        double radius = SmallshipsConfig.Common.waterAnimalFleeRadius.get();
+        double radius = SmallShipsConfig.Common.waterAnimalFleeRadius.get();
         List<WaterAnimal> waterAnimals = this.getLevel().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
         for (WaterAnimal waterAnimal : waterAnimals) {
             fleeEntity(waterAnimal);
@@ -480,8 +480,8 @@ public abstract class Ship extends Boat {
     }
 
     private void fleeEntity(Mob entity) {
-        double fleeDistance = SmallshipsConfig.Common.waterAnimalFleeDistance.get();
-        double fleeSpeed = SmallshipsConfig.Common.waterAnimalFleeSpeed.get();
+        double fleeDistance = SmallShipsConfig.Common.waterAnimalFleeDistance.get();
+        double fleeSpeed = SmallShipsConfig.Common.waterAnimalFleeSpeed.get();
         Vec3 vecBoat = new Vec3(getX(), getY(), getZ());
         Vec3 vecEntity = new Vec3(entity.getX(), entity.getY(), entity.getZ());
         Vec3 fleeDir = vecEntity.subtract(vecBoat);
@@ -545,7 +545,7 @@ public abstract class Ship extends Boat {
 
     private void collisionDamage(Entity entity, float speed) {
         if (speed > 0.1F) {
-            float damage = speed * SmallshipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
+            float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
             entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
         }
 

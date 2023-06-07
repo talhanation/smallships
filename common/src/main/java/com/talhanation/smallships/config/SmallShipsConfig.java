@@ -5,7 +5,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.IConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 
-public class SmallshipsConfig {
+public class SmallShipsConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final ForgeConfigSpec CLIENT_SPEC;
 
@@ -68,6 +68,8 @@ public class SmallshipsConfig {
         public static ForgeConfigSpec.ConfigValue<Double> waterAnimalFleeRadius;
         public static ForgeConfigSpec.ConfigValue<Double> waterAnimalFleeSpeed;
         public static ForgeConfigSpec.ConfigValue<Double> waterAnimalFleeDistance;
+
+        public static ForgeConfigSpec.BooleanValue smallshipsItemGroupEnable;
     }
 
     public static class Client {
@@ -292,6 +294,15 @@ public class SmallshipsConfig {
         builder.pop();
 
         builder.pop();
+
+        builder.pop();
+
+        builder.comment(" This category holds configs that define general mod settings.");
+        builder.push("General");
+
+        builder.comment("Enable smallships creative tab in the creative inventory (only takes effect after restart).");
+        Common.smallshipsItemGroupEnable = builder
+                .define("smallshipsItemGroupEnable", false);
 
         builder.pop();
     }
