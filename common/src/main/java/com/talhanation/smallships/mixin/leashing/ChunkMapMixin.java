@@ -22,7 +22,7 @@ public class ChunkMapMixin {
     private List<Entity> list;
     private ServerPlayer serverPlayer;
 
-    @Inject(method = "playerLoadedChunk", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList()Ljava/util/ArrayList;", ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "playerLoadedChunk", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList()Ljava/util/ArrayList;", ordinal = 1, remap = false), locals = LocalCapture.CAPTURE_FAILHARD)
     private void playerLoadedChunkLeashShipCaptureListAndPlayer(ServerPlayer serverPlayer, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, LevelChunk levelChunk, CallbackInfo ci, List<Entity> list) {
         this.list = list;
         this.serverPlayer = serverPlayer;

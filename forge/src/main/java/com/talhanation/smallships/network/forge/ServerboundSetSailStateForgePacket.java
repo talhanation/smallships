@@ -28,8 +28,8 @@ public class ServerboundSetSailStateForgePacket implements ForgePacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             assert player != null;
-            if (player.getVehicle() != null && player.getVehicle() instanceof Sailable sailable) {
-                sailable.self().setSailState(state);
+            if (player.getVehicle() != null && player.getVehicle() instanceof Sailable sailShip) {
+                sailShip.setSailState(state);
             }
             ctx.get().setPacketHandled(true);
         });

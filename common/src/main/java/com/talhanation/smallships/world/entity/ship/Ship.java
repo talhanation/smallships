@@ -175,13 +175,14 @@ public abstract class Ship extends Boat {
 
         if(this.isInWater() && !((BoatLeashAccess) this).isLeashed()){
             //CALCULATE SPEED//
+            // This code is very very very bad... controlBoat is in dire need of a proper rewrite
             //Speed calc dependent on sail or paddle
-            //Speed needs to calculate before rotation because fabric is shit
-            if(this instanceof Paddleable){
+            //Speed needs to calculate before rotation because fabric is shit (has nothing to do with fabric)
+            if(this instanceof Paddleable && this instanceof Sailable sailShip){
                 if(isForward() && getDriver() != null){
-                    setPoint = (maxSpeed * 12/16F) * (1 + (1 + getSailState()) * 0.1F);
+                    setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F);
                 } else
-                    switch (this.getSailState()){ // Speed depending on sail state
+                    switch (sailShip.getSailState()){ // Speed depending on sail state
                     case 0 -> setPoint =  0;
                     case 1 -> setPoint = maxSpeed * 4/16F;
                     case 2 -> setPoint = maxSpeed * 8/16F;
@@ -189,8 +190,8 @@ public abstract class Ship extends Boat {
                     case 4 -> setPoint = maxSpeed * 16/16F;
                 }
             }
-            else{
-                switch (this.getSailState()){ // Speed depending on sail state
+            else if (this instanceof Sailable sailShip) {
+                switch (sailShip.getSailState()){ // Speed depending on sail state
                     case 0 -> setPoint =  0;
                     case 1 -> setPoint = maxSpeed * 4/16F;
                     case 2 -> setPoint = maxSpeed * 8/16F;
@@ -259,12 +260,6 @@ public abstract class Ship extends Boat {
     }
     public float getRotSpeed() {
         return entityData.get(ROT_SPEED);
-    }
-    public void setSailState(byte state) {
-        this.setData(SAIL_STATE, state);
-    }
-    public byte getSailState() {
-        return this.getData(SAIL_STATE);
     }
     public void setSpeed(float f) {
         this.entityData.set(SPEED, f);
@@ -380,7 +375,7 @@ public abstract class Ship extends Boat {
 
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
+        if (this instanceof Sailable sailShip && sailShip.getSailState() != 0) sailShip.toggleSail();
         return super.getDismountLocationForPassenger(livingEntity);
     }
 
