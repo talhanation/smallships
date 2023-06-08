@@ -6,6 +6,9 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.IConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -342,6 +345,21 @@ public class SmallShipsConfig {
     private static boolean updateConfig(ModConfig config, List<Consumer<ModConfig>> schematicUpdater) {
         if (getSchematicVersion(config) < schematicUpdater.size() + 1) {
             for (int i = getSchematicVersion(config) - 1; i < schematicUpdater.size(); i++) {
+                int j = 0;
+                while (true) {
+                    try {
+                        String[] fileNameExtensionPair = config.getFileName().split("\\.");
+                        String backupFileName = fileNameExtensionPair[0] + "-sv" + (i + 1) + (j == 0 ? "" : "-" + j) + "." + fileNameExtensionPair[1] + ".bak";
+                        Files.copy(config.getFullPath(), config.getFullPath().resolveSibling(backupFileName));
+                        SmallShipsMod.LOGGER.info("Backed up previous config version: " + backupFileName);
+                        break;
+                    } catch (FileAlreadyExistsException ignored) {
+                        j++;
+                        if (j > 99) throw new RuntimeException("Delete the " + config.getFileName() + " config files!!!");
+                    } catch (IOException e) {
+                        throw new RuntimeException("Could not create backup of " + config.getFileName() + " during schematicVersion update process, crashing for safety! Please backup the config file if needed and remove it from the config folder. " + e);
+                    }
+                }
                 setSchematicVersion(config, i + 2);
                 schematicUpdater.get(i).accept(config);
             }

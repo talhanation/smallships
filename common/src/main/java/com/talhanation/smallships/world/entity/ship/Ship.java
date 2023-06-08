@@ -12,8 +12,6 @@ import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -75,7 +73,6 @@ public abstract class Ship extends Boat {
     private float setPoint;
     public final List<Cannon> CANNONS = new ArrayList<>();
     public float maxSpeed;
-    @Environment(EnvType.CLIENT)
     private CameraType previousCameraType;
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
