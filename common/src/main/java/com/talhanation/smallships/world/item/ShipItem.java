@@ -3,7 +3,6 @@ package com.talhanation.smallships.world.item;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.BoatItem;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class ShipItem extends BoatItem {
@@ -11,5 +10,5 @@ public abstract class ShipItem extends BoatItem {
         super(type, properties);
     }
 
-    public abstract Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult);
+    public abstract Boat getBoat(@NotNull Level level, double x, double y, double z);
 }

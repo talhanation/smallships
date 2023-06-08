@@ -7,7 +7,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
 
 public class CogItem extends ShipItem {
@@ -21,7 +20,7 @@ public class CogItem extends ShipItem {
     }
 
     @Override
-    public @NotNull Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
-        return CogEntity.summon(level, hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
+    public Boat getBoat(@NotNull Level level, double x, double y, double z) {
+        return CogEntity.summon(level, x, y, z);
     }
 }
