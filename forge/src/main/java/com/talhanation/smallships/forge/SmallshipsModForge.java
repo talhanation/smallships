@@ -2,6 +2,7 @@ package com.talhanation.smallships.forge;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.forge.client.ClientInitializer;
+import com.talhanation.smallships.forge.common.CommonModBus;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.forge.ModEntityTypesImpl;
 import com.talhanation.smallships.world.inventory.forge.ModMenuTypesImpl;
@@ -16,8 +17,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(SmallShipsMod.MOD_ID)
 public class SmallshipsModForge {
+    @SuppressWarnings("InstantiationOfUtilityClass")
     public SmallshipsModForge() {
-        SmallShipsMod.init();
+        new CommonModBus();
+        new SmallShipsMod();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 

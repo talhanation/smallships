@@ -1,9 +1,14 @@
 package com.talhanation.smallships.config;
 
+import com.talhanation.smallships.SmallShipsMod;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.IConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class SmallShipsConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
@@ -82,7 +87,7 @@ public class SmallShipsConfig {
     private static void setupCommonConfig(ForgeConfigSpec.Builder builder) {
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
         Common.schematicVersion = builder
-                .define("schematicVersion", 1);
+                .define("schematicVersion", 2);
 
         builder.comment(" This category holds configs that define ship behaviour.");
         builder.push("Ship");
@@ -160,7 +165,7 @@ public class SmallShipsConfig {
 
         builder.comment("-1 = none, 0 = cold, 1 = neutral or 2 = warm Biomes");
         Common.shipModifierCogBiome = builder
-                .define("shipModifierCogBiome", 0);
+                .define("shipModifierCogBiome", 0, e -> e instanceof Integer i && i <= 2 && i >= -1);
 
         builder.pop();
 
@@ -202,7 +207,7 @@ public class SmallShipsConfig {
 
         builder.comment("-1 = none, 0 = cold, 1 = neutral or 2 = warm Biomes");
         Common.shipModifierBriggBiome = builder
-                .define("shipModifierBriggBiome", 0);
+                .define("shipModifierBriggBiome", 0, e -> e instanceof Integer i && i <= 2 && i >= -1);
 
         builder.pop();
 
@@ -245,7 +250,7 @@ public class SmallShipsConfig {
 
         builder.comment("-1 = none, 0 = cold, 1 = neutral or 2 = warm Biomes");
         Common.shipModifierGalleyBiome = builder
-                .define("shipModifierGalleyBiome", 2);
+                .define("shipModifierGalleyBiome", 2, e -> e instanceof Integer i && i <= 2 && i >= -1);
 
         builder.pop();
 
@@ -305,5 +310,55 @@ public class SmallShipsConfig {
                 .define("smallshipsItemGroupEnable", false);
 
         builder.pop();
+    }
+
+    public static void updateConfig(ModConfig config) {
+        int oldSchematicVersion = getSchematicVersion(config);
+        boolean hasBeenUpdated = switch (config.getType()) {
+            case COMMON -> updateConfig(config, commonSchematicUpdater);
+            case CLIENT -> updateConfig(config, clientSchematicUpdater);
+            case SERVER -> false;
+        };
+        int newSchematicVersion = getSchematicVersion(config);
+        if (hasBeenUpdated) SmallShipsMod.LOGGER.warn("Updated config values of " + config.getFileName() + " from schematic version " + oldSchematicVersion + " to " + newSchematicVersion + "!");
+    }
+
+    private static final List<Consumer<ModConfig>> commonSchematicUpdater = new ArrayList<>();
+    static {
+        commonSchematicUpdater.add(config -> {
+            resetEntry(config, Common.shipGeneralContainerModifier);
+            resetEntry(config, Common.shipGeneralPaddlingModifier);
+            resetEntry(config, Common.shipAttributeBriggMaxSpeed);
+            resetEntry(config, Common.shipAttributeBriggMaxRotationSpeed);
+            resetEntry(config, Common.shipAttributeBriggRotationAcceleration);
+            resetEntry(config, Common.shipAttributeGalleyMaxSpeed);
+            resetEntry(config, Common.shipAttributeCogMaxSpeed);
+            resetEntry(config, Common.shipAttributeCogMaxRotationSpeed);
+            resetEntry(config, Common.shipAttributeCogRotationAcceleration);
+        });
+        // To make a config update add a new element like the above to the schematic Updater field (don't ever change the order!) and don't forget to increment the default schematicVersion the setup method
+    }
+    private static final List<Consumer<ModConfig>> clientSchematicUpdater = new ArrayList<>();
+    private static boolean updateConfig(ModConfig config, List<Consumer<ModConfig>> schematicUpdater) {
+        if (getSchematicVersion(config) < schematicUpdater.size() + 1) {
+            for (int i = getSchematicVersion(config) - 1; i < schematicUpdater.size(); i++) {
+                setSchematicVersion(config, i + 2);
+                schematicUpdater.get(i).accept(config);
+            }
+            config.save();
+            return true;
+        }
+        return false;
+    }
+
+    private static int getSchematicVersion(ModConfig config) {
+        return config.getConfigData().getInt("schematicVersion");
+    }
+    private static void setSchematicVersion(ModConfig config, int i) {
+        config.getConfigData().set("schematicVersion", i);
+    }
+
+    private static <T> void resetEntry(ModConfig config, ForgeConfigSpec.ConfigValue<T> value) {
+        config.getConfigData().set(value.getPath(), value.getDefault());
     }
 }
