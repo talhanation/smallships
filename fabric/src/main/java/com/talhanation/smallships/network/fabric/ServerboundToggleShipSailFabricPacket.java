@@ -32,8 +32,8 @@ public class ServerboundToggleShipSailFabricPacket implements FabricPacket, Serv
     @SuppressWarnings("unused")
     @Override
     public void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
-        if (player.getVehicle() != null && player.getVehicle() instanceof Ship ship && ship instanceof Sailable sailable) {
-            sailable.toggleSail();
+        if (player.getVehicle() != null && player.getVehicle() instanceof Ship ship && ship instanceof Sailable sailShip) {
+            sailShip.toggleSail();
         }
     }
 }

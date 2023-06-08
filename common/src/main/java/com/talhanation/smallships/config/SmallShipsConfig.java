@@ -1,17 +1,30 @@
 package com.talhanation.smallships.config;
 
+import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.mixin.port.ConfigValueAccessor;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.IConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 
-public class SmallshipsConfig {
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+public class SmallShipsConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
+    public static final ForgeConfigSpec CLIENT_SPEC;
 
     static {
-        ForgeConfigSpec.Builder configBuilder = new ForgeConfigSpec.Builder();
-        setupConfig(configBuilder);
-        COMMON_SPEC = configBuilder.build();
+        ForgeConfigSpec.Builder commonConfigBuilder = new ForgeConfigSpec.Builder();
+        ForgeConfigSpec.Builder clientConfigBuilder = new ForgeConfigSpec.Builder();
+        setupCommonConfig(commonConfigBuilder);
+        setupClientConfig(clientConfigBuilder);
+        COMMON_SPEC = commonConfigBuilder.build();
+        CLIENT_SPEC = clientConfigBuilder.build();
     }
 
     @ExpectPlatform
@@ -64,12 +77,21 @@ public class SmallshipsConfig {
         public static ForgeConfigSpec.ConfigValue<Double> waterAnimalFleeRadius;
         public static ForgeConfigSpec.ConfigValue<Double> waterAnimalFleeSpeed;
         public static ForgeConfigSpec.ConfigValue<Double> waterAnimalFleeDistance;
+
+        public static ForgeConfigSpec.BooleanValue smallshipsItemGroupEnable;
     }
 
-    private static void setupConfig(ForgeConfigSpec.Builder builder) {
+    public static class Client {
+        public static ForgeConfigSpec.BooleanValue shipGeneralCameraZoomEnable;
+        public static ForgeConfigSpec.BooleanValue shipGeneralCameraAutoThirdPerson;
+        public static ForgeConfigSpec.ConfigValue<Double> shipGeneralCameraZoomMax;
+        public static ForgeConfigSpec.ConfigValue<Double> shipGeneralCameraZoomMin;
+    }
+
+    private static void setupCommonConfig(ForgeConfigSpec.Builder builder) {
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
         Common.schematicVersion = builder
-                .define("schematicVersion", 1);
+                .define("schematicVersion", 2);
 
         builder.comment(" This category holds configs that define ship behaviour.");
         builder.push("Ship");
@@ -136,7 +158,7 @@ public class SmallshipsConfig {
         builder.comment("Default configs for the container of the Cog.");
         builder.push("Container");
 
-        builder.comment("Default container size. Must be divisible by 9.");
+        builder.comment("Set container size for the Cog (value must be divisible by 9 and bigger than 0).");
         Common.shipContainerCogContainerSize = builder
                 .define("shipContainerCogContainerSize", 108, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
@@ -147,7 +169,7 @@ public class SmallshipsConfig {
 
         builder.comment("-1 = none, 0 = cold, 1 = neutral or 2 = warm Biomes");
         Common.shipModifierCogBiome = builder
-                .define("shipModifierCogBiome", 0);
+                .define("shipModifierCogBiome", 0, e -> e instanceof Integer i && i <= 2 && i >= -1);
 
         builder.pop();
 
@@ -178,6 +200,7 @@ public class SmallshipsConfig {
         builder.comment("Default configs for the container of the Brigg.");
         builder.push("Container");
 
+        builder.comment("Set container size for the Brigg (value must be divisible by 9 and bigger than 0).");
         Common.shipContainerBriggContainerSize = builder
                 .define("shipContainerBriggContainerSize", 162, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
@@ -188,7 +211,7 @@ public class SmallshipsConfig {
 
         builder.comment("-1 = none, 0 = cold, 1 = neutral or 2 = warm Biomes");
         Common.shipModifierBriggBiome = builder
-                .define("shipModifierBriggBiome", 0);
+                .define("shipModifierBriggBiome", 0, e -> e instanceof Integer i && i <= 2 && i >= -1);
 
         builder.pop();
 
@@ -220,6 +243,7 @@ public class SmallshipsConfig {
         builder.comment("Default configs for the container of the Galley.");
         builder.push("Container");
 
+        builder.comment("Set container size for the Galley (value must be divisible by 9 and bigger than 0).");
         Common.shipContainerGalleyContainerSize = builder
                 .define("shipContainerGalleyContainerSize", 54, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
@@ -230,7 +254,7 @@ public class SmallshipsConfig {
 
         builder.comment("-1 = none, 0 = cold, 1 = neutral or 2 = warm Biomes");
         Common.shipModifierGalleyBiome = builder
-                .define("shipModifierGalleyBiome", 2);
+                .define("shipModifierGalleyBiome", 2, e -> e instanceof Integer i && i <= 2 && i >= -1);
 
         builder.pop();
 
@@ -239,5 +263,121 @@ public class SmallshipsConfig {
 
 
         builder.pop();
+    }
+
+    private static void setupClientConfig(ForgeConfigSpec.Builder builder) {
+        builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
+        Common.schematicVersion = builder
+                .define("schematicVersion", 1);
+
+        builder.comment(" This category holds configs that define ship behaviour.");
+        builder.push("Ship");
+
+        builder.comment("This category holds configs that define general ship behaviour.");
+        builder.push("General");
+
+        builder.comment("General camera settings for ships.");
+        builder.push("Camera");
+
+        builder.comment("Zoom camera settings for third person view in ships.");
+        builder.push("Zoom");
+
+        builder.comment("Generally enable the zooming feature.");
+        Client.shipGeneralCameraZoomEnable = builder
+                .define("shipGeneralCameraZoomEnable", true);
+
+        builder.comment("Set maximum distance of zoom (value must be smaller than or equal to 50.0).");
+        Client.shipGeneralCameraZoomMax = builder
+                .define("shipGeneralCameraZoomMax", 20.0D, e -> e instanceof Double d && d <= 50.0D && d >= 1.0D);
+
+        builder.comment("Set minimum distance of zoom (value must be bigger than or equal to 1.0).");
+        Client.shipGeneralCameraZoomMin = builder
+                .define("shipGeneralCameraZoomMin", 5.0D, e -> e instanceof Double d && d <= 50.0D && d >= 1.0D);
+
+        builder.pop();
+
+        builder.comment("Automatically enable third person camera when entering a ship.");
+        Client.shipGeneralCameraAutoThirdPerson = builder
+                .define("shipGeneralCameraAutoThirdPerson", true);
+
+        builder.pop();
+
+        builder.pop();
+
+        builder.pop();
+
+        builder.comment(" This category holds configs that define general mod settings.");
+        builder.push("General");
+
+        builder.comment("Enable smallships creative tab in the creative inventory (only takes effect after restart).");
+        Common.smallshipsItemGroupEnable = builder
+                .define("smallshipsItemGroupEnable", false);
+
+        builder.pop();
+    }
+
+    public static void updateConfig(ModConfig config) {
+        int oldSchematicVersion = getSchematicVersion(config);
+        boolean hasBeenUpdated = switch (config.getType()) {
+            case COMMON -> updateConfig(config, commonSchematicUpdater);
+            case CLIENT -> updateConfig(config, clientSchematicUpdater);
+            case SERVER -> false;
+        };
+        int newSchematicVersion = getSchematicVersion(config);
+        if (hasBeenUpdated) SmallShipsMod.LOGGER.warn("Updated config values of " + config.getFileName() + " from schematic version " + oldSchematicVersion + " to " + newSchematicVersion + "!");
+    }
+
+    private static final List<Consumer<ModConfig>> commonSchematicUpdater = new ArrayList<>();
+    static {
+        commonSchematicUpdater.add(config -> {
+            resetEntry(config, Common.shipGeneralContainerModifier);
+            resetEntry(config, Common.shipGeneralPaddlingModifier);
+            resetEntry(config, Common.shipAttributeBriggMaxSpeed);
+            resetEntry(config, Common.shipAttributeBriggMaxRotationSpeed);
+            resetEntry(config, Common.shipAttributeBriggRotationAcceleration);
+            resetEntry(config, Common.shipAttributeGalleyMaxSpeed);
+            resetEntry(config, Common.shipAttributeCogMaxSpeed);
+            resetEntry(config, Common.shipAttributeCogMaxRotationSpeed);
+            resetEntry(config, Common.shipAttributeCogRotationAcceleration);
+        });
+        // To make a config update add a new element like the above to the schematic Updater field (don't ever change the order!) and don't forget to increment the default schematicVersion the setup method
+    }
+    private static final List<Consumer<ModConfig>> clientSchematicUpdater = new ArrayList<>();
+    private static boolean updateConfig(ModConfig config, List<Consumer<ModConfig>> schematicUpdater) {
+        if (getSchematicVersion(config) < schematicUpdater.size() + 1) {
+            for (int i = getSchematicVersion(config) - 1; i < schematicUpdater.size(); i++) {
+                int j = 0;
+                while (true) {
+                    try {
+                        String[] fileNameExtensionPair = config.getFileName().split("\\.");
+                        String backupFileName = fileNameExtensionPair[0] + "-sv" + (i + 1) + (j == 0 ? "" : "-" + j) + "." + fileNameExtensionPair[1] + ".bak";
+                        Files.copy(config.getFullPath(), config.getFullPath().resolveSibling(backupFileName));
+                        SmallShipsMod.LOGGER.info("Backed up previous config version: " + backupFileName);
+                        break;
+                    } catch (FileAlreadyExistsException ignored) {
+                        j++;
+                        if (j > 99) throw new RuntimeException("Delete the " + config.getFileName() + " config files!!!");
+                    } catch (IOException e) {
+                        throw new RuntimeException("Could not create backup of " + config.getFileName() + " during schematicVersion update process, crashing for safety! Please backup the config file if needed and remove it from the config folder. " + e);
+                    }
+                }
+                setSchematicVersion(config, i + 2);
+                schematicUpdater.get(i).accept(config);
+            }
+            config.save();
+            return true;
+        }
+        return false;
+    }
+
+    private static int getSchematicVersion(ModConfig config) {
+        return config.getConfigData().getInt("schematicVersion");
+    }
+    private static void setSchematicVersion(ModConfig config, int i) {
+        config.getConfigData().set("schematicVersion", i);
+    }
+
+    private static <T> void resetEntry(ModConfig config, ForgeConfigSpec.ConfigValue<T> value) {
+        config.getConfigData().set(value.getPath(), ((ConfigValueAccessor)value).getDefaultSupplier().get());
     }
 }

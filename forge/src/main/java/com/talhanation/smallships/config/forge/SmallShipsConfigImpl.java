@@ -1,11 +1,11 @@
-package com.talhanation.smallships.config.fabric;
+package com.talhanation.smallships.config.forge;
 
-import net.minecraftforge.api.ModLoadingContext;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.IConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 
-public class SmallshipsConfigImpl {
+public class SmallShipsConfigImpl {
     public static void registerConfigs(String modId, ModConfig.Type type, IConfigSpec<?> spec) {
-        ModLoadingContext.registerConfig(modId, type, spec);
+        ModLoadingContext.get().registerConfig(type, spec);
     }
 }

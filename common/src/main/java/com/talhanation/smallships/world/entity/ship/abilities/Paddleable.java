@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
-import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -10,7 +10,7 @@ public interface Paddleable extends Ability {
     }
 
     default float getPaddlingModifier() {
-        return self().isForward()? -SmallshipsConfig.Common.shipGeneralPaddlingModifier.get().floatValue() : 0.0F; //Our modifier calculation is so bad, that this value has to be negative so that it has a positive impact on the speed...
+        return self().isForward()? -SmallShipsConfig.Common.shipGeneralPaddlingModifier.get().floatValue() : 0.0F; //Our modifier calculation is so bad, that this value has to be negative so that it has a positive impact on the speed...
     }
 
     default void controlBoatPaddleShip() {

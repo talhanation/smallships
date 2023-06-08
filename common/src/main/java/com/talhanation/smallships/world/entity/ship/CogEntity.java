@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
     public static final String ID = "cog";
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallshipsConfig.Common.shipContainerCogContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCogContainerSize.get();
     public CogEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
@@ -44,12 +44,12 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = SmallshipsConfig.Common.shipAttributeCogMaxHealth.get().floatValue();
-        attributes.maxSpeed = SmallshipsConfig.Common.shipAttributeCogMaxSpeed.get().floatValue();
-        attributes.maxReverseSpeed = SmallshipsConfig.Common.shipAttributeCogMaxReverseSpeed.get().floatValue();
-        attributes.maxRotationSpeed = SmallshipsConfig.Common.shipAttributeCogMaxRotationSpeed.get().floatValue();
-        attributes.acceleration = SmallshipsConfig.Common.shipAttributeCogAcceleration.get().floatValue();
-        attributes.rotationAcceleration = SmallshipsConfig.Common.shipAttributeCogRotationAcceleration.get().floatValue();
+        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeCogMaxHealth.get().floatValue();
+        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeCogMaxSpeed.get().floatValue();
+        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeCogMaxReverseSpeed.get().floatValue();
+        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeCogMaxRotationSpeed.get().floatValue();
+        attributes.acceleration = SmallShipsConfig.Common.shipAttributeCogAcceleration.get().floatValue();
+        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeCogRotationAcceleration.get().floatValue();
         CompoundTag tag = new CompoundTag();
         attributes.addSaveData(tag);
         return tag;
@@ -62,13 +62,13 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
 
     @Override
     public @NotNull Item getDropItem() {
-        if (!SmallshipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.COG_ITEMS.get(this.getBoatType());
     }
 
     @Override
     public int getBiomesModifierType() {
-        return SmallshipsConfig.Common.shipModifierCogBiome.get();
+        return SmallShipsConfig.Common.shipModifierCogBiome.get();
     }
 
     @Override

@@ -36,8 +36,8 @@ public class ServerboundSetSailStateFabricPacket implements FabricPacket, Server
     @SuppressWarnings("unused")
     @Override
     public void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
-        if (player.getVehicle() != null && player.getVehicle() instanceof Sailable ship) {
-            ship.self().setSailState(state);
+        if (player.getVehicle() != null && player.getVehicle() instanceof Sailable sailShip) {
+            sailShip.setSailState(state);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class GalleyEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable, Paddleable {
     public static final String ID = "galley";
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallshipsConfig.Common.shipContainerGalleyContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerGalleyContainerSize.get();
 
     public GalleyEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -51,12 +51,12 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = SmallshipsConfig.Common.shipAttributeGalleyMaxHealth.get().floatValue();
-        attributes.maxSpeed = SmallshipsConfig.Common.shipAttributeGalleyMaxSpeed.get().floatValue();
-        attributes.maxReverseSpeed = SmallshipsConfig.Common.shipAttributeGalleyMaxReverseSpeed.get().floatValue();
-        attributes.maxRotationSpeed = SmallshipsConfig.Common.shipAttributeGalleyMaxRotationSpeed.get().floatValue();
-        attributes.acceleration = SmallshipsConfig.Common.shipAttributeGalleyAcceleration.get().floatValue();
-        attributes.rotationAcceleration = SmallshipsConfig.Common.shipAttributeGalleyRotationAcceleration.get().floatValue();
+        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeGalleyMaxHealth.get().floatValue();
+        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeGalleyMaxSpeed.get().floatValue();
+        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeGalleyMaxReverseSpeed.get().floatValue();
+        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeGalleyMaxRotationSpeed.get().floatValue();
+        attributes.acceleration = SmallShipsConfig.Common.shipAttributeGalleyAcceleration.get().floatValue();
+        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeGalleyRotationAcceleration.get().floatValue();
         CompoundTag tag = new CompoundTag();
         attributes.addSaveData(tag);
         return tag;
@@ -69,13 +69,13 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
 
     @Override
     public @NotNull Item getDropItem() {
-        if (!SmallshipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.GALLEY_ITEMS.get(this.getBoatType());
     }
 
     @Override
     public int getBiomesModifierType() {
-        return SmallshipsConfig.Common.shipModifierGalleyBiome.get();
+        return SmallShipsConfig.Common.shipModifierGalleyBiome.get();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.google.common.collect.ImmutableSet;
-import com.talhanation.smallships.config.SmallshipsConfig;
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.duck.port.PassengerSizeAccess;
 import com.talhanation.smallships.math.Kalkuel;
@@ -9,7 +9,11 @@ import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
-import com.talhanation.smallships.world.entity.ship.abilities.*;
+import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
+import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
+import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -44,6 +48,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public abstract class Ship extends Boat implements PassengerSizeAccess {
@@ -69,6 +74,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     private float setPoint;
     public final List<Cannon> CANNONS = new ArrayList<>();
     public float maxSpeed;
+    private CameraType previousCameraType;
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
@@ -167,13 +173,14 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
 
         if(this.isInWater() && !((BoatLeashAccess) this).isLeashed()){
             //CALCULATE SPEED//
+            // This code is very very very bad... controlBoat is in dire need of a proper rewrite
             //Speed calc dependent on sail or paddle
-            //Speed needs to calculate before rotation because fabric is shit
-            if(this instanceof Paddleable){
+            //Speed needs to calculate before rotation because fabric is shit (has nothing to do with fabric)
+            if(this instanceof Paddleable && this instanceof Sailable sailShip){
                 if(isForward() && getDriver() != null){
-                    setPoint = (maxSpeed * 12/16F) * (1 + (1 + getSailState()) * 0.1F);
+                    setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F);
                 } else
-                    switch (this.getSailState()){ // Speed depending on sail state
+                    switch (sailShip.getSailState()){ // Speed depending on sail state
                     case 0 -> setPoint =  0;
                     case 1 -> setPoint = maxSpeed * 4/16F;
                     case 2 -> setPoint = maxSpeed * 8/16F;
@@ -181,8 +188,8 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
                     case 4 -> setPoint = maxSpeed * 16/16F;
                 }
             }
-            else{
-                switch (this.getSailState()){ // Speed depending on sail state
+            else if (this instanceof Sailable sailShip) {
+                switch (sailShip.getSailState()){ // Speed depending on sail state
                     case 0 -> setPoint =  0;
                     case 1 -> setPoint = maxSpeed * 4/16F;
                     case 2 -> setPoint = maxSpeed * 8/16F;
@@ -251,12 +258,6 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     }
     public float getRotSpeed() {
         return entityData.get(ROT_SPEED);
-    }
-    public void setSailState(byte state) {
-        this.setData(SAIL_STATE, state);
-    }
-    public byte getSailState() {
-        return this.getData(SAIL_STATE);
     }
     public void setSpeed(float f) {
         this.entityData.set(SPEED, f);
@@ -369,10 +370,30 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
 
         return super.interact(player, interactionHand);
     }
+
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if (this instanceof Sailable sailShip && this.getSailState() != 0) sailShip.toggleSail();
+        if (this instanceof Sailable sailShip && sailShip.getSailState() != 0) sailShip.toggleSail();
         return super.getDismountLocationForPassenger(livingEntity);
+    }
+
+    @Override
+    protected void addPassenger(Entity entity) {
+        // Auto third person: Enable
+        if (this.getLevel().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+            this.previousCameraType = Minecraft.getInstance().options.getCameraType();
+            Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
+        }
+        super.addPassenger(entity);
+    }
+
+    @Override
+    protected void removePassenger(Entity entity) {
+        // Auto third person: Disable
+        if (this.getLevel().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+            Minecraft.getInstance().options.setCameraType(this.previousCameraType);
+        }
+        super.removePassenger(entity);
     }
 
     @Override
@@ -449,7 +470,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     }
 
     private void updateWaterMobs() {
-        double radius = SmallshipsConfig.Common.waterAnimalFleeRadius.get();
+        double radius = SmallShipsConfig.Common.waterAnimalFleeRadius.get();
         List<WaterAnimal> waterAnimals = this.getLevel().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
         for (WaterAnimal waterAnimal : waterAnimals) {
             fleeEntity(waterAnimal);
@@ -457,8 +478,8 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     }
 
     private void fleeEntity(Mob entity) {
-        double fleeDistance = SmallshipsConfig.Common.waterAnimalFleeDistance.get();
-        double fleeSpeed = SmallshipsConfig.Common.waterAnimalFleeSpeed.get();
+        double fleeDistance = SmallShipsConfig.Common.waterAnimalFleeDistance.get();
+        double fleeSpeed = SmallShipsConfig.Common.waterAnimalFleeSpeed.get();
         Vec3 vecBoat = new Vec3(getX(), getY(), getZ());
         Vec3 vecEntity = new Vec3(entity.getX(), entity.getY(), entity.getZ());
         Vec3 fleeDir = vecEntity.subtract(vecBoat);
@@ -526,7 +547,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
 
     private void collisionDamage(Entity entity, float speed) {
         if (speed > 0.1F) {
-            float damage = speed * SmallshipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
+            float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
             entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
         }
 

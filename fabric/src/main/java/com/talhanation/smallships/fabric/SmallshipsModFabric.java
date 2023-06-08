@@ -1,6 +1,7 @@
 package com.talhanation.smallships.fabric;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.config.fabric.SmallShipsConfigImpl;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
@@ -12,7 +13,8 @@ public class SmallshipsModFabric implements ModInitializer {
     @SuppressWarnings("InstantiationOfUtilityClass")
     @Override
     public void onInitialize() {
-        SmallShipsMod.init();
+        new SmallShipsConfigImpl();
+        new SmallShipsMod();
         new ModEntityTypes();
         new ModMenuTypes();
         new ModItems();
