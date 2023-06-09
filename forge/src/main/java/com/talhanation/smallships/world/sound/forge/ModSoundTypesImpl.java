@@ -27,6 +27,6 @@ public class ModSoundTypesImpl {
     }
 
     private static RegistryObject<SoundEvent> register (String id) {
-        return SOUND_EVENTS.register(id, () -> new SoundEvent(new ResourceLocation(SmallShipsMod.MOD_ID, id)));
+        return SOUND_EVENTS.register(id, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(SmallShipsMod.MOD_ID, id)));
     }
 }

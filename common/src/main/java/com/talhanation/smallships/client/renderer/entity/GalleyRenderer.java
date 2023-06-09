@@ -1,7 +1,7 @@
 package com.talhanation.smallships.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.GalleyModel;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
@@ -36,14 +36,14 @@ public class GalleyRenderer extends ShipRenderer<GalleyEntity> {
         return 0.25F;
     }
 
-    public Vector3f getWaveAngleRotation(){
-        return Vector3f.ZN;
+    public Axis getWaveAngleRotation(){
+        return Axis.ZN;
     }
 
     @Override
     public void render(@NotNull GalleyEntity galleyEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
-        poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityYaw));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
         poseStack.translate(0.0D, 2.7D,0.0D);
         super.render(galleyEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }

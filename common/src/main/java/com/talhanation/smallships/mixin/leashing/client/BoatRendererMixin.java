@@ -2,8 +2,8 @@ package com.talhanation.smallships.mixin.leashing.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
 import com.talhanation.smallships.duck.BoatLeashAccess;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -18,13 +18,12 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import static net.minecraft.client.renderer.entity.MobRenderer.addVertexPair;
 
 @Mixin(BoatRenderer.class)
 public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
@@ -55,42 +54,71 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         }
     }
 
-    private <E extends Entity> void renderLeash(Boat boat, float f, PoseStack poseStack, MultiBufferSource multiBufferSource, E entity) {
-        poseStack.pushPose();
-        Vec3 vec3 = entity.getRopeHoldPosition(f);
-        double d = (Mth.lerp(f, 0.0D, 0.0D) * 0.017453292F) + 1.5707963267948966;
-        Vec3 vec32 = boat.getLeashOffset();
-        double e = Math.cos(d) * vec32.z + Math.sin(d) * vec32.x;
-        double g = Math.sin(d) * vec32.z - Math.cos(d) * vec32.x;
-        double h = Mth.lerp(f, boat.xo, boat.getX()) + e;
-        double i = Mth.lerp(f, boat.yo, boat.getY()) + vec32.y;
-        double j = Mth.lerp(f, boat.zo, boat.getZ()) + g;
-        poseStack.translate(e, vec32.y, g);
-        float k = (float)(vec3.x - h);
-        float l = (float)(vec3.y - i);
-        float m = (float)(vec3.z - j);
-        float n = 0.025F;
-        VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.leash());
-        Matrix4f matrix4f = poseStack.last().pose();
-        float o = Mth.fastInvSqrt(k * k + m * m) * n / 2.0F;
-        float p = m * o;
-        float q = k * o;
-        BlockPos blockPos = new BlockPos(boat.getEyePosition(f));
-        BlockPos blockPos2 = new BlockPos(entity.getEyePosition(f));
-        int r = this.getBlockLightLevel(boat, blockPos);
-        int s = this.entityRenderDispatcher.getRenderer(entity).getBlockLightLevel(entity, blockPos2);
-        int t = boat.level.getBrightness(LightLayer.SKY, blockPos);
-        int u = boat.level.getBrightness(LightLayer.SKY, blockPos2);
+    private <E extends Entity> void renderLeash(Boat $$0, float $$1, PoseStack $$2, MultiBufferSource $$3, E $$4) {
+        $$2.pushPose();
+        Vec3 $$5 = $$4.getRopeHoldPosition($$1);
+        double $$6 = (Mth.lerp($$1, 0.0D, 0.0D) * (float) (Math.PI / 180.0)) + (Math.PI / 2);
+        Vec3 $$7 = $$0.getLeashOffset($$1);
+        double $$8 = Math.cos($$6) * $$7.z + Math.sin($$6) * $$7.x;
+        double $$9 = Math.sin($$6) * $$7.z - Math.cos($$6) * $$7.x;
+        double $$10 = Mth.lerp($$1, $$0.xo, $$0.getX()) + $$8;
+        double $$11 = Mth.lerp($$1, $$0.yo, $$0.getY()) + $$7.y;
+        double $$12 = Mth.lerp($$1, $$0.zo, $$0.getZ()) + $$9;
+        $$2.translate($$8, $$7.y, $$9);
+        float $$13 = (float)($$5.x - $$10);
+        float $$14 = (float)($$5.y - $$11);
+        float $$15 = (float)($$5.z - $$12);
+        VertexConsumer $$17 = $$3.getBuffer(RenderType.leash());
+        Matrix4f $$18 = $$2.last().pose();
+        float $$19 = Mth.invSqrt($$13 * $$13 + $$15 * $$15) * 0.025F / 2.0F;
+        float $$20 = $$15 * $$19;
+        float $$21 = $$13 * $$19;
+        BlockPos $$22 = BlockPos.containing($$0.getEyePosition($$1));
+        BlockPos $$23 = BlockPos.containing($$4.getEyePosition($$1));
+        int $$24 = this.getBlockLightLevel($$0, $$22);
+        int $$25 = this.entityRenderDispatcher.getRenderer($$4).getBlockLightLevel($$4, $$23);
+        int $$26 = $$0.getLevel().getBrightness(LightLayer.SKY, $$22);
+        int $$27 = $$0.getLevel().getBrightness(LightLayer.SKY, $$23);
 
-        int v;
-        for(v = 0; v <= 24; ++v) {
-            addVertexPair(vertexConsumer, matrix4f, k, l, m, r, s, t, u, n, n, p, q, v, false);
+        for(int $$28 = 0; $$28 <= 24; ++$$28) {
+            addVertexPair($$17, $$18, $$13, $$14, $$15, $$24, $$25, $$26, $$27, 0.025F, $$20, $$21, $$28, false);
         }
 
-        for(v = 24; v >= 0; --v) {
-            addVertexPair(vertexConsumer, matrix4f, k, l, m, r, s, t, u, n, 0.0F, p, q, v, true);
+        for(int $$29 = 24; $$29 >= 0; --$$29) {
+            addVertexPair($$17, $$18, $$13, $$14, $$15, $$24, $$25, $$26, $$27, 0.0F, $$20, $$21, $$29, true);
         }
 
-        poseStack.popPose();
+        $$2.popPose();
+    }
+
+    private static void addVertexPair(
+            VertexConsumer $$0,
+            Matrix4f $$1,
+            float $$2,
+            float $$3,
+            float $$4,
+            int $$5,
+            int $$6,
+            int $$7,
+            int $$8,
+            float $$10,
+            float $$11,
+            float $$12,
+            int $$13,
+            boolean $$14
+    ) {
+        float $$15 = (float)$$13 / 24.0F;
+        int $$16 = (int)Mth.lerp($$15, (float)$$5, (float)$$6);
+        int $$17 = (int)Mth.lerp($$15, (float)$$7, (float)$$8);
+        int $$18 = LightTexture.pack($$16, $$17);
+        float $$19 = $$13 % 2 == ($$14 ? 1 : 0) ? 0.7F : 1.0F;
+        float $$20 = 0.5F * $$19;
+        float $$21 = 0.4F * $$19;
+        float $$22 = 0.3F * $$19;
+        float $$23 = $$2 * $$15;
+        float $$24 = $$3 > 0.0F ? $$3 * $$15 * $$15 : $$3 - $$3 * (1.0F - $$15) * (1.0F - $$15);
+        float $$25 = $$4 * $$15;
+        $$0.vertex($$1, $$23 - $$11, $$24 + $$10, $$25 + $$12).color($$20, $$21, $$22, 1.0F).uv2($$18).endVertex();
+        $$0.vertex($$1, $$23 + $$11, $$24 + (float) 0.025 - $$10, $$25 - $$12).color($$20, $$21, $$22, 1.0F).uv2($$18).endVertex();
     }
 }

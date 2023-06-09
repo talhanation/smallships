@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.inventory.fabric;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
@@ -19,7 +20,7 @@ public class ModMenuTypesImpl {
     }
 
     private static <T extends AbstractContainerMenu> MenuType<T> register(String id, MenuType<T> menuType) {
-        return Registry.register(Registry.MENU, id, menuType);
+        return Registry.register(BuiltInRegistries.MENU, id, menuType);
     }
 
     static {

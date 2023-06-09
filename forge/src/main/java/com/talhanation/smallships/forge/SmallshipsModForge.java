@@ -8,7 +8,6 @@ import com.talhanation.smallships.world.entity.forge.ModEntityTypesImpl;
 import com.talhanation.smallships.world.inventory.forge.ModMenuTypesImpl;
 import com.talhanation.smallships.world.item.forge.ModItemsImpl;
 import com.talhanation.smallships.world.sound.forge.ModSoundTypesImpl;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -31,7 +30,7 @@ public class SmallshipsModForge {
         ModMenuTypesImpl.MENU_TYPES.register(modEventBus);
         ModSoundTypesImpl.SOUND_EVENTS.register(modEventBus);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientInitializer::new);
+        DistExecutor.unsafeRunForDist(() -> ClientInitializer::new, () -> null);
     }
 
     private void setup(@SuppressWarnings("unused") FMLCommonSetupEvent event) {

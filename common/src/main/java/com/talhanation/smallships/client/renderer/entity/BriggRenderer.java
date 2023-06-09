@@ -1,7 +1,7 @@
 package com.talhanation.smallships.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.BriggModel;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
@@ -30,14 +30,14 @@ public class BriggRenderer extends ShipRenderer<BriggEntity> {
         return -0.25F;
     }
 
-    public Vector3f getWaveAngleRotation(){
-        return Vector3f.ZN;//wtf
+    public Axis getWaveAngleRotation(){
+        return Axis.ZN;//wtf
     }
 
     @Override
     public void render(@NotNull BriggEntity briggEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
-        poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityYaw));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
         poseStack.translate(0.0D, 2.0D,0.0D);
         super.render(briggEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }

@@ -7,6 +7,7 @@ import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -25,7 +26,7 @@ public class ModEntityTypesImpl {
     }
 
     private static <T extends Entity> EntityType<T> register(String id, EntityType<T> type) {
-        return Registry.register(Registry.ENTITY_TYPE, new ResourceLocation(SmallShipsMod.MOD_ID, id), type);
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, new ResourceLocation(SmallShipsMod.MOD_ID, id), type);
     }
 
     static {

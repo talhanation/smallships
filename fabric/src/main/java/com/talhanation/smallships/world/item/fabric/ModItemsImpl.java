@@ -6,14 +6,13 @@ import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.item.*;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,23 +25,50 @@ public class ModItemsImpl {
     }
 
     static {
-        final CreativeModeTab CUSTOM_ITEM_GROUP;
         if (SmallShipsConfig.Common.smallshipsItemGroupEnable.get()) {
-            CUSTOM_ITEM_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(SmallShipsMod.MOD_ID, "smallships"), () -> new ItemStack(ModItems.CANNON));
+            FabricItemGroup.builder(new ResourceLocation(SmallShipsMod.MOD_ID, "smallships"))
+                    .icon(() -> new ItemStack(ModItems.CANNON))
+                    .displayItems((itemDisplayParameters, output) -> itemDisplayParameters.holders()
+                            .lookup(Registries.ITEM)
+                            .ifPresent(registryLookup -> registryLookup.listElementIds()
+                                    .filter(itemResourceKey -> SmallShipsMod.MOD_ID.equals(itemResourceKey.location().getNamespace()))
+                                    .forEach(itemResourceKey -> output.accept(BuiltInRegistries.ITEM.get(itemResourceKey)))
+                            ))
+                    .build();
         } else {
-            CUSTOM_ITEM_GROUP = null;
+            FabricItemGroup.builder(CreativeModeTabs.COLORED_BLOCKS.getId())
+                    .displayItems(((itemDisplayParameters, output) -> {
+                        output.accept(ModItems.SAIL);
+                    }))
+                    .build();
+
+            FabricItemGroup.builder(CreativeModeTabs.COMBAT.getId())
+                    .displayItems(((itemDisplayParameters, output) -> {
+                        output.accept(ModItems.CANNON);
+                        output.accept(ModItems.CANNON_BALL);
+                    }))
+                    .build();
+
+            FabricItemGroup.builder(CreativeModeTabs.TOOLS_AND_UTILITIES.getId())
+                    .displayItems(((itemDisplayParameters, output) -> {
+                        for (Boat.Type type: Boat.Type.values()) {
+                            output.accept(ModItems.COG_ITEMS.get(type));
+                            output.accept(ModItems.BRIGG_ITEMS.get(type));
+                            output.accept(ModItems.GALLEY_ITEMS.get(type));
+                        }
+                    }))
+                    .build();
         }
 
-        register("sail", new SailItem((new Item.Properties()).stacksTo(16).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_MISC)));
+        register("sail", new SailItem((new Item.Properties()).stacksTo(16)));
 
-        register("cannon", new CannonItem((new Item.Properties()).stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_COMBAT)));
-        register("cannon_ball", new CannonBallItem((new Item.Properties()).stacksTo(16).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_COMBAT)));
+        register("cannon", new CannonItem((new Item.Properties()).stacksTo(1)));
+        register("cannon_ball", new CannonBallItem((new Item.Properties()).stacksTo(16)));
 
         for (Boat.Type type: Boat.Type.values()) {
-            register(new ResourceLocation(type.getName()).getPath() + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
-            register(new ResourceLocation(type.getName()).getPath() + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
-            register(new ResourceLocation(type.getName()).getPath() + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
-
+            register(new ResourceLocation(type.getName()).getPath() + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
+            register(new ResourceLocation(type.getName()).getPath() + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));
+            register(new ResourceLocation(type.getName()).getPath() + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
         }
     }
 
@@ -55,6 +81,6 @@ public class ModItemsImpl {
             blockItem.registerBlocks(Item.BY_BLOCK, blockItem);
         }
 
-        return Registry.register(Registry.ITEM, id, item);
+        return Registry.register(BuiltInRegistries.ITEM, id, item);
     }
 }

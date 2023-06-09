@@ -6,11 +6,11 @@
   "key.smallships.lower_ship_sail" : "Lower Sail",
   "key.smallships.ship_inventory" : "Open Ship Inventory",
 
-  "death.attack.cannonball": "%s was shot with a cannon.",
-  "death.attack.cannonball.player": "%s was shot with a cannon by %s.",
+  "death.attack.cannon_ball": "%s was shot with a cannon.",
+  "death.attack.cannon_ball.player": "%s was shot with a cannon by %s.",
 
-  "death.attack.hit_ship": "%s was hit by a ship.",
-  "death.attack.hit_ship.player": "%s was hit by %s with a ship.",
+  "death.attack.ship_collision": "%s was hit by a ship.",
+  "death.attack.ship_collision.player": "%s was hit by %s with a ship.",
 
   "item.smallships.sail": "Sail",
   "item.smallships.cannon": "Ship Cannon",
@@ -24,6 +24,8 @@
   "item.smallships.oak_cog": "Oak Cog",
   "item.smallships.dark_oak_cog": "Dark Oak Cog",
   "item.smallships.mangrove_cog": "Mangrove Cog",
+  "item.smallships.cherry_cog": "Cherry Cog",
+  "item.smallships.bamboo_cog": "Bamboo Cog",
 
   "entity.smallships.galley": "Galley",
   "item.smallships.acacia_galley": "Acacia Galley",
@@ -33,6 +35,8 @@
   "item.smallships.oak_galley": "Oak Galley",
   "item.smallships.dark_oak_galley": "Dark Oak Galley",
   "item.smallships.mangrove_galley": "Mangrove Galley",
+  "item.smallships.cherry_galley": "Cherry Galley",
+  "item.smallships.bamboo_galley": "Bamboo Galley",
 
   "entity.smallships.war_galley": "War Galley",
   "item.smallships.acacia_war_galley": "Acacia War Galley",
@@ -42,6 +46,8 @@
   "item.smallships.oak_war_galley": "Oak War Galley",
   "item.smallships.dark_oak_war_galley": "Dark Oak War Galley",
   "item.smallships.mangrove_war_galley": "Mangrove War Galley",
+  "item.smallships.cherry_war_galley": "Cherry War Galley",
+  "item.smallships.bamboo_war_galley": "Bamboo War Galley",
 
   "entity.smallships.rowboat": "Rowing Boat",
   "item.smallships.acacia_rowboat": "Acacia Rowing Boat",
@@ -51,6 +57,8 @@
   "item.smallships.oak_rowboat": "Oak Rowing Boat",
   "item.smallships.dark_oak_rowboat": "Dark Oak Rowing Boat",
   "item.smallships.mangrove_rowboat": "Mangrove Rowing Boat",
+  "item.smallships.cherry_rowboat": "Cherry Rowing Boat",
+  "item.smallships.bamboo_rowboat": "Bamboo Rowing Boat",
 
   "entity.smallships.drakkar": "Drakkar",
   "item.smallships.acacia_drakkar": "Acacia Drakkar",
@@ -60,6 +68,8 @@
   "item.smallships.oak_drakkar": "Oak Drakkar",
   "item.smallships.dark_oak_drakkar": "Dark Oak Drakkar",
   "item.smallships.mangrove_drakkar": "Mangrove Drakkar",
+  "item.smallships.cherry_drakkar": "Cherry Drakkar",
+  "item.smallships.bamboo_drakkar": "Bamboo Drakkar",
 
   "entity.smallships.dhow": "Dhow",
   "item.smallships.oak_dhow": "Oak Dhow",
@@ -69,6 +79,8 @@
   "item.smallships.acacia_dhow": "Acacia Dhow",
   "item.smallships.dark_oak_dhow": "Dark Oak Dhow",
   "item.smallships.mangrove_dhow": "Mangrove Dhow",
+  "item.smallships.cherry_dhow": "Cherry Dhow",
+  "item.smallships.bamboo_dhow": "Bamboo Dhow",
 
   "entity.smallships.brigg": "Brigg",
   "item.smallships.oak_brigg": "Oak Brigg",
@@ -78,6 +90,8 @@
   "item.smallships.acacia_brigg": "Acacia Brigg",
   "item.smallships.dark_oak_brigg": "Dark Oak Brigg",
   "item.smallships.mangrove_brigg": "Mangrove Brigg",
+  "item.smallships.cherry_brigg": "Cherry Brigg",
+  "item.smallships.bamboo_brigg": "Bamboo Brigg",
 
   "tooltip.plane.damage": "Damage: %s %%",
   "tooltip.plane.throttle": "Throttle: %s %%",

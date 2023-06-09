@@ -2,6 +2,11 @@ package com.talhanation.smallships.forge.common;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.world.item.ModItems;
+import com.talhanation.smallships.world.item.forge.ModItemsImpl;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,5 +23,25 @@ public class CommonModBus {
     @SubscribeEvent
     public void initRegisterConfigs(ModConfigEvent event) {
         SmallShipsConfig.updateConfig(event.getConfig());
+    }
+
+    @SubscribeEvent
+    public static void initRegisterCreativeMenuTabs(CreativeModeTabEvent.BuildContents event) {
+        if (SmallShipsConfig.Common.smallshipsItemGroupEnable.get()) {
+            ModItemsImpl.ITEMS.getEntries().forEach(key -> event.accept(key.get()));
+        } else {
+            if (CreativeModeTabs.COLORED_BLOCKS.equals(event.getTab())) {
+                event.accept(ModItems.SAIL);
+            } else if (CreativeModeTabs.COMBAT.equals(event.getTab())) {
+                event.accept(ModItems.CANNON);
+                event.accept(ModItems.CANNON_BALL);
+            } else if (CreativeModeTabs.TOOLS_AND_UTILITIES.equals(event.getTab())) {
+                for (Boat.Type type: Boat.Type.values()) {
+                    event.accept(ModItems.COG_ITEMS.get(type));
+                    event.accept(ModItems.BRIGG_ITEMS.get(type));
+                    event.accept(ModItems.GALLEY_ITEMS.get(type));
+                }
+            }
+        }
     }
 }

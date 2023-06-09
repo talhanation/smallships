@@ -6,7 +6,6 @@ import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
-import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
@@ -15,7 +14,7 @@ import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -78,7 +77,7 @@ public abstract class Ship extends Boat {
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
         if (this.getCustomName() == null) this.setCustomName(Component.literal(StringUtils.capitalize(EntityType.getKey(this.getType()).getPath())));
-        this.maxUpStep = 0.6F;
+        this.setMaxUpStep(0.6F);
     }
 
     @Override
@@ -332,9 +331,8 @@ public abstract class Ship extends Boat {
     public float getBiomesModifier() {
         int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
         if (biomeType == -1) return 0;
-        BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
-        Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos).value());
-
+        BlockPos pos = new BlockPos(Double.valueOf(getX()).intValue(), Double.valueOf(getY() - 0.1D).intValue(), Double.valueOf(getZ()).intValue());
+        Optional<ResourceKey<Biome>> biome = this.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getResourceKey(level.getBiome(pos).value());
 
         if(biome.isPresent()) {
             boolean coldBiomes = COLD_BIOMES.contains(biome.get());
@@ -538,7 +536,7 @@ public abstract class Ship extends Boat {
     private void collisionDamage(Entity entity, float speed) {
         if (speed > 0.1F) {
             float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
-            entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
+            entity.hurt(this.damageSources().explosion(this, this.getControllingPassenger()), damage);
         }
 
     }

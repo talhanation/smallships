@@ -121,12 +121,19 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
-        if(player.isSecondaryUseActive() && !this.getPassengers().isEmpty()){
-            this.ejectPassengers();
-            return InteractionResult.SUCCESS;
-        }
+        if (this.canAddPassenger(player) && !player.isSecondaryUseActive()) {
+            return super.interact(player, interactionHand);
+        } else {
+            InteractionResult interactionResult = this.interactWithContainerVehicle(player);
+            if (interactionResult.consumesAction()) {
+                this.gameEvent(GameEvent.CONTAINER_OPEN, player);
+                PiglinAi.angerNearbyPiglins(player, true);
+            } else {
+                this.ejectPassengers();
+            }
 
-        return this.canAddPassenger(player) && !player.isSecondaryUseActive() ? super.interact(player, interactionHand) : this.interactWithChestVehicle(this::gameEvent, player);
+            return interactionResult;
+        }
     }
 
     @Override

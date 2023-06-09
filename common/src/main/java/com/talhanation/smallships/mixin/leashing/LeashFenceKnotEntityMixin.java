@@ -43,7 +43,7 @@ public class LeashFenceKnotEntityMixin {
         }
     }
 
-    @ModifyVariable(method = "interact", at = @At(value = "LOAD"))
+    @ModifyVariable(method = "interact", at = @At(value = "LOAD"), ordinal = 0)
     private boolean interactLeashShipSuccess(boolean bl) {
         return bl || this.success;
     }

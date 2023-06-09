@@ -37,7 +37,7 @@ public class EntityMixin {
         }
     }
 
-    @Inject(method = "getLeashOffset", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At(value = "HEAD"), cancellable = true)
     private void getLeashOffsetLeashedShip(CallbackInfoReturnable<Vec3> cir) {
         if (self() instanceof Leashable leashShipEntity) {
             @Nullable Vec3 offset = leashShipEntity.applyLeashOffset();

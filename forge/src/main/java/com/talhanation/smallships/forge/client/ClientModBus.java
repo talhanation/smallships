@@ -11,7 +11,6 @@ import com.talhanation.smallships.client.renderer.entity.CannonBallRenderer;
 import com.talhanation.smallships.client.renderer.entity.CogRenderer;
 import com.talhanation.smallships.client.renderer.entity.GalleyRenderer;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -20,7 +19,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod.EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientModBus {
     public ClientModBus() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

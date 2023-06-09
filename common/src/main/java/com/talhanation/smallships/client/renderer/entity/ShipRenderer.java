@@ -4,9 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.BriggSailModel;
@@ -28,6 +26,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -41,10 +40,13 @@ import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static net.minecraft.client.renderer.entity.MobRenderer.addVertexPair;
@@ -69,7 +71,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull T shipEntity) {
-        return this.boatResources.get(shipEntity.getBoatType()).getFirst();
+        return this.boatResources.get(shipEntity.getVariant()).getFirst();
     }
 
     @Override
@@ -86,12 +88,12 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
 
         if (h > 0.0F) {
-            poseStack.mulPose(Vector3f.XP.rotationDegrees(Mth.sin(h) * h * j / 10.0F * (float) shipEntity.getHurtDir()));
+            poseStack.mulPose(Axis.XP.rotationDegrees(Mth.sin(h) * h * j / 10.0F * (float) shipEntity.getHurtDir()));
         }
 
         float k = shipEntity.getBubbleAngle(partialTicks);
         if (!Mth.equal(k, 0.0F)) {
-            poseStack.mulPose(new Quaternion(new Vector3f(1.0F, 0.0F, 1.0F), k, true));
+            poseStack.mulPose(new Quaternionf().rotateX(k * Mth.DEG_TO_RAD).rotateZ(k * Mth.DEG_TO_RAD));
         }
 
         float l = shipEntity.getWaveAngle(partialTicks);
@@ -99,11 +101,11 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             poseStack.mulPose(getWaveAngleRotation().rotationDegrees(l));
         }
 
-        Pair<ResourceLocation, ShipModel<T>> pair = this.boatResources.get(shipEntity.getBoatType());
+        Pair<ResourceLocation, ShipModel<T>> pair = this.boatResources.get(shipEntity.getVariant());
         ResourceLocation resourceLocation = pair.getFirst();
         ShipModel<T> shipModel = pair.getSecond();
         poseStack.scale(-1.3F, -1.3F, 1.3F);
-        poseStack.mulPose(Vector3f.YP.rotationDegrees(90.0F + 180.0F));
+        poseStack.mulPose(Axis.YP.rotationDegrees(90.0F + 180.0F));
         shipModel.setupAnim(shipEntity, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
 
         if (shipEntity instanceof Cannonable cannonShipEntity) {
@@ -138,7 +140,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             Cannon cannon = new Cannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
 
             poseStack.pushPose();
-            poseStack.mulPose(Vector3f.YN.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
+            poseStack.mulPose(Axis.YN.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
             poseStack.translate(cannon.isRightSided() ? -cannon.getOffsetX() : cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), -cannon.getOffsetZ());
 
             poseStack.scale(0.6F, 0.6F, 0.6F);
@@ -182,13 +184,13 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         if (item.getItem() instanceof BannerItem bannerItem) {
             poseStack.pushPose();
             Bannerable.BannerPosition pos = bannerShipEntity.getBannerPosition();
-            poseStack.mulPose(Vector3f.YP.rotationDegrees(pos.yp));
-            poseStack.mulPose(Vector3f.ZP.rotationDegrees(pos.zp));
+            poseStack.mulPose(Axis.YP.rotationDegrees(pos.yp));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(pos.zp));
             poseStack.translate(pos.x, pos.y, pos.z);
             poseStack.scale(0.5F, 0.5F, 0.5F);
 
             float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);
-            if (!Mth.equal(bannerWaveAngle, 0F)) poseStack.mulPose(Vector3f.XP.rotationDegrees(bannerWaveAngle));
+            if (!Mth.equal(bannerWaveAngle, 0F)) poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
 
             List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(bannerItem.getColor(), BannerBlockEntity.getItemPatterns(item));
             BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, patterns);
@@ -196,8 +198,8 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
     }
 
-    public Vector3f getWaveAngleRotation(){
-        return Vector3f.XN;
+    public Axis getWaveAngleRotation(){
+        return Axis.XN;
     }
 
     @SuppressWarnings({"unused", "EmptyMethod"})
@@ -237,7 +239,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         poseStack.pushPose();
         Vec3 vec3 = leashHolderEntity.getRopeHoldPosition(partialTicks);
         double d = (Mth.lerp(partialTicks, 0.0D, 0.0D) * 0.017453292F) + 1.5707963267948966;
-        Vec3 vec32 = ((T)leashShipEntity).getLeashOffset();
+        Vec3 vec32 = ((T)leashShipEntity).getLeashOffset(0.0F);
         double e = Math.cos(d) * vec32.z + Math.sin(d) * vec32.x;
         double g = Math.sin(d) * vec32.z - Math.cos(d) * vec32.x;
         double h = Mth.lerp(partialTicks, ((T)leashShipEntity).xo, ((T)leashShipEntity).getX()) + e;
@@ -250,11 +252,12 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         float n = 0.025F;
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.leash());
         Matrix4f matrix4f = poseStack.last().pose();
-        float o = Mth.fastInvSqrt(k * k + m * m) * n / 2.0F;
+        float o = (Mth.fastInvCubeRoot(k * k + m * m) * n / 2.0F);
         float p = m * o;
         float q = k * o;
-        BlockPos blockPos = new BlockPos(((T)leashShipEntity).getEyePosition(partialTicks));
-        BlockPos blockPos2 = new BlockPos(leashHolderEntity.getEyePosition(partialTicks));
+        Function<Vec3, Vec3i> vec3ToVec3i = vec3d -> new Vec3i(Math.round(Double.valueOf(vec3d.x).floatValue()), Math.round(Double.valueOf(vec3d.y).floatValue()), Math.round(Double.valueOf(vec3d.z).floatValue()));
+        BlockPos blockPos = new BlockPos(vec3ToVec3i.apply(((T)leashShipEntity).getEyePosition(partialTicks)));
+        BlockPos blockPos2 = new BlockPos(vec3ToVec3i.apply(leashHolderEntity.getEyePosition(partialTicks)));
         int r = this.getBlockLightLevel((T)leashShipEntity, blockPos);
         int s = this.entityRenderDispatcher.getRenderer(leashHolderEntity).getBlockLightLevel(leashHolderEntity, blockPos2);
         int t = ((T)leashShipEntity).getLevel().getBrightness(LightLayer.SKY, blockPos);

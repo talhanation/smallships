@@ -49,8 +49,8 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         RenderSystem.setShaderTexture(0, CONTAINER_BACKGROUND);
         int k = (this.width - this.imageWidth) / 2;
         int l = (this.height - this.imageHeight) / 2;
-        this.blit(poseStack, k, l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
-        this.blit(poseStack, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
+        blit(poseStack, k, l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
+        blit(poseStack, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
     }
 
     @Override
@@ -65,11 +65,17 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         }
 
         if (this.pageCount > 1 && this.pageIndex + 1 > 1){
-            this.addRenderableWidget(new Button(zeroLeftPos - 205, zeroTopPos, 40, 20, Component.literal("<-"), button -> this.getMenu().clickMenuButton(this.minecraft.player, -1)));
+            this.addRenderableWidget(
+                    new Button.Builder(Component.literal("<-"), button -> this.getMenu().clickMenuButton(this.minecraft.player, -1))
+                            .bounds(zeroLeftPos - 205, zeroTopPos, 40, 20)
+                            .build());
         }
 
         if(this.pageCount > 1 && this.pageIndex + 1 < this.pageCount){
-            this.addRenderableWidget(new Button(zeroLeftPos + 20, zeroTopPos, 40, 20, Component.literal("->"), button -> this.getMenu().clickMenuButton(this.minecraft.player, 1)));
+            this.addRenderableWidget(
+                    new Button.Builder(Component.literal("->"), button -> this.getMenu().clickMenuButton(this.minecraft.player, 1))
+                            .bounds(zeroLeftPos + 20, zeroTopPos, 40, 20)
+                            .build());
         }
     }
 
