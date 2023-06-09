@@ -76,7 +76,7 @@ public interface Cannonable extends Ability {
             else {
                 self().setCannonCount((byte) (cannons + 1));
 
-                self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
+                self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
                 if (!player.isCreative()) item.shrink(1);
 
                 this.updateCannonCount();
@@ -86,7 +86,7 @@ public interface Cannonable extends Ability {
             self().setCannonCount((byte) (cannons - 1));
 
             self().spawnAtLocation(ModItems.CANNON);
-            self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
+            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         }
         return false;

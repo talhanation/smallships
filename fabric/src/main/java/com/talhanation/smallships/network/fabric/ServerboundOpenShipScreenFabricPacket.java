@@ -43,7 +43,7 @@ public class ServerboundOpenShipScreenFabricPacket implements FabricPacket, Serv
     @SuppressWarnings("unused")
     @Override
     public void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
-        player.getLevel().getEntitiesOfClass(ContainerShip.class, player.getBoundingBoxForCulling()
+        player.level().getEntitiesOfClass(ContainerShip.class, player.getBoundingBoxForCulling()
                         .inflate(16.0D), containerShip -> containerShip.getUUID().equals(this.ship))
                 .stream()
                 .filter(Entity::isAlive)

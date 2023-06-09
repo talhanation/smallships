@@ -107,13 +107,13 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Override
     public void destroy(@NotNull DamageSource damageSource) {
         super.destroy(damageSource);
-        this.chestVehicleDestroyed(damageSource, this.getLevel(), this);
+        this.chestVehicleDestroyed(damageSource, this.level(), this);
     }
 
     @Override
     public void remove(@NotNull RemovalReason removalReason) {
-        if (!this.getLevel().isClientSide() && removalReason.shouldDestroy()) {
-            Containers.dropContents(this.getLevel(), this, this);
+        if (!this.level().isClientSide() && removalReason.shouldDestroy()) {
+            Containers.dropContents(this.level(), this, this);
         }
 
         super.remove(removalReason);
@@ -139,7 +139,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Override
     public void openCustomInventoryScreen(@NotNull Player player) {
         ContainerUtility.openShipMenu(player, this);
-        if (!player.getLevel().isClientSide()) {
+        if (!player.level().isClientSide()) {
             this.gameEvent(GameEvent.CONTAINER_OPEN, player);
             PiglinAi.angerNearbyPiglins(player, true);//lol
         }
@@ -261,7 +261,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         if (containerSize == 0) containerSize = this.originalContainerSize;
         this.updatePaging(containerSize);
         this.setData(CONTAINER_SIZE, containerSize);
-        if (!this.getLevel().isClientSide()) this.getLevel().players()
+        if (!this.level().isClientSide()) this.level().players()
                 .stream()
                 .filter(player ->
                         player.containerMenu instanceof ShipContainerMenu shipContainerMenu &&
@@ -326,7 +326,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
             // Drop non-fitting leftover items
             if (!leftoverContainer.isEmpty()) {
-                Containers.dropContents(containerEntity.getLevel(), (Entity) containerEntity, leftoverContainer);
+                Containers.dropContents(containerEntity.level(), (Entity) containerEntity, leftoverContainer);
             }
         } else {
             // Increase container size (easier)

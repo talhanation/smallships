@@ -13,7 +13,8 @@ dependencies {
 
     compileOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
     compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
-    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-common:${rootProject.forge_config_api_port_version}"
+//    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-common:${rootProject.forge_config_api_port_version}" //needs update
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-common:7.0.0"
 }
 
 publishing {

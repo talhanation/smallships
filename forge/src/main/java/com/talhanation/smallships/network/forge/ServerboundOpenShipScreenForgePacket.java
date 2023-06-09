@@ -36,7 +36,7 @@ public class ServerboundOpenShipScreenForgePacket implements ForgePacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
-            player.getLevel().getEntitiesOfClass(ContainerShip.class, player.getBoundingBoxForCulling()
+            player.level().getEntitiesOfClass(ContainerShip.class, player.getBoundingBoxForCulling()
                             .inflate(16.0D), containerShip -> containerShip.getUUID().equals(this.ship))
                     .stream()
                     .filter(Entity::isAlive)

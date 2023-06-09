@@ -37,9 +37,9 @@ public class Cannon extends Entity {
     }
 
     public Cannon(Ship ship, double offsetX, double offsetY, double offsetZ, boolean isRightSided, boolean isLeftSided) {
-        super(EntityType.ARMOR_STAND, ship.getLevel());
+        super(EntityType.ARMOR_STAND, ship.level());
         this.ship = ship;
-        this.level = ship.getLevel();
+        this.level = ship.level();
         this.random = level.getRandom();
         this.offsetX = offsetX;
         this.offsetY = offsetY;
@@ -212,8 +212,8 @@ public class Cannon extends Entity {
 
     private void playCannonShotSound() {
         BiConsumer<SoundEvent, Pair<Float, Float>> play = (sound, modifier) -> {
-            if (!ship.getLevel().isClientSide()) ship.playSound(sound, modifier.getFirst(), modifier.getSecond());
-            else ship.getLevel().playLocalSound(ship.getX(), ship.getY() + 4, ship.getZ(), sound, ship.getSoundSource(), modifier.getFirst(), modifier.getSecond(), false);
+            if (!ship.level().isClientSide()) ship.playSound(sound, modifier.getFirst(), modifier.getSecond());
+            else ship.level().playLocalSound(ship.getX(), ship.getY() + 4, ship.getZ(), sound, ship.getSoundSource(), modifier.getFirst(), modifier.getSecond(), false);
         };
         play.accept(ModSoundTypes.CANNON_SHOT, Pair.of(10.0F, 1.0F));
     }

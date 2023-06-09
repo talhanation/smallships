@@ -163,7 +163,7 @@ public abstract class Ship extends Boat {
 
         //SmallShipsMod.LOGGER.info("Speed kmh: " +  Kalkuel.getKilometerPerHour(this.getSpeed()));
 
-        if(this.level.isClientSide()){
+        if(this.level().isClientSide()){
             Player player = getDriver();
             if(player != null)
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
@@ -332,7 +332,7 @@ public abstract class Ship extends Boat {
         int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
         if (biomeType == -1) return 0;
         BlockPos pos = new BlockPos(Double.valueOf(getX()).intValue(), Double.valueOf(getY() - 0.1D).intValue(), Double.valueOf(getZ()).intValue());
-        Optional<ResourceKey<Biome>> biome = this.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getResourceKey(level.getBiome(pos).value());
+        Optional<ResourceKey<Biome>> biome = this.level().registryAccess().registryOrThrow(Registries.BIOME).getResourceKey(this.level().getBiome(pos).value());
 
         if(biome.isPresent()) {
             boolean coldBiomes = COLD_BIOMES.contains(biome.get());
@@ -377,7 +377,7 @@ public abstract class Ship extends Boat {
     @Override
     protected void addPassenger(Entity entity) {
         // Auto third person: Enable
-        if (this.getLevel().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+        if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
             this.previousCameraType = Minecraft.getInstance().options.getCameraType();
             Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
         }
@@ -387,7 +387,7 @@ public abstract class Ship extends Boat {
     @Override
     protected void removePassenger(Entity entity) {
         // Auto third person: Disable
-        if (this.getLevel().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+        if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
             Minecraft.getInstance().options.setCameraType(this.previousCameraType);
         }
         super.removePassenger(entity);
@@ -404,11 +404,11 @@ public abstract class Ship extends Boat {
     }
 
     private float getWaveFactor() {
-        return this.getLevel().isRaining() ? 3F : 1.25F;
+        return this.level().isRaining() ? 3F : 1.25F;
     }
 
     private float getWaveSpeed() {
-        return this.getLevel().isRaining() ? 0.12F : 0.03F;
+        return this.level().isRaining() ? 0.12F : 0.03F;
     }
 
     public float getWaveAngle(float partialTicks) {
@@ -456,14 +456,14 @@ public abstract class Ship extends Boat {
         if (isSwimming) {
             if (this.isInWater()) {
                 waterSplash();
-                this.getLevel().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SWIM, this.getSoundSource(), 0.05F, 0.8F + 0.4F * this.random.nextFloat());
+                this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SWIM, this.getSoundSource(), 0.05F, 0.8F + 0.4F * this.random.nextFloat());
             }
         }
     }
 
     private void updateWaterMobs() {
         double radius = SmallShipsConfig.Common.waterAnimalFleeRadius.get();
-        List<WaterAnimal> waterAnimals = this.getLevel().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
+        List<WaterAnimal> waterAnimals = this.level().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
         for (WaterAnimal waterAnimal : waterAnimals) {
             fleeEntity(waterAnimal);
         }
@@ -489,7 +489,7 @@ public abstract class Ship extends Boat {
     public boolean hurt(DamageSource damageSource, float f) {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
-        } else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
+        } else if (!this.level().isClientSide() && !this.isRemoved()) {
             this.setDamage(this.getDamage() + f);
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
@@ -497,7 +497,7 @@ public abstract class Ship extends Boat {
             boolean bl = damageSource.getEntity() instanceof Player && ((Player)damageSource.getEntity()).getAbilities().instabuild;
 
             if (bl || this.getDamage() > this.getAttributes().maxHealth) {
-                if (!bl && this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                if (!bl && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                     this.destroy(damageSource);
                 }
                 this.discard();
@@ -523,7 +523,7 @@ public abstract class Ship extends Boat {
     private void updateCollision(boolean isCruising){
         if(isCruising) {
             AABB boundingBox = this.getBoundingBox().inflate(2.25, 1.25, 2.25).move(0.0, -2.0, 0.0);
-            List<Entity> list = this.level.getEntities(this, boundingBox, EntitySelector.pushableBy(this));
+            List<Entity> list = this.level().getEntities(this, boundingBox, EntitySelector.pushableBy(this));
             for(Entity entity: list) {
                 if (entity instanceof LivingEntity && !getPassengers().contains(entity)){
                     this.knockBack(entity, this.getSpeed(), boundingBox);
@@ -548,7 +548,7 @@ public abstract class Ship extends Boat {
         }
 
         if (passengers.get(0) instanceof Player player) {
-            if(this.level.isClientSide){
+            if(this.level().isClientSide){
                 Minecraft minecraft = Minecraft.getInstance();
                 Player instancePlayer = minecraft.player;
 
@@ -582,7 +582,7 @@ public abstract class Ship extends Boat {
             this.setRight(right);
             needsUpdate = true;
         }
-        if (this.level.isClientSide && needsUpdate) {
+        if (this.level().isClientSide && needsUpdate) {
             ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
     }

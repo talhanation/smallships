@@ -83,7 +83,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             j = 0.0F;
         } else {
             if (j > shipAttributes.maxHealth * 0.5F) {
-                shipEntity.getLevel().addParticle(ParticleTypes.LARGE_SMOKE, shipEntity.getRandomX(0.5D), shipEntity.getY() + 1.0D, shipEntity.getRandomZ(0.5D), 0.0D, 0.0D, 0.0D);
+                shipEntity.level().addParticle(ParticleTypes.LARGE_SMOKE, shipEntity.getRandomX(0.5D), shipEntity.getY() + 1.0D, shipEntity.getRandomZ(0.5D), 0.0D, 0.0D, 0.0D);
             }
         }
 
@@ -260,8 +260,8 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         BlockPos blockPos2 = new BlockPos(vec3ToVec3i.apply(leashHolderEntity.getEyePosition(partialTicks)));
         int r = this.getBlockLightLevel((T)leashShipEntity, blockPos);
         int s = this.entityRenderDispatcher.getRenderer(leashHolderEntity).getBlockLightLevel(leashHolderEntity, blockPos2);
-        int t = ((T)leashShipEntity).getLevel().getBrightness(LightLayer.SKY, blockPos);
-        int u = ((T)leashShipEntity).getLevel().getBrightness(LightLayer.SKY, blockPos2);
+        int t = ((T)leashShipEntity).level().getBrightness(LightLayer.SKY, blockPos);
+        int u = ((T)leashShipEntity).level().getBrightness(LightLayer.SKY, blockPos2);
 
         int v;
         for(v = 0; v <= 24; ++v) {

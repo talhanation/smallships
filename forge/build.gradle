@@ -31,7 +31,7 @@ configurations {
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
 
-    modImplementation "curse.maven:configured-457570:4462894"
+//    modImplementation "curse.maven:configured-457570:4462894" //needs update
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }

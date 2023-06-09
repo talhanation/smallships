@@ -42,23 +42,23 @@ public interface Bannerable extends Ability {
             if (!shipBanner.isEmpty()) self().spawnAtLocation(shipBanner, 4);
             self().setData(Ship.BANNER, item.copy());
             if (!player.isCreative()) item.shrink(1);
-            self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
+            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         } else if (item.getItem() instanceof ShearsItem && !shipBanner.isEmpty()) {
             self().spawnAtLocation(shipBanner,4);
             self().setData(Ship.BANNER, ItemStack.EMPTY);
-            self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
+            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         }
         return false;
     }
 
     default float getBannerWaveFactor() {
-        return self().getLevel().isRaining() ? 4.5F : 3.0F;
+        return self().level().isRaining() ? 4.5F : 3.0F;
     }
 
     default float getBannerWaveSpeed() {
-        return self().getLevel().isRaining() ? 0.55F : 0.25F;
+        return self().level().isRaining() ? 0.55F : 0.25F;
     }
 
     default float getBannerWaveAngle(float partialTicks) {

@@ -46,7 +46,7 @@ public interface Sailable extends Ability {
                 if (sailState != 4) {
                     if(self().sailStateCooldown == 0){
                         sailState++;
-                        if (!self().getLevel().isClientSide()) {
+                        if (!self().level().isClientSide()) {
                             this.playSailSound(sailState);
                         }
                         self().sailStateCooldown = this.getSailStateCooldown();
@@ -59,7 +59,7 @@ public interface Sailable extends Ability {
                 if (sailState != 1) {
                     if(self().sailStateCooldown == 0) {
                         sailState--;
-                        if (!self().getLevel().isClientSide()) {
+                        if (!self().level().isClientSide()) {
                             this.playSailSound(sailState);
                         }
                         self().sailStateCooldown = this.getSailStateCooldown();
@@ -77,7 +77,7 @@ public interface Sailable extends Ability {
             if (color.equals(self().getData(Ship.SAIL_COLOR))) return false;
             self().setData(Ship.SAIL_COLOR, color);
             if (!player.isCreative()) item.shrink(1);
-            self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.5F);
+            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.5F);
             return true;
         }
         return false;

@@ -30,7 +30,7 @@ public class LeashFenceKnotEntityMixin {
     @Inject(method = "interact", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/level/Level;getEntitiesOfClass(Ljava/lang/Class;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;", shift = At.Shift.BEFORE))
     private void interactLeashShip(Player player, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
         this.success = false;
-        List<Boat> list = self().getLevel().getEntitiesOfClass(Boat.class, new AABB(self().getX() - 7.0, self().getY() - 7.0, self().getZ() - 7.0, self().getX() + 7.0, self().getY() + 7.0, self().getZ() + 7.0));
+        List<Boat> list = self().level().getEntitiesOfClass(Boat.class, new AABB(self().getX() - 7.0, self().getY() - 7.0, self().getZ() - 7.0, self().getX() + 7.0, self().getY() + 7.0, self().getZ() + 7.0));
         Iterator<Boat> boatIterator = list.iterator();
 
         Boat boat;

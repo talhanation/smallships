@@ -34,7 +34,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
     }
 
     private boolean isClientSide() {
-        return self().getLevel().isClientSide();
+        return self().level().isClientSide();
     }
 
     private static final String LEASH_TAG = "Leash";
@@ -110,7 +110,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
         }
 
         Entity entity = this.getLeashHolder();
-        if (entity != null && entity.getLevel() == self().getLevel()) {
+        if (entity != null && entity.level() == self().level()) {
             float distanceToHolderEntity = self().distanceTo(entity);
             if (distanceToHolderEntity > 10.0F) {
                 this.dropLeash(true, true);
@@ -132,7 +132,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
                 self().spawnAtLocation(Items.LEAD, 4);
             }
 
-            if (!this.isClientSide() && shouldUnlink && self().getLevel() instanceof ServerLevel serverLevel) {
+            if (!this.isClientSide() && shouldUnlink && self().level() instanceof ServerLevel serverLevel) {
                 serverLevel.getChunkSource().broadcast(self(), new ClientboundSetEntityLinkPacket(self(), null));
             }
         }
@@ -150,7 +150,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
     @Nullable
     public Entity getLeashHolder() {
         if (this.leashHolder == null && this.delayedLeashHolderId != 0 && this.isClientSide()) {
-            this.leashHolder = self().getLevel().getEntity(this.delayedLeashHolderId);
+            this.leashHolder = self().level().getEntity(this.delayedLeashHolderId);
         }
 
         return this.leashHolder;
@@ -159,7 +159,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
     public void setLeashedTo(Entity entity, boolean shouldLink) {
         this.leashHolder = entity;
         this.leashInfoTag = null;
-        if (!this.isClientSide() && shouldLink && self().getLevel() instanceof ServerLevel serverLevel) {
+        if (!this.isClientSide() && shouldLink && self().level() instanceof ServerLevel serverLevel) {
             serverLevel.getChunkSource().broadcast(self(), new ClientboundSetEntityLinkPacket(self(), this.leashHolder));
         }
 
@@ -175,7 +175,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
     }
 
     private void restoreLeashFromSave() {
-        if (this.leashInfoTag != null && self().getLevel() instanceof ServerLevel serverLevel) {
+        if (this.leashInfoTag != null && self().level() instanceof ServerLevel serverLevel) {
             if (this.leashInfoTag.hasUUID("UUID")) {
                 UUID uUID = this.leashInfoTag.getUUID("UUID");
                 Entity entity = serverLevel.getEntity(uUID);
@@ -185,7 +185,7 @@ public abstract class BoatMixin implements BoatLeashAccess {
                 }
             } else if (this.leashInfoTag.contains("X", 99) && this.leashInfoTag.contains("Y", 99) && this.leashInfoTag.contains("Z", 99)) {
                 BlockPos blockPos = NbtUtils.readBlockPos(this.leashInfoTag);
-                this.setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(self().getLevel(), blockPos), true);
+                this.setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(self().level(), blockPos), true);
                 return;
             }
 

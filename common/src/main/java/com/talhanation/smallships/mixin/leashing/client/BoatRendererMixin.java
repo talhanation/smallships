@@ -77,8 +77,8 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         BlockPos $$23 = BlockPos.containing($$4.getEyePosition($$1));
         int $$24 = this.getBlockLightLevel($$0, $$22);
         int $$25 = this.entityRenderDispatcher.getRenderer($$4).getBlockLightLevel($$4, $$23);
-        int $$26 = $$0.getLevel().getBrightness(LightLayer.SKY, $$22);
-        int $$27 = $$0.getLevel().getBrightness(LightLayer.SKY, $$23);
+        int $$26 = $$0.level().getBrightness(LightLayer.SKY, $$22);
+        int $$27 = $$0.level().getBrightness(LightLayer.SKY, $$23);
 
         for(int $$28 = 0; $$28 <= 24; ++$$28) {
             addVertexPair($$17, $$18, $$13, $$14, $$15, $$24, $$25, $$26, $$27, 0.025F, $$20, $$21, $$28, false);

@@ -16,7 +16,7 @@ public class ShipPart<T extends Entity> extends Entity {
     private final EntityDimensions size;
 
     public ShipPart(T parentShip, String string, float f, float g) {
-        super(parentShip.getType(), parentShip.getLevel());
+        super(parentShip.getType(), parentShip.level());
         this.size = EntityDimensions.scalable(f, g);
         this.refreshDimensions();
         this.parentShip = parentShip;

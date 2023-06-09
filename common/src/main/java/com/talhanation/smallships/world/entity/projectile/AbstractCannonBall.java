@@ -41,7 +41,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         this.baseTick();
 
         Vec3 vector3d = this.getDeltaMovement();
-        HitResult raytraceresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
+        HitResult raytraceresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
 
         if (raytraceresult.getType() != HitResult.Type.MISS) {
             this.onHit(raytraceresult);
@@ -65,7 +65,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
 
         if(isInWater()){
-            if (this.getLevel().isClientSide() && !isUnderWater()) waterParticles();
+            if (this.level().isClientSide() && !isUnderWater()) waterParticles();
 
             this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -f2, 0.0D));
             this.setInWater(true);
@@ -76,7 +76,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
 
         if (counter < 4){
-            if (this.getLevel().isClientSide()) tailParticles();
+            if (this.level().isClientSide()) tailParticles();
         }
 
         if (isInWater() && counter > 200){
@@ -87,7 +87,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     public void setWasShot(boolean bool){
         if (bool != wasShot){
             wasShot = true;
-            if (this.getLevel().isClientSide()) {
+            if (this.level().isClientSide()) {
                 this.shootParticles();
             }
         }
@@ -95,7 +95,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
 
     public void setInWater(boolean bool){
         if (bool != inWater){
-            this.getLevel().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+            this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             inWater = true;
             //this.discard();
         }
@@ -104,9 +104,9 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     @Override
     protected void onHitBlock(BlockHitResult blockHitResult) {
         super.onHitBlock(blockHitResult);
-        if (!this.getLevel().isClientSide()) {
+        if (!this.level().isClientSide()) {
             boolean doesSpreadFire = false;
-            if(!isInWater()) this.getLevel().explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, doesSpreadFire, Level.ExplosionInteraction.MOB);
+            if(!isInWater()) this.level().explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, doesSpreadFire, Level.ExplosionInteraction.MOB);
             this.remove(RemovalReason.KILLED);
         }
     }
@@ -121,18 +121,18 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     @Override
     protected void onHitEntity(EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
-        if (!this.getLevel().isClientSide()) {
+        if (!this.level().isClientSide()) {
             Entity hitEntity = hitResult.getEntity();
             Entity ownerEntity = this.getOwner();
             hitEntity.hurt(this.damageSources().thrown(this, ownerEntity), 19.0F);
 
             if (hitEntity instanceof Ship shipHitEntity) {
                 shipHitEntity.hurt(this.damageSources().thrown(this, ownerEntity), random.nextInt(7) + 7);
-                this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+                this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
                 this.doEnchantDamageEffects(livingOwnerEntity, hitEntity);
-                this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+                this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
         }
     }
@@ -143,8 +143,8 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             double d1 = this.random.nextGaussian() * 0.03D;
             double d2 = this.random.nextGaussian() * 0.03D;
             double d3 = 20.0D;
-            this.getLevel().addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
-            this.getLevel().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+            this.level().addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+            this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
         }
     }
 
@@ -154,7 +154,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             double d1 = this.random.nextGaussian() * 0.03D;
             double d2 = this.random.nextGaussian() * 0.03D;
             double d3 = 20.0D;
-            this.getLevel().addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3  + i * 0.012, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+            this.level().addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3  + i * 0.012, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
         }
     }
 
@@ -165,7 +165,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             double d1 = this.random.nextGaussian() * 0.03D;
             double d2 = this.random.nextGaussian() * 0.03D;
             double d3 = 20.0D;
-            this.getLevel().addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+            this.level().addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
         }
 
         for (int i = 0; i < 50; ++i) {
@@ -173,18 +173,18 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             double d11 = this.random.nextGaussian() * 0.03D;
             double d22 = this.random.nextGaussian() * 0.03D;
             double d44 = 10.0D;
-            this.getLevel().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(1.0D) - d00 * d44, this.getRandomY() - d11 * d44, this.getRandomZ(2.0D) - d22 * d44, d00, d11, d22);
-            this.getLevel().addParticle(ParticleTypes.FLAME, this.getX(1.0D) - d00 * d44, this.getRandomY() - d11 * d44, this.getRandomZ(2.0D) - d22 * d44, 0, 0, 0);
+            this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(1.0D) - d00 * d44, this.getRandomY() - d11 * d44, this.getRandomZ(2.0D) - d22 * d44, d00, d11, d22);
+            this.level().addParticle(ParticleTypes.FLAME, this.getX(1.0D) - d00 * d44, this.getRandomY() - d11 * d44, this.getRandomZ(2.0D) - d22 * d44, 0, 0, 0);
         }
     }
 
     public void tailParticles(){
         for (int i = 0; i < 100; ++i) {
-            this.getLevel().addParticle(ParticleTypes.POOF, this.getX(), this.getY(), this.getZ() , 0, 0, 0);
+            this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY(), this.getZ() , 0, 0, 0);
         }
 
         for (int i = 0; i < 50; ++i) {
-            this.getLevel().addParticle(ParticleTypes.FLAME, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+            this.level().addParticle(ParticleTypes.FLAME, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
         }
     }
 

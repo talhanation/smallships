@@ -21,7 +21,7 @@ public class ModMenuTypes {
 
     public static @Nullable ShipContainerMenu extendedShipContainerMenuTypeSupplier(int syncId, Inventory inventory, FriendlyByteBuf buf) {
         UUID shipUUID = buf.readUUID();
-        ContainerShip containerShip = inventory.player.getLevel().getEntitiesOfClass(ContainerShip.class, inventory.player.getBoundingBoxForCulling()
+        ContainerShip containerShip = inventory.player.level().getEntitiesOfClass(ContainerShip.class, inventory.player.getBoundingBoxForCulling()
                         .inflate(16.0D), ship -> ship.getUUID().equals(shipUUID))
                 .stream()
                 .filter(Entity::isAlive)

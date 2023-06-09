@@ -45,7 +45,8 @@ dependencies {
 
     implementation "com.electronwill.night-config:core:${rootProject.night_config_version}"
     implementation "com.electronwill.night-config:toml:${rootProject.night_config_version}"
-    modImplementation(include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${rootProject.forge_config_api_port_version}"))
+//    modImplementation(include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${rootProject.forge_config_api_port_version}")) //needs update
+    modImplementation(include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:7.0.0"))
 }
 
 processResources {
