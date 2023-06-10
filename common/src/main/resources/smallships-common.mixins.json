@@ -22,7 +22,6 @@
     "leashing.LeashFenceKnotEntityMixin",
     "leashing.ServerEntityMixin",
     "port.AbstractHorseMixin",
-    "port.ConfigValueAccessor",
     "port.BoatItemMixin",
     "port.BoatMixin",
     "port.ServerGamePacketListenerMixin"

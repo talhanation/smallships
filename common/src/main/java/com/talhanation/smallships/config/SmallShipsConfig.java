@@ -1,18 +1,19 @@
 package com.talhanation.smallships.config;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.mixin.port.ConfigValueAccessor;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.IConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class SmallShipsConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
@@ -378,6 +379,13 @@ public class SmallShipsConfig {
     }
 
     private static <T> void resetEntry(ModConfig config, ForgeConfigSpec.ConfigValue<T> value) {
-        config.getConfigData().set(value.getPath(), ((ConfigValueAccessor)value).getDefaultSupplier().get());
+        try {
+            Field defaultSupplierField = ForgeConfigSpec.ConfigValue.class.getDeclaredField("defaultSupplier");
+            defaultSupplierField.setAccessible(true);
+            Supplier<?> defaultSupplier = (Supplier<?>) defaultSupplierField.get(value);
+            config.getConfigData().set(value.getPath(), defaultSupplier.get());
+        } catch (Exception e) {
+            SmallShipsMod.LOGGER.error("Couldn't reset config entry " + String.join("", value.getPath()) + " due to: "+ e +"! Please rest that entry in " + config.getFileName() + " manually.");
+        }
     }
 }
