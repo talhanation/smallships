@@ -13,6 +13,7 @@
     "2.0.0a2.1": "fixed speed log spamming, fixed crafting recipes, fixed incorrect sail state sound playing, fixed toggle sail key issues.",
     "2.0.0a2.2": "added paddling modifier, fixed immersive portals and oh the biomes you'll go incompatibility, adjusted passenger positions for all ships, fixed sail sound firing twice.",
     "2.0.0a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed arclight incompatibility, fixed wrong sail sound being played."
+    "2.0.0a2.3.1": "fixed strange mixin crash."
   },
   "1.19.2": {
      "2.0.0a2.0": "various fixes, added config system,  rework cannon mechanics. added the galley, added leashing, added new sail control.",
