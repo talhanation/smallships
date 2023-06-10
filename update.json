@@ -1,8 +1,8 @@
 {
   "homepage": "https://legacy.curseforge.com/minecraft/mc-mods/small-ships/files/all",
   "promos": {
-    "1.20.1-recommended": "2.0.0a2.3",
-    "1.20-recommended": "2.0.0a2.3",
+    "1.20.1-recommended": "2.0.0a2.3.1",
+    "1.20-recommended": "2.0.0a2.3.1",
     "1.19.4-recommended": "2.0.0a2.3",
     "1.19.2-recommended": "2.0.0a2.3",
     "1.18.2-recommended": "2.0.0a2.3.1",
@@ -12,7 +12,7 @@
     "2.0.0a2.0": "added config system, added speed modifiers for ships based on different factors, added ability to set sail state with forward/backward keybinds, added the galley, added crafting recipes, added knockback and damage feature for ships, added ability to leash ships and boats, added ability to zoom out while in a ship, rework for cannon mechanics, various fixes.",
     "2.0.0a2.1": "fixed speed log spamming, fixed crafting recipes, fixed incorrect sail state sound playing, fixed toggle sail key issues.",
     "2.0.0a2.2": "added paddling modifier, fixed immersive portals and oh the biomes you'll go incompatibility, adjusted passenger positions for all ships, fixed sail sound firing twice.",
-    "2.0.0a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed arclight incompatibility, fixed wrong sail sound being played."
+    "2.0.0a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed arclight incompatibility, fixed wrong sail sound being played.",
     "2.0.0a2.3.1": "fixed strange mixin crash."
   },
   "1.19.2": {
@@ -25,9 +25,11 @@
     "2.0.0a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed wrong sail sound being played."
   },
   "1.20": {
-    "2.0.0a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed wrong sail sound being played."
+    "2.0.0a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed wrong sail sound being played.".
+    "2.0.0a2.3.1": "fix crash on fabric by using proper forgeconfigapiport 1.20 update."
   },
   "1.20.1": {
-    "2.0.0a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed wrong sail sound being played."
+    "2.0.0a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed wrong sail sound being played.",
+    "2.0.0a2.3.1": "fix crash on fabric by using proper forgeconfigapiport 1.20 update."
   }
 }
