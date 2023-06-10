@@ -41,9 +41,6 @@ allprojects {
                 includeGroup "curse.maven"
             }
         }
-        flatDir {
-            dir "libs"
-        }
     }
 
     //noinspection ConfigurationAvoidance
