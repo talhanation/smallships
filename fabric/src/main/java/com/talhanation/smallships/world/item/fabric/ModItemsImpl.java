@@ -7,16 +7,21 @@ import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.item.*;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"UnstableApiUsage", "CodeBlock2Expr"})
 public class ModItemsImpl {
     private static final Map<String, Item> entries = new HashMap<>();
 
@@ -26,38 +31,36 @@ public class ModItemsImpl {
 
     static {
         if (SmallShipsConfig.Common.smallshipsItemGroupEnable.get()) {
-            FabricItemGroup.builder(new ResourceLocation(SmallShipsMod.MOD_ID, "smallships"))
+            //CUSTOM CREATIVE MENU TAB
+            FabricItemGroup.builder(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab"))
+                    .title(Component.translatable(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", ".")))
                     .icon(() -> new ItemStack(ModItems.CANNON))
                     .displayItems((itemDisplayParameters, output) -> itemDisplayParameters.holders()
                             .lookup(Registries.ITEM)
                             .ifPresent(registryLookup -> registryLookup.listElementIds()
                                     .filter(itemResourceKey -> SmallShipsMod.MOD_ID.equals(itemResourceKey.location().getNamespace()))
-                                    .forEach(itemResourceKey -> output.accept(BuiltInRegistries.ITEM.get(itemResourceKey)))
+                                    .forEach(itemResourceKey -> output.accept(BuiltInRegistries.ITEM.getOrThrow(itemResourceKey)))
                             ))
                     .build();
         } else {
-            FabricItemGroup.builder(CreativeModeTabs.COLORED_BLOCKS.getId())
-                    .displayItems(((itemDisplayParameters, output) -> {
-                        output.accept(ModItems.SAIL);
-                    }))
-                    .build();
+            //VANILLA CREATIVE MENU TAB
+            ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COLORED_BLOCKS).register(entries -> {
+                entries.addBefore(Items.WHITE_BANNER, ModItems.SAIL);
+            });
 
-            FabricItemGroup.builder(CreativeModeTabs.COMBAT.getId())
-                    .displayItems(((itemDisplayParameters, output) -> {
-                        output.accept(ModItems.CANNON);
-                        output.accept(ModItems.CANNON_BALL);
-                    }))
-                    .build();
+            ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT).register(entries -> {
+                entries.addAfter(Items.CROSSBOW, ModItems.CANNON, ModItems.CANNON_BALL);
+            });
 
-            FabricItemGroup.builder(CreativeModeTabs.TOOLS_AND_UTILITIES.getId())
-                    .displayItems(((itemDisplayParameters, output) -> {
-                        for (Boat.Type type: Boat.Type.values()) {
-                            output.accept(ModItems.COG_ITEMS.get(type));
-                            output.accept(ModItems.BRIGG_ITEMS.get(type));
-                            output.accept(ModItems.GALLEY_ITEMS.get(type));
-                        }
-                    }))
-                    .build();
+            ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
+                List<Item> shipItems = new ArrayList<>();
+                for (Boat.Type type : Boat.Type.values()) {
+                    shipItems.add(ModItems.COG_ITEMS.get(type));
+                    shipItems.add(ModItems.BRIGG_ITEMS.get(type));
+                    shipItems.add(ModItems.GALLEY_ITEMS.get(type));
+                }
+                entries.addBefore(Items.RAIL, shipItems.toArray(Item[]::new));
+            });
         }
 
         register("sail", new SailItem((new Item.Properties()).stacksTo(16)));

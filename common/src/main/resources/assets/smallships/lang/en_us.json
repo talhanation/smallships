@@ -1,6 +1,6 @@
 {
   "category.smallships" : "Small Ships",
-  "itemGroup.smallships.smallships": "Small Ships Mod",
+  "smallships.creative_mode_tab": "Small Ships Mod",
   "key.smallships.ship_sail" : "Toggle Sail",
   "key.smallships.higher_ship_sail" : "Higher Sail",
   "key.smallships.lower_ship_sail" : "Lower Sail",
