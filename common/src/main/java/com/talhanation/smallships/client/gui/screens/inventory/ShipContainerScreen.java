@@ -1,6 +1,5 @@
 package com.talhanation.smallships.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
@@ -8,7 +7,6 @@ import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -42,13 +40,10 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, CONTAINER_BACKGROUND);
         int k = (this.width - this.imageWidth) / 2;
         int l = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(new ResourceLocation(SmallShipsMod.MOD_ID,"blit1"), k, l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
-        guiGraphics.blit(new ResourceLocation(SmallShipsMod.MOD_ID,"blit2"), k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
+        guiGraphics.blit(CONTAINER_BACKGROUND, k, l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
+        guiGraphics.blit(CONTAINER_BACKGROUND, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
     }
 
     @Override
@@ -81,12 +76,12 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     protected void renderLabels(GuiGraphics guiGraphics, int i, int j) {
         super.renderLabels(guiGraphics, i, j);
         float dmg = this.containerShip.getDamage() * 100 / this.containerShip.getAttributes().maxHealth;
-        guiGraphics.drawString(font, (Mth.ceil(dmg) + "%"), 156 - (Mth.floor(Math.log10(Mth.ceil(dmg)))) * 6, 6, FONT_COLOR);
+        guiGraphics.drawString(font, (Mth.ceil(dmg) + "%"), 152 - (Mth.floor(Math.log10(Mth.ceil(dmg)))) * 6, 6, FONT_COLOR, false);
 
         float maxSpeed = (Mth.ceil(Kalkuel.getKilometerPerHour(this.containerShip.maxSpeed)));
         float currentSpeed = (Mth.ceil(Kalkuel.getKilometerPerHour(this.containerShip.getSpeed())));
-        guiGraphics.drawString(font, currentSpeed + "/" + maxSpeed + " km/h", 50, 6, FONT_COLOR);
+        guiGraphics.drawString(font, currentSpeed + "/" + maxSpeed + " km/h", 50, 6, FONT_COLOR, false);
 
-        if (this.pageCount > 1) guiGraphics.drawString(font, (this.pageIndex + 1) + "/"  + this.pageCount, 150 - (Mth.floor(Math.log10(this.pageCount))) * 6, this.rowCount*18+19, FONT_COLOR);
+        if (this.pageCount > 1) guiGraphics.drawString(font, (this.pageIndex + 1) + "/"  + this.pageCount, 150 - (Mth.floor(Math.log10(this.pageCount))) * 6, this.rowCount*18+19, FONT_COLOR, false);
     }
 }
