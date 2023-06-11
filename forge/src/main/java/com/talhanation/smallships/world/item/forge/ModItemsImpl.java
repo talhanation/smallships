@@ -5,9 +5,13 @@ import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.item.*;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -24,6 +28,11 @@ public class ModItemsImpl {
     }
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, SmallShipsMod.MOD_ID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SmallShipsMod.MOD_ID);
+    public static final RegistryObject<CreativeModeTab> customCreativeModeTab = CREATIVE_MODE_TABS.register(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", "."), () -> CreativeModeTab.builder()
+            .title(Component.translatable(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", ".")))
+            .icon(() -> new ItemStack(ModItems.CANNON))
+            .build());
 
     static {
         register("sail", () -> new SailItem((new Item.Properties()).stacksTo(16)));

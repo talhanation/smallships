@@ -7,6 +7,7 @@ import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.item.*;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -16,9 +17,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"CodeBlock2Expr", "UnstableApiUsage"})
 public class ModItemsImpl {
     private static final Map<String, Item> entries = new HashMap<>();
 
@@ -28,46 +32,38 @@ public class ModItemsImpl {
 
     static {
         if (SmallShipsConfig.Common.smallshipsItemGroupEnable.get()) {
-            ResourceKey<CreativeModeTab> creativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(SmallShipsMod.MOD_ID, "smallships"));
+            ResourceKey<CreativeModeTab> creativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab"));
 
-            CreativeModeTab custom = FabricItemGroup.builder()
+            CreativeModeTab customCreativeModeTab = FabricItemGroup.builder()
                     .title(Component.translatable(creativeModeTab.location().toString().replace(":", ".")))
                     .icon(() -> new ItemStack(ModItems.CANNON))
                     .displayItems((itemDisplayParameters, output) -> itemDisplayParameters.holders()
                             .lookup(Registries.ITEM)
                             .ifPresent(registryLookup -> registryLookup.listElementIds()
                                     .filter(itemResourceKey -> SmallShipsMod.MOD_ID.equals(itemResourceKey.location().getNamespace()))
-                                    .forEach(itemResourceKey -> output.accept(BuiltInRegistries.ITEM.get(itemResourceKey)))
+                                    .forEach(itemResourceKey -> output.accept(BuiltInRegistries.ITEM.getOrThrow(itemResourceKey)))
                             ))
                     .build();
 
-            Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, creativeModeTab, custom);
+            Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, creativeModeTab, customCreativeModeTab);
         } else {
-            CreativeModeTab colored_blocks = FabricItemGroup.builder()
-                    .displayItems(((itemDisplayParameters, output) -> {
-                        output.accept(ModItems.SAIL);
-                    }))
-                    .build();
-            Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CreativeModeTabs.COLORED_BLOCKS, colored_blocks);
+            ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COLORED_BLOCKS).register(entries -> {
+                entries.addBefore(Items.WHITE_BANNER, ModItems.SAIL);
+            });
 
-            CreativeModeTab combat = FabricItemGroup.builder()
-                    .displayItems(((itemDisplayParameters, output) -> {
-                        output.accept(ModItems.CANNON);
-                        output.accept(ModItems.CANNON_BALL);
-                    }))
-                    .build();
-            Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CreativeModeTabs.COMBAT, combat);
+            ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT).register(entries -> {
+                entries.addBefore(Items.FIREWORK_ROCKET, ModItems.CANNON, ModItems.CANNON_BALL);
+            });
 
-            CreativeModeTab tools_and_utilities = FabricItemGroup.builder()
-                    .displayItems(((itemDisplayParameters, output) -> {
-                        for (Boat.Type type : Boat.Type.values()) {
-                            output.accept(ModItems.COG_ITEMS.get(type));
-                            output.accept(ModItems.BRIGG_ITEMS.get(type));
-                            output.accept(ModItems.GALLEY_ITEMS.get(type));
-                        }
-                    }))
-                    .build();
-            Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CreativeModeTabs.TOOLS_AND_UTILITIES, tools_and_utilities);
+            ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
+                List<Item> shipItems = new ArrayList<>();
+                for (Boat.Type type : Boat.Type.values()) {
+                    shipItems.add(ModItems.COG_ITEMS.get(type));
+                    shipItems.add(ModItems.BRIGG_ITEMS.get(type));
+                    shipItems.add(ModItems.GALLEY_ITEMS.get(type));
+                }
+                entries.addBefore(Items.RAIL, shipItems.toArray(Item[]::new));
+            });
         }
 
         register("sail", new SailItem((new Item.Properties()).stacksTo(16)));

@@ -1,5 +1,6 @@
 package com.talhanation.smallships.forge;
 
+import com.electronwill.nightconfig.toml.TomlFormat;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.forge.client.ClientInitializer;
 import com.talhanation.smallships.forge.common.CommonModBus;
@@ -14,8 +15,13 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+import java.nio.file.Path;
+import java.util.Arrays;
+
 @Mod(SmallShipsMod.MOD_ID)
 public class SmallshipsModForge {
+    public static final boolean hasCustomItemGroup = TomlFormat.instance().createParser().parse(Path.of("config", "smallships-client.toml"), (file, configFormat) -> false).getOrElse(Arrays.asList("General", "smallshipsItemGroupEnable"), () -> false); //Forge doesn't do early config initialization. Will have to parse the config ourselves.
+
     @SuppressWarnings("InstantiationOfUtilityClass")
     public SmallshipsModForge() {
         new CommonModBus();
@@ -26,6 +32,7 @@ public class SmallshipsModForge {
         modEventBus.addListener(this::setup);
 
         ModItemsImpl.ITEMS.register(modEventBus);
+        if (hasCustomItemGroup) ModItemsImpl.CREATIVE_MODE_TABS.register(modEventBus);
         ModEntityTypesImpl.ENTITY_TYPES.register(modEventBus);
         ModMenuTypesImpl.MENU_TYPES.register(modEventBus);
         ModSoundTypesImpl.SOUND_EVENTS.register(modEventBus);
