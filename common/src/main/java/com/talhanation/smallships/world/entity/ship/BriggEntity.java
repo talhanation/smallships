@@ -68,7 +68,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
-    public BiomeType getBiomesModifierType() {
+    public BiomeModifierType getBiomeModifierType() {
         return SmallShipsConfig.Common.shipModifierBriggBiome.get();
     }
 

@@ -41,7 +41,9 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue shipGeneralCollisionDamage;
         public static ForgeConfigSpec.BooleanValue shipGeneralDoItemDrop;
         public static ForgeConfigSpec.DoubleValue shipGeneralContainerModifier;
+        public static ForgeConfigSpec.DoubleValue shipGeneralCannonModifier;
         public static ForgeConfigSpec.DoubleValue shipGeneralPaddlingModifier;
+        public static ForgeConfigSpec.DoubleValue shipGeneralBiomeModifier;
 
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxSpeed;
@@ -52,7 +54,7 @@ public class SmallShipsConfig {
 
         public static ForgeConfigSpec.ConfigValue<Integer> shipContainerCogContainerSize;
 
-        public static ForgeConfigSpec.EnumValue<Ship.BiomeType> shipModifierCogBiome;
+        public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierCogBiome;
 
         public static ForgeConfigSpec.DoubleValue shipAttributeBriggMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeBriggMaxSpeed;
@@ -63,7 +65,7 @@ public class SmallShipsConfig {
 
         public static ForgeConfigSpec.ConfigValue<Integer> shipContainerBriggContainerSize;
 
-        public static ForgeConfigSpec.EnumValue<Ship.BiomeType> shipModifierBriggBiome;
+        public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierBriggBiome;
 
         public static ForgeConfigSpec.DoubleValue shipAttributeGalleyMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeGalleyMaxSpeed;
@@ -74,7 +76,7 @@ public class SmallShipsConfig {
 
         public static ForgeConfigSpec.ConfigValue<Integer> shipContainerGalleyContainerSize;
 
-        public static ForgeConfigSpec.EnumValue<Ship.BiomeType> shipModifierGalleyBiome;
+        public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierGalleyBiome;
 
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeRadius;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeSpeed;
@@ -114,11 +116,19 @@ public class SmallShipsConfig {
 
         builder.comment("Maximum speed penalty for a filled container in percent.");
         Common.shipGeneralContainerModifier = builder
-                .defineInRange("shipGeneralContainerModifier", 10D, -500.0D, 500.0D);
+                .defineInRange("shipGeneralContainerModifier", 10.0D, -500.0D, 500.0D);
+
+        builder.comment("Speed penalty per cannon in percent.");
+        Common.shipGeneralCannonModifier = builder
+                .defineInRange("shipGeneralCannonModifier", 2.5D, -500.0D, 500.0D);
 
         builder.comment("Speed bonus for a paddle ship while paddling in percent.");
         Common.shipGeneralPaddlingModifier = builder
-                .defineInRange("shipGeneralPaddlingModifier", 35D, -500.0D, 500.0D);
+                .defineInRange("shipGeneralPaddlingModifier", 35.0D, -500.0D, 500.0D);
+
+        builder.comment("Maximum speed bonus and penalty depending on the ship biome type in percent.");
+        Common.shipGeneralBiomeModifier = builder
+                .defineInRange("shipGeneralBiomeModifier", 20.0D, 0.0D, 500.0D);
 
         builder.pop();
 
@@ -170,9 +180,9 @@ public class SmallShipsConfig {
         builder.comment("Cog specific speed modifiers.");
         builder.push("Modifier");
 
-        builder.comment("NONE, COLD, NEUTRAL, or WARM biomes");
+        builder.comment("Specify biome type for the Cog. Can be NONE, COLD, NEUTRAL, or WARM");
         Common.shipModifierCogBiome = builder
-                .defineEnum("shipModifierCogBiome", Ship.BiomeType.COLD);
+                .defineEnum("shipModifierCogBiome", Ship.BiomeModifierType.COLD);
 
         builder.pop();
 
@@ -212,9 +222,9 @@ public class SmallShipsConfig {
         builder.comment("Brigg specific speed modifiers.");
         builder.push("Modifier");
 
-        builder.comment("NONE, COLD, NEUTRAL, or WARM biomes");
+        builder.comment("Specify biome type for the Brigg. Can be NONE, COLD, NEUTRAL, or WARM");
         Common.shipModifierBriggBiome = builder
-                .defineEnum("shipModifierBriggBiome", Ship.BiomeType.COLD);
+                .defineEnum("shipModifierBriggBiome", Ship.BiomeModifierType.COLD);
 
         builder.pop();
 
@@ -255,9 +265,9 @@ public class SmallShipsConfig {
         builder.comment("Galley specific speed modifiers.");
         builder.push("Modifier");
 
-        builder.comment("NONE, COLD, NEUTRAL, or WARM biomes");
+        builder.comment("Specify biome type for the Galley. Can be NONE, COLD, NEUTRAL, or WARM");
         Common.shipModifierGalleyBiome = builder
-                .defineEnum("shipModifierGalleyBiome", Ship.BiomeType.WARM);
+                .defineEnum("shipModifierGalleyBiome", Ship.BiomeModifierType.WARM);
 
         builder.pop();
 
