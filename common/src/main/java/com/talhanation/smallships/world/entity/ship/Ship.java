@@ -170,10 +170,6 @@ public abstract class Ship extends Boat {
         }
 
         if(this.isInWater() && !((BoatLeashAccess) this).isLeashed()){
-            //CALCULATE SPEED//
-            // This code is very very very bad... controlBoat is in dire need of a proper rewrite
-            //Speed calc dependent on sail or paddle
-            //Speed needs to calculate before rotation because fabric is shit (has nothing to do with fabric)
             if(this instanceof Paddleable && this instanceof Sailable sailShip){
                 if(isForward() && getDriver() != null){
                     setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F);
@@ -329,8 +325,8 @@ public abstract class Ship extends Boat {
     );
 
     public float getBiomesModifier() {
-        int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
-        if (biomeType == -1) return 0;
+        BiomeType biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
+        f (biomeType == BiomeType.NONE) return 0;
         BlockPos pos = new BlockPos(Double.valueOf(getX()).intValue(), Double.valueOf(getY() - 0.1D).intValue(), Double.valueOf(getZ()).intValue());
         Optional<ResourceKey<Biome>> biome = this.level().registryAccess().registryOrThrow(Registries.BIOME).getResourceKey(this.level().getBiome(pos).value());
 
@@ -339,9 +335,9 @@ public abstract class Ship extends Boat {
             boolean neutralBiomes = NEUTRAL_BIOMES.contains(biome.get());
             boolean warmBiomes = WARM_BIOMES.contains(biome.get());
 
-            boolean coldType = biomeType == 0;
-            boolean neutralType = biomeType == 1;
-            boolean warmType = biomeType == 2;
+            boolean coldType = biomeType == BiomeType.COLD;
+            boolean neutralType = biomeType == BiomeType.NEUTRAL;
+            boolean warmType = biomeType == BiomeType.WARM;
 
             if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
                 return -20F;
@@ -437,7 +433,7 @@ public abstract class Ship extends Boat {
     protected abstract int getMaxPassengers();
     @Override
     public abstract @NotNull Item getDropItem();
-    public abstract int getBiomesModifierType();
+    public abstract BiomeType getBiomesModifierType();
     public abstract float getContainerModifier();
     public abstract CompoundTag createDefaultAttributes();
 
@@ -585,5 +581,12 @@ public abstract class Ship extends Boat {
         if (this.level().isClientSide && needsUpdate) {
             ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
+    }
+
+    public enum BiomeType {
+        NONE,
+        COLD,
+        NEUTRAL,
+        WARM
     }
 }
