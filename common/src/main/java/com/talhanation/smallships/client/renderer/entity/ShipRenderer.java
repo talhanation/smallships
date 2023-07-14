@@ -134,7 +134,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @SuppressWarnings({"unused", "unchecked"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        for(byte i = 0; i < cannonShipEntity.self().getCannonCount(); i++){
+        for(byte i = 0; i < cannonShipEntity.getCannonCount(); i++){
             Cannon cannon = new Cannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
 
             poseStack.pushPose();

@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.google.common.collect.ImmutableSet;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
@@ -15,13 +15,11 @@ import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -36,8 +34,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -48,7 +44,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public abstract class Ship extends Boat {
     public static final EntityDataAccessor<CompoundTag> ATTRIBUTES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
@@ -155,9 +150,13 @@ public abstract class Ship extends Boat {
     @Override
     protected void controlBoat() {
         Attributes attributes = this.getAttributes();
-        float modifier = 1 - (getBiomesModifier()/100 + (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0) + getContainerModifier()/100 + (this instanceof Paddleable paddleShip? paddleShip.getPaddlingModifier()/100 : 0));
+        float speedModifier =
+                (1 + (this.getBiomeModifier()/100)) *
+                (1 - (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0.0F)) *
+                (1 - (this instanceof ContainerShip containerShip? containerShip.getContainerModifier()/100 : 0.0F)) *
+                (1 + (this instanceof Paddleable paddleShip? paddleShip.getPaddlingModifier()/100 : 0.0F));
 
-        this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * modifier;
+        this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * speedModifier;
         float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
@@ -260,12 +259,6 @@ public abstract class Ship extends Boat {
     public void setRotSpeed(float f) {
         this.entityData.set(ROT_SPEED, f);
     }
-    public void setCannonCount(byte x) {
-        this.entityData.set(CANNON_COUNT, x);
-    }
-    public byte getCannonCount() {
-        return entityData.get(CANNON_COUNT);
-    }
 
     public void setForward(boolean forward) {
         entityData.set(FORWARD, forward);
@@ -305,56 +298,22 @@ public abstract class Ship extends Boat {
         return entityData.get(RIGHT);
     }
 
-    public static final ImmutableSet<ResourceKey<Biome>> COLD_BIOMES = ImmutableSet.of(
-            Biomes.COLD_OCEAN,
-            Biomes.DEEP_COLD_OCEAN,
-            Biomes.FROZEN_OCEAN,
-            Biomes.DEEP_FROZEN_OCEAN,
-            Biomes.FROZEN_RIVER
-    );
+    public float getBiomeModifier() {
+        BiomeModifierType biomeModifierType = this.getBiomeModifierType();
+        if (biomeModifierType == BiomeModifierType.NONE) return 0.0F;
 
-    public static final ImmutableSet<ResourceKey<Biome>> WARM_BIOMES = ImmutableSet.of(
-            Biomes.WARM_OCEAN,
-            Biomes.LUKEWARM_OCEAN,
-            Biomes.DEEP_LUKEWARM_OCEAN
-    );
+        BlockPos pos = new BlockPos(this.getX(), this.getY(), this.getZ());
+        float tmp = this.getLevel().getBiome(pos).value().getBaseTemperature();
+        float modifier = SmallShipsConfig.Common.shipGeneralBiomeModifier.get().floatValue();
+        //TODO remove
+        SmallShipsMod.LOGGER.error(String.valueOf(tmp));
 
-    public static final ImmutableSet<ResourceKey<Biome>> NEUTRAL_BIOMES = ImmutableSet.of(
-            Biomes.OCEAN,
-            Biomes.DEEP_OCEAN,
-            Biomes.RIVER
-    );
-
-    public float getBiomesModifier() {
-        BiomeType biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
-        if (biomeType == BiomeType.NONE) return 0;
-        BlockPos pos = new BlockPos(getX(), getY() - 0.1D, getZ());
-        Optional<ResourceKey<Biome>> biome = this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(level.getBiome(pos).value());
-
-
-        if(biome.isPresent()) {
-            boolean coldBiomes = COLD_BIOMES.contains(biome.get());
-            boolean neutralBiomes = NEUTRAL_BIOMES.contains(biome.get());
-            boolean warmBiomes = WARM_BIOMES.contains(biome.get());
-
-            boolean coldType = biomeType == BiomeType.COLD;
-            boolean neutralType = biomeType == BiomeType.NEUTRAL;
-            boolean warmType = biomeType == BiomeType.WARM;
-
-            if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
-                return -20F;
-            }
-            else if (
-                    (coldBiomes && warmType || warmBiomes && coldType) || ((coldBiomes || warmBiomes) && neutralType)) {
-                return 20F;
-            }
-            else if (neutralBiomes && warmType || neutralBiomes && coldType) {
-                return 10F;
-            }
-            else
-                return 0;
-        }
-        return 0;
+        return switch (biomeModifierType) {
+            case COLD -> modifier * -tmp;
+            case NEUTRAL -> modifier * (-2 * Double.valueOf(Math.pow(tmp, 2)).floatValue() + 1);
+            case WARM -> modifier * tmp;
+            default -> throw new IllegalStateException("Unexpected value: " + biomeModifierType);
+        };
     }
 
     @Override
@@ -435,8 +394,7 @@ public abstract class Ship extends Boat {
     protected abstract int getMaxPassengers();
     @Override
     public abstract @NotNull Item getDropItem();
-    public abstract BiomeType getBiomesModifierType();
-    public abstract float getContainerModifier();
+    public abstract BiomeModifierType getBiomeModifierType();
     public abstract CompoundTag createDefaultAttributes();
 
     /************************************
@@ -585,7 +543,7 @@ public abstract class Ship extends Boat {
         }
     }
 
-    public enum BiomeType {
+    public enum BiomeModifierType {
         NONE,
         COLD,
         NEUTRAL,
