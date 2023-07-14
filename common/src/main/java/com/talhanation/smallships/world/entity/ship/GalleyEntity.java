@@ -74,7 +74,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     @Override
-    public int getBiomesModifierType() {
+    public BiomeType getBiomesModifierType() {
         return SmallShipsConfig.Common.shipModifierGalleyBiome.get();
     }
 
