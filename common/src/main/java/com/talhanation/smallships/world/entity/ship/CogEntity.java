@@ -67,7 +67,7 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     }
 
     @Override
-    public BiomeType getBiomesModifierType() {
+    public BiomeModifierType getBiomeModifierType() {
         return SmallShipsConfig.Common.shipModifierCogBiome.get();
     }
 

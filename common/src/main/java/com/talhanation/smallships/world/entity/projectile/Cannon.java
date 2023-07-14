@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-public class Cannon extends Entity {
+public class Cannon extends Entity { // why is this an entity??
     private final RandomSource random;
     private final double offsetX;
     private final double offsetY;

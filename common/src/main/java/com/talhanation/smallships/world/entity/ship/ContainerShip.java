@@ -349,7 +349,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.entityData.set(CONTAINER_FILL_STATE, b);
     }
 
-    @Override
     public float getContainerModifier() {
         return SmallShipsConfig.Common.shipGeneralContainerModifier.get().floatValue() * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
     }

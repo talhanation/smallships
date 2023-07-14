@@ -1,6 +1,7 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.Ship;
@@ -37,22 +38,22 @@ public interface Cannonable extends Ability {
     @SuppressWarnings("unused")
     default void readCannonShipSaveData(CompoundTag tag) {
         if (tag.contains("CannonCount")) {
-            self().setCannonCount(tag.getByte("CannonCount"));
+            this.setCannonCount(tag.getByte("CannonCount"));
             this.updateCannonCount();
         }
     }
 
     @SuppressWarnings("unused")
     default void addCannonShipSaveData(CompoundTag tag) {
-        tag.putInt("CannonCount", self().getCannonCount());
+        tag.putInt("CannonCount", this.getCannonCount());
     }
 
     default float getCannonModifier() {
-        return (int)self().getCannonCount() * 0.025F;
+        return this.getCannonCount() * SmallShipsConfig.Common.shipGeneralCannonModifier.get().floatValue();
     }
 
     default void updateCannonCount(){
-        byte cannons = self().getCannonCount();
+        byte cannons = this.getCannonCount();
 
         self().CANNONS.clear();
         for (int i = 0; i < cannons; i++) {
@@ -64,17 +65,17 @@ public interface Cannonable extends Ability {
             }
         }
 
-        self().setCannonCount(cannons);
+        this.setCannonCount(cannons);
     }
     default boolean interactCannon(Player player, InteractionHand interactionHand) {
         ItemStack item = player.getItemInHand(interactionHand);
-        byte cannons = self().getCannonCount();
+        byte cannons = this.getCannonCount();
         if (item.getItem() == ModItems.CANNON && self() instanceof ContainerShip) {
             if (cannons >= getMaxCannonPerSide() * 2) {
                 return false;
             }
             else {
-                self().setCannonCount((byte) (cannons + 1));
+                this.setCannonCount((byte) (cannons + 1));
 
                 self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
                 if (!player.isCreative()) item.shrink(1);
@@ -83,7 +84,7 @@ public interface Cannonable extends Ability {
             }
             return true;
         } else if (item.getItem() instanceof AxeItem && cannons > 0) {
-            self().setCannonCount((byte) (cannons - 1));
+            this.setCannonCount((byte) (cannons - 1));
 
             self().spawnAtLocation(ModItems.CANNON);
             self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
@@ -129,6 +130,13 @@ public interface Cannonable extends Ability {
 
     default ResourceLocation getTextureLocation() {
         return new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/cannon/ship_cannon.png");
+    }
+
+    default void setCannonCount(byte x) {
+        self().getEntityData().set(Ship.CANNON_COUNT, x);
+    }
+    default byte getCannonCount() {
+        return self().getEntityData().get(Ship.CANNON_COUNT);
     }
 
     @SuppressWarnings("ClassCanBeRecord")
