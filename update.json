@@ -1,9 +1,8 @@
 {
   "homepage": "https://legacy.curseforge.com/minecraft/mc-mods/small-ships/files/all",
   "promos": {
-    "1.20.1-recommended": "2.0.0-a2.3.2",
-    "1.20-recommended": "2.0.0-a2.3.2",
-    "1.19.4-recommended": "2.0.0-a2.3.2",
+    "1.20.1-recommended": "2.0.0-a2.3.3",
+    "1.19.4-recommended": "2.0.0-a2.3.3",
     "1.19.2-recommended": "2.0.0-a2.3",
     "1.18.2-recommended": "2.0.0-a2.3.1",
     "1.16.5-recommended": "1.10.1"
@@ -23,7 +22,8 @@
   },
   "1.19.4": {
     "2.0.0-a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed wrong sail sound being played.",
-    "2.0.0-a2.3.2": "fix creative menu tab issues."
+    "2.0.0-a2.3.2": "fix creative menu tab issues.",
+    "2.0.0-a2.3.3": "fix registry issues."
   },
   "1.20": {
     "2.0.0-a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed wrong sail sound being played.",
@@ -31,8 +31,6 @@
     "2.0.0-a2.3.2": "fix creative menu tab issues, fix ship container menu texture."
   },
   "1.20.1": {
-    "2.0.0-a2.3": "added client side config, added auto third person feature when entering ships, added config updating system, fixed wrong sail sound being played.",
-    "2.0.0-a2.3.1": "fix crash on fabric by using proper forgeconfigapiport 1.20 update.",
-    "2.0.0-a2.3.2": "fix creative menu tab issues, fix ship container menu texture."
+    "2.0.0-a2.3.3": "fix registry issues."
   }
 }
