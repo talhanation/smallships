@@ -3,6 +3,7 @@ package com.talhanation.smallships.forge.common;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.forge.SmallshipsModForge;
+import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.item.forge.ModItemsImpl;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,23 +14,22 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.function.Function;
 
 @Mod.EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CommonModBus {
-    public CommonModBus() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modEventBus.addListener(this::initRegisterConfigs);
+    @SubscribeEvent
+    static void init(FMLCommonSetupEvent event) {
+        event.enqueueWork(ModPackets::registerPackets);
     }
 
     @SubscribeEvent
-    public void initRegisterConfigs(ModConfigEvent event) {
+    static void initRegisterConfigs(ModConfigEvent event) {
         SmallShipsConfig.updateConfig(event.getConfig());
     }
 

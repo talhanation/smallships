@@ -32,6 +32,7 @@ public class ModItemsImpl {
 
     static {
         if (SmallShipsConfig.Common.smallshipsItemGroupEnable.get()) {
+            //CUSTOM CREATIVE MENU TAB
             ResourceKey<CreativeModeTab> creativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab"));
 
             CreativeModeTab customCreativeModeTab = FabricItemGroup.builder()
@@ -47,12 +48,13 @@ public class ModItemsImpl {
 
             Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, creativeModeTab, customCreativeModeTab);
         } else {
+            //VANILLA CREATIVE MENU TAB
             ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COLORED_BLOCKS).register(entries -> {
                 entries.addBefore(Items.WHITE_BANNER, ModItems.SAIL);
             });
 
             ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT).register(entries -> {
-                entries.addBefore(Items.FIREWORK_ROCKET, ModItems.CANNON, ModItems.CANNON_BALL);
+                entries.addAfter(Items.CROSSBOW, ModItems.CANNON, ModItems.CANNON_BALL);
             });
 
             ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
