@@ -3,6 +3,7 @@ package com.talhanation.smallships.forge.common;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.item.forge.ModItemsImpl;
 import net.minecraft.network.chat.Component;
@@ -13,31 +14,30 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.CreativeModeTabEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 
 @Mod.EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CommonModBus {
-    public CommonModBus() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modEventBus.addListener(this::initRegisterConfigs);
+    @SubscribeEvent
+    static void init(FMLCommonSetupEvent event) {
+        event.enqueueWork(ModPackets::registerPackets);
     }
 
     @SubscribeEvent
-    public void initRegisterConfigs(ModConfigEvent event) {
+    static void initRegisterConfigs(ModConfigEvent event) {
         SmallShipsConfig.updateConfig(event.getConfig());
     }
 
     private static final boolean hasCustomItemGroup = TomlFormat.instance().createParser().parse(Path.of("config", "smallships-client.toml"), (file, configFormat) -> false).getOrElse(Arrays.asList("General", "smallshipsItemGroupEnable"), () -> false);         //Forge doesn't do early config initialization. Will have to parse the config ourselves.
     private static CreativeModeTab CUSTOM_CREATIVE_MENU_TAB;
     @SubscribeEvent
-    public static void initRegisterCreativeMenuTabs(CreativeModeTabEvent.Register event) {
+    static void initRegisterCreativeMenuTabs(CreativeModeTabEvent.Register event) {
         if (hasCustomItemGroup) {
             //CUSTOM CREATIVE MENU TAB
             CUSTOM_CREATIVE_MENU_TAB = event.registerCreativeModeTab(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab"), builder ->
@@ -48,7 +48,7 @@ public class CommonModBus {
     }
 
     @SubscribeEvent
-    public static void initRegisterCreativeMenuTabs(CreativeModeTabEvent.BuildContents event) {
+    static void initBuildCreativeMenuTabs(CreativeModeTabEvent.BuildContents event) {
         if (hasCustomItemGroup) {
             //CUSTOM CREATIVE MENU TAB
             if (CUSTOM_CREATIVE_MENU_TAB.equals(event.getTab())) {
