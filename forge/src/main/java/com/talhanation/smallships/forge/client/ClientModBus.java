@@ -6,10 +6,7 @@ import com.talhanation.smallships.client.model.CannonBallModel;
 import com.talhanation.smallships.client.model.CogModel;
 import com.talhanation.smallships.client.model.GalleyModel;
 import com.talhanation.smallships.client.option.ModGameOptions;
-import com.talhanation.smallships.client.renderer.entity.BriggRenderer;
-import com.talhanation.smallships.client.renderer.entity.CannonBallRenderer;
-import com.talhanation.smallships.client.renderer.entity.CogRenderer;
-import com.talhanation.smallships.client.renderer.entity.GalleyRenderer;
+import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -42,6 +39,8 @@ public class ClientModBus {
         event.registerEntityRenderer(ModEntityTypes.COG, CogRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.BRIGG, BriggRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.GALLEY, GalleyRenderer::new);
+
+        event.registerBlockEntityRenderer(ModEntityTypes.SHIPYARD_SHIP, ShipyardShipRenderer::new);
     }
 
     @SubscribeEvent

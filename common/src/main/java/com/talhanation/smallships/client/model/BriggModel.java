@@ -196,12 +196,12 @@ public class BriggModel extends ShipModel<BriggEntity> {
 	@Override
 	public void setupAnim(BriggEntity briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		byte u_byteMaxValueFourth = (-Byte.MIN_VALUE + Byte.MAX_VALUE) / 4;
-		this.chest1.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
-		this.chest2.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
-		this.chest3.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
-		this.chest4.visible = briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
+		this.chest1.visible = briggEntity != null && briggEntity.getContainerFillState() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
+		this.chest2.visible = briggEntity != null && briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
+		this.chest3.visible = briggEntity != null && briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
+		this.chest4.visible = briggEntity != null && briggEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
 
-		this.steer.yRot = -briggEntity.getRotSpeed() * 0.25F;
+		this.steer.yRot = briggEntity != null ? -briggEntity.getRotSpeed() * 0.25F : 0;
 	}
 
 	@Override
