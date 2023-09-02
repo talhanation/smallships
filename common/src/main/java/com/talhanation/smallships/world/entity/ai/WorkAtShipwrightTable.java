@@ -22,7 +22,7 @@ public class WorkAtShipwrightTable extends WorkAtPoi {
             BlockState blockState = serverLevel.getBlockState(globalPos.pos());
 
             if (blockState.is(ModBlocks.SHIPYARD_BLOCK)) {
-                serverLevel.setBlockAndUpdate(globalPos.pos(), blockState.cycle(ShipyardBlock.PROGRESS));
+                ShipyardBlock.incrementProgress(blockState, serverLevel, globalPos.pos());
             }
         }
     }
