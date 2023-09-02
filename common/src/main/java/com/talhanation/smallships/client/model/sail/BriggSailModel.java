@@ -2008,7 +2008,7 @@ public class BriggSailModel extends SailModel {
 
 	@Override
 	public void setupAnim(Ship briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		switch (briggEntity.getData(Ship.SAIL_STATE)) {
+		switch (briggEntity != null ? briggEntity.getData(Ship.SAIL_STATE) : 0) {
 			case 0 -> {
 				this.segel_brigg.getChild("Sail_0").visible = true;
 				this.segel_brigg.getChild("Sail_1").visible = false;

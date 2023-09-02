@@ -2,12 +2,15 @@ package com.talhanation.smallships.world.item.forge;
 
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.block.ModBlocks;
+import com.talhanation.smallships.world.block.forge.ModBlocksImpl;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.item.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -56,6 +59,8 @@ public class ModItemsImpl {
             register(new ResourceLocation(type.getName()).getPath() + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
             register(new ResourceLocation(type.getName()).getPath() + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
         }
+
+        register("shipyard_block", () -> new BlockItem(ModBlocks.SHIPYARD_BLOCK, (new Item.Properties()).tab(CreativeModeTab.TAB_TRANSPORTATION)));
     }
 
     private static void register(String id, Supplier<Item> itemSupplier) {
