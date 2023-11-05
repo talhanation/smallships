@@ -7,10 +7,7 @@ import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
-import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
-import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
-import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
-import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -32,6 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -52,12 +50,15 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<Byte> SAIL_STATE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<String>  SAIL_COLOR = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.STRING);
     public static final EntityDataAccessor<ItemStack> BANNER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
+    public static final EntityDataAccessor<ItemStack> SHIELD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<Float> CANNON_POWER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Byte> CANNON_COUNT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> FORWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> BACKWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Byte> SHIELD_COUNT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
+    public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
 
     private float prevWaveAngle;
     private float waveAngle;
@@ -67,6 +68,7 @@ public abstract class Ship extends Boat {
     public int sailStateCooldown = 0;
     private float setPoint;
     public final List<Cannon> CANNONS = new ArrayList<>();
+    public final List<ItemStack> SHIELDS = new ArrayList<>();
     public float maxSpeed;
     private CameraType previousCameraType;
 
@@ -107,10 +109,12 @@ public abstract class Ship extends Boat {
         this.getEntityData().define(BACKWARD, false);
         this.getEntityData().define(LEFT, false);
         this.getEntityData().define(RIGHT, false);
+        this.getEntityData().define(SHIELD_DATA, new CompoundTag());
 
         if (this instanceof Sailable sailShip) sailShip.defineSailShipSynchedData();
         if (this instanceof Bannerable bannerShip) bannerShip.defineBannerShipSynchedData();
         if (this instanceof Cannonable cannonShip) cannonShip.defineCannonShipSynchedData();
+        if (this instanceof Shieldable shieldShip) shieldShip.defineShieldShipSynchedData();
     }
 
     @Override
@@ -124,6 +128,7 @@ public abstract class Ship extends Boat {
         if (this instanceof Sailable sailShip) sailShip.readSailShipSaveData(tag);
         if (this instanceof Bannerable bannerShip) bannerShip.readBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.readCannonShipSaveData(tag);
+        if (this instanceof Shieldable shieldShip) shieldShip.readShieldShipSaveData(tag);
     }
 
     @Override
@@ -137,6 +142,7 @@ public abstract class Ship extends Boat {
         if (this instanceof Sailable sailShip) sailShip.addSailShipSaveData(tag);
         if (this instanceof Bannerable bannerShip) bannerShip.addBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.addCannonShipSaveData(tag);
+        if (this instanceof Shieldable shieldShip) shieldShip.addShieldShipSaveData(tag);
     }
 
     public <T> T getData(EntityDataAccessor<T> accessor) {
@@ -275,6 +281,12 @@ public abstract class Ship extends Boat {
     public void setRight(boolean right) {
         entityData.set(RIGHT, right);
     }
+    public CompoundTag getShieldData() {
+        return entityData.get(SHIELD_DATA);
+    }
+    public void setShieldData(CompoundTag f) {
+        this.entityData.set(SHIELD_DATA, f);
+    }
 
     public boolean isForward() {
         if (this.getControllingPassenger() == null) {
@@ -359,7 +371,7 @@ public abstract class Ship extends Boat {
         if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
-
+        if (this instanceof Shieldable shieldShip && shieldShip.interactShield(player, interactionHand)) return InteractionResult.SUCCESS;
         return super.interact(player, interactionHand);
     }
 
