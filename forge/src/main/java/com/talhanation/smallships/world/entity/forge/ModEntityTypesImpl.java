@@ -4,6 +4,7 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
+import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -51,6 +52,14 @@ public class ModEntityTypesImpl {
 
         entries.put(GalleyEntity.class, ENTITY_TYPES.register(GalleyEntity.ID,
                 () -> EntityType.Builder.of(GalleyEntity::new, MobCategory.MISC)
+                        .sized(3.5F, 1.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(GalleyEntity.ID)));
+
+        entries.put(DrakkarEntity.class, ENTITY_TYPES.register(DrakkarEntity.ID,
+                () -> EntityType.Builder.of(DrakkarEntity::new, MobCategory.MISC)
                         .sized(3.5F, 1.25F)
                         .clientTrackingRange(20)
                         .setUpdateInterval(10)

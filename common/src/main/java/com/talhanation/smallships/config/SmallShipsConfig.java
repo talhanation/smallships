@@ -78,6 +78,17 @@ public class SmallShipsConfig {
 
         public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierGalleyBiome;
 
+
+        public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxHealth;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxReverseSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxRotationSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarAcceleration;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarRotationAcceleration;
+
+        public static ForgeConfigSpec.ConfigValue<Integer> shipContainerDrakkarContainerSize;
+
+        public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierDrakkarBiome;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeRadius;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeSpeed;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeDistance;
@@ -270,10 +281,47 @@ public class SmallShipsConfig {
                 .defineEnum("shipModifierGalleyBiome", Ship.BiomeModifierType.WARM);
 
         builder.pop();
+        builder.pop();
+
+        builder.push("Drakkar");
+
+        builder.comment("Default attributes for the Drakkar. Speed in km/h, Health in default mc health points");
+        builder.push("Attributes");
+
+        Common.shipAttributeDrakkarMaxHealth = builder
+                .defineInRange("shipAttributeDrakkarMaxHealth", 200.0D, 0.0D, Double.MAX_VALUE);
+        Common.shipAttributeDrakkarMaxSpeed = builder
+                .defineInRange("shipAttributeDrakkarMaxSpeed", 30.0D, 0.0D, Double.MAX_VALUE);
+        Common.shipAttributeDrakkarMaxReverseSpeed = builder
+                .defineInRange("shipAttributeDrakkarMaxReverseSpeed", 0.1D, 0.0D, Double.MAX_VALUE);
+        Common.shipAttributeDrakkarMaxRotationSpeed = builder
+                .defineInRange("shipAttributeDrakkarMaxRotationSpeed", 5.0D, 0.0D, Double.MAX_VALUE);
+        Common.shipAttributeDrakkarAcceleration = builder
+                .defineInRange("shipAttributeDrakkarAcceleration", 0.015D, 0.0D, Double.MAX_VALUE);
+        Common.shipAttributeDrakkarRotationAcceleration = builder
+                .defineInRange("shipAttributeDrakkarRotationAcceleration", 1.00D, 0.0D, Double.MAX_VALUE);
 
         builder.pop();
 
 
+        builder.comment("Default configs for the container of the Drakkar.");
+        builder.push("Container");
+
+        builder.comment("Set container size for the Drakkar (value must be divisible by 9 and bigger than 0).");
+        Common.shipContainerDrakkarContainerSize = builder
+                .define("shipContainerDrakkarContainerSize", 54, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
+
+        builder.pop();
+
+        builder.comment("Drakkar specific speed modifiers.");
+        builder.push("Modifier");
+
+        builder.comment("Specify biome type for the Drakkar. Can be NONE, COLD, NEUTRAL, or WARM");
+        Common.shipModifierDrakkarBiome = builder
+                .defineEnum("shipModifierDrakkarBiome", Ship.BiomeModifierType.COLD);
+
+        builder.pop();
+        builder.pop();
 
         builder.pop();
     }

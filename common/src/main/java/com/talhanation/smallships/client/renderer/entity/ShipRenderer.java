@@ -9,14 +9,13 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
-import com.talhanation.smallships.client.model.sail.BriggSailModel;
-import com.talhanation.smallships.client.model.sail.CogSailModel;
-import com.talhanation.smallships.client.model.sail.GalleySailModel;
-import com.talhanation.smallships.client.model.sail.SailModel;
+import com.talhanation.smallships.client.model.sail.*;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
+import net.minecraft.client.model.ShieldModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -24,17 +23,19 @@ import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.BannerItem;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
@@ -48,7 +49,7 @@ import java.util.stream.Stream;
 
 import static net.minecraft.client.renderer.entity.MobRenderer.addVertexPair;
 
-public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
+public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     protected final Map<Boat.Type, Pair<ResourceLocation, ShipModel<T>>> boatResources;
 
     public ShipRenderer(EntityRendererProvider.Context context) {
@@ -116,6 +117,9 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
         if (shipEntity instanceof Sailable sailShipEntity) {
             renderSail(sailShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+        }
+        if (shipEntity instanceof Shieldable shieldShipEntity) {
+            renderShields(shieldShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
         }
 
 
@@ -195,6 +199,51 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
     }
 
+    private static final ModelPart shieldModel;
+    static {
+        ModelPart model = ShieldModel.createLayer().bakeRoot();
+        //model.getChild("handle").visible = false;
+        shieldModel = model;
+    }
+    private void renderShields(Shieldable shieldable, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        for(byte i = 0; i < shieldable.getShieldCount(); i++){
+
+            ListTag shieldItems = shieldable.self().getShieldData().getList("Shields", 10);
+            CompoundTag compoundnbt = shieldItems.getCompound(i);
+            ItemStack itemStack = ItemStack.of(compoundnbt);
+            if(itemStack.getItem() instanceof ShieldItem shieldItem){
+                poseStack.pushPose();
+                Shieldable.ShieldPosition pos = shieldable.getShieldPosition(i);
+                poseStack.translate(pos.x, pos.y, pos.z);
+                poseStack.scale(1.0F, -1.0F, -1.0F);
+
+
+                //Taken from
+                //ShieldModel
+                boolean flag = BlockItem.getBlockEntityData(itemStack) != null;
+
+                Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
+                VertexConsumer vertexconsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, RenderType.rerenderType(material.atlasLocation()), true, itemStack.hasFoil()));
+
+
+                List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(ShieldItem.getColor(itemStack), BannerBlockEntity.getItemPatterns(itemStack));
+                BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel, material, itemStack.hasFoil(), patterns);
+
+                if (flag) {
+                    } else {
+                    //shieldModel.getChild("plate").render(poseStack, vertexconsumer, packedLight, 1, 1.0F, 1.0F, 1.0F, 1.0F);
+                }
+                poseStack.popPose();
+            /*
+            List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(ShieldItem.getColor(shieldItem.getDefaultInstance()), BannerBlockEntity.getItemPatterns(shieldItem.getDefaultInstance()));
+            BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel, ModelBakery.SHIELD_BASE, true, patterns);
+            poseStack.popPose();
+             */
+            }
+        }
+    }
+
+
     public Vector3f getWaveAngleRotation(){
         return Vector3f.XN;
     }
@@ -209,6 +258,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         sailModels.put(CogEntity.class, new CogSailModel());
         sailModels.put(BriggEntity.class, new BriggSailModel());
         sailModels.put(GalleyEntity.class, new GalleySailModel());
+        sailModels.put(DrakkarEntity.class, new DrakkarSailModel());
     }
     @SuppressWarnings({"unused", "unchecked"})
     private void renderSail(Sailable sailShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {

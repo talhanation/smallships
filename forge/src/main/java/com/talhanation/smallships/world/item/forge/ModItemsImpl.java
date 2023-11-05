@@ -4,6 +4,7 @@ import com.electronwill.nightconfig.toml.TomlFormat;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
+import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.item.*;
 import net.minecraft.resources.ResourceLocation;
@@ -55,6 +56,8 @@ public class ModItemsImpl {
             register(new ResourceLocation(type.getName()).getPath() + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
             register(new ResourceLocation(type.getName()).getPath() + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
             register(new ResourceLocation(type.getName()).getPath() + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
+            register(new ResourceLocation(type.getName()).getPath() + "_" + DrakkarEntity.ID,  () -> new DrakkarItem(type, new Item.Properties().stacksTo(1).tab(CUSTOM_ITEM_GROUP != null? CUSTOM_ITEM_GROUP : CreativeModeTab.TAB_TRANSPORTATION)));
+
         }
     }
 
