@@ -26,6 +26,21 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     public static final String ID = "drakkar";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerDrakkarContainerSize.get();
 
+    private static final List<ShieldPosition> SHIELD_POSITIONS = new ArrayList<>();
+
+    static {
+        SHIELD_POSITIONS.add(new ShieldPosition(2.1, 0.8, -1.0, true));
+        SHIELD_POSITIONS.add(new ShieldPosition(2.1, 0.8, 1.0, false));
+        SHIELD_POSITIONS.add(new ShieldPosition(0.9, 0.8, -1.2, true));
+        SHIELD_POSITIONS.add(new ShieldPosition(0.9, 0.8, 1.2, false));
+        SHIELD_POSITIONS.add(new ShieldPosition(-0.3, 0.8, -1.2, true));
+        SHIELD_POSITIONS.add(new ShieldPosition(-0.3, 0.8, 1.2, false));
+        SHIELD_POSITIONS.add(new ShieldPosition(-1.5, 0.8, -1.2, true));
+        SHIELD_POSITIONS.add(new ShieldPosition(-1.5, 0.8, 1.2, false));
+        SHIELD_POSITIONS.add(new ShieldPosition(-2.7, 0.8, -1.0, true));
+        SHIELD_POSITIONS.add(new ShieldPosition(-2.7, 0.8, 1.0, false));
+    }
+
     public DrakkarEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
@@ -200,29 +215,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     public ShieldPosition getShieldPosition(int index){
-        List<ShieldPosition> positionList = new ArrayList<>();
-        ShieldPosition pos1 = new ShieldPosition(-0.0, 0, 0.6, true);
-        ShieldPosition pos2 = new ShieldPosition(-0.0, 0, 0.6, false);
-        ShieldPosition pos3 = new ShieldPosition(-0.5, 0, 0.6, true);
-        ShieldPosition pos4 = new ShieldPosition(-0.5, 0, 0.6, false);
-        ShieldPosition pos5 = new ShieldPosition(-1.0, 0, 0.6, true);
-        ShieldPosition pos6 = new ShieldPosition(-1.0, 0, 0.6, false);
-        ShieldPosition pos7 = new ShieldPosition(-1.5, 0, 0.6, true);
-        ShieldPosition pos8 = new ShieldPosition(-1.5, 0, 0.6, false);
-        ShieldPosition pos9 = new ShieldPosition(-2.0, 0, 0.6, true);
-        ShieldPosition pos10 = new ShieldPosition(-2.0, 0, 0.6, false);
-        positionList.add(pos1);
-        positionList.add(pos2);
-        positionList.add(pos3);
-        positionList.add(pos4);
-        positionList.add(pos5);
-        positionList.add(pos6);
-        positionList.add(pos7);
-        positionList.add(pos8);
-        positionList.add(pos9);
-        positionList.add(pos10);
-
-        return positionList.get(index);
+        return SHIELD_POSITIONS.get(index);
     }
 
     @Override
