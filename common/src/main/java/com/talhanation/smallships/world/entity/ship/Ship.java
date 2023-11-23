@@ -1,6 +1,5 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.duck.port.PassengerSizeAccess;
@@ -30,7 +29,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -43,6 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Stack;
 
 public abstract class Ship extends Boat implements PassengerSizeAccess {
     public static final EntityDataAccessor<CompoundTag> ATTRIBUTES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
@@ -51,14 +50,12 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     public static final EntityDataAccessor<Byte> SAIL_STATE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<String>  SAIL_COLOR = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.STRING);
     public static final EntityDataAccessor<ItemStack> BANNER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
-    public static final EntityDataAccessor<ItemStack> SHIELD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<Float> CANNON_POWER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Byte> CANNON_COUNT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> FORWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> BACKWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Byte> SHIELD_COUNT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
 
     private float prevWaveAngle;
@@ -69,7 +66,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     public int sailStateCooldown = 0;
     private float setPoint;
     public final List<Cannon> CANNONS = new ArrayList<>();
-    public final List<ItemStack> SHIELDS = new ArrayList<>();
+    public final Stack<ItemStack> SHIELDS = new Stack<>();
     public float maxSpeed;
     private CameraType previousCameraType;
 
@@ -91,6 +88,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
         if (this instanceof Bannerable bannerShip) bannerShip.tickBannerShip();
         if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
         if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
+        if (this instanceof Shieldable shieldShip) shieldShip.tickShieldShip();
 
         boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
         this.updateShipAmbience(isCruising);
@@ -110,7 +108,6 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
         this.getEntityData().define(BACKWARD, false);
         this.getEntityData().define(LEFT, false);
         this.getEntityData().define(RIGHT, false);
-        this.getEntityData().define(SHIELD_DATA, new CompoundTag());
 
         if (this instanceof Sailable sailShip) sailShip.defineSailShipSynchedData();
         if (this instanceof Bannerable bannerShip) bannerShip.defineBannerShipSynchedData();
@@ -282,12 +279,6 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     public void setRight(boolean right) {
         entityData.set(RIGHT, right);
     }
-    public CompoundTag getShieldData() {
-        return entityData.get(SHIELD_DATA);
-    }
-    public void setShieldData(CompoundTag f) {
-        this.entityData.set(SHIELD_DATA, f);
-    }
 
     public boolean isForward() {
         if (this.getControllingPassenger() == null) {
@@ -318,8 +309,6 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
         BlockPos pos = new BlockPos(this.getX(), this.getY(), this.getZ());
         float tmp = this.getLevel().getBiome(pos).value().getBaseTemperature();
         float modifier = SmallShipsConfig.Common.shipGeneralBiomeModifier.get().floatValue();
-        //TODO remove
-        SmallShipsMod.LOGGER.error(String.valueOf(tmp));
 
         return switch (biomeModifierType) {
             case COLD -> modifier * -tmp;
@@ -464,7 +453,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
         } else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
-            this.setDamage(this.getDamage() + f);
+            this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip? shieldShip.getDamageModifier() : 1));
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGED, damageSource.getEntity());
 
@@ -521,7 +510,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     @Nullable
     public Player getDriver() {
         List<Entity> passengers = getPassengers();
-        if (passengers.size() == 0) {
+        if (passengers.isEmpty()) {
             return null;
         }
 
