@@ -5,7 +5,6 @@ import com.talhanation.smallships.client.option.KeyEvent;
 import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

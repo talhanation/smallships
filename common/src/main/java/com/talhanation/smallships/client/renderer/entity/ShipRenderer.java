@@ -14,6 +14,7 @@ import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
@@ -25,13 +26,12 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -200,46 +200,37 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
     }
 
-    private static final ModelPart shieldModel;
-    static {
-        ModelPart model = ShieldModel.createLayer().bakeRoot();
-        //model.getChild("handle").visible = false;
-        shieldModel = model;
-    }
-    private void renderShields(Shieldable shieldable, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        for(byte i = 0; i < shieldable.getShieldCount(); i++){
-
-            ListTag shieldItems = shieldable.self().getShieldData().getList("Shields", 10);
-            CompoundTag compoundnbt = shieldItems.getCompound(i);
-            ItemStack itemStack = ItemStack.of(compoundnbt);
-            if(itemStack.getItem() instanceof ShieldItem shieldItem){
+    private static final ShieldModel shieldModel = new ShieldModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.SHIELD));
+    @SuppressWarnings("unused")
+    private void renderShields(Shieldable shieldShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        for(byte i = 0; i < shieldShipEntity.getShields().size(); i++){
+            ItemStack itemStack = shieldShipEntity.getShields().get(i);
+            if(itemStack.is(Items.SHIELD)){
                 poseStack.pushPose();
-                Shieldable.ShieldPosition pos = shieldable.getShieldPosition(i);
+                Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
                 poseStack.translate(pos.x, pos.y, pos.z);
                 poseStack.scale(1.0F, -1.0F, -1.0F);
+                if (pos.isRightSided) poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                poseStack.mulPose(Vector3f.XP.rotationDegrees(30.0F));
 
 
-                //Taken from
-                //ShieldModel
+                //Taken from BlockEntityWithoutLevelRenderer
                 boolean flag = BlockItem.getBlockEntityData(itemStack) != null;
 
                 Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
-                VertexConsumer vertexconsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, RenderType.rerenderType(material.atlasLocation()), true, itemStack.hasFoil()));
-
-
-                List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(ShieldItem.getColor(itemStack), BannerBlockEntity.getItemPatterns(itemStack));
-                BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel, material, itemStack.hasFoil(), patterns);
+                VertexConsumer vertexConsumer;
+                try (TextureAtlasSprite sprite = material.sprite()) {
+                    vertexConsumer = sprite.wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, itemStack.hasFoil()));
+                }
 
                 if (flag) {
-                    } else {
-                    //shieldModel.getChild("plate").render(poseStack, vertexconsumer, packedLight, 1, 1.0F, 1.0F, 1.0F, 1.0F);
+                    List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(ShieldItem.getColor(itemStack), BannerBlockEntity.getItemPatterns(itemStack));
+                    BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, patterns, itemStack.hasFoil());
+                } else {
+                    shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
                 }
+
                 poseStack.popPose();
-            /*
-            List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(ShieldItem.getColor(shieldItem.getDefaultInstance()), BannerBlockEntity.getItemPatterns(shieldItem.getDefaultInstance()));
-            BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel, ModelBakery.SHIELD_BASE, true, patterns);
-            poseStack.popPose();
-             */
             }
         }
     }

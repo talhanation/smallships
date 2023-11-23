@@ -6,7 +6,11 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+
+import java.util.Stack;
 
 public interface Shieldable extends Ability {
 
@@ -14,90 +18,82 @@ public interface Shieldable extends Ability {
     byte getMaxShieldsPerSide();
 
     default void tickShieldShip() {
-
     }
 
     default void defineShieldShipSynchedData() {
-        self().getEntityData().define(Ship.SHIELD_COUNT, (byte) 0);
+        self().getEntityData().define(Ship.SHIELD_DATA, new CompoundTag());
     }
 
-    default void readShieldShipSaveData(CompoundTag tag) {
-        if (tag.contains("ShieldCount")) {
-            this.setShieldCount(tag.getByte("ShieldCount"));
-            //this.updateShield();
-        }
-
-        ListTag shieldItems = tag.getList("Shields", 10);
-        for (int i = 0; i < shieldItems.size(); ++i) {
-            CompoundTag compoundnbt = shieldItems.getCompound(i);
-
-            ItemStack itemStack = ItemStack.of(compoundnbt);
-            self().SHIELDS.add(itemStack);
-        }
+    default void readShieldShipSaveData(CompoundTag compoundTag) {
+        this.loadSaveData(compoundTag);
+        self().setData(Ship.SHIELD_DATA, this.getSaveData());
     }
 
-    @SuppressWarnings("unused")
-    default void addShieldShipSaveData(CompoundTag tag) {
-        tag.putInt("ShieldCount", this.getShieldCount());
+    default void addShieldShipSaveData(CompoundTag compoundTag) {
+        this.loadSaveData(self().getData(Ship.SHIELD_DATA));
+        this.addSaveData(compoundTag);
+    }
 
+    private void addSaveData(CompoundTag tag) {
         ListTag listTag = new ListTag();
-        for (int i = 0; i < self().SHIELDS.size(); ++i) {
-            ItemStack itemstack = self().SHIELDS.get(i);
-            if (!itemstack.isEmpty()) {
-                CompoundTag compoundnbt = new CompoundTag();
-                compoundnbt.putByte("Shields", (byte) i);
-                itemstack.save(compoundnbt);
-                listTag.add(compoundnbt);
+
+        for (int i = 0; i < this.getShields().size(); ++i) {
+            ItemStack itemStack = this.getShields().get(i);
+            if (!itemStack.isEmpty()) {
+                CompoundTag compoundTag = new CompoundTag();
+                itemStack.save(compoundTag);
+                listTag.add(compoundTag);
             }
         }
         tag.put("Shields", listTag);
     }
 
-    default void saveToShieldData(ItemStack itemstack) {
-        ListTag listTag = self().getShieldData().getList("Shields", 10);
+    private CompoundTag getSaveData() {
+        CompoundTag compoundTag = new CompoundTag();
+        this.addSaveData(compoundTag);
+        return compoundTag;
+    }
 
-        if (!itemstack.isEmpty()) {
-            CompoundTag compoundnbt = new CompoundTag();
-            byte index = (byte) (listTag.size() > 0 ? listTag.size() - 1 : 0);
-            compoundnbt.putByte("Shields", index);
-            itemstack.save(compoundnbt);
-            listTag.add(compoundnbt);
+    private void loadSaveData(CompoundTag tag) {
+        self().SHIELDS.clear();
+        if (tag.contains("Shields", 9)) {
+            ListTag listTag = tag.getList("Shields", 10);
+
+            for (int i = 0; i < listTag.size(); ++i) {
+                CompoundTag compoundTag = listTag.getCompound(i);
+                ItemStack itemStack = ItemStack.of(compoundTag);
+                self().SHIELDS.push(itemStack);
+            }
         }
-
-        CompoundTag newShields = new CompoundTag();
-        newShields.put("Shields", listTag);
-
-        self().setShieldData(newShields);
     }
 
-    default void setShieldCount(byte x) {
-        self().getEntityData().set(Ship.SHIELD_COUNT, x);
-    }
-    default byte getShieldCount() {
-        return self().getEntityData().get(Ship.SHIELD_COUNT);
+    default float getDamageModifier() {
+        return 1.0F - ((float) getShields().size() / (this.getMaxShieldsPerSide() * 2)) * 0.3F; //TODO: make maximum of 30% damage reduction configurable
     }
 
    default boolean interactShield(Player player, InteractionHand interactionHand) {
-       ItemStack item = player.getItemInHand(interactionHand);
-       byte shieldCount = this.getShieldCount();
-       if (item.getItem() instanceof ShieldItem shieldItem) {
-           if (shieldCount >= getMaxShieldsPerSide() * 2) {
+       ItemStack itemStack = player.getItemInHand(interactionHand);
+       int shieldCount = this.getShields().size();
+       if (itemStack.is(Items.SHIELD)) {
+           if (shieldCount >= this.getMaxShieldsPerSide() * 2) {
                return false;
+           } else {
+               this.getShields().push(itemStack.copy());
+               if (!player.isCreative()) itemStack.shrink(1);
+               self().getLevel().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.5F);
+               return true;
            }
-           else {
-               this.setShieldCount((byte) (shieldCount + 1));
-               this.saveToShieldData(shieldItem.getDefaultInstance());
-               self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.5F);
-               if (!player.isCreative()) item.shrink(1);
-           }
-           return true;
-       } else if (item.getItem() instanceof AxeItem && shieldCount > 0) {
-           this.setShieldCount((byte) (shieldCount - 1));
-
-           self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.0F);
+       } else if (itemStack.getItem() instanceof AxeItem && shieldCount > 0) {
+           self().spawnAtLocation(this.getShields().pop());
+           self().getLevel().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.0F);
            return true;
        }
        return false;
+   }
+
+   default Stack<ItemStack> getShields() {
+        if (self().SHIELDS.isEmpty()) this.loadSaveData(self().getData(Ship.SHIELD_DATA));
+        return self().SHIELDS;
    }
 
     @SuppressWarnings("ClassCanBeRecord")

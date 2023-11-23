@@ -15,13 +15,15 @@ import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
+
 public interface Cannonable extends Ability {
     float getDefaultCannonPower();
     CannonPosition getCannonPosition(int index);
     byte getMaxCannonPerSide();
 
     default void tickCannonShip() {
-        for(Cannon cannon : self().CANNONS) {
+        for(Cannon cannon : this.getCannons()) {
             cannon.tick();
             if(self().isCannonKeyPressed() && canShoot()){
 
@@ -55,13 +57,13 @@ public interface Cannonable extends Ability {
     default void updateCannonCount(){
         byte cannons = this.getCannonCount();
 
-        self().CANNONS.clear();
+        this.getCannons().clear();
         for (int i = 0; i < cannons; i++) {
             CannonPosition cannonPosition = this.getCannonPosition(i);
 
             if(cannonPosition!= null){
                 Cannon cannon = new Cannon(self(), cannonPosition);
-                self().CANNONS.add(cannon);
+                this.getCannons().add(cannon);
             }
         }
 
@@ -69,13 +71,13 @@ public interface Cannonable extends Ability {
     }
     default boolean interactCannon(Player player, InteractionHand interactionHand) {
         ItemStack item = player.getItemInHand(interactionHand);
-        byte cannons = this.getCannonCount();
+        byte cannonCount = this.getCannonCount();
         if (item.getItem() == ModItems.CANNON && self() instanceof ContainerShip) {
-            if (cannons >= getMaxCannonPerSide() * 2) {
+            if (cannonCount >= getMaxCannonPerSide() * 2) {
                 return false;
             }
             else {
-                this.setCannonCount((byte) (cannons + 1));
+                this.setCannonCount((byte) (cannonCount + 1));
 
                 self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
                 if (!player.isCreative()) item.shrink(1);
@@ -83,8 +85,8 @@ public interface Cannonable extends Ability {
                 this.updateCannonCount();
             }
             return true;
-        } else if (item.getItem() instanceof AxeItem && cannons > 0) {
-            this.setCannonCount((byte) (cannons - 1));
+        } else if (item.getItem() instanceof AxeItem && cannonCount > 0) {
+            this.setCannonCount((byte) (cannonCount - 1));
 
             self().spawnAtLocation(ModItems.CANNON);
             self().getLevel().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
@@ -137,6 +139,10 @@ public interface Cannonable extends Ability {
     }
     default byte getCannonCount() {
         return self().getEntityData().get(Ship.CANNON_COUNT);
+    }
+
+    default List<Cannon> getCannons() {
+        return self().CANNONS;
     }
 
     @SuppressWarnings("ClassCanBeRecord")

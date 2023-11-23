@@ -13,7 +13,6 @@
     "container.SimpleContainerAccessor",
     "controlling.BoatAccessor",
     "controlling.BoatMixin",
-    "damaging.BoatMixin",
     "damaging.DamageSourceAccessor",
     "leashing.BoatMixin",
     "leashing.EntityMixin",
