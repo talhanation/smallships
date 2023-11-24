@@ -250,6 +250,13 @@ public abstract class Ship extends Boat {
         this.setSpeed(speed);
     }
 
+    public CompoundTag getShieldData() {
+        return entityData.get(SHIELD_DATA);
+    }
+    public void setShieldData(CompoundTag f) {
+        this.entityData.set(SHIELD_DATA, f);
+    }
+
     public float getSpeed() {
         return entityData.get(SPEED);
     }

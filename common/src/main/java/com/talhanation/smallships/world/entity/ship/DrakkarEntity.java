@@ -37,8 +37,8 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
         SHIELD_POSITIONS.add(new ShieldPosition(-0.3, 0.8, 1.2, false));
         SHIELD_POSITIONS.add(new ShieldPosition(-1.5, 0.8, -1.2, true));
         SHIELD_POSITIONS.add(new ShieldPosition(-1.5, 0.8, 1.2, false));
-        SHIELD_POSITIONS.add(new ShieldPosition(-2.7, 0.8, -1.0, true));
-        SHIELD_POSITIONS.add(new ShieldPosition(-2.7, 0.8, 1.0, false));
+        SHIELD_POSITIONS.add(new ShieldPosition(-3.0, 0.8, -1.0, true));
+        SHIELD_POSITIONS.add(new ShieldPosition(-3.0, 0.8, 1.0, false));
     }
 
     public DrakkarEntity(EntityType<? extends Boat> entityType, Level level) {
