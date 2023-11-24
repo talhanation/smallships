@@ -208,10 +208,9 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 poseStack.pushPose();
                 Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
                 poseStack.translate(pos.x, pos.y, pos.z);
-                poseStack.scale(1.0F, -1.0F, -1.0F);
+                poseStack.scale(0.8F, -0.8F, -0.8F);
                 if (pos.isRightSided) poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(30.0F));
-
+                poseStack.mulPose(Vector3f.XP.rotationDegrees(20.0F));
 
                 //Taken from BlockEntityWithoutLevelRenderer
                 boolean flag = BlockItem.getBlockEntityData(itemStack) != null;
@@ -228,7 +227,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 } else {
                     shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
                 }
-
+                shieldModel.handle().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
                 poseStack.popPose();
             }
         }

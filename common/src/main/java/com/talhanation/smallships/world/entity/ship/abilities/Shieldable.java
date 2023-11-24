@@ -24,47 +24,37 @@ public interface Shieldable extends Ability {
         self().getEntityData().define(Ship.SHIELD_DATA, new CompoundTag());
     }
 
-    default void readShieldShipSaveData(CompoundTag compoundTag) {
-        this.loadSaveData(compoundTag);
-        self().setData(Ship.SHIELD_DATA, this.getSaveData());
+    default void readShieldShipSaveData(CompoundTag tag) {
+        ListTag shieldItems = tag.getList("Shields", 10);
+
+        for (int i = 0; i < shieldItems.size(); ++i) {
+            CompoundTag compoundnbt = shieldItems.getCompound(i);
+            ItemStack itemStack = ItemStack.of(compoundnbt);
+            self().SHIELDS.push(itemStack);
+        }
+
+        self().setShieldData(tag);
     }
 
-    default void addShieldShipSaveData(CompoundTag compoundTag) {
-        this.loadSaveData(self().getData(Ship.SHIELD_DATA));
-        this.addSaveData(compoundTag);
-    }
-
-    private void addSaveData(CompoundTag tag) {
+    default void addShieldShipSaveData(CompoundTag tag) {
         ListTag listTag = new ListTag();
-
-        for (int i = 0; i < this.getShields().size(); ++i) {
-            ItemStack itemStack = this.getShields().get(i);
-            if (!itemStack.isEmpty()) {
-                CompoundTag compoundTag = new CompoundTag();
-                itemStack.save(compoundTag);
-                listTag.add(compoundTag);
+        for (int i = 0; i < self().SHIELDS.size(); ++i) {
+            ItemStack itemstack = self().SHIELDS.get(i);
+            if (!itemstack.isEmpty()) {
+                CompoundTag compoundnbt = new CompoundTag();
+                compoundnbt.putByte("Shields", (byte) i);
+                itemstack.save(compoundnbt);
+                listTag.add(compoundnbt);
             }
         }
         tag.put("Shields", listTag);
+
+        self().setShieldData(tag);
     }
-
-    private CompoundTag getSaveData() {
-        CompoundTag compoundTag = new CompoundTag();
-        this.addSaveData(compoundTag);
-        return compoundTag;
-    }
-
-    private void loadSaveData(CompoundTag tag) {
-        self().SHIELDS.clear();
-        if (tag.contains("Shields", 9)) {
-            ListTag listTag = tag.getList("Shields", 10);
-
-            for (int i = 0; i < listTag.size(); ++i) {
-                CompoundTag compoundTag = listTag.getCompound(i);
-                ItemStack itemStack = ItemStack.of(compoundTag);
-                self().SHIELDS.push(itemStack);
-            }
-        }
+    default Stack<ItemStack> getShields() {
+        if (self().SHIELDS.isEmpty() && !self().getShieldData().isEmpty() && this.self().getCommandSenderWorld().isClientSide())
+            this.readShieldShipSaveData(self().getShieldData());
+        return self().SHIELDS;
     }
 
     default float getDamageModifier() {
@@ -84,16 +74,14 @@ public interface Shieldable extends Ability {
                return true;
            }
        } else if (itemStack.getItem() instanceof AxeItem && shieldCount > 0) {
-           self().spawnAtLocation(this.getShields().pop());
+           ItemStack removedShield = this.getShields().pop();
+           self().spawnAtLocation(removedShield, 2);
+           //TODO: remove from SHIP_DATA as well
+           
            self().getLevel().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.0F);
            return true;
        }
        return false;
-   }
-
-   default Stack<ItemStack> getShields() {
-        if (self().SHIELDS.isEmpty()) this.loadSaveData(self().getData(Ship.SHIELD_DATA));
-        return self().SHIELDS;
    }
 
     @SuppressWarnings("ClassCanBeRecord")
