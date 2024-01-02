@@ -10,10 +10,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -26,10 +28,23 @@ public interface Cannonable extends Ability {
         for(Cannon cannon : this.getCannons()) {
             cannon.tick();
             if(self().isCannonKeyPressed() && canShoot()){
-
-                if(cannon.canShootDirection()) cannon.trigger();
+                this.triggerCannon(cannon);
             }
         }
+    }
+    default void triggerCannon(Cannon cannon){
+        if(cannon.canShootDirection()) cannon.trigger();
+    }
+
+    //Important for reflection
+    default void triggerCannons(Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy){
+        if(canShoot()){
+            for(Cannon cannon : this.getCannons())
+                this.triggerCannonAdvanced(cannon,shootVec, yShootVec, driverEntity, speed, accuracy);
+        }
+    }
+    default void triggerCannonAdvanced(Cannon cannon, Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy){
+        if(cannon.canShootDirection()) cannon.trigger(shootVec, yShootVec, driverEntity, speed, accuracy);
     }
 
     default void defineCannonShipSynchedData() {
