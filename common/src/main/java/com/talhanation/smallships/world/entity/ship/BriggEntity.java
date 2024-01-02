@@ -57,7 +57,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
-    protected int getMaxPassengers() {
+    public int getMaxPassengers() {
         return 11;
     }
 

@@ -56,13 +56,6 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     public static DrakkarEntity summon(Level level, double d, double e, double f) {
         return new DrakkarEntity(level, d, e, f);
     }
-
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        this.updateContainerFillState(); //somehow ContainerFillState is bugged initially even though it should not be, that's why this line is needed.
-    }
-
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
@@ -78,7 +71,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     @Override
-    protected int getMaxPassengers() {
+    public int getMaxPassengers() {
         return 11;
     }
 
