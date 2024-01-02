@@ -80,4 +80,10 @@ public class Kalkuel {
     public static float getMeterPerSecond(float speed) {
         return (getKilometerPerHour(speed)) / 3.6F;
     }
+
+    public static float getMilesPerHour(float speed) {
+        return (getKilometerPerHour(speed)) / 1.609F;
+    }
+
+
 }

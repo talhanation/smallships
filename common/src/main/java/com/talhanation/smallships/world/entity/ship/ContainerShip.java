@@ -83,7 +83,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.getEntityData().define(ROWS, (byte) 6);
         this.getEntityData().define(PAGES, (byte) 1);
         this.getEntityData().define(PAGE_INDEX, (byte) 0);
-        this.getEntityData().define(CONTAINER_FILL_STATE, Byte.MIN_VALUE);
+        this.getEntityData().define(CONTAINER_FILL_STATE, (byte) 0);
     }
 
     @Override
@@ -209,6 +209,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public void setChanged() {
+        this.updateContainerFillState();
     }
 
     @Override
@@ -299,10 +300,19 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     protected void updateContainerFillState(){
-        double invFillStateInPercent = this.getItemStacks().stream().map(i -> !i.isEmpty()? (double) i.getCount() / i.getMaxStackSize() : 0.0D).reduce(0.0D, Double::sum) / this.getItemStacks().size();
-        short u_byteMaxValue = -Byte.MIN_VALUE + Byte.MAX_VALUE;
-        byte invFillState = (byte) (invFillStateInPercent * u_byteMaxValue - (-Byte.MIN_VALUE));
-        this.setContainerFillState(invFillState);
+        int percent = (int) getInvFillStateInPercent();
+        this.setContainerFillState((byte) percent);
+    }
+
+    public byte getInvFillState(){
+        return this.entityData.get(CONTAINER_FILL_STATE);
+    }
+
+    public double getInvFillStateInPercent(){
+        int size = this.getItemStacks().size();
+        double invFillStateInPercent = this.getItemStacks().stream().map(itemStack -> !itemStack.isEmpty()? (double) itemStack.getCount() / itemStack.getMaxStackSize() : 0.0D).reduce(0.0D, Double::sum) / size;
+
+        return invFillStateInPercent * 100;
     }
 
     public void resizeContainer(int containerSize) {

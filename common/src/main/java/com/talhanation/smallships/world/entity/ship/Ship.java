@@ -440,7 +440,7 @@ public abstract class Ship extends Boat {
     }
 
     @Override
-    protected abstract int getMaxPassengers();
+    public abstract int getMaxPassengers();
     @Override
     public abstract @NotNull Item getDropItem();
     public abstract BiomeModifierType getBiomeModifierType();
