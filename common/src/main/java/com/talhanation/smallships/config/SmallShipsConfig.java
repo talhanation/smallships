@@ -103,6 +103,7 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.BooleanValue shipGeneralCameraAutoThirdPerson;
         public static ForgeConfigSpec.DoubleValue shipGeneralCameraZoomMax;
         public static ForgeConfigSpec.DoubleValue shipGeneralCameraZoomMin;
+        public static ForgeConfigSpec.ConfigValue<Integer> shipModSpeedUnit;
     }
 
     private static void setupCommonConfig(ForgeConfigSpec.Builder builder) {
@@ -333,8 +334,13 @@ public class SmallShipsConfig {
         builder.comment(" This category holds configs that define ship behaviour.");
         builder.push("Ship");
 
+        builder.comment("Set the speed indication: 0 = km/h, 1 = m/s, 2 = knots, 3 = mph");
+        Client.shipModSpeedUnit = builder
+                .define("shipModSpeedUnit", 0);
+
         builder.comment("This category holds configs that define general ship behaviour.");
         builder.push("General");
+
 
         builder.comment("General camera settings for ships.");
         builder.push("Camera");

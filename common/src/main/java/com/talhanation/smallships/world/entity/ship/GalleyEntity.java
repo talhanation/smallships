@@ -43,12 +43,6 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        this.updateContainerFillState(); //somehow ContainerFillState is bugged initially even though it should not be, that's why this line is needed.
-    }
-
-    @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
         attributes.maxHealth = SmallShipsConfig.Common.shipAttributeGalleyMaxHealth.get().floatValue();
