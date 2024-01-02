@@ -87,6 +87,18 @@ public class Cannon extends Entity { // why is this an entity??
         }
     }
 
+    public void trigger(Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy) {
+        if (coolDown == 0) {
+            if (time > 0) time--;
+
+            if (time == 0) {
+                this.shoot(shootVec, yShootVec, driverEntity, speed, accuracy);
+                this.resetTimer();
+                this.setCoolDown();
+            }
+        }
+    }
+
     public void updatePosition(){
         Vec3 forward = this.ship.getForward();
         float x0 = 0; // /-/rechst /+/links //no need
