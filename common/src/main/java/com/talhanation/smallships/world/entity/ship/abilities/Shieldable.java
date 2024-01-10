@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -58,7 +59,7 @@ public interface Shieldable extends Ability {
     }
 
     default float getDamageModifier() {
-        return 1.0F - ((float) getShields().size() / (this.getMaxShieldsPerSide() * 2)) * 0.3F; //TODO: make maximum of 30% damage reduction configurable
+        return (float) (1.0F - getShields().size() * SmallShipsConfig.Common.shipGeneralShieldDamageReduction.get()/100F);
     }
 
    default boolean interactShield(Player player, InteractionHand interactionHand) {

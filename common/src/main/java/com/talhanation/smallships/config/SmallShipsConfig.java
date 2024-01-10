@@ -44,6 +44,8 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue shipGeneralCannonModifier;
         public static ForgeConfigSpec.DoubleValue shipGeneralPaddlingModifier;
         public static ForgeConfigSpec.DoubleValue shipGeneralBiomeModifier;
+        public static ForgeConfigSpec.ConfigValue<List<String>> mountBlackList;
+        public static ForgeConfigSpec.DoubleValue shipGeneralShieldDamageReduction;
 
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxSpeed;
@@ -78,7 +80,7 @@ public class SmallShipsConfig {
 
         public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierGalleyBiome;
 
-        public static ForgeConfigSpec.ConfigValue<List<String>> mountBlackList;
+
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxReverseSpeed;
@@ -92,7 +94,6 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeRadius;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeSpeed;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeDistance;
-
         public static ForgeConfigSpec.BooleanValue smallshipsItemGroupEnable;
     }
 
@@ -154,6 +155,10 @@ public class SmallShipsConfig {
         builder.comment("Maximum speed bonus and penalty depending on the ship biome type in percent.");
         Common.shipGeneralBiomeModifier = builder
                 .defineInRange("shipGeneralBiomeModifier", 20.0D, 0.0D, 500.0D);
+
+        builder.comment("Damage reduction per shield in percent.");
+        Common.shipGeneralShieldDamageReduction = builder
+                .defineInRange("shipGeneralShieldDamageReduction", 3.0D, -500.0D, 500.0D);
 
         builder.comment("Entities in this list won't be able to mount a ship, for example: [\"minecraft:creeper\", \"minecraft:sheep\", ...]");
         Common.mountBlackList = builder
