@@ -37,6 +37,7 @@ public class SmallShipsConfig {
 
         public static ForgeConfigSpec.IntValue shipGeneralSailCooldown;
         public static ForgeConfigSpec.DoubleValue shipGeneralCollisionDamage;
+        public static ForgeConfigSpec.BooleanValue shipGeneralCollisionKnockBack;
         public static ForgeConfigSpec.BooleanValue shipGeneralDoItemDrop;
         public static ForgeConfigSpec.DoubleValue shipGeneralContainerModifier;
         public static ForgeConfigSpec.DoubleValue shipGeneralCannonModifier;
@@ -118,6 +119,7 @@ public class SmallShipsConfig {
                 .defineInRange("shipGeneralSailCooldown", 30, 0, Integer.MAX_VALUE);
         Common.shipGeneralCollisionDamage = builder
                 .defineInRange("shipGeneralCollisionDamage", 7.5D, 0.0D, Double.MAX_VALUE);
+
         Common.shipGeneralDoItemDrop = builder
                 .define("shipGeneralDoItemDrop", true);
 
