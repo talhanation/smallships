@@ -495,7 +495,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     }
 
     private void updateCollision(boolean isCruising){
-        if(isCruising) {
+        if(isCruising && canDoKnockBack() && SmallShipsConfig.Common.shipGeneralCollisionKnockBack.get()) {
             AABB boundingBox = this.getBoundingBox().inflate(2.25, 1.25, 2.25).move(0.0, -2.0, 0.0);
             List<Entity> list = this.level.getEntities(this, boundingBox, EntitySelector.pushableBy(this));
             for(Entity entity: list) {
@@ -505,6 +505,14 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
                 }
             }
         }
+    }
+    //Reflection Method
+    public boolean canDoKnockBack(){
+        return true;
+    }
+    //Reflection Method
+    public boolean canDoCollisionDamage(){
+        return true;
     }
 
     private void collisionDamage(Entity entity, float speed) {
