@@ -28,6 +28,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.NameTagItem;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -326,6 +328,12 @@ public abstract class Ship extends Boat {
 
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
+        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().hasCustomHoverName() && !player.getCommandSenderWorld().isClientSide){
+            this.setCustomName(player.getMainHandItem().getHoverName());
+            this.setCustomNameVisible(false);
+            if(!player.isCreative()) player.getMainHandItem().shrink(1);
+            return InteractionResult.SUCCESS;
+        }
         if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
@@ -454,7 +462,7 @@ public abstract class Ship extends Boat {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
         } else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
-            this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip? shieldShip.getDamageModifier() : 1));
+            this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip ? shieldShip.getDamageModifier() : 1));
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
 
