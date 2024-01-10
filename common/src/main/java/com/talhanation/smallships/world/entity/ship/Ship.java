@@ -516,9 +516,9 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     }
 
     private void collisionDamage(Entity entity, float speed) {
-        if (speed > 0.1F) {
+        if (canDoCollisionDamage() && speed > 0.1F) {
             float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
-            if(damage > 0 && canDoCollisionDamage()) entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
+            if(damage > 0) entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
         }
 
     }
