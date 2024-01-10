@@ -141,6 +141,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
 
         int leftPos = 260;
         int leftPos2 = 330;
+        int leftPos2 = 320;
         int topPos = 38;
         int gap = 14;
         poseStack.pushPose();
@@ -150,6 +151,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         font.draw(poseStack, "Name:", leftPos, topPos + gap * 0, FONT_COLOR);
         font.draw(poseStack, "Type:", leftPos, topPos + gap * 1, FONT_COLOR);
         font.draw(poseStack, "Passengers:", leftPos, topPos + gap * 2, FONT_COLOR);
+        font.draw(poseStack, "Crew:", leftPos, topPos + gap * 2, FONT_COLOR);
         font.draw(poseStack, "Speed " + unit + ":", leftPos, topPos + gap * 3, FONT_COLOR);
         font.draw(poseStack, "Damage:", leftPos, topPos + gap * 4, FONT_COLOR);
         font.draw(poseStack, "Cannons:", leftPos, topPos + gap * 5, FONT_COLOR);
