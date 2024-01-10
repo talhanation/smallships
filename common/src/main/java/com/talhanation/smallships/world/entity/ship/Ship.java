@@ -549,7 +549,7 @@ public abstract class Ship extends Boat {
     private void collisionDamage(Entity entity, float speed) {
         if (speed > 0.1F) {
             float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
-            entity.hurt(this.damageSources().explosion(this, this.getControllingPassenger()), damage);
+            if(damage > 0 && canDoCollisionDamage()) entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
         }
 
     }
