@@ -7,6 +7,7 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -89,8 +90,16 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         int currentPassengers = this.containerShip.getPassengers().size();
         int maxPassengers = this.containerShip.getMaxPassengers();
 
-        int maxCannons = this.containerShip instanceof Cannonable cannonable ? cannonable.getMaxCannonPerSide() * 2 : 0;
-        int currentCannons = this.containerShip instanceof Cannonable cannonable ? cannonable.getCannonCount() : 0;
+        int maxAttachment = 0;
+        int currentAttachment = 0;
+        if(this.containerShip instanceof Cannonable cannonable){
+            maxAttachment =  cannonable.getMaxCannonPerSide() * 2;
+            currentAttachment = cannonable.getCannonCount();
+        }
+        else if (this.containerShip instanceof Shieldable shieldable){
+            maxAttachment =  shieldable.getMaxShieldsPerSide() * 2;
+            currentAttachment = shieldable.getShields().size();
+        }
 
         int dmg = (int) (this.containerShip.getDamage() * 100 / this.containerShip.getAttributes().maxHealth);
 
@@ -121,28 +130,26 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         }
 
         int leftPos = 260;
-        int leftPos2 = 330;
         int leftPos2 = 320;
         int topPos = 38;
         int gap = 14;
         poseStack.pushPose();
         poseStack.scale(0.7F, 0.7F, 1F);
-
+        String attachment = this.containerShip instanceof Shieldable ? "Shields:" : "Cannons:";
 
         font.draw(poseStack, "Name:", leftPos, topPos + gap * 0, FONT_COLOR);
         font.draw(poseStack, "Type:", leftPos, topPos + gap * 1, FONT_COLOR);
-        font.draw(poseStack, "Passengers:", leftPos, topPos + gap * 2, FONT_COLOR);
         font.draw(poseStack, "Crew:", leftPos, topPos + gap * 2, FONT_COLOR);
         font.draw(poseStack, "Speed " + unit + ":", leftPos, topPos + gap * 3, FONT_COLOR);
         font.draw(poseStack, "Damage:", leftPos, topPos + gap * 4, FONT_COLOR);
-        font.draw(poseStack, "Cannons:", leftPos, topPos + gap * 5, FONT_COLOR);
+        font.draw(poseStack, attachment, leftPos, topPos + gap * 5, FONT_COLOR);
 
         font.draw(poseStack, name, leftPos2, topPos + gap * 0, FONT_COLOR);
         font.draw(poseStack, smallShipType, leftPos2, topPos + gap * 1, FONT_COLOR);
         font.draw(poseStack, currentPassengers + "/" + maxPassengers, leftPos2, topPos + gap * 2, FONT_COLOR);
         font.draw(poseStack, currentSpeed + "/" + maxSpeed, leftPos2, topPos + gap * 3, FONT_COLOR);
         font.draw(poseStack, dmg + "%", leftPos2, topPos + gap * 4, FONT_COLOR);
-        font.draw(poseStack, currentCannons + "/" + maxCannons, leftPos2, topPos + gap * 5, FONT_COLOR);
+        font.draw(poseStack, currentAttachment + "/" + maxAttachment, leftPos2, topPos + gap * 5, FONT_COLOR);
 
         poseStack.popPose();
 
