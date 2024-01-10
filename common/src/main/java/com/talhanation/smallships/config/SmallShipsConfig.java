@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -77,7 +78,7 @@ public class SmallShipsConfig {
 
         public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierGalleyBiome;
 
-
+        public static ForgeConfigSpec.ConfigValue<List<String>> mountBlackList;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxReverseSpeed;
@@ -105,9 +106,13 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.ConfigValue<Integer> shipModSpeedUnit;
     }
 
+
     private static void setupCommonConfig(ForgeConfigSpec.Builder builder) {
+        ArrayList<String> MOUNT_BLACKLIST = new ArrayList<>(
+                Arrays.asList("minecraft:ender_dragon", "minecraft:wither", "minecraft:wither", "minecraft:ghast", "minecraft:warden", "minecraft:ravager", "alexmobs:cachalot_whale"));
+
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
-        Common.schematicVersion = builder.define("schematicVersion", 3, e -> false);
+        Common.schematicVersion = builder.define("schematicVersion", 4, e -> false);
 
         builder.comment(" This category holds configs that define ship behaviour.");
         builder.push("Ship");
@@ -115,11 +120,19 @@ public class SmallShipsConfig {
         builder.comment("This category holds configs that define general ship behaviour.");
         builder.push("General");
 
+        builder.comment("The cool-down for sails when increasing or decreasing sail state.");
         Common.shipGeneralSailCooldown = builder
                 .defineInRange("shipGeneralSailCooldown", 30, 0, Integer.MAX_VALUE);
+
+        builder.comment("The damage that is delivered to entities on collision with a cruising ship. Set 0 to disable feature.");
         Common.shipGeneralCollisionDamage = builder
                 .defineInRange("shipGeneralCollisionDamage", 7.5D, 0.0D, Double.MAX_VALUE);
 
+        builder.comment("Should entities be pushed on collision with a cruising ship?");
+        Common.shipGeneralCollisionKnockBack = builder
+                .define("shipGeneralCollisionKnockBack", true);
+
+        builder.comment("Should the ship item be dropped when the ship is fully damaged?");
         Common.shipGeneralDoItemDrop = builder
                 .define("shipGeneralDoItemDrop", true);
 
@@ -142,6 +155,10 @@ public class SmallShipsConfig {
         Common.shipGeneralBiomeModifier = builder
                 .defineInRange("shipGeneralBiomeModifier", 20.0D, 0.0D, 500.0D);
 
+        builder.comment("Entities in this list won't be able to mount a ship, for example: [\"minecraft:creeper\", \"minecraft:sheep\", ...]");
+        Common.mountBlackList = builder
+                .define("mountBlackList", MOUNT_BLACKLIST);
+
         builder.pop();
 
         builder.comment("This category holds configs that define behaviour of fleeing water animals.");
@@ -157,7 +174,6 @@ public class SmallShipsConfig {
         builder.pop();
 
         builder.pop();
-
 
 
         builder.push("Cog");
@@ -201,7 +217,6 @@ public class SmallShipsConfig {
         builder.pop();
 
 
-
         builder.push("Brigg");
 
         builder.comment("Default attributes for the Brigg. Speed in km/h, Health in default mc health points");
@@ -241,7 +256,6 @@ public class SmallShipsConfig {
         builder.pop();
 
         builder.pop();
-
 
 
         builder.push("Galley");
