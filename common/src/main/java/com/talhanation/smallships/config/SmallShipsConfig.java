@@ -46,6 +46,7 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue shipGeneralBiomeModifier;
         public static ForgeConfigSpec.ConfigValue<List<String>> mountBlackList;
         public static ForgeConfigSpec.DoubleValue shipGeneralShieldDamageReduction;
+        public static ForgeConfigSpec.DoubleValue shipGeneralDespawnTimeSunken;
 
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxSpeed;
@@ -123,11 +124,11 @@ public class SmallShipsConfig {
 
         builder.comment("The cool-down for sails when increasing or decreasing sail state.");
         Common.shipGeneralSailCooldown = builder
-                .defineInRange("shipGeneralSailCooldown", 30, 0, Integer.MAX_VALUE);
+                .defineInRange("shipGeneralSailCooldown", 30, 0, 1000);
 
         builder.comment("The damage that is delivered to entities on collision with a cruising ship. Set 0 to disable feature.");
         Common.shipGeneralCollisionDamage = builder
-                .defineInRange("shipGeneralCollisionDamage", 7.5D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipGeneralCollisionDamage", 7.5D, 0.0D, 100.0D);
 
         builder.comment("Should entities be pushed on collision with a cruising ship?");
         Common.shipGeneralCollisionKnockBack = builder
@@ -159,6 +160,10 @@ public class SmallShipsConfig {
         builder.comment("Damage reduction per shield in percent.");
         Common.shipGeneralShieldDamageReduction = builder
                 .defineInRange("shipGeneralShieldDamageReduction", 3.0D, -500.0D, 500.0D);
+
+        builder.comment("Time in minutes in which sunken ships will despawn.");
+        Common.shipGeneralDespawnTimeSunken = builder
+                .defineInRange("shipGeneralDespawnTimeSunken", 15.0D, 0.0D, 600.0D);
 
         builder.comment("Entities in this list won't be able to mount a ship, for example: [\"minecraft:creeper\", \"minecraft:sheep\", ...]");
         Common.mountBlackList = builder
