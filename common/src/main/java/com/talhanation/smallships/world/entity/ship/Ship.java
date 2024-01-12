@@ -101,7 +101,7 @@ public abstract class Ship extends Boat {
             this.updateCollision(isCruising);
             this.updateWaveAngle();
             this.updateWaterMobs();
-            this.floatUp();//TODO: Test
+            this.floatUp();
         }
     }
 
@@ -507,8 +507,10 @@ public abstract class Ship extends Boat {
     }
 
     protected void floatUp(){
-        if (this.isEyeInFluid(FluidTags.WATER) && !isSunken())
-            this.setDeltaMovement(getDeltaMovement().x, 0.2D, getDeltaMovement().z);
+        if (this.isEyeInFluid(FluidTags.WATER)){
+            Vec3 vec = getDeltaMovement();
+            this.setDeltaMovement(getDeltaMovement().add(0, 0.2, 0));
+        }
     }
 
     @Override
