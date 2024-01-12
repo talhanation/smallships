@@ -29,7 +29,6 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.NameTagItem;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -58,7 +57,8 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
-
+    private boolean sunken;
+    private int sunkenTime = 0;
     private float prevWaveAngle;
     private float waveAngle;
     public float prevBannerWaveAngle;
@@ -85,18 +85,24 @@ public abstract class Ship extends Boat {
             this.setDamage(this.getDamage() + 1.0F);
         }
 
-        if (this instanceof Sailable sailShip) sailShip.tickSailShip();
-        if (this instanceof Bannerable bannerShip) bannerShip.tickBannerShip();
-        if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
-        if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
-        if (this instanceof Shieldable shieldShip) shieldShip.tickShieldShip();
+        if(isSunken()){
+            if(++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(DamageSource.DROWN);
+            else this.setDeltaMovement (getDeltaMovement().x, - 0.2D, getDeltaMovement().z);
+        }
+        else {
+            if (this instanceof Sailable sailShip) sailShip.tickSailShip();
+            if (this instanceof Bannerable bannerShip) bannerShip.tickBannerShip();
+            if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
+            if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
+            if (this instanceof Shieldable shieldShip) shieldShip.tickShieldShip();
 
-        boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
-        this.updateShipAmbience(isCruising);
-        this.updateCollision(isCruising);
-        this.updateWaveAngle();
-        this.updateWaterMobs();
-        this.floatUp();
+            boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
+            this.updateShipAmbience(isCruising);
+            this.updateCollision(isCruising);
+            this.updateWaveAngle();
+            this.updateWaterMobs();
+            this.floatUp();//TODO: Test
+        }
     }
 
     @Override
@@ -168,13 +174,14 @@ public abstract class Ship extends Boat {
 
         //SmallShipsMod.LOGGER.info("Speed kmh: " +  Kalkuel.getKilometerPerHour(this.getSpeed()));
 
-        if(this.level().isClientSide()){
+        if(this.level().isClientSide() && !this.isSunken()){
+
             Player player = getDriver();
             if(player != null)
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
         }
 
-        if(this.isInWater() && !((BoatLeashAccess) this).isLeashed()){
+        if(this.isInWater() && !((BoatLeashAccess) this).isLeashed() && !this.isSunken()){
             if(this instanceof Paddleable && this instanceof Sailable sailShip){
                 if(isForward() && getDriver() != null){
                     setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F);
@@ -226,7 +233,7 @@ public abstract class Ship extends Boat {
                 if (this instanceof Paddleable paddleShip) paddleShip.controlBoatPaddleShip();
             }
             //SET
-            setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), 0.0F, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
+            setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
         }
         else {
             setForward(false);
@@ -276,7 +283,7 @@ public abstract class Ship extends Boat {
         entityData.set(FORWARD, forward);
     }
 
-    public void setBackward(boolean backward) {
+    public void setBackward(boolean backward ) {
         entityData.set(BACKWARD, backward);
     }
 
@@ -407,6 +414,12 @@ public abstract class Ship extends Boat {
         super.removePassenger(entity);
     }
 
+    public void setSunken(boolean sunken){
+        this.sunken = sunken;
+    }
+    public boolean isSunken(){
+        return sunken;
+    }
     @Override
     public double getPassengersRidingOffset() {
         return (double)this.getBbHeight() * 0.75D;
@@ -494,7 +507,7 @@ public abstract class Ship extends Boat {
     }
 
     protected void floatUp(){
-        if (this.isEyeInFluid(FluidTags.WATER))
+        if (this.isEyeInFluid(FluidTags.WATER) && !isSunken())
             this.setDeltaMovement(getDeltaMovement().x, 0.2D, getDeltaMovement().z);
     }
 
@@ -502,19 +515,21 @@ public abstract class Ship extends Boat {
     public boolean hurt(DamageSource damageSource, float f) {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
-        } else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
+        }
+        else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
             this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip ? shieldShip.getDamageModifier() : 1));
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
 
-            boolean bl = damageSource.getEntity() instanceof Player && ((Player)damageSource.getEntity()).getAbilities().instabuild;
+            boolean bl = damageSource.getEntity() instanceof Player player && player.getAbilities().instabuild && player.isCrouching();
 
-            if (bl || this.getDamage() > this.getAttributes().maxHealth) {
-                if (!bl && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                    this.destroy(damageSource);
-                }
+            if (this.getDamage() > this.getAttributes().maxHealth) {
+                this.setSunken(true);
+            }
+            if(bl){
                 this.discard();
             }
+
             return true;
         } else {
             return true;
@@ -606,6 +621,15 @@ public abstract class Ship extends Boat {
         if (this.level().isClientSide && needsUpdate) {
             ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
+    }
+    @Override
+    public void destroy(@NotNull DamageSource damageSource) {
+        super.destroy(damageSource);
+        if (this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+            if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getLevel(), this);
+        }
+
+        discard();
     }
 
     public enum BiomeModifierType {

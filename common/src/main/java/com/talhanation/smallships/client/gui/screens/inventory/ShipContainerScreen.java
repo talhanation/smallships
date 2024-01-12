@@ -149,7 +149,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         }
 
         int leftPos = 260;
-        int leftPos2 = 320;
+        int leftPos2 = 323;
         int topPos = 38;
         int gap = 14;
         poseStack.pushPose();
