@@ -27,7 +27,7 @@ public class DrakkarSailModel extends SailModel {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition DrakkarSail = partdefinition.addOrReplaceChild("DrakkarSail", CubeListBuilder.create(), PartPose.offset(-11.0F, 25.0F, 0.0F));
+		PartDefinition DrakkarSail = partdefinition.addOrReplaceChild("DrakkarSail", CubeListBuilder.create(), PartPose.offset(-14.0F, 25.0F, 0.0F));
 
 		PartDefinition Sail_4 = DrakkarSail.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
@@ -363,7 +363,7 @@ public class DrakkarSailModel extends SailModel {
 
 		PartDefinition ropes = DrakkarSail.addOrReplaceChild("ropes", CubeListBuilder.create(), PartPose.offset(43.5F, -16.0F, 0.0F));
 
-		PartDefinition rope_13 = ropes.addOrReplaceChild("rope_13", CubeListBuilder.create(), PartPose.offsetAndRotation(8.0F, -3.0F, 0.0F, 0.0F, -1.5708F, -0.6109F));
+		PartDefinition rope_13 = ropes.addOrReplaceChild("rope_13", CubeListBuilder.create(), PartPose.offsetAndRotation(14.0F, -3.0F, 0.0F, 0.0F, -1.5708F, -0.6981F));
 
 		PartDefinition cube_r81 = rope_13.addOrReplaceChild("cube_r81", CubeListBuilder.create().texOffs(93, 22).addBox(34.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(93, 22).addBox(64.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
@@ -377,11 +377,11 @@ public class DrakkarSailModel extends SailModel {
 
 		PartDefinition cube_r83 = rope_13.addOrReplaceChild("cube_r83", CubeListBuilder.create().texOffs(12, 28).addBox(-1.5F, -1.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -10.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
-		PartDefinition rope_14 = ropes.addOrReplaceChild("rope_14", CubeListBuilder.create(), PartPose.offsetAndRotation(-91.0F, -3.0F, 0.0F, 0.7766F, -1.5708F, 0.0F));
+		PartDefinition rope_14 = ropes.addOrReplaceChild("rope_14", CubeListBuilder.create(), PartPose.offsetAndRotation(-91.0F, -3.0F, 0.0F, 0.8203F, -1.5708F, 0.0F));
 
 		PartDefinition cube_r84 = rope_14.addOrReplaceChild("cube_r84", CubeListBuilder.create().texOffs(93, 22).addBox(34.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(93, 22).addBox(79.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-				.texOffs(93, 22).addBox(89.5F, -0.5F, -17.5F, 6.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(93, 22).addBox(89.5F, -0.5F, -17.5F, 4.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(93, 22).addBox(64.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(93, 22).addBox(49.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(93, 22).addBox(22.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
