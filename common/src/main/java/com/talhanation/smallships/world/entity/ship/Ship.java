@@ -96,6 +96,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
             if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
             if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
             if (this instanceof Shieldable shieldShip) shieldShip.tickShieldShip();
+            if (this instanceof IceBreakable iceBreakable) iceBreakable.tickIceBreakable();
 
             boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
             this.updateShipAmbience(isCruising);
