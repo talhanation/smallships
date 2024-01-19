@@ -338,17 +338,22 @@ public abstract class Ship extends Boat {
 
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
-        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().hasCustomHoverName() && !player.getCommandSenderWorld().isClientSide){
-            this.setCustomName(player.getMainHandItem().getHoverName());
-            this.setCustomNameVisible(false);
-            if(!player.isCreative()) player.getMainHandItem().shrink(1);
-            return InteractionResult.SUCCESS;
-        }
+        if(this.interactWithNameTag(player)) return InteractionResult.SUCCESS;
         if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Shieldable shieldShip && shieldShip.interactShield(player, interactionHand)) return InteractionResult.SUCCESS;
         return super.interact(player, interactionHand);
+    }
+
+    private boolean interactWithNameTag(@NotNull Player player){
+        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().hasCustomHoverName() && !player.getCommandSenderWorld().isClientSide){
+            this.setCustomName(player.getMainHandItem().getHoverName());
+            this.setCustomNameVisible(false);
+            if(!player.isCreative()) player.getMainHandItem().shrink(1);
+            return true;
+        }
+        return false;
     }
 
     @Override
