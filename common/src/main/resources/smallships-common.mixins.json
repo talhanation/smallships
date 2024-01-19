@@ -8,7 +8,8 @@
     "leashing.client.ClientPacketListenerMixin",
     "port.MultiPlayerGameModeMixin",
     "zooming.client.CameraMixin",
-    "zooming.client.MouseHandlerMixin"
+    "zooming.client.MouseHandlerMixin",
+    "render.LivingEntityRendererMixin"
   ],
   "mixins": [
     "container.SimpleContainerAccessor",
@@ -24,6 +25,7 @@
     "port.BoatItemMixin",
     "port.BoatMixin",
     "port.ServerGamePacketListenerMixin"
+    "interaction.EntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
