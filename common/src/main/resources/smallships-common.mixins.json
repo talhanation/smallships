@@ -7,7 +7,8 @@
     "leashing.client.BoatRendererMixin",
     "leashing.client.ClientPacketListenerMixin",
     "zooming.client.CameraMixin",
-    "zooming.client.MouseHandlerMixin"
+    "zooming.client.MouseHandlerMixin",
+    "render.LivingEntityRendererMixin"
   ],
   "mixins": [
     "container.SimpleContainerAccessor",
@@ -18,7 +19,8 @@
     "leashing.EntityMixin",
     "leashing.LeadItemMixin",
     "leashing.LeashFenceKnotEntityMixin",
-    "leashing.ServerEntityMixin"
+    "leashing.ServerEntityMixin",
+    "interaction.EntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
