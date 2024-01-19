@@ -182,7 +182,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
         }
 
-        if(this.isInWater() && !((BoatLeashAccess) this).isLeashed() && !this.isSunken()){
+        if(this.isInWater() && !this.isShipLeashed() && !this.isSunken()){
             if(this instanceof Paddleable && this instanceof Sailable sailShip){
                 if(isForward() && getDriver() != null){
                     setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F);
@@ -244,6 +244,9 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
         }
     }
 
+    public boolean isShipLeashed(){
+        return !((BoatLeashAccess) this).isLeashed();
+    }
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced
         float speed = this.getSpeed();
