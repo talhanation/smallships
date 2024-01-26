@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.IceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -25,7 +26,7 @@ public interface IceBreakable extends Ability{
                         pos.set(i, j, k);
                         BlockState blockstate = level.getBlockState(pos);
                         if (blockstate.getBlock() instanceof IceBlock) {
-                            level.destroyBlock(pos, true);
+                            level.setBlock(pos, Blocks.WATER.defaultBlockState(), 3);
                             hasBroken = true;
                         }
                     }
