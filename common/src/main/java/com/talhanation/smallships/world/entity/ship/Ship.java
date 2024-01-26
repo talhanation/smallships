@@ -57,7 +57,7 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
-    private boolean sunken;
+    private boolean sunken = false;
     private int sunkenTime = 0;
     private float prevWaveAngle;
     private float waveAngle;
@@ -244,7 +244,7 @@ public abstract class Ship extends Boat {
     }
 
     public boolean isShipLeashed(){
-        return !((BoatLeashAccess) this).isLeashed();
+        return ((BoatLeashAccess) this).isLeashed();
     }
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced

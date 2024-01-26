@@ -77,7 +77,8 @@ public interface Shieldable extends Ability {
        } else if (itemStack.getItem() instanceof AxeItem && shieldCount > 0) {
            ItemStack removedShield = this.getShields().pop();
            self().spawnAtLocation(removedShield, 2);
-           //TODO: remove from SHIP_DATA as well
+
+           // TODO: remove from SHIP_DATA as well
            
            self().getLevel().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.0F);
            return true;
