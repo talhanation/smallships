@@ -22,6 +22,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     private final int pageCount;
     private final int pageIndex;
     private final ContainerShip containerShip;
+    private final int offset = 40;
 
     public ShipContainerScreen(ShipContainerMenu shipContainerMenu, Inventory inventory, Component component) {
         super(shipContainerMenu, inventory, component);
@@ -44,7 +45,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-        int k = (this.width - this.imageWidth) / 2;
+        int k = offset + (this.width - this.imageWidth) / 2;
         int l = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(RESOURCE_LOCATION, k, l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
         guiGraphics.blit(RESOURCE_LOCATION, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
@@ -52,8 +53,8 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
 
     @Override
     protected void init() {
-        super.init();
-        this.leftPos = (this.width - this.imageWidth) / 2;
+
+        this.leftPos = offset + (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
 
         if (this.minecraft == null || this.minecraft.player == null) {
