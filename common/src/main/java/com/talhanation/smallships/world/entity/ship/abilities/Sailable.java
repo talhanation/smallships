@@ -84,7 +84,7 @@ public interface Sailable extends Ability {
     }
 
     default void toggleSail() {
-        if(!((BoatLeashAccess)this).isLeashed()) {
+        if(!this.self().isShipLeashed()) {
             byte state = this.getSailState();
             if (state > 0) state = 0;
             else state = 1;
