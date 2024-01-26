@@ -25,6 +25,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     private final int pageCount;
     private final int pageIndex;
     private final ContainerShip containerShip;
+    private final int offset = 40;
 
     public ShipContainerScreen(ShipContainerMenu shipContainerMenu, Inventory inventory, Component component) {
         super(shipContainerMenu, inventory, component);
@@ -51,16 +52,17 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, RESOURCE_LOCATION);
-        int k = (this.width - this.imageWidth) / 2;
+        int k = offset + (this.width - this.imageWidth) / 2;
         int l = (this.height - this.imageHeight) / 2;
-        this.blit(poseStack, k, l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
+
+        this.blit(poseStack, k , l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
         this.blit(poseStack, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
     }
 
     @Override
     protected void init() {
-        super.init();
-        this.leftPos = (this.width - this.imageWidth) / 2;
+
+        this.leftPos = offset + (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
 
         if (this.minecraft == null || this.minecraft.player == null) {
