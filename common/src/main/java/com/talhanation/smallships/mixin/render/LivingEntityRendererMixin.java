@@ -14,7 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntityRenderer.class)
 public class LivingEntityRendererMixin {
-
+    /*
+    //TODO: Passengers don`t sit
     @Shadow
     protected EntityModel<?> model;
 
@@ -24,5 +25,6 @@ public class LivingEntityRendererMixin {
             model.riding = false;
         }
     }
+    */
 
 }
