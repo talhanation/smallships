@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "drakkar",
+  "pattern": [
+    "sys",
+    "lxl",
+    "bbb"
+  ],
+  "key": {
+    "y": {
+      "item": "smallships:sail_item"
+    },
+    "x": {
+      "tag": "forge:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:lead"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "b": {
+      "item": "minecraft:birch_boat"
+    }
+  },
+  "result": {
+    "item": "smallships:birch_drakkar"
+  }
+}
