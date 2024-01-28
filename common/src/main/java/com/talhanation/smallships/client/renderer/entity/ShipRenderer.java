@@ -46,6 +46,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Stream;
 
 import static net.minecraft.client.renderer.entity.MobRenderer.addVertexPair;
@@ -192,7 +193,10 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             poseStack.scale(0.5F, 0.5F, 0.5F);
 
             float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);
-            if (!Mth.equal(bannerWaveAngle, 0F)) poseStack.mulPose(Vector3f.XP.rotationDegrees(bannerWaveAngle));
+            if (!Mth.equal(bannerWaveAngle, 0F)) {
+                poseStack.mulPose(Vector3f.ZP.rotationDegrees(bannerWaveAngle * 0.5F));
+                poseStack.mulPose(Vector3f.XP.rotationDegrees(bannerWaveAngle));
+            }
 
             List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(bannerItem.getColor(), BannerBlockEntity.getItemPatterns(item));
             BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, patterns);
