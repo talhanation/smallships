@@ -6,6 +6,10 @@
   "client": [
   ],
   "mixins": [
+    "interaction.AbstractHorseMixin",
+    "interaction.HorseMixin",
+    "interaction.MobMixin",
+    "interaction.VillagerMixin",
     "leashing.ChunkMapMixin"
   ],
   "injectors": {
