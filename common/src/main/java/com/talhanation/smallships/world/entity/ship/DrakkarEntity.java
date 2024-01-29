@@ -96,7 +96,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
             if (this.getPassengers().size() > 1) {
                 int i = this.getPassengers().indexOf(entity);
                 switch (i) {
-                    case(0) -> {
+                    case (0) -> {
                         d = -4.0F;
                         f = 0.0F;
                     }
@@ -133,20 +133,21 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
                         f = 0.75F;
                     }
                     case(9) -> {
-                        d = -2.0F;
-                        f = 1.5F;
+                        d = 1.5F;
+                        f = 0.5F;
                     }
                     case(10) -> {
-                        d = 2.0F;
-                        f = 1.5F;
+                        d = 1.5F;
+                        f = -0.5F;
                     }
                     default -> {
-                        d = 1.5F;
+                        d = 2.0F;
+                        e = 0.75F;
                         f = 0.0F;
                     }
                 }
             }
-            d += 1;
+            d += 2;
 
             Vec3 vec3 = (new Vec3(d, e, f)).yRot(-this.getYRot() * ((float) Math.PI / 180.0F) - ((float)Math.PI / 2.0F));
             entity.setPos(this.getX() + vec3.x, this.getY() + (double) g, this.getZ() + vec3.z);
