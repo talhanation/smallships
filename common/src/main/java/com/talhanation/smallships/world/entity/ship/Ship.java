@@ -17,7 +17,9 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -381,6 +383,7 @@ public abstract class Ship extends Boat {
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if(this.interactWithNameTag(player)) return InteractionResult.SUCCESS;
+        if(this.interactIronNuggets(player)) return InteractionResult.SUCCESS;
         if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
         if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
@@ -396,6 +399,36 @@ public abstract class Ship extends Boat {
             return true;
         }
         return false;
+    }
+
+    private boolean interactIronNuggets(@NotNull Player player){
+        if (this.getDamage() > 0 && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
+            level.playSound(null, this.getX(), this.getY() + 1, this.getZ(), SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
+            level.playSound(null, this.getX(), this.getY() + 2, this.getZ(), SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
+
+            this.repairShip((5 + this.level.random.nextInt(5)));
+
+            if(!player.isCreative()){
+                player.getMainHandItem().shrink(1);
+
+                for(int i = 0; i < player.getInventory().getContainerSize(); ++i) {
+                    ItemStack itemStack = player.getInventory().getItem(i);
+                    if (itemStack.is(ItemTags.PLANKS)) {
+                        itemStack.shrink(1);
+                        break;
+                    }
+                }
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    public void repairShip(int repairAmount){
+        float newDamage = this.getDamage() - repairAmount;
+        if(newDamage < 0) newDamage = 0;
+        this.setDamage(newDamage);
     }
 
     @Override
