@@ -361,7 +361,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     }
 
     private boolean interactIronNuggets(@NotNull Player player){
-        if (this.getDamage() > 0 && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
+        if (this.getDamage() > 0 && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().items.stream().anyMatch(stack -> stack.is(ItemTags.PLANKS))){
 
             this.repairShip((5 + this.level.random.nextInt(5)));
 
@@ -467,7 +467,6 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
         return this.getPassengers().size() < this.getMaxPassengers() && !this.isEyeInFluid(FluidTags.WATER);
     }
 
-    @Override
     public abstract int getMaxPassengers();
     @Override
     public abstract @NotNull Item getDropItem();
@@ -544,11 +543,6 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
             return true;
         }
     }
-
-    protected void destroy(DamageSource damageSource) {
-        this.spawnAtLocation(this.getDropItem());
-    }
-
     private void knockBack(Entity entity, double speed, AABB boundingBox) {
         double d0 = (boundingBox.minX + boundingBox.maxX) / 2.0D;
         double d1 = (boundingBox.minZ + boundingBox.maxZ) / 2.0D;
@@ -635,9 +629,8 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
             ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
     }
-    @Override
+
     public void destroy(@NotNull DamageSource damageSource) {
-        super.destroy(damageSource);
         if (this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getLevel(), this);
         }

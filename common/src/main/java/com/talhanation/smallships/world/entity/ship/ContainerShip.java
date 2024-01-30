@@ -104,7 +104,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         tag.putByte("ContainerFillState", this.getContainerFillState());
     }
 
-
     public void destroy(@NotNull DamageSource damageSource) {
         super.destroy(damageSource);
         this.chestVehicleDestroyed(damageSource, this.getLevel(), this);

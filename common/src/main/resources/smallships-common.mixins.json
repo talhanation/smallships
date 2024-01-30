@@ -24,7 +24,7 @@
     "port.AbstractHorseMixin",
     "port.BoatItemMixin",
     "port.BoatMixin",
-    "port.ServerGamePacketListenerMixin"
+    "port.ServerGamePacketListenerMixin",
     "interaction.EntityMixin"
   ],
   "injectors": {

@@ -71,12 +71,12 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
             return;
         }
 
-        Button backward = this.addRenderableWidget(new Button( leftPos + 115, topPos + 125, 12, 12, Component.literal("<"),
+        Button backward = this.addRenderableWidget(new Button( leftPos + 115, topPos + 125, 12, 12, new TextComponent("<"),
                 button -> this.getMenu().clickMenuButton(this.minecraft.player, -1)));
         backward.active = this.pageCount > 1 && this.pageIndex + 1 > 1;
 
 
-        Button forward = this.addRenderableWidget(new Button(leftPos + 157, topPos + 125, 12, 12, Component.literal(">"),
+        Button forward = this.addRenderableWidget(new Button(leftPos + 157, topPos + 125, 12, 12, new TextComponent(">"),
                 button -> this.getMenu().clickMenuButton(this.minecraft.player, 1)));
         forward.active = this.pageCount > 1 && this.pageIndex + 1 < this.pageCount;
     }

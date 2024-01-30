@@ -162,7 +162,6 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
         }
     }
 
-    @Override
     protected float getSinglePassengerXOffset() {
         return -1.7F; // ^ ^ ^+
     }

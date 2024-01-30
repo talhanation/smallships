@@ -12,7 +12,8 @@ public class DrakkarItem extends ShipItem {
     }
 
     @Override
-    protected @NotNull Boat getBoat(@NotNull Level level, @NotNull HitResult hitResult) {
-        return DrakkarEntity.summon(level, hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
+    public Boat getBoat(@NotNull Level level, double x, double y, double z) {
+        return DrakkarEntity.summon(level, x, y, z);
+
     }
 }
