@@ -361,8 +361,6 @@ public abstract class Ship extends Boat {
 
     private boolean interactIronNuggets(@NotNull Player player){
         if (this.getDamage() > 0 && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
-            level.playSound(null, this.getX(), this.getY() + 1, this.getZ(), SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
-            level.playSound(null, this.getX(), this.getY() + 2, this.getZ(), SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
 
             this.repairShip((5 + this.level.random.nextInt(5)));
 
@@ -384,6 +382,9 @@ public abstract class Ship extends Boat {
     }
 
     public void repairShip(int repairAmount){
+        level.playSound(null, this.getX(), this.getY() + 1, this.getZ(), SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
+        level.playSound(null, this.getX(), this.getY() + 2, this.getZ(), SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
+
         float newDamage = this.getDamage() - repairAmount;
         if(newDamage < 0) newDamage = 0;
         this.setDamage(newDamage);
