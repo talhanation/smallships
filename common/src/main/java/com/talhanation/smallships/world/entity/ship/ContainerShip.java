@@ -112,7 +112,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public void remove(@NotNull RemovalReason removalReason) {
-        if (!this.level().isClientSide() && removalReason.shouldDestroy()) {
+        if (!this.getCommandSenderWorld().isClientSide() && removalReason.shouldDestroy()) {
             Containers.dropContents(this.level(), this, this);
         }
 
@@ -121,21 +121,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
-        if (this.canAddPassenger(player) && !player.isSecondaryUseActive()) {
-            return super.interact(player, interactionHand);
-        } else {
-            InteractionResult interactionResult = this.interactWithContainerVehicle(player);
-            if (interactionResult.consumesAction()) {
-                this.gameEvent(GameEvent.CONTAINER_OPEN, player);
-                PiglinAi.angerNearbyPiglins(player, true);
-            } else {
-                this.ejectPassengers();
-            }
-
-            return interactionResult;
-        }
-		return this.canAddPassenger(player) && !player.isSecondaryUseActive() ? super.interact(player, interactionHand) : this.interactWithChestVehicle(this::gameEvent, player);
-
+        return this.canAddPassenger(player) && !player.isSecondaryUseActive() ? super.interact(player, interactionHand) : this.interactWithContainerVehicle(player);
     }
 
     @Override

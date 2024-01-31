@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -33,12 +35,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.include.com.google.common.collect.ImmutableSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +93,7 @@ public abstract class Ship extends Boat {
         }
 
         if(isSunken()){
-            if(++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(DamageSource.DROWN);
+            if(++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
             else this.setDeltaMovement (getDeltaMovement().x, - 0.2D, getDeltaMovement().z);
         }
         else {
@@ -245,7 +250,6 @@ public abstract class Ship extends Boat {
             setRight(false);
         }
     }
-
     public boolean isShipLeashed(){
         return ((BoatLeashAccess) this).isLeashed();
     }
@@ -327,49 +331,9 @@ public abstract class Ship extends Boat {
         BiomeModifierType biomeModifierType = this.getBiomeModifierType();
         if (biomeModifierType == BiomeModifierType.NONE) return 0.0F;
 
-        BlockPos pos = new BlockPos(this.getX(), this.getY(), this.getZ());
-        float tmp = this.getLevel().getBiome(pos).value().getBaseTemperature();
+        BlockPos pos = new BlockPos((int) this.getX(), (int) this.getY(), (int) this.getZ());
+        float tmp = this.getCommandSenderWorld().getBiome(pos).value().getBaseTemperature();
         float modifier = SmallShipsConfig.Common.shipGeneralBiomeModifier.get().floatValue();
-
-        //TODO remove
-        SmallShipsMod.LOGGER.error(String.valueOf(tmp));
-	}
-
-    public static final ImmutableSet<ResourceKey<Biome>> NEUTRAL_BIOMES = ImmutableSet.of(
-            Biomes.OCEAN,
-            Biomes.DEEP_OCEAN,
-            Biomes.RIVER
-    );
-
-    public float getBiomesModifier() {
-        BiomeType biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
-        f (biomeType == BiomeType.NONE) return 0;
-        BlockPos pos = new BlockPos(Double.valueOf(getX()).intValue(), Double.valueOf(getY() - 0.1D).intValue(), Double.valueOf(getZ()).intValue());
-        Optional<ResourceKey<Biome>> biome = this.level().registryAccess().registryOrThrow(Registries.BIOME).getResourceKey(this.level().getBiome(pos).value());
-
-        if(biome.isPresent()) {
-            boolean coldBiomes = COLD_BIOMES.contains(biome.get());
-            boolean neutralBiomes = NEUTRAL_BIOMES.contains(biome.get());
-            boolean warmBiomes = WARM_BIOMES.contains(biome.get());
-
-            boolean coldType = biomeType == BiomeType.COLD;
-            boolean neutralType = biomeType == BiomeType.NEUTRAL;
-            boolean warmType = biomeType == BiomeType.WARM;
-
-            if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
-                return -20F;
-            }
-            else if (
-                    (coldBiomes && warmType || warmBiomes && coldType) || ((coldBiomes || warmBiomes) && neutralType)) {
-                return 20F;
-            }
-            else if (neutralBiomes && warmType || neutralBiomes && coldType) {
-                return 10F;
-            }
-            else
-                return 0;
-        }
-        return 0;
 
         return switch (biomeModifierType) {
             case COLD -> modifier * -tmp;
@@ -377,9 +341,7 @@ public abstract class Ship extends Boat {
             case WARM -> modifier * tmp;
             default -> throw new IllegalStateException("Unexpected value: " + biomeModifierType);
         };
-
     }
-
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if(this.interactWithNameTag(player)) return InteractionResult.SUCCESS;
@@ -404,7 +366,7 @@ public abstract class Ship extends Boat {
     private boolean interactIronNuggets(@NotNull Player player){
         if (this.getDamage() > 0 && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
 
-            this.repairShip((5 + this.level.random.nextInt(5)));
+            this.repairShip((5 + this.level().random.nextInt(5)));
 
             if(!player.isCreative()){
                 player.getMainHandItem().shrink(1);
@@ -424,8 +386,8 @@ public abstract class Ship extends Boat {
     }
 
     public void repairShip(int repairAmount){
-        level.playSound(null, this.getX(), this.getY() + 1, this.getZ(), SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
-        level.playSound(null, this.getX(), this.getY() + 2, this.getZ(), SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
+        this.getCommandSenderWorld().playSound(null, this.getX(), this.getY() + 1, this.getZ(), SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * this.getCommandSenderWorld().getRandom().nextFloat());
+        this.getCommandSenderWorld().playSound(null, this.getX(), this.getY() + 2, this.getZ(), SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * this.getCommandSenderWorld().getRandom().nextFloat());
 
         float newDamage = this.getDamage() - repairAmount;
         if(newDamage < 0) newDamage = 0;
@@ -561,7 +523,7 @@ public abstract class Ship extends Boat {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
         }
-        else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
+        else if (!this.getCommandSenderWorld().isClientSide() && !this.isRemoved()) {
             this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip ? shieldShip.getDamageModifier() : 1));
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
@@ -617,7 +579,7 @@ public abstract class Ship extends Boat {
     private void collisionDamage(Entity entity, float speed) {
         if (canDoCollisionDamage() && speed > 0.1F) {
             float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
-            if(damage > 0) entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
+            if(damage > 0) entity.hurt(this.getCommandSenderWorld().damageSources().mobAttack(this.getControllingPassenger()), damage);
         }
 
     }
@@ -629,7 +591,7 @@ public abstract class Ship extends Boat {
         }
 
         if (passengers.get(0) instanceof Player player) {
-            if(this.level().isClientSide){
+            if(this.getCommandSenderWorld().isClientSide){
                 Minecraft minecraft = Minecraft.getInstance();
                 Player instancePlayer = minecraft.player;
 
@@ -663,15 +625,15 @@ public abstract class Ship extends Boat {
             this.setRight(right);
             needsUpdate = true;
         }
-        if (this.level().isClientSide && needsUpdate) {
+        if (this.getCommandSenderWorld().isClientSide && needsUpdate) {
             ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
     }
     @Override
     public void destroy(@NotNull DamageSource damageSource) {
         super.destroy(damageSource);
-        if (this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-            if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getLevel(), this);
+        if (this.getCommandSenderWorld().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+            if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getCommandSenderWorld(), this);
         }
 
         discard();

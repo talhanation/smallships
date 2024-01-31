@@ -16,8 +16,8 @@ public interface IceBreakable extends Ability{
             Level level = this.self().getCommandSenderWorld();
             AABB boundingBox = self().getBoundingBox().inflate(1.5);
             double offset = 0.75D;
-            BlockPos start = new BlockPos(boundingBox.minX - offset, boundingBox.minY - offset, boundingBox.minZ - offset);
-            BlockPos end = new BlockPos(boundingBox.maxX + offset, boundingBox.maxY + offset, boundingBox.maxZ + offset);
+            BlockPos start = new BlockPos((int) (boundingBox.minX - offset), (int) (boundingBox.minY - offset), (int) (boundingBox.minZ - offset));
+            BlockPos end = new BlockPos((int) (boundingBox.maxX + offset), (int) (boundingBox.maxY + offset), (int) (boundingBox.maxZ + offset));
             BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
             boolean hasBroken = false;
             for (int i = start.getX(); i <= end.getX(); ++i) {

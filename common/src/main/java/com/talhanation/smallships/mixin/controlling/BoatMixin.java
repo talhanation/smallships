@@ -42,9 +42,9 @@ public abstract class BoatMixin {
     private void tickCheckPassengersForShip(CallbackInfo ci) {
         if ((((Boat)(Object)this) instanceof Ship)) {
 
-            List<Entity> list = ((Boat)(Object)this).level.getEntities(((Boat)(Object)this), ((Boat)(Object)this).getBoundingBox().inflate(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelector.pushableBy(((Boat)(Object)this)));
+            List<Entity> list = ((Boat)(Object)this).getCommandSenderWorld().getEntities(((Boat)(Object)this), ((Boat)(Object)this).getBoundingBox().inflate(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelector.pushableBy(((Boat)(Object)this)));
             if (!list.isEmpty()) {
-                boolean bl = !((Boat)(Object)this).level.isClientSide && !(((Boat)(Object)this).getControllingPassenger() instanceof Player);
+                boolean bl = !((Boat)(Object)this).getCommandSenderWorld().isClientSide && !(((Boat)(Object)this).getControllingPassenger() instanceof Player);
 
                 for(int j = 0; j < list.size(); ++j) {
                     Entity entity = (Entity)list.get(j);

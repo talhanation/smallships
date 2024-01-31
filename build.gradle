@@ -8,6 +8,7 @@ architectury {
 }
 
 subprojects {
+
     apply plugin: "dev.architectury.loom"
 
     loom {

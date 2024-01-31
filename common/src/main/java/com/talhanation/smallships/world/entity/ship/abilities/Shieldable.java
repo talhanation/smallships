@@ -71,7 +71,7 @@ public interface Shieldable extends Ability {
            } else {
                this.getShields().push(itemStack.copy());
                if (!player.isCreative()) itemStack.shrink(1);
-               self().getLevel().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.5F);
+               self().getCommandSenderWorld().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.5F);
                return true;
            }
        } else if (itemStack.getItem() instanceof AxeItem && shieldCount > 0) {
@@ -80,7 +80,7 @@ public interface Shieldable extends Ability {
 
            // TODO: remove from SHIP_DATA as well
            
-           self().getLevel().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.0F);
+           self().getCommandSenderWorld().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.0F);
            return true;
        }
        return false;

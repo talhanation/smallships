@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
@@ -216,17 +217,17 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
                 poseStack.translate(pos.x, pos.y, pos.z);
                 poseStack.scale(0.8F, -0.8F, -0.8F);
-                if (pos.isRightSided) poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(20.0F));
+                if (pos.isRightSided) poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+                poseStack.mulPose(Axis.XP.rotationDegrees(20.0F));
 
                 //Taken from BlockEntityWithoutLevelRenderer
                 boolean flag = BlockItem.getBlockEntityData(itemStack) != null;
 
                 Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
                 VertexConsumer vertexConsumer;
-                try (TextureAtlasSprite sprite = material.sprite()) {
-                    vertexConsumer = sprite.wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, itemStack.hasFoil()));
-                }
+                //try (TextureAtlasSprite sprite = material.sprite()) {
+                vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, itemStack.hasFoil()));
+                //}
 
                 if (flag) {
                     List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(ShieldItem.getColor(itemStack), BannerBlockEntity.getItemPatterns(itemStack));
@@ -241,8 +242,8 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     }
 
 
-    public Vector3f getWaveAngleRotation(){
-        return Vector3f.XN;
+    public Axis getWaveAngleRotation(){
+        return Axis.XN;
     }
 
     @SuppressWarnings({"unused", "EmptyMethod"})

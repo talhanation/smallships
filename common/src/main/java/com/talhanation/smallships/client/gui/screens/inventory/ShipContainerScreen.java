@@ -53,7 +53,6 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
 
     @Override
     protected void init() {
-
         this.leftPos = offset + (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
 
@@ -62,46 +61,23 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
             return;
         }
 
-        if (this.pageCount > 1 && this.pageIndex + 1 > 1){
-            this.addRenderableWidget(
-                    new Button.Builder(Component.literal("<-"), button -> this.getMenu().clickMenuButton(this.minecraft.player, -1))
-                            .bounds(zeroLeftPos - 205, zeroTopPos, 40, 20)
-                            .build());
-        }
+        Button backward = this.addRenderableWidget(new Button.Builder(Component.literal("<"),
+                button -> this.getMenu().clickMenuButton(this.minecraft.player, -1))
+                .pos(leftPos + 115, topPos + 125).size(12, 12)
+                .build());
 
-        if(this.pageCount > 1 && this.pageIndex + 1 < this.pageCount){
-            this.addRenderableWidget(
-                    new Button.Builder(Component.literal("->"), button -> this.getMenu().clickMenuButton(this.minecraft.player, 1))
-                            .bounds(zeroLeftPos + 20, zeroTopPos, 40, 20)
-                            .build());
-        }
+        backward.active = this.pageCount > 1 && this.pageIndex + 1 > 1;
+
+        Button forward = this.addRenderableWidget(new Button.Builder(Component.literal(">"),
+                button -> this.getMenu().clickMenuButton(this.minecraft.player, 1))
+                .pos(leftPos + 157, topPos + 125)
+                .size(12, 12)
+                .build());
+        forward.active = this.pageCount > 1 && this.pageIndex + 1 < this.pageCount;
     }
-
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int i, int j) {
         super.renderLabels(guiGraphics, i, j);
-        float dmg = this.containerShip.getDamage() * 100 / this.containerShip.getAttributes().maxHealth;
-        guiGraphics.drawString(font, (Mth.ceil(dmg) + "%"), 152 - (Mth.floor(Math.log10(Mth.ceil(dmg)))) * 6, 6, FONT_COLOR, false);
-
-        float maxSpeed = (Mth.ceil(Kalkuel.getKilometerPerHour(this.containerShip.maxSpeed)));
-        float currentSpeed = (Mth.ceil(Kalkuel.getKilometerPerHour(this.containerShip.getSpeed())));
-        guiGraphics.drawString(font, currentSpeed + "/" + maxSpeed + " km/h", 50, 6, FONT_COLOR, false);
-
-        if (this.pageCount > 1) guiGraphics.drawString(font, (this.pageIndex + 1) + "/"  + this.pageCount, 150 - (Mth.floor(Math.log10(this.pageCount))) * 6, this.rowCount*18+19, FONT_COLOR, false);
-
-        Button backward = this.addRenderableWidget(new Button( leftPos + 115, topPos + 125, 12, 12, Component.literal("<"),
-                button -> this.getMenu().clickMenuButton(this.minecraft.player, -1)));
-        backward.active = this.pageCount > 1 && this.pageIndex + 1 > 1;
-
-
-        Button forward = this.addRenderableWidget(new Button(leftPos + 157, topPos + 125, 12, 12, Component.literal(">"),
-                button -> this.getMenu().clickMenuButton(this.minecraft.player, 1)));
-        forward.active = this.pageCount > 1 && this.pageIndex + 1 < this.pageCount;
-    }
-
-    @Override
-    protected void renderLabels(@NotNull PoseStack poseStack, int i, int j) {
-        super.renderLabels(poseStack, i, j);
         String name = this.containerShip.getDisplayName().getString();
 
         String smallShipTypeRaw = this.containerShip.getType().getDescription().getString();
@@ -153,27 +129,26 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         int leftPos2 = 323;
         int topPos = 38;
         int gap = 14;
-        poseStack.pushPose();
-        poseStack.scale(0.7F, 0.7F, 1F);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().scale(0.7F, 0.7F, 1F);
         String attachment = this.containerShip instanceof Shieldable ? "Shields:" : "Cannons:";
 
-        font.draw(poseStack, "Name:", leftPos, topPos + gap * 0, FONT_COLOR);
-        font.draw(poseStack, "Type:", leftPos, topPos + gap * 1, FONT_COLOR);
-        font.draw(poseStack, "Crew:", leftPos, topPos + gap * 2, FONT_COLOR);
-        font.draw(poseStack, "Speed " + unit + ":", leftPos, topPos + gap * 3, FONT_COLOR);
-        font.draw(poseStack, "Damage:", leftPos, topPos + gap * 4, FONT_COLOR);
-        font.draw(poseStack, attachment, leftPos, topPos + gap * 5, FONT_COLOR);
+        guiGraphics.drawString(font, "Name:", leftPos, topPos + gap * 0, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Type:", leftPos, topPos + gap * 1, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Crew:", leftPos, topPos + gap * 2, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Speed " + unit + ":", leftPos, topPos + gap * 3, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Damage:", leftPos, topPos + gap * 4, FONT_COLOR, false);
+        guiGraphics.drawString(font, attachment, leftPos, topPos + gap * 5, FONT_COLOR, false);
 
-        font.draw(poseStack, name, leftPos2, topPos + gap * 0, FONT_COLOR);
-        font.draw(poseStack, smallShipType, leftPos2, topPos + gap * 1, FONT_COLOR);
-        font.draw(poseStack, currentPassengers + "/" + maxPassengers, leftPos2, topPos + gap * 2, FONT_COLOR);
-        font.draw(poseStack, currentSpeed + "/" + maxSpeed, leftPos2, topPos + gap * 3, FONT_COLOR);
-        font.draw(poseStack, dmg + "%", leftPos2, topPos + gap * 4, FONT_COLOR);
-        font.draw(poseStack, currentAttachment + "/" + maxAttachment, leftPos2, topPos + gap * 5, FONT_COLOR);
+        guiGraphics.drawString(font, name, leftPos2, topPos + gap * 0, FONT_COLOR, false);
+        guiGraphics.drawString(font, smallShipType, leftPos2, topPos + gap * 1, FONT_COLOR, false);
+        guiGraphics.drawString(font, currentPassengers + "/" + maxPassengers, leftPos2, topPos + gap * 2, FONT_COLOR, false);
+        guiGraphics.drawString(font, currentSpeed + "/" + maxSpeed, leftPos2, topPos + gap * 3, FONT_COLOR, false);
+        guiGraphics.drawString(font, dmg + "%", leftPos2, topPos + gap * 4, FONT_COLOR, false);
+        guiGraphics.drawString(font, currentAttachment + "/" + maxAttachment, leftPos2, topPos + gap * 5, FONT_COLOR, false);
 
-        poseStack.popPose();
+        guiGraphics.pose().popPose();
 
-        if (this.pageCount > 1) font.draw(poseStack, (this.pageIndex + 1) + "/"  + this.pageCount, 133 - (float)(Mth.floor(Math.log10(this.pageCount))) * 6, this.rowCount*18+19, FONT_COLOR);
-
+        if (this.pageCount > 1) guiGraphics.drawString(font, "" +  (this.pageIndex + 1) + "/"  + this.pageCount, (int) (133 - (float)(Mth.floor(Math.log10(this.pageCount))) * 6), this.rowCount*18+19, FONT_COLOR, false);
     }
 }

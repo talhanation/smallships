@@ -27,6 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BoatRenderer.class)
 public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
+
+
     @SuppressWarnings("unused")
     protected BoatRendererMixin(EntityRendererProvider.Context context) {
         super(context);
