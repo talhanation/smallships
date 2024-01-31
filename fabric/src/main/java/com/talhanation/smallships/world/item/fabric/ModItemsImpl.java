@@ -64,6 +64,7 @@ public class ModItemsImpl {
                     shipItems.add(ModItems.COG_ITEMS.get(type));
                     shipItems.add(ModItems.BRIGG_ITEMS.get(type));
                     shipItems.add(ModItems.GALLEY_ITEMS.get(type));
+                    shipItems.add(ModItems.DRAKKAR_ITEMS.get(type));
                 }
                 entries.addBefore(Items.RAIL, shipItems.toArray(Item[]::new));
             });
