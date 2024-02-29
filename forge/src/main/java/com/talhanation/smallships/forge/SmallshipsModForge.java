@@ -36,5 +36,6 @@ public class SmallshipsModForge {
 
     private void setup(@SuppressWarnings("unused") FMLCommonSetupEvent event) {
         ModPackets.registerPackets();
+        MinecraftForge.EVENT_BUS.register(new PassengerEvents());
     }
 }
