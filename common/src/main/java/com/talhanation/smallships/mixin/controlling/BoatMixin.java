@@ -40,7 +40,7 @@ public abstract class BoatMixin {
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;checkInsideBlocks()V"), cancellable = true)
     private void tickCheckPassengersForShip(CallbackInfo ci) {
-        if ((((Boat)(Object)this) instanceof Ship)) {
+        if ((((Boat)(Object)this) instanceof Ship ship)) {
 
             List<Entity> list = ((Boat)(Object)this).level.getEntities(((Boat)(Object)this), ((Boat)(Object)this).getBoundingBox().inflate(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelector.pushableBy(((Boat)(Object)this)));
             if (!list.isEmpty()) {
@@ -49,7 +49,7 @@ public abstract class BoatMixin {
                 for(int j = 0; j < list.size(); ++j) {
                     Entity entity = (Entity)list.get(j);
                     if (!entity.hasPassenger(((Boat)(Object)this))) {
-                        if (bl && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && ((Boat)(Object)this).getPassengers().size() < ((Boat)(Object)this).getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < ((Boat)(Object)this).getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && !(entity instanceof Player)) {
+                        if (bl && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && !ship.isLocked() && ((Boat)(Object)this).getPassengers().size() < ((Boat)(Object)this).getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < ((Boat)(Object)this).getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && !(entity instanceof Player)) {
                             entity.startRiding(((Boat)(Object)this));
                         } else {
                             ((Boat)(Object)this).push(entity);
