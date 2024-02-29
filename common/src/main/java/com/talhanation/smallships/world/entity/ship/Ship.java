@@ -1,6 +1,5 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
@@ -11,13 +10,11 @@ import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -35,15 +32,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.include.com.google.common.collect.ImmutableSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +58,7 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+    private boolean isLocked = true;
     private boolean sunken = false;
     private int sunkenTime = 0;
     private float prevWaveAngle;
@@ -142,6 +137,9 @@ public abstract class Ship extends Boat {
         if (this instanceof Bannerable bannerShip) bannerShip.readBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.readCannonShipSaveData(tag);
         if (this instanceof Shieldable shieldShip) shieldShip.readShieldShipSaveData(tag);
+
+        this.setSunken(tag.getBoolean("Sunken"));
+        this.isLocked = (tag.getBoolean("locked"));
     }
 
     @Override
@@ -156,6 +154,9 @@ public abstract class Ship extends Boat {
         if (this instanceof Bannerable bannerShip) bannerShip.addBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.addCannonShipSaveData(tag);
         if (this instanceof Shieldable shieldShip) shieldShip.addShieldShipSaveData(tag);
+
+        tag.putBoolean("Sunken", isSunken());
+        tag.putBoolean("locked", this.isLocked);
     }
 
     public <T> T getData(EntityDataAccessor<T> accessor) {
@@ -189,7 +190,7 @@ public abstract class Ship extends Boat {
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
         }
 
-        if(this.isInWater() && !this.isShipLeashed() && !this.isSunken()){
+        if(this.isInWater() && !this.isShipLeashed() && !this.isSunken() && !isLocked()){
             if(this instanceof Paddleable && this instanceof Sailable sailShip){
                 if(isForward() && getDriver() != null){
                     setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F);
@@ -249,6 +250,10 @@ public abstract class Ship extends Boat {
             setLeft(false);
             setRight(false);
         }
+    }
+
+    public boolean isLocked(){
+        return isLocked;
     }
     public boolean isShipLeashed(){
         return ((BoatLeashAccess) this).isLeashed();
@@ -344,13 +349,16 @@ public abstract class Ship extends Boat {
     }
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
-        if(this.interactWithNameTag(player)) return InteractionResult.SUCCESS;
-        if(this.interactIronNuggets(player)) return InteractionResult.SUCCESS;
-        if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
-        if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
-        if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
-        if (this instanceof Shieldable shieldShip && shieldShip.interactShield(player, interactionHand)) return InteractionResult.SUCCESS;
-        return super.interact(player, interactionHand);
+        if(!this.isLocked()){
+            if(this.interactWithNameTag(player)) return InteractionResult.SUCCESS;
+            if(this.interactIronNuggets(player)) return InteractionResult.SUCCESS;
+            if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
+            if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
+            if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
+            if (this instanceof Shieldable shieldShip && shieldShip.interactShield(player, interactionHand)) return InteractionResult.SUCCESS;
+            return super.interact(player, interactionHand);
+        }
+        else return InteractionResult.PASS;
     }
 
     private boolean interactWithNameTag(@NotNull Player player){
@@ -513,7 +521,6 @@ public abstract class Ship extends Boat {
 
     protected void floatUp(){
         if (this.isEyeInFluid(FluidTags.WATER)){
-            Vec3 vec = getDeltaMovement();
             this.setDeltaMovement(getDeltaMovement().add(0, 0.2, 0));
         }
     }
@@ -531,7 +538,11 @@ public abstract class Ship extends Boat {
             boolean bl = damageSource.getEntity() instanceof Player player && player.getAbilities().instabuild && player.isCrouching();
 
             if (this.getDamage() > this.getAttributes().maxHealth) {
-                this.setSunken(true);
+                if(this.isSunken() && this.sunkenTime > 200){
+                    this.destroy(this.getCommandSenderWorld().damageSources().drown());
+                }
+                else
+                    this.setSunken(true);
             }
             if(bl){
                 this.discard();
@@ -581,7 +592,6 @@ public abstract class Ship extends Boat {
             float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
             if(damage > 0) entity.hurt(this.getCommandSenderWorld().damageSources().mobAttack(this.getControllingPassenger()), damage);
         }
-
     }
     @Nullable
     public Player getDriver() {
@@ -602,8 +612,10 @@ public abstract class Ship extends Boat {
 
         return null;
     }
-
-    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, Player player) {
+    /************************************
+     * Used by Workers and Recruits Mod -> Player == null
+     ************************************/
+    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, @Nullable Player player) {
         boolean needsUpdate = false;
 
         if (this.isForward() != forward) {
@@ -625,7 +637,7 @@ public abstract class Ship extends Boat {
             this.setRight(right);
             needsUpdate = true;
         }
-        if (this.getCommandSenderWorld().isClientSide && needsUpdate) {
+        if (this.getCommandSenderWorld().isClientSide && needsUpdate && player != null) {
             ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
     }
@@ -634,6 +646,7 @@ public abstract class Ship extends Boat {
         super.destroy(damageSource);
         if (this.getCommandSenderWorld().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getCommandSenderWorld(), this);
+            if(this instanceof Cannonable cannonableShip) cannonableShip.cannonShipDestroyed(this.getCommandSenderWorld(), this);
         }
 
         discard();

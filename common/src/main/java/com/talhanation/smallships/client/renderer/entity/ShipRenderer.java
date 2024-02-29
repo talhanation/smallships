@@ -99,7 +99,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
 
         float l = shipEntity.getWaveAngle(partialTicks);
-        if (!Mth.equal(l, 0.0F)) {
+        if (!shipEntity.isSunken() && !Mth.equal(l, 0.0F)) {
             poseStack.mulPose(getWaveAngleRotation().rotationDegrees(l));
         }
 

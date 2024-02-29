@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -158,6 +159,12 @@ public interface Cannonable extends Ability {
 
     default List<Cannon> getCannons() {
         return self().CANNONS;
+    }
+
+    default void cannonShipDestroyed(Level level, Ship ship){
+        for(int i = 0; i < getCannonCount(); i++){
+            ship.spawnAtLocation(ModItems.CANNON,4);
+        }
     }
 
     @SuppressWarnings("ClassCanBeRecord")
