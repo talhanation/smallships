@@ -60,7 +60,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
-    private boolean isLocked = true;
+    private boolean isLocked = false;
     private boolean sunken = false;
     private int sunkenTime = 0;
     private float prevWaveAngle;
