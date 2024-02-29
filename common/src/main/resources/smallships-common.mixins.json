@@ -20,12 +20,7 @@
     "leashing.EntityMixin",
     "leashing.LeadItemMixin",
     "leashing.LeashFenceKnotEntityMixin",
-    "leashing.ServerEntityMixin",
-    "port.AbstractHorseMixin",
-    "port.BoatItemMixin",
-    "port.BoatMixin",
-    "port.ServerGamePacketListenerMixin",
-    "interaction.EntityMixin"
+    "leashing.ServerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
