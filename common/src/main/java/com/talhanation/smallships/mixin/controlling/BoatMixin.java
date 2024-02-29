@@ -49,7 +49,8 @@ public abstract class BoatMixin {
                 for(int j = 0; j < list.size(); ++j) {
                     Entity entity = (Entity)list.get(j);
                     if (!entity.hasPassenger(((Boat)(Object)this))) {
-                        if (bl && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && ((Boat)(Object)this).getPassengers().size() < ship.getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < ((Boat)(Object)this).getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && !(entity instanceof Player)) {
+                        if (bl && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && !ship.isLocked() && ((Boat)(Object)this).getPassengers().size() < ((Boat)(Object)this).getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < ((Boat)(Object)this).getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && !(entity instanceof Player)) {
+
                             entity.startRiding(((Boat)(Object)this));
                         } else {
                             ((Boat)(Object)this).push(entity);
