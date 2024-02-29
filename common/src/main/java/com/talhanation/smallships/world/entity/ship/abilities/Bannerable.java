@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
 
 public interface Bannerable extends Ability {
-    BannerPosition getBannerPosition();
+    BannerPosition getBannerPosition();//ZP for different angles usefully for wind feature
 
     default void tickBannerShip() {
         if (!self().getData(Ship.BANNER).isEmpty()) {

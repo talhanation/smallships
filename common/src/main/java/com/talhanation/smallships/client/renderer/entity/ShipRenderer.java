@@ -219,7 +219,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 poseStack.scale(0.8F, -0.8F, -0.8F);
                 if (pos.isRightSided) poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
                 poseStack.mulPose(Axis.XP.rotationDegrees(20.0F));
-
+                poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
                 //Taken from BlockEntityWithoutLevelRenderer
                 boolean flag = BlockItem.getBlockEntityData(itemStack) != null;
 
