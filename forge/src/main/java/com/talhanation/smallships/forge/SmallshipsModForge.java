@@ -4,11 +4,13 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.forge.client.ClientInitializer;
 import com.talhanation.smallships.forge.common.CommonModBus;
 import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.forge.events.PassengerEvents;
 import com.talhanation.smallships.world.entity.forge.ModEntityTypesImpl;
 import com.talhanation.smallships.world.inventory.forge.ModMenuTypesImpl;
 import com.talhanation.smallships.world.item.forge.ModItemsImpl;
 import com.talhanation.smallships.world.sound.forge.ModSoundTypesImpl;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -36,5 +38,8 @@ public class SmallshipsModForge {
 
     private void setup(@SuppressWarnings("unused") FMLCommonSetupEvent event) {
         ModPackets.registerPackets();
+
+        MinecraftForge.EVENT_BUS.register(new PassengerEvents());
+
     }
 }
