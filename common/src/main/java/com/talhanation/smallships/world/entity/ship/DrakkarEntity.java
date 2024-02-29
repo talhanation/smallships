@@ -173,7 +173,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     // Implement Able-Interfaces
     @Override
     public Bannerable.BannerPosition getBannerPosition() {
-        return new BannerPosition(0.0F, 270.0F, 4.3D, -0.15D, 0.05D); //+x=up, +y=back, +z=right
+        return new BannerPosition(-180.0F, 90.0F, -4.5D, -0.15D, 0.05D); //+x=up, +y=back, +z=right
     }
 
     @Override

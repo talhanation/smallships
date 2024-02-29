@@ -213,8 +213,10 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
                 poseStack.translate(pos.x, pos.y, pos.z);
                 poseStack.scale(0.8F, -0.8F, -0.8F);
+
                 if (pos.isRightSided) poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
                 poseStack.mulPose(Vector3f.XP.rotationDegrees(20.0F));
+				poseStack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
 
                 //Taken from BlockEntityWithoutLevelRenderer
                 boolean flag = BlockItem.getBlockEntityData(itemStack) != null;
