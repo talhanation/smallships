@@ -546,7 +546,7 @@ public abstract class Ship extends Boat {
 
             if (this.getDamage() > this.getAttributes().maxHealth) {
                 if(this.isSunken() && this.sunkenTime > 200){
-                    this.destroy(this.getCommandSenderWorld().damageSources().drown());
+                    this.destroy(DamageSource.DROWN);
                 }
                 else
                     this.setSunken(true);
