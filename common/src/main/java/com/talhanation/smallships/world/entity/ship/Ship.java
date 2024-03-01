@@ -481,11 +481,6 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
         return this.getBoundingBox().inflate(5.0D);
     }
 
-    @Override
-    protected boolean canAddPassenger(@NotNull Entity entity) {
-        return this.getPassengers().size() < this.getMaxPassengers() && !this.isEyeInFluid(FluidTags.WATER);
-    }
-
     public abstract int getMaxPassengers();
     @Override
     public abstract @NotNull Item getDropItem();
@@ -551,7 +546,7 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
 
             if (this.getDamage() > this.getAttributes().maxHealth) {
                 if(this.isSunken() && this.sunkenTime > 200){
-                    this.destroy(this.getCommandSenderWorld().damageSources().drown());
+                    this.destroy(DamageSource.DROWN);
                 }
                 else
                     this.setSunken(true);
@@ -654,7 +649,6 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     }
 
     public void destroy(@NotNull DamageSource damageSource) {
-		super.destroy(damageSource);
         if (this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getLevel(), this);
 			if(this instanceof Cannonable cannonableShip) cannonableShip.cannonShipDestroyed(this.getCommandSenderWorld(), this);

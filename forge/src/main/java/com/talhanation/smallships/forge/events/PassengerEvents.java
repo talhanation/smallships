@@ -11,7 +11,7 @@ public class PassengerEvents {
 
     @SubscribeEvent
     public void onPlayerInteractWithPassenger(PlayerInteractEvent.EntityInteract event){
-        Player player = event.getEntity();
+        Player player = event.getPlayer();
         Entity entity = event.getTarget();
 
         if(!player.isCrouching() && entity.isPassenger() && entity.getVehicle() != null && entity.getVehicle() instanceof Ship){
