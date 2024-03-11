@@ -4,10 +4,11 @@
     "1.20.1-recommended": "2.0.0-b1.1",
     "1.19.4-recommended": "2.0.0-a2.3.3",
     "1.19.2-recommended": "2.0.0-b1.1",
-    "1.18.2-recommended": "2.0.0-b1.1",
+    "1.18.2-recommended": "2.0.0-b1.1.1",
     "1.16.5-recommended": "1.10.1"
   },
   "1.18.2": {
+    "2.0.0-b1.1.1": "fixed ships not spawning",
     "2.0.0-b1.1": "added drakkar ship with shields, added sunken feature, added configs, added dis/mounting feature",
     "2.0.0a2.0": "added config system, added speed modifiers for ships based on different factors, added ability to set sail state with forward/backward keybinds, added the galley, added crafting recipes, added knockback and damage feature for ships, added ability to leash ships and boats, added ability to zoom out while in a ship, rework for cannon mechanics, various fixes.",
     "2.0.0a2.1": "fixed speed log spamming, fixed crafting recipes, fixed incorrect sail state sound playing, fixed toggle sail key issues.",
