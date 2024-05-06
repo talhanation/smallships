@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.duck.port.PassengerSizeAccess;
@@ -12,6 +13,7 @@ import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -34,6 +36,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -340,21 +343,33 @@ public abstract class Ship extends Boat implements PassengerSizeAccess {
     }
 
     public float getBiomeModifier() {
-        BiomeModifierType biomeModifierType = this.getBiomeModifierType();
-        if (biomeModifierType == BiomeModifierType.NONE) return 0.0F;
+        BiomeModifierType shipBiomeType = this.getShipBiomeType();
+        if (shipBiomeType == BiomeModifierType.NONE) return 0.0F;
 
         BlockPos pos = new BlockPos(this.getX(), this.getY(), this.getZ());
-        float tmp = this.getLevel().getBiome(pos).value().getBaseTemperature();
+        int tmp = this.getLevel().getBiome(pos).value().getWaterColor();
         float modifier = SmallShipsConfig.Common.shipGeneralBiomeModifier.get().floatValue();
 
-        return switch (biomeModifierType) {
-            case COLD -> modifier * -tmp;
-            case NEUTRAL -> modifier * (-2 * Double.valueOf(Math.pow(tmp, 2)).floatValue() + 1);
-            case WARM -> modifier * tmp;
-            default -> throw new IllegalStateException("Unexpected value: " + biomeModifierType);
-        };
-    }
+        boolean coldBiomes = tmp < 4100000;
+        boolean warmBiomes = tmp > 4300000;
+        boolean neutralBiomes = !coldBiomes && !warmBiomes;
 
+
+        boolean coldType = shipBiomeType == BiomeModifierType.COLD;
+        boolean neutralType = shipBiomeType == BiomeModifierType.NEUTRAL;;
+        boolean warmType = shipBiomeType == BiomeModifierType.WARM;;
+
+        if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
+            return modifier;
+        } else if (
+                (coldBiomes && warmType || warmBiomes && coldType) || ((coldBiomes || warmBiomes) && neutralType)) {
+            return -modifier;
+        } else if (neutralBiomes && warmType || neutralBiomes && coldType) {
+            return -modifier/4;
+        } else
+            return 0;
+
+    }
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if(!this.isLocked()){
