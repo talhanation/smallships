@@ -342,7 +342,7 @@ public abstract class Ship extends Boat {
     }
 
     public float getBiomeModifier() {
-        BiomeModifierType shipBiomeType = this.getShipBiomeType();
+        BiomeModifierType shipBiomeType = this.getBiomeModifierType();
         if (shipBiomeType == BiomeModifierType.NONE) return 0.0F;
 
         BlockPos pos = new BlockPos(this.getX(), this.getY(), this.getZ());
