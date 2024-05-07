@@ -8,8 +8,7 @@
   
   "death.attack.cannonBall": "%s убит из пушки.",
   "death.attack.cannonBall.player": "%s убит из пушки %s.",
-
-
+  
   "death.attack.ship_collision": "%s раздавлен кораблём.",
   "death.attack.ship_collision.player": "%s раздавлен кораблём %s.",
 
