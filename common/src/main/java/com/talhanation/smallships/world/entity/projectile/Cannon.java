@@ -126,7 +126,7 @@ public class Cannon extends Entity { // why is this an entity??
 
         Vec3 forward = ship.getForward().normalize();
         Vec3 shootVec = getShootVector(forward, driverEntity);
-        double speed = 2.2F;
+        double speed = 2.6F;
         double accuracy = 3F;// 0 = 100%
 
         boolean playerView = driverEntity.getLookAngle().y >= 0;

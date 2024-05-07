@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.projectile;
 
+import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
@@ -109,7 +110,8 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         if (!this.getLevel().isClientSide()) {
             Explosion.BlockInteraction blockInteraction = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
             boolean doesSpreadFire = false;
-            if(!isInWater()) this.getLevel().explode(this.getOwner(), getX(), getY(), getZ(), 1.25F, doesSpreadFire, blockInteraction);
+
+            if(!isInWater()) this.getLevel().explode(this.getOwner(), getX(), getY(), getZ(), SmallShipsConfig.Common.shipGeneralCannonDestruction.get().floatValue(), doesSpreadFire, blockInteraction);
             this.remove(RemovalReason.KILLED);
         }
     }
@@ -127,16 +129,18 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         if (!this.getLevel().isClientSide()) {
             Entity hitEntity = hitResult.getEntity();
             Entity ownerEntity = this.getOwner();
-            hitEntity.hurt(ModDamageSourceTypes.cannonBall(this, ownerEntity), 19.0F);
 
             if (hitEntity instanceof Ship shipHitEntity) {
                 shipHitEntity.hurt(ModDamageSourceTypes.cannonBall(this, ownerEntity), random.nextInt(7) + 7);
                 this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
+                if(ownerEntity.getTeam() != null && ownerEntity.getTeam().isAlliedTo(hitEntity.getTeam()) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
                 this.doEnchantDamageEffects(livingOwnerEntity, hitEntity);
                 this.getLevel().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
+
+            hitEntity.hurt(ModDamageSourceTypes.cannonBall(this, ownerEntity), SmallShipsConfig.Common.shipGeneralCannonDamage.get().floatValue());
         }
     }
 

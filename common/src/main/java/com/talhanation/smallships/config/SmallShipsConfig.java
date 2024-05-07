@@ -19,6 +19,9 @@ public class SmallShipsConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final ForgeConfigSpec CLIENT_SPEC;
 
+    public static int CLIENT_SCHEMATIC_VERSION = 2;
+    public static int COMMON_SCHEMATIC_VERSION = 5;
+
     static {
         ForgeConfigSpec.Builder commonConfigBuilder = new ForgeConfigSpec.Builder();
         ForgeConfigSpec.Builder clientConfigBuilder = new ForgeConfigSpec.Builder();
@@ -47,7 +50,8 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.ConfigValue<List<String>> mountBlackList;
         public static ForgeConfigSpec.DoubleValue shipGeneralShieldDamageReduction;
         public static ForgeConfigSpec.DoubleValue shipGeneralDespawnTimeSunken;
-
+        public static ForgeConfigSpec.DoubleValue shipGeneralCannonDamage;
+        public static ForgeConfigSpec.DoubleValue shipGeneralCannonDestruction;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxReverseSpeed;
@@ -81,7 +85,6 @@ public class SmallShipsConfig {
 
         public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierGalleyBiome;
 
-
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxReverseSpeed;
@@ -114,7 +117,7 @@ public class SmallShipsConfig {
                 Arrays.asList("minecraft:ender_dragon", "minecraft:wither", "minecraft:wither", "minecraft:ghast", "minecraft:warden", "minecraft:ravager", "alexmobs:cachalot_whale"));
 
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
-        Common.schematicVersion = builder.define("schematicVersion", 4, e -> false);
+        Common.schematicVersion = builder.define("schematicVersion", COMMON_SCHEMATIC_VERSION);
 
         builder.comment(" This category holds configs that define ship behaviour.");
         builder.push("Ship");
@@ -169,6 +172,14 @@ public class SmallShipsConfig {
         Common.mountBlackList = builder
                 .define("mountBlackList", MOUNT_BLACKLIST);
 
+        builder.comment("Amount of damage a cannonball does on hit.");
+        Common.shipGeneralCannonDamage = builder
+                .defineInRange("shipGeneralCannonDamage", 25.0D, 0.0D, 100.0D);
+
+        builder.comment("Amount of destruction a cannonball does when hit the ground.");
+        Common.shipGeneralCannonDestruction = builder
+                .defineInRange("shipGeneralCannonDestruction", 1.0D, 0.0D, 100.0D);
+
         builder.pop();
 
         builder.comment("This category holds configs that define behaviour of fleeing water animals.");
@@ -185,24 +196,23 @@ public class SmallShipsConfig {
 
         builder.pop();
 
-
         builder.push("Cog");
 
         builder.comment("Default attributes for the Cog. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
         Common.shipAttributeCogMaxHealth = builder
-                .defineInRange("shipAttributeCogMaxHealth", 300.0D, 1.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeCogMaxHealth", 300.0D, 1.0D, 10000.0D);
         Common.shipAttributeCogMaxSpeed = builder
-                .defineInRange("shipAttributeCogMaxSpeed", 30.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeCogMaxSpeed", 30.0D, 0.0D, 100.0D);
         Common.shipAttributeCogMaxReverseSpeed = builder
-                .defineInRange("shipAttributeCogMaxReverseSpeed", 0.1D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeCogMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeCogMaxRotationSpeed = builder
-                .defineInRange("shipAttributeCogMaxRotationSpeed", 4.5D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeCogMaxRotationSpeed", 4.5D, 0.0D, 100.0D);
         Common.shipAttributeCogAcceleration = builder
-                .defineInRange("shipAttributeCogAcceleration", 0.015D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeCogAcceleration", 0.015D, 0.0D, 100.0D);
         Common.shipAttributeCogRotationAcceleration = builder
-                .defineInRange("shipAttributeCogRotationAcceleration", 0.7D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeCogRotationAcceleration", 0.7D, 0.0D, 100.0D);
 
         builder.pop();
 
@@ -233,17 +243,17 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Common.shipAttributeBriggMaxHealth = builder
-                .defineInRange("shipAttributeBriggMaxHealth", 450.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeBriggMaxHealth", 450.0D, 0.0D, 10000.0D);
         Common.shipAttributeBriggMaxSpeed = builder
-                .defineInRange("shipAttributeBriggMaxSpeed", 35.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeBriggMaxSpeed", 35.0D, 0.0D, 100.0D);
         Common.shipAttributeBriggMaxReverseSpeed = builder
-                .defineInRange("shipAttributeBriggMaxReverseSpeed", 0.1D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeBriggMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeBriggMaxRotationSpeed = builder
-                .defineInRange("shipAttributeBriggMaxRotationSpeed", 4.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeBriggMaxRotationSpeed", 4.0D, 0.0D, 100.0D);
         Common.shipAttributeBriggAcceleration = builder
-                .defineInRange("shipAttributeBriggAcceleration", 0.015D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeBriggAcceleration", 0.015D, 0.0D, 100.0D);
         Common.shipAttributeBriggRotationAcceleration = builder
-                .defineInRange("shipAttributeBriggRotationAcceleration", 0.55D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeBriggRotationAcceleration", 0.55D, 0.0D, 100.0D);
 
         builder.pop();
 
@@ -274,17 +284,17 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Common.shipAttributeGalleyMaxHealth = builder
-                .defineInRange("shipAttributeGalleyMaxHealth", 200.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeGalleyMaxHealth", 200.0D, 0.0D, 10000.0D);
         Common.shipAttributeGalleyMaxSpeed = builder
-                .defineInRange("shipAttributeGalleyMaxSpeed", 30.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeGalleyMaxSpeed", 30.0D, 0.0D, 100.0D);
         Common.shipAttributeGalleyMaxReverseSpeed = builder
-                .defineInRange("shipAttributeGalleyMaxReverseSpeed", 0.1D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeGalleyMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeGalleyMaxRotationSpeed = builder
-                .defineInRange("shipAttributeGalleyMaxRotationSpeed", 5.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeGalleyMaxRotationSpeed", 5.0D, 0.0D, 100.0D);
         Common.shipAttributeGalleyAcceleration = builder
-                .defineInRange("shipAttributeGalleyAcceleration", 0.015D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeGalleyAcceleration", 0.015D, 0.0D, 100.0D);
         Common.shipAttributeGalleyRotationAcceleration = builder
-                .defineInRange("shipAttributeGalleyRotationAcceleration", 1.00D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeGalleyRotationAcceleration", 1.00D, 0.0D, 100.0D);
 
         builder.pop();
 
@@ -314,17 +324,17 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Common.shipAttributeDrakkarMaxHealth = builder
-                .defineInRange("shipAttributeDrakkarMaxHealth", 200.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeDrakkarMaxHealth", 200.0D, 0.0D, 10000.0D);
         Common.shipAttributeDrakkarMaxSpeed = builder
-                .defineInRange("shipAttributeDrakkarMaxSpeed", 30.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeDrakkarMaxSpeed", 30.0D, 0.0D, 100.0D);
         Common.shipAttributeDrakkarMaxReverseSpeed = builder
-                .defineInRange("shipAttributeDrakkarMaxReverseSpeed", 0.1D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeDrakkarMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeDrakkarMaxRotationSpeed = builder
-                .defineInRange("shipAttributeDrakkarMaxRotationSpeed", 5.0D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeDrakkarMaxRotationSpeed", 5.0D, 0.0D, 100.0D);
         Common.shipAttributeDrakkarAcceleration = builder
-                .defineInRange("shipAttributeDrakkarAcceleration", 0.015D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeDrakkarAcceleration", 0.015D, 0.0D, 100.0D);
         Common.shipAttributeDrakkarRotationAcceleration = builder
-                .defineInRange("shipAttributeDrakkarRotationAcceleration", 1.00D, 0.0D, Double.MAX_VALUE);
+                .defineInRange("shipAttributeDrakkarRotationAcceleration", 1.00D, 0.0D, 100.0D);
 
         builder.pop();
 
@@ -353,7 +363,7 @@ public class SmallShipsConfig {
 
     private static void setupClientConfig(ForgeConfigSpec.Builder builder) {
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
-        Client.schematicVersion = builder.define("schematicVersion", 1, e -> false);
+        Client.schematicVersion = builder.define("schematicVersion", CLIENT_SCHEMATIC_VERSION);
 
         builder.comment(" This category holds configs that define ship behaviour.");
         builder.push("Ship");

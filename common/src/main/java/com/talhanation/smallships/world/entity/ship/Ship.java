@@ -61,9 +61,9 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> BACKWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     private boolean isLocked = false;
-    private boolean sunken = false;
     private int sunkenTime = 0;
     private float prevWaveAngle;
     private float waveAngle;
@@ -122,6 +122,7 @@ public abstract class Ship extends Boat {
         this.getEntityData().define(BACKWARD, false);
         this.getEntityData().define(LEFT, false);
         this.getEntityData().define(RIGHT, false);
+        this.getEntityData().define(SUNKEN, false);
 
         if (this instanceof Sailable sailShip) sailShip.defineSailShipSynchedData();
         if (this instanceof Bannerable bannerShip) bannerShip.defineBannerShipSynchedData();
@@ -450,10 +451,10 @@ public abstract class Ship extends Boat {
     }
 
     public void setSunken(boolean sunken){
-        this.sunken = sunken;
+        this.entityData.set(SUNKEN, sunken);
     }
     public boolean isSunken(){
-        return sunken;
+        return this.entityData.get(SUNKEN);
     }
     @Override
     public double getPassengersRidingOffset() {
