@@ -2,7 +2,6 @@ package com.talhanation.smallships.world.entity.projectile;
 
 
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.world.damagesource.ModDamageSourceTypes;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;

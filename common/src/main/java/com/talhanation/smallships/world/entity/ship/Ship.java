@@ -346,7 +346,7 @@ public abstract class Ship extends Boat {
         if (shipBiomeType == BiomeModifierType.NONE) return 0.0F;
 
         BlockPos pos = new BlockPos((int)this.getX(), (int)this.getY(), (int)this.getZ());
-        int tmp = this.getLevel().getBiome(pos).value().getWaterColor();
+        int tmp = this.getCommandSenderWorld().getBiome(pos).value().getWaterColor();
         float modifier = SmallShipsConfig.Common.shipGeneralBiomeModifier.get().floatValue();
 
         boolean coldBiomes = tmp < 4100000;
