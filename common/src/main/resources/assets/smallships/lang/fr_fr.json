@@ -6,8 +6,8 @@
   "key.smallships.lower_ship_sail" : "Voile plus basse",
   "key.smallships.ship_inventory" : "Ouvrir l'inventaire du navire",
 
-  "death.attack.cannonball": "%s a été touché par un boulet de canon.",
-  "death.attack.cannonball.player": "%s a été touché par un boulet de canon tiré par %s.",
+  "death.attack.cannonBall": "%s a été touché par un boulet de canon.",
+  "death.attack.cannonBall.player": "%s a été touché par un boulet de canon tiré par %s.",
 
   "death.attack.hit_ship": "%s a été heurté par un navire.",
   "death.attack.hit_ship.player": "%s a été heurté par %s avec un navire.",
