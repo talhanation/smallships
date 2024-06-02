@@ -4,10 +4,11 @@
     "1.20.1-recommended": "2.0.0-b1.2",
     "1.19.4-recommended": "2.0.0-a2.3.3",
     "1.19.2-recommended": "2.0.0-b1.2",
-    "1.18.2-recommended": "2.0.0-b1.2",
+    "1.18.2-recommended": "2.0.0-b1.2.1",
     "1.16.5-recommended": "1.10.1"
   },
   "1.18.2": {
+    "2.0.0-b1.2.1": "fixed only 2 passengers possbile bug in 1.18.2",
     "2.0.0-b1.2": "fixed config errors, buffed cannonballs",
     "2.0.0-b1.1.1": "fixed ships not spawning",
     "2.0.0-b1.1": "added drakkar ship with shields, added sunken feature, added configs, added dis/mounting feature",
