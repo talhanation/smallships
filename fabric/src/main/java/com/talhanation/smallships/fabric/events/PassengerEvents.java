@@ -15,13 +15,17 @@ public class PassengerEvents implements UseEntityCallback {
 
     @Override
     public InteractionResult interact(Player player, Level world, InteractionHand hand, Entity entity, @Nullable EntityHitResult hitResult) {
-        if(!player.isCrouching() && entity.isPassenger() && entity.getVehicle() != null && entity.getVehicle() instanceof Ship){
+        if(!player.isCrouching() && entity.isPassenger()
+                && !(entity instanceof Player)
+                && !(entity.getEncodeId() != null && entity.getEncodeId().contains("captain"))
+                && entity.getVehicle() != null
+                && entity.getVehicle() instanceof Ship){
             entity.stopRiding();
             return InteractionResult.SUCCESS;
         }
 
         if(player.isPassenger() && player.getVehicle() != null && player.getVehicle() instanceof Ship ship){
-            if(ship.canAddPassenger(entity)){
+            if(ship.canAddPassenger(entity) && !(entity instanceof Player)){
                 entity.startRiding(ship);
                 return InteractionResult.SUCCESS;
             }
