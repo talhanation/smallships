@@ -610,10 +610,13 @@ public abstract class Ship extends Boat {
         return true;
     }
 
-    private void collisionDamage(Entity entity, float speed) {
+    private void collisionDamage(Entity hitEntity, float speed) {
         if (canDoCollisionDamage() && speed > 0.1F) {
+            LivingEntity driver = getDriver();
+            if(driver != null && driver.getTeam() != null && driver.getTeam().isAlliedTo(hitEntity.getTeam()) && !driver.getTeam().isAllowFriendlyFire()) return;
+            
             float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
-            if(damage > 0) entity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
+            if(damage > 0) hitEntity.hurt(ModDamageSourceTypes.shipCollision(this, this.getControllingPassenger()), damage);
         }
     }
     @Nullable
