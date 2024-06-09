@@ -14,14 +14,20 @@ public class PassengerEvents {
         Player player = event.getEntity();
         Entity entity = event.getTarget();
 
-        if(!player.isCrouching() && entity.isPassenger() && entity.getVehicle() != null && entity.getVehicle() instanceof Ship){
+        if(!player.isCrouching()
+                && entity.isPassenger()
+                && !(entity instanceof Player)
+                && !(entity.getEncodeId() != null && entity.getEncodeId().contains("captain"))
+                && entity.getVehicle() != null
+                && entity.getVehicle() instanceof Ship){
+
             entity.stopRiding();
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         }
 
         if(player.isPassenger() && player.getVehicle() != null && player.getVehicle() instanceof Ship ship){
-            if(ship.canAddPassenger(entity)){
+            if(ship.canAddPassenger(entity) && !(entity instanceof Player)){
                 entity.startRiding(ship);
                 event.setCancellationResult(InteractionResult.SUCCESS);
                 event.setCanceled(true);
