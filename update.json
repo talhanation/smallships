@@ -1,13 +1,14 @@
 {
   "homepage": "https://legacy.curseforge.com/minecraft/mc-mods/small-ships/files/all",
   "promos": {
-    "1.20.1-recommended": "2.0.0-b1.2",
+    "1.20.1-recommended": "2.0.0-b1.3",
     "1.19.4-recommended": "2.0.0-a2.3.3",
-    "1.19.2-recommended": "2.0.0-b1.2",
-    "1.18.2-recommended": "2.0.0-b1.2.1",
+    "1.19.2-recommended": "2.0.0-b1.3",
+    "1.18.2-recommended": "2.0.0-b1.3",
     "1.16.5-recommended": "1.10.1"
   },
   "1.18.2": {
+    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits",
     "2.0.0-b1.2.1": "fixed only 2 passengers possbile bug in 1.18.2",
     "2.0.0-b1.2": "fixed config errors, buffed cannonballs",
     "2.0.0-b1.1.1": "fixed ships not spawning",
@@ -19,6 +20,7 @@
     "2.0.0-a2.3.1": "fixed strange mixin crash."
   },
   "1.19.2": {
+    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits",
     "2.0.0-b1.2": "fixed config errors, buffed cannonballs",
     "2.0.0-b1.1": "added drakkar ship with shields, added sunken feature, added configs, added dis/mounting feature",
     "2.0.0a2.0": "various fixes, added config system,  rework cannon mechanics. added the galley, added leashing, added new sail control.",
@@ -37,6 +39,7 @@
     "2.0.0-a2.3.2": "fix creative menu tab issues, fix ship container menu texture."
   },
   "1.20.1": {
+    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits",
     "2.0.0-b1.2": "fixed config errors, buffed cannonballs",
     "2.0.0-b1.1": "added drakkar ship with shields, added sunken feature, added configs, added dis/mounting feature",
     "2.0.0-a2.3.3": "fix registry issues."
