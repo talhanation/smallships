@@ -523,10 +523,12 @@ public abstract class Ship extends Boat {
     }
 
     private void updateWaterMobs() {
-        double radius = SmallShipsConfig.Common.waterAnimalFleeRadius.get();
-        List<WaterAnimal> waterAnimals = this.level().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
-        for (WaterAnimal waterAnimal : waterAnimals) {
-            fleeEntity(waterAnimal);
+        if(!this.getCommandSenderWorld().isClientSide()){
+            double radius = SmallShipsConfig.Common.waterAnimalFleeRadius.get();
+            List<WaterAnimal> waterAnimals = this.level().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
+            for (WaterAnimal waterAnimal : waterAnimals) {
+                if(this.tickCount % 20 == 0) fleeEntity(waterAnimal);
+            }
         }
     }
 
