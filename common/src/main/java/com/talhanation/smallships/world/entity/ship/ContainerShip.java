@@ -15,7 +15,6 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HasCustomInventoryScreen;
@@ -83,7 +82,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.getEntityData().define(ROWS, (byte) 6);
         this.getEntityData().define(PAGES, (byte) 1);
         this.getEntityData().define(PAGE_INDEX, (byte) 0);
-        this.getEntityData().define(CONTAINER_FILL_STATE, Byte.MIN_VALUE);
+        this.getEntityData().define(CONTAINER_FILL_STATE, (byte) 0);
     }
 
     @Override
@@ -105,12 +104,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public void destroy(@NotNull DamageSource damageSource) {
-        super.destroy(damageSource);
-        this.chestVehicleDestroyed(damageSource, this.getLevel(), this);
-    }
-
-    @Override
     public void remove(@NotNull RemovalReason removalReason) {
         if (!this.getLevel().isClientSide() && removalReason.shouldDestroy()) {
             Containers.dropContents(this.getLevel(), this, this);
@@ -121,19 +114,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
-        if (this.canAddPassenger(player) && !player.isSecondaryUseActive()) {
-            return super.interact(player, interactionHand);
-        } else {
-            InteractionResult interactionResult = this.interactWithContainerVehicle(player);
-            if (interactionResult.consumesAction()) {
-                this.gameEvent(GameEvent.CONTAINER_OPEN, player);
-                PiglinAi.angerNearbyPiglins(player, true);
-            } else {
-                this.ejectPassengers();
-            }
-
-            return interactionResult;
-        }
+        if(!this.isLocked()) return this.canAddPassenger(player) && !player.isSecondaryUseActive() ? super.interact(player, interactionHand) : this.interactWithContainerVehicle(player);
+		else return InteractionResult.PASS;
     }
 
     @Override
@@ -209,6 +191,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public void setChanged() {
+        this.updateContainerFillState();
     }
 
     @Override
@@ -299,10 +282,19 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     protected void updateContainerFillState(){
-        double invFillStateInPercent = this.getItemStacks().stream().map(i -> !i.isEmpty()? (double) i.getCount() / i.getMaxStackSize() : 0.0D).reduce(0.0D, Double::sum) / this.getItemStacks().size();
-        short u_byteMaxValue = -Byte.MIN_VALUE + Byte.MAX_VALUE;
-        byte invFillState = (byte) (invFillStateInPercent * u_byteMaxValue - (-Byte.MIN_VALUE));
-        this.setContainerFillState(invFillState);
+        int percent = (int) getInvFillStateInPercent();
+        this.setContainerFillState((byte) percent);
+    }
+
+    public byte getInvFillState(){
+        return this.entityData.get(CONTAINER_FILL_STATE);
+    }
+
+    public double getInvFillStateInPercent(){
+        int size = this.getItemStacks().size();
+        double invFillStateInPercent = this.getItemStacks().stream().map(itemStack -> !itemStack.isEmpty()? (double) itemStack.getCount() / itemStack.getMaxStackSize() : 0.0D).reduce(0.0D, Double::sum) / size;
+
+        return invFillStateInPercent * 100;
     }
 
     public void resizeContainer(int containerSize) {
@@ -349,7 +341,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.entityData.set(CONTAINER_FILL_STATE, b);
     }
 
-    @Override
     public float getContainerModifier() {
         return SmallShipsConfig.Common.shipGeneralContainerModifier.get().floatValue() * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
     }

@@ -43,12 +43,6 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        this.updateContainerFillState(); //somehow ContainerFillState is bugged initially even though it should not be, that's why this line is needed.
-    }
-
-    @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
         attributes.maxHealth = SmallShipsConfig.Common.shipAttributeGalleyMaxHealth.get().floatValue();
@@ -63,7 +57,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     @Override
-    protected int getMaxPassengers() {
+    public int getMaxPassengers() {
         return 9;
     }
 
@@ -74,7 +68,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     @Override
-    public int getBiomesModifierType() {
+    public BiomeModifierType getBiomeModifierType() {
         return SmallShipsConfig.Common.shipModifierGalleyBiome.get();
     }
 
@@ -157,7 +151,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     // Implement Able-Interfaces
     @Override
     public Bannerable.BannerPosition getBannerPosition() {
-        return new Bannerable.BannerPosition(0.0F, 270.0F, 4.0D, 0.15D, 0.05D); //+x=up, +y=back, +z=right
+        return new Bannerable.BannerPosition(-180.0F, 90.0F, -4.0D, 0.15D, 0.05D); //+x=up, +y=back, +z=right
     }
 
     @Override

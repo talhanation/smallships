@@ -1,15 +1,9 @@
 package com.talhanation.smallships.fabric.client;
 
-import com.talhanation.smallships.client.model.BriggModel;
-import com.talhanation.smallships.client.model.CannonBallModel;
-import com.talhanation.smallships.client.model.CogModel;
-import com.talhanation.smallships.client.model.GalleyModel;
+import com.talhanation.smallships.client.model.*;
 import com.talhanation.smallships.client.option.KeyEvent;
 import com.talhanation.smallships.client.option.ModGameOptions;
-import com.talhanation.smallships.client.renderer.entity.BriggRenderer;
-import com.talhanation.smallships.client.renderer.entity.CannonBallRenderer;
-import com.talhanation.smallships.client.renderer.entity.CogRenderer;
-import com.talhanation.smallships.client.renderer.entity.GalleyRenderer;
+import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -40,6 +34,7 @@ public class ClientInitializer implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.COG, CogRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.BRIGG, BriggRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.GALLEY, GalleyRenderer::new);
+        EntityRendererRegistry.register(ModEntityTypes.DRAKKAR, DrakkarRenderer::new);
     }
 
     public void initRendererRegisterLayerDefinitions() {
@@ -48,6 +43,7 @@ public class ClientInitializer implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(CogModel.LAYER_LOCATION, CogModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(BriggModel.LAYER_LOCATION, BriggModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(GalleyModel.LAYER_LOCATION, GalleyModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(DrakkarModel.LAYER_LOCATION, DrakkarModel::createBodyLayer);
     }
 
     public void initRegisterKeyMappings() {

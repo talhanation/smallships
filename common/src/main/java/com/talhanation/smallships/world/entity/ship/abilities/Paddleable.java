@@ -10,7 +10,7 @@ public interface Paddleable extends Ability {
     }
 
     default float getPaddlingModifier() {
-        return self().isForward()? -SmallShipsConfig.Common.shipGeneralPaddlingModifier.get().floatValue() : 0.0F; //Our modifier calculation is so bad, that this value has to be negative so that it has a positive impact on the speed...
+        return self().isForward()? SmallShipsConfig.Common.shipGeneralPaddlingModifier.get().floatValue() : 0.0F;
     }
 
     default void controlBoatPaddleShip() {

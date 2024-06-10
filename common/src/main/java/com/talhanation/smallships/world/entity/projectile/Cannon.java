@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-public class Cannon extends Entity {
+public class Cannon extends Entity { // why is this an entity??
     private final RandomSource random;
     private final double offsetX;
     private final double offsetY;
@@ -88,6 +88,18 @@ public class Cannon extends Entity {
         }
     }
 
+    public void trigger(Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy) {
+        if (coolDown == 0) {
+            if (time > 0) time--;
+
+            if (time == 0) {
+                this.shoot(shootVec, yShootVec, driverEntity, speed, accuracy);
+                this.resetTimer();
+                this.setCoolDown();
+            }
+        }
+    }
+
     public void updatePosition(){
         Vec3 forward = this.ship.getForward();
         float x0 = 0; // /-/rechst /+/links //no need
@@ -109,23 +121,25 @@ public class Cannon extends Entity {
     private void setCoolDown() {
         this.coolDown = 50;
     }
-
-    private void shoot() {
+    public void shoot(){
         LivingEntity driverEntity = (LivingEntity) ship.getControllingPassenger();
         if (driverEntity == null) return;
 
         Vec3 forward = ship.getForward().normalize();
         Vec3 shootVec = getShootVector(forward, driverEntity);
+        double speed = 2.6F;
+        double accuracy = 3F;// 0 = 100%
 
-        double speed = 2.2F;
-        double k = 3F;
+        boolean playerView = driverEntity.getLookAngle().y >= 0;
+        double yShootVec = playerView ? shootVec.y() + driverEntity.getLookAngle().y * 0.95F : shootVec.y() + 0.15F;
 
+        this.shoot(shootVec, yShootVec, driverEntity, speed, accuracy);
+    }
+
+    public void shoot(Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy) {
         if (shootVec != null) {
-            boolean playerView = driverEntity.getLookAngle().y >= 0;
-            double yShootVec = playerView ? shootVec.y() + driverEntity.getLookAngle().y * 0.95F : shootVec.y() + 0.15F;
-
-            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, (LivingEntity) ship.getControllingPassenger(), this.getX(), this.getY() + 1, this.getZ());
-            cannonBallEntity.shoot(shootVec.x(), yShootVec, shootVec.z(), (float) speed, (float) k);
+            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, driverEntity, this.getX(), this.getY() + 1, this.getZ());
+            cannonBallEntity.shoot(shootVec.x(), yShootVec, shootVec.z(), (float) speed, (float) accuracy);
             this.level.addFreshEntity(cannonBallEntity);
             ship.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
 
@@ -135,7 +149,7 @@ public class Cannon extends Entity {
         }
     }
 
-    private Vec3 getShootVector(Vec3 forward, LivingEntity driver) {
+    public Vec3 getShootVector(Vec3 forward, LivingEntity driver) {
         Vec3 VecRight = forward.yRot(-3.14F / 2).normalize();
         Vec3 VecLeft = forward.yRot(3.14F / 2).normalize();
 
@@ -217,5 +231,7 @@ public class Cannon extends Entity {
         };
         play.accept(ModSoundTypes.CANNON_SHOT, Pair.of(10.0F, 1.0F));
     }
+
+
 
 }

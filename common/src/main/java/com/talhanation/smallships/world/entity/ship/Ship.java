@@ -1,28 +1,24 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.google.common.collect.ImmutableSet;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
-import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
-import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
-import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
-import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -33,10 +29,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -47,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Stack;
 
 public abstract class Ship extends Boat {
     public static final EntityDataAccessor<CompoundTag> ATTRIBUTES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
@@ -62,7 +57,10 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> BACKWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
-
+    private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+    private boolean isLocked = false;
+    private int sunkenTime = 0;
     private float prevWaveAngle;
     private float waveAngle;
     public float prevBannerWaveAngle;
@@ -71,6 +69,7 @@ public abstract class Ship extends Boat {
     public int sailStateCooldown = 0;
     private float setPoint;
     public final List<Cannon> CANNONS = new ArrayList<>();
+    public final Stack<ItemStack> SHIELDS = new Stack<>();
     public float maxSpeed;
     private CameraType previousCameraType;
 
@@ -88,17 +87,25 @@ public abstract class Ship extends Boat {
             this.setDamage(this.getDamage() + 1.0F);
         }
 
-        if (this instanceof Sailable sailShip) sailShip.tickSailShip();
-        if (this instanceof Bannerable bannerShip) bannerShip.tickBannerShip();
-        if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
-        if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
+        if(isSunken()){
+            if(++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
+            else this.setDeltaMovement (getDeltaMovement().x, - 0.2D, getDeltaMovement().z);
+        }
+        else {
+            if (this instanceof Sailable sailShip) sailShip.tickSailShip();
+            if (this instanceof Bannerable bannerShip) bannerShip.tickBannerShip();
+            if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
+            if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
+            if (this instanceof Shieldable shieldShip) shieldShip.tickShieldShip();
+            if (this instanceof IceBreakable iceBreakable) iceBreakable.tickIceBreakable();
 
-        boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
-        this.updateShipAmbience(isCruising);
-        this.updateCollision(isCruising);
-        this.updateWaveAngle();
-        this.updateWaterMobs();
-        this.floatUp();
+            boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
+            this.updateShipAmbience(isCruising);
+            this.updateCollision(isCruising);
+            this.updateWaveAngle();
+            this.updateWaterMobs();
+            this.floatUp();
+        }
     }
 
     @Override
@@ -111,10 +118,12 @@ public abstract class Ship extends Boat {
         this.getEntityData().define(BACKWARD, false);
         this.getEntityData().define(LEFT, false);
         this.getEntityData().define(RIGHT, false);
+        this.getEntityData().define(SUNKEN, false);
 
         if (this instanceof Sailable sailShip) sailShip.defineSailShipSynchedData();
         if (this instanceof Bannerable bannerShip) bannerShip.defineBannerShipSynchedData();
         if (this instanceof Cannonable cannonShip) cannonShip.defineCannonShipSynchedData();
+        if (this instanceof Shieldable shieldShip) shieldShip.defineShieldShipSynchedData();
     }
 
     @Override
@@ -128,6 +137,10 @@ public abstract class Ship extends Boat {
         if (this instanceof Sailable sailShip) sailShip.readSailShipSaveData(tag);
         if (this instanceof Bannerable bannerShip) bannerShip.readBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.readCannonShipSaveData(tag);
+        if (this instanceof Shieldable shieldShip) shieldShip.readShieldShipSaveData(tag);
+
+        this.setSunken(tag.getBoolean("Sunken"));
+        this.isLocked = (tag.getBoolean("locked"));
     }
 
     @Override
@@ -141,10 +154,19 @@ public abstract class Ship extends Boat {
         if (this instanceof Sailable sailShip) sailShip.addSailShipSaveData(tag);
         if (this instanceof Bannerable bannerShip) bannerShip.addBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.addCannonShipSaveData(tag);
+        if (this instanceof Shieldable shieldShip) shieldShip.addShieldShipSaveData(tag);
+
+        tag.putBoolean("Sunken", isSunken());
+        tag.putBoolean("locked", this.isLocked);
     }
 
     public <T> T getData(EntityDataAccessor<T> accessor) {
         return this.getEntityData().get(accessor);
+    }
+
+    @Override
+    public boolean canAddPassenger(Entity entity) {
+       return super.canAddPassenger(entity) && !(entity instanceof Ship) && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && !this.isLocked() && this.getPassengers().size() < this.getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal);
     }
 
     public <T> void setData(EntityDataAccessor<T> accessor, T value) {
@@ -154,26 +176,26 @@ public abstract class Ship extends Boat {
     @Override
     protected void controlBoat() {
         Attributes attributes = this.getAttributes();
-        float modifier = 1 - (getBiomesModifier()/100 + (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0) + getContainerModifier()/100 + (this instanceof Paddleable paddleShip? paddleShip.getPaddlingModifier()/100 : 0));
+        float speedModifier =
+                (1 + (this.getBiomeModifier()/100)) *
+                (1 - (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0.0F)) *
+                (1 - (this instanceof ContainerShip containerShip? containerShip.getContainerModifier()/100 : 0.0F)) *
+                (1 + (this instanceof Paddleable paddleShip? paddleShip.getPaddlingModifier()/100 : 0.0F));
 
-        this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * modifier;
+        this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * speedModifier;
         float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
 
         //SmallShipsMod.LOGGER.info("Speed kmh: " +  Kalkuel.getKilometerPerHour(this.getSpeed()));
 
-        if(this.level.isClientSide()){
+        if(this.level.isClientSide() && !this.isSunken()){
             Player player = getDriver();
             if(player != null)
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
         }
 
-        if(this.isInWater() && !((BoatLeashAccess) this).isLeashed()){
-            //CALCULATE SPEED//
-            // This code is very very very bad... controlBoat is in dire need of a proper rewrite
-            //Speed calc dependent on sail or paddle
-            //Speed needs to calculate before rotation because fabric is shit (has nothing to do with fabric)
+        if(this.isInWater() && !this.isShipLeashed() && !this.isSunken() && !isLocked()){
             if(this instanceof Paddleable && this instanceof Sailable sailShip){
                 if(isForward() && getDriver() != null){
                     setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F);
@@ -225,7 +247,7 @@ public abstract class Ship extends Boat {
                 if (this instanceof Paddleable paddleShip) paddleShip.controlBoatPaddleShip();
             }
             //SET
-            setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), 0.0F, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
+            setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
         }
         else {
             setForward(false);
@@ -235,6 +257,13 @@ public abstract class Ship extends Boat {
         }
     }
 
+    public boolean isLocked(){
+        return isLocked;
+    }
+
+    public boolean isShipLeashed(){
+        return ((BoatLeashAccess) this).isLeashed();
+    }
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced
         float speed = this.getSpeed();
@@ -251,6 +280,13 @@ public abstract class Ship extends Boat {
         this.setSpeed(speed);
     }
 
+    public CompoundTag getShieldData() {
+        return entityData.get(SHIELD_DATA);
+    }
+    public void setShieldData(CompoundTag f) {
+        this.entityData.set(SHIELD_DATA, f);
+    }
+
     public float getSpeed() {
         return entityData.get(SPEED);
     }
@@ -262,12 +298,6 @@ public abstract class Ship extends Boat {
     }
     public void setRotSpeed(float f) {
         this.entityData.set(ROT_SPEED, f);
-    }
-    public void setCannonCount(byte x) {
-        this.entityData.set(CANNON_COUNT, x);
-    }
-    public byte getCannonCount() {
-        return entityData.get(CANNON_COUNT);
     }
 
     public void setForward(boolean forward) {
@@ -308,64 +338,87 @@ public abstract class Ship extends Boat {
         return entityData.get(RIGHT);
     }
 
-    public static final ImmutableSet<ResourceKey<Biome>> COLD_BIOMES = ImmutableSet.of(
-            Biomes.COLD_OCEAN,
-            Biomes.DEEP_COLD_OCEAN,
-            Biomes.FROZEN_OCEAN,
-            Biomes.DEEP_FROZEN_OCEAN,
-            Biomes.FROZEN_RIVER
-    );
+    public float getBiomeModifier() {
+        BiomeModifierType shipBiomeType = this.getBiomeModifierType();
+        if (shipBiomeType == BiomeModifierType.NONE) return 0.0F;
 
-    public static final ImmutableSet<ResourceKey<Biome>> WARM_BIOMES = ImmutableSet.of(
-            Biomes.WARM_OCEAN,
-            Biomes.LUKEWARM_OCEAN,
-            Biomes.DEEP_LUKEWARM_OCEAN
-    );
+        BlockPos pos = new BlockPos((int)this.getX(), (int)this.getY(), (int)this.getZ());
+        int tmp = this.getLevel().getBiome(pos).value().getWaterColor();
+        float modifier = SmallShipsConfig.Common.shipGeneralBiomeModifier.get().floatValue();
 
-    public static final ImmutableSet<ResourceKey<Biome>> NEUTRAL_BIOMES = ImmutableSet.of(
-            Biomes.OCEAN,
-            Biomes.DEEP_OCEAN,
-            Biomes.RIVER
-    );
+        boolean coldBiomes = tmp < 4100000;
+        boolean warmBiomes = tmp > 4300000;
+        boolean neutralBiomes = !coldBiomes && !warmBiomes;
 
-    public float getBiomesModifier() {
-        int biomeType = this.getBiomesModifierType(); // 0 = cold; 1 = neutral; 2 = warm;
-        if (biomeType == -1) return 0;
-        BlockPos pos = new BlockPos(Double.valueOf(getX()).intValue(), Double.valueOf(getY() - 0.1D).intValue(), Double.valueOf(getZ()).intValue());
-        Optional<ResourceKey<Biome>> biome = this.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getResourceKey(level.getBiome(pos).value());
 
-        if(biome.isPresent()) {
-            boolean coldBiomes = COLD_BIOMES.contains(biome.get());
-            boolean neutralBiomes = NEUTRAL_BIOMES.contains(biome.get());
-            boolean warmBiomes = WARM_BIOMES.contains(biome.get());
+        boolean coldType = shipBiomeType == BiomeModifierType.COLD;
+        boolean neutralType = shipBiomeType == BiomeModifierType.NEUTRAL;;
+        boolean warmType = shipBiomeType == BiomeModifierType.WARM;;
 
-            boolean coldType = biomeType == 0;
-            boolean neutralType = biomeType == 1;
-            boolean warmType = biomeType == 2;
+        if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
+            return modifier;
+        } else if (
+                (coldBiomes && warmType || warmBiomes && coldType) || ((coldBiomes || warmBiomes) && neutralType)) {
+            return -modifier;
+        } else if (neutralBiomes && warmType || neutralBiomes && coldType) {
+            return -modifier/4;
+        } else
+            return 0;
 
-            if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
-                return -20F;
-            }
-            else if (
-                    (coldBiomes && warmType || warmBiomes && coldType) || ((coldBiomes || warmBiomes) && neutralType)) {
-                return 20F;
-            }
-            else if (neutralBiomes && warmType || neutralBiomes && coldType) {
-                return 10F;
-            }
-            else
-                return 0;
-        }
-        return 0;
     }
-
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
-        if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
-        if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
-        if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
+        if(!this.isLocked()){
+            if(this.interactWithNameTag(player)) return InteractionResult.SUCCESS;
+            if(this.interactIronNuggets(player)) return InteractionResult.SUCCESS;
+            if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
+            if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
+            if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
+            if (this instanceof Shieldable shieldShip && shieldShip.interactShield(player, interactionHand)) return InteractionResult.SUCCESS;
+            return super.interact(player, interactionHand);
+        }
+        else return InteractionResult.PASS;
+    }
 
-        return super.interact(player, interactionHand);
+    private boolean interactWithNameTag(@NotNull Player player){
+        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().hasCustomHoverName() && !player.getCommandSenderWorld().isClientSide){
+            this.setCustomName(player.getMainHandItem().getHoverName());
+            this.setCustomNameVisible(false);
+            if(!player.isCreative()) player.getMainHandItem().shrink(1);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean interactIronNuggets(@NotNull Player player){
+        if (this.getDamage() > 0 && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
+
+            this.repairShip((5 + this.level.random.nextInt(5)));
+
+            if(!player.isCreative()){
+                player.getMainHandItem().shrink(1);
+
+                for(int i = 0; i < player.getInventory().getContainerSize(); ++i) {
+                    ItemStack itemStack = player.getInventory().getItem(i);
+                    if (itemStack.is(ItemTags.PLANKS)) {
+                        itemStack.shrink(1);
+                        break;
+                    }
+                }
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    public void repairShip(int repairAmount){
+        level.playSound(null, this.getX(), this.getY() + 1, this.getZ(), SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
+        level.playSound(null, this.getX(), this.getY() + 2, this.getZ(), SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * level.getRandom().nextFloat());
+
+        float newDamage = this.getDamage() - repairAmount;
+        if(newDamage < 0) newDamage = 0;
+        this.setDamage(newDamage);
     }
 
     @Override
@@ -393,6 +446,12 @@ public abstract class Ship extends Boat {
         super.removePassenger(entity);
     }
 
+    public void setSunken(boolean sunken){
+        this.entityData.set(SUNKEN, sunken);
+    }
+    public boolean isSunken(){
+        return this.entityData.get(SUNKEN);
+    }
     @Override
     public double getPassengersRidingOffset() {
         return (double)this.getBbHeight() * 0.75D;
@@ -434,11 +493,10 @@ public abstract class Ship extends Boat {
     }
 
     @Override
-    protected abstract int getMaxPassengers();
+    public abstract int getMaxPassengers();
     @Override
     public abstract @NotNull Item getDropItem();
-    public abstract int getBiomesModifierType();
-    public abstract float getContainerModifier();
+    public abstract BiomeModifierType getBiomeModifierType();
     public abstract CompoundTag createDefaultAttributes();
 
     /************************************
@@ -462,10 +520,12 @@ public abstract class Ship extends Boat {
     }
 
     private void updateWaterMobs() {
-        double radius = SmallShipsConfig.Common.waterAnimalFleeRadius.get();
-        List<WaterAnimal> waterAnimals = this.getLevel().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
-        for (WaterAnimal waterAnimal : waterAnimals) {
-            fleeEntity(waterAnimal);
+        if(!this.getCommandSenderWorld().isClientSide()){
+            double radius = SmallShipsConfig.Common.waterAnimalFleeRadius.get();
+            List<WaterAnimal> waterAnimals = this.getLevel().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
+            for (WaterAnimal waterAnimal : waterAnimals) {
+                if(this.tickCount % 20 == 0) fleeEntity(waterAnimal);
+            }
         }
     }
 
@@ -481,27 +541,34 @@ public abstract class Ship extends Boat {
     }
 
     protected void floatUp(){
-        if (this.isEyeInFluid(FluidTags.WATER))
-            this.setDeltaMovement(getDeltaMovement().x, 0.2D, getDeltaMovement().z);
+        if (this.isEyeInFluid(FluidTags.WATER)){
+            this.setDeltaMovement(getDeltaMovement().add(0, 0.2, 0));
+        }
     }
 
     @Override
     public boolean hurt(DamageSource damageSource, float f) {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
-        } else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
-            this.setDamage(this.getDamage() + f);
+        }
+        else if (!this.getLevel().isClientSide() && !this.isRemoved()) {
+            this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip ? shieldShip.getDamageModifier() : 1));
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
 
-            boolean bl = damageSource.getEntity() instanceof Player && ((Player)damageSource.getEntity()).getAbilities().instabuild;
+            boolean bl = damageSource.getEntity() instanceof Player player && player.getAbilities().instabuild && player.isCrouching();
 
-            if (bl || this.getDamage() > this.getAttributes().maxHealth) {
-                if (!bl && this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                    this.destroy(damageSource);
+            if (this.getDamage() > this.getAttributes().maxHealth) {
+                if(this.isSunken() && this.sunkenTime > 200){
+                    this.destroy(this.getCommandSenderWorld().damageSources().drown());
                 }
+                else
+                    this.setSunken(true);
+            }
+            if(bl){
                 this.discard();
             }
+
             return true;
         } else {
             return true;
@@ -521,7 +588,7 @@ public abstract class Ship extends Boat {
     }
 
     private void updateCollision(boolean isCruising){
-        if(isCruising) {
+        if(isCruising && canDoKnockBack() && SmallShipsConfig.Common.shipGeneralCollisionKnockBack.get()) {
             AABB boundingBox = this.getBoundingBox().inflate(2.25, 1.25, 2.25).move(0.0, -2.0, 0.0);
             List<Entity> list = this.level.getEntities(this, boundingBox, EntitySelector.pushableBy(this));
             for(Entity entity: list) {
@@ -532,18 +599,28 @@ public abstract class Ship extends Boat {
             }
         }
     }
+    //Reflection Method
+    public boolean canDoKnockBack(){
+        return true;
+    }
+    //Reflection Method
+    public boolean canDoCollisionDamage(){
+        return true;
+    }
 
-    private void collisionDamage(Entity entity, float speed) {
-        if (speed > 0.1F) {
+    private void collisionDamage(Entity hitEntity, float speed) {
+        if (canDoCollisionDamage() && speed > 0.1F) {
+            LivingEntity driver = getDriver();
+            if(driver != null && driver.getTeam() != null && driver.getTeam().isAlliedTo(hitEntity.getTeam()) && !driver.getTeam().isAllowFriendlyFire()) return;
+
             float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
-            entity.hurt(this.damageSources().explosion(this, this.getControllingPassenger()), damage);
+            if(damage > 0) hitEntity.hurt(this.getCommandSenderWorld().damageSources().mobAttack(this.getControllingPassenger()), damage);
         }
-
     }
     @Nullable
     public Player getDriver() {
         List<Entity> passengers = getPassengers();
-        if (passengers.size() == 0) {
+        if (passengers.isEmpty()) {
             return null;
         }
 
@@ -559,8 +636,10 @@ public abstract class Ship extends Boat {
 
         return null;
     }
-
-    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, Player player) {
+    /************************************
+     * Used by Workers and Recruits Mod -> Player == null
+     ************************************/
+    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, @Nullable Player player) {
         boolean needsUpdate = false;
 
         if (this.isForward() != forward) {
@@ -582,8 +661,27 @@ public abstract class Ship extends Boat {
             this.setRight(right);
             needsUpdate = true;
         }
-        if (this.level.isClientSide && needsUpdate) {
+
+        if (this.getCommandSenderWorld().isClientSide && needsUpdate && player != null) {
             ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
+    }
+    @Override
+    public void destroy(@NotNull DamageSource damageSource) {
+        super.destroy(damageSource);
+        if (this.getLevel().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+            if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getLevel(), this);
+			if(this instanceof Cannonable cannonableShip) cannonableShip.cannonShipDestroyed(this.getCommandSenderWorld(), this);
+
+        }
+
+        discard();
+    }
+
+    public enum BiomeModifierType {
+        NONE,
+        COLD,
+        NEUTRAL,
+        WARM
     }
 }

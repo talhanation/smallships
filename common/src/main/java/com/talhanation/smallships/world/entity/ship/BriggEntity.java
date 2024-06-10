@@ -57,7 +57,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
-    protected int getMaxPassengers() {
+    public int getMaxPassengers() {
         return 11;
     }
 
@@ -68,7 +68,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
-    public int getBiomesModifierType() {
+    public BiomeModifierType getBiomeModifierType() {
         return SmallShipsConfig.Common.shipModifierBriggBiome.get();
     }
 

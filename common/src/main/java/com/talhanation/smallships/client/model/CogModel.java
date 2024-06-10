@@ -158,11 +158,10 @@ public class CogModel extends ShipModel<CogEntity> {
 
 	@Override
 	public void setupAnim(@NotNull CogEntity cogEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		byte u_byteMaxValueFourth = (-Byte.MIN_VALUE + Byte.MAX_VALUE) / 4;
-		this.chest1.visible = cogEntity.getContainerFillState() >= u_byteMaxValueFourth - (-Byte.MIN_VALUE);
-		this.chest2.visible = cogEntity.getContainerFillState() >= u_byteMaxValueFourth * 2 - (-Byte.MIN_VALUE);
-		this.chest3.visible = cogEntity.getContainerFillState() >= u_byteMaxValueFourth * 3 - (-Byte.MIN_VALUE);
-		this.chest4.visible = cogEntity.getContainerFillState() >= u_byteMaxValueFourth * 4 - (-Byte.MIN_VALUE);
+		this.chest1.visible = cogEntity.getInvFillState() >= 15;
+		this.chest2.visible = cogEntity.getInvFillState() >= 30;
+		this.chest3.visible = cogEntity.getInvFillState() >= 60;
+		this.chest4.visible = cogEntity.getInvFillState() >= 90;
 
 		this.steer.yRot = -cogEntity.getRotSpeed() * 0.25F;
 	}

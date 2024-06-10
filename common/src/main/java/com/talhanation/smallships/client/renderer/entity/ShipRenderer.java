@@ -7,14 +7,14 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
-import com.talhanation.smallships.client.model.sail.BriggSailModel;
-import com.talhanation.smallships.client.model.sail.CogSailModel;
-import com.talhanation.smallships.client.model.sail.GalleySailModel;
-import com.talhanation.smallships.client.model.sail.SailModel;
+import com.talhanation.smallships.client.model.sail.*;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ShieldModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -22,7 +22,9 @@ import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -32,9 +34,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.BannerItem;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
@@ -51,7 +51,7 @@ import java.util.stream.Stream;
 
 import static net.minecraft.client.renderer.entity.MobRenderer.addVertexPair;
 
-public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
+public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     protected final Map<Boat.Type, Pair<ResourceLocation, ShipModel<T>>> boatResources;
 
     public ShipRenderer(EntityRendererProvider.Context context) {
@@ -97,7 +97,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
 
         float l = shipEntity.getWaveAngle(partialTicks);
-        if (!Mth.equal(l, 0.0F)) {
+        if (!shipEntity.isSunken() && !Mth.equal(l, 0.0F)) {
             poseStack.mulPose(getWaveAngleRotation().rotationDegrees(l));
         }
 
@@ -120,6 +120,9 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         if (shipEntity instanceof Sailable sailShipEntity) {
             renderSail(sailShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
         }
+        if (shipEntity instanceof Shieldable shieldShipEntity) {
+            renderShields(shieldShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+        }
 
 
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(shipModel.renderType(resourceLocation));
@@ -136,7 +139,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @SuppressWarnings({"unused", "unchecked"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        for(byte i = 0; i < cannonShipEntity.self().getCannonCount(); i++){
+        for(byte i = 0; i < cannonShipEntity.getCannonCount(); i++){
             Cannon cannon = new Cannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
 
             poseStack.pushPose();
@@ -190,13 +193,50 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             poseStack.scale(0.5F, 0.5F, 0.5F);
 
             float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);
-            if (!Mth.equal(bannerWaveAngle, 0F)) poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
+            if (!Mth.equal(bannerWaveAngle, 0F)) {
+                poseStack.mulPose(Axis.ZP.rotationDegrees(bannerWaveAngle * 0.5F));
+                poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
+            }
 
             List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(bannerItem.getColor(), BannerBlockEntity.getItemPatterns(item));
             BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, patterns);
             poseStack.popPose();
         }
     }
+
+    private static final ShieldModel shieldModel = new ShieldModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.SHIELD));
+    @SuppressWarnings("unused")
+    private void renderShields(Shieldable shieldShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        for(byte i = 0; i < shieldShipEntity.getShields().size(); i++){
+            ItemStack itemStack = shieldShipEntity.getShields().get(i);
+            if(itemStack.is(Items.SHIELD)){
+                poseStack.pushPose();
+                Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
+                poseStack.translate(pos.x, pos.y, pos.z);
+                poseStack.scale(0.8F, -0.8F, -0.8F);
+
+                if (pos.isRightSided) poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+                poseStack.mulPose(Axis.XP.rotationDegrees(20.0F));
+                poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+
+                //Taken from BlockEntityWithoutLevelRenderer
+                boolean flag = BlockItem.getBlockEntityData(itemStack) != null;
+
+                Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
+                VertexConsumer vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, itemStack.hasFoil()));
+
+                if (flag) {
+                    List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(ShieldItem.getColor(itemStack), BannerBlockEntity.getItemPatterns(itemStack));
+                    BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, patterns, itemStack.hasFoil());
+                } else {
+                    shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                }
+                shieldModel.handle().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                poseStack.popPose();
+            }
+        }
+    }
+
 
     public Axis getWaveAngleRotation(){
         return Axis.XN;
@@ -212,6 +252,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         sailModels.put(CogEntity.class, new CogSailModel());
         sailModels.put(BriggEntity.class, new BriggSailModel());
         sailModels.put(GalleyEntity.class, new GalleySailModel());
+        sailModels.put(DrakkarEntity.class, new DrakkarSailModel());
     }
     @SuppressWarnings({"unused", "unchecked"})
     private void renderSail(Sailable sailShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
@@ -252,7 +293,7 @@ public abstract class ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         float n = 0.025F;
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.leash());
         Matrix4f matrix4f = poseStack.last().pose();
-        float o = (Mth.fastInvCubeRoot(k * k + m * m) * n / 2.0F);
+        float o = Mth.fastInvCubeRoot(k * k + m * m) * n / 2.0F;
         float p = m * o;
         float q = k * o;
         Function<Vec3, Vec3i> vec3ToVec3i = vec3d -> new Vec3i(Math.round(Double.valueOf(vec3d.x).floatValue()), Math.round(Double.valueOf(vec3d.y).floatValue()), Math.round(Double.valueOf(vec3d.z).floatValue()));

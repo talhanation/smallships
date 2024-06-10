@@ -7,13 +7,13 @@
     "leashing.client.BoatRendererMixin",
     "leashing.client.ClientPacketListenerMixin",
     "zooming.client.CameraMixin",
-    "zooming.client.MouseHandlerMixin"
+    "zooming.client.MouseHandlerMixin",
+    "render.LivingEntityRendererMixin"
   ],
   "mixins": [
     "container.SimpleContainerAccessor",
     "controlling.BoatAccessor",
     "controlling.BoatMixin",
-    "damaging.BoatMixin",
     "leashing.BoatMixin",
     "leashing.EntityMixin",
     "leashing.LeadItemMixin",

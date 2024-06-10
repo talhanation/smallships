@@ -4,6 +4,7 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
+import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.Registry;
@@ -53,6 +54,13 @@ public class ModEntityTypesImpl {
 
         entries.put(GalleyEntity.class, register(GalleyEntity.ID, FabricEntityTypeBuilder
                 .create(MobCategory.MISC, GalleyEntity::new)
+                .dimensions(EntityDimensions.fixed(3.5F, 1.25F))
+                .trackedUpdateRate(10)
+                .forceTrackedVelocityUpdates(true)
+                .build()));
+
+        entries.put(DrakkarEntity.class, register(DrakkarEntity.ID, FabricEntityTypeBuilder
+                .create(MobCategory.MISC, DrakkarEntity::new)
                 .dimensions(EntityDimensions.fixed(3.5F, 1.25F))
                 .trackedUpdateRate(10)
                 .forceTrackedVelocityUpdates(true)
