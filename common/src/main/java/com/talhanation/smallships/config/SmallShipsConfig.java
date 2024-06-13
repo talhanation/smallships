@@ -5,7 +5,6 @@ import com.talhanation.smallships.world.entity.ship.Ship;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.IConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
