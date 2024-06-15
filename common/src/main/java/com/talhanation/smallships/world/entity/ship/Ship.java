@@ -614,7 +614,7 @@ public abstract class Ship extends Boat {
 
     private void collisionDamage(Entity hitEntity, float speed) {
         if (canDoCollisionDamage() && speed > 0.1F) {
-            LivingEntity driver = getDriver();
+            Entity driver = getControllingPassenger();
             if(driver != null && driver.getTeam() != null && driver.getTeam().isAlliedTo(hitEntity.getTeam()) && !driver.getTeam().isAllowFriendlyFire()) return;
             
             float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
