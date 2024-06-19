@@ -9,8 +9,8 @@
   "death.attack.cannonBall": "%s was shot with a cannon.",
   "death.attack.cannonBall.player": "%s was shot with a cannon by %s.",
 
-  "death.attack.hit_ship": "%s was hit by a ship.",
-  "death.attack.hit_ship.player": "%s was hit by %s with a ship.",
+  "death.attack.shipCollision": "%s was hit by a ship.",
+  "death.attack.shipCollision.player": "%s was hit by %s with a ship.",
 
   "item.smallships.sail": "Sail",
   "item.smallships.cannon": "Ship Cannon",
