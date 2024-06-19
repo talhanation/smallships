@@ -9,8 +9,8 @@
   "death.attack.cannon_ball": "%s dostał(a) z armaty.",
   "death.attack.cannon_ball.player": "%s dostał(a) kulą armatnią wystrzeloną przez %s.",
 
-  "death.attack.ship_collision": "%s został(a) potrącony/a przez statek.",
-  "death.attack.ship_collision.player": "%s został(a) potrącony/a przez %s w statku.",
+  "death.attack.shipCollision": "%s został(a) potrącony/a przez statek.",
+  "death.attack.shipCollision.player": "%s został(a) potrącony/a przez %s w statku.",
 
   "item.smallships.sail": "Żagiel",
   "item.smallships.cannon": "Armata",

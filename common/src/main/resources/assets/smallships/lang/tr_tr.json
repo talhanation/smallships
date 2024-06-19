@@ -9,8 +9,8 @@
   "death.attack.cannonBall": "%s bir top mermisiyle vuruldu.",
   "death.attack.cannonBall.player": "%s %s tarafından bir top mermisiyle vuruldu.",
 
-  "death.attack.hit_ship": "%s bir gemi tarafından vuruldu.",
-  "death.attack.hit_ship.player": "%s %s tarafından bir gemiyle vuruldu.",
+  "death.attack.shipCollision": "%s bir gemi tarafından vuruldu.",
+  "death.attack.shipCollision.player": "%s %s tarafından bir gemiyle vuruldu.",
 
   "item.smallships.sail": "Yelken",
   "item.smallships.cannon": "Gemi Topu",
