@@ -6,11 +6,11 @@
 "key.smallships.lower_ship_sail": "Segel senken",
 "key.smallships.ship_inventory": "Schiffsinventar öffnen",
 
-"death.attack.cannonBall": "%s wurde von einer Kanonenkugel getroffen.",
-"death.attack.cannonBall.player": "%s wurde von %s mit einer Kanone getroffen.",
+"death.attack.cannon_ball": "%s wurde von einer Kanonenkugel getroffen.",
+"death.attack.cannon_ball.player": "%s wurde von %s mit einer Kanone getroffen.",
 
-"death.attack.hit_ship": "%s wurde von einem Schiff getroffen.",
-"death.attack.hit_ship.player": "%s wurde von %s mit einem Schiff getroffen.",
+"death.attack.ship_hit": "%s wurde von einem Schiff getroffen.",
+"death.attack.ship_hit.player": "%s wurde von %s mit einem Schiff getroffen.",
 
 "item.smallships.sail": "Segel",
 "item.smallships.cannon": "Schiffskanone",
