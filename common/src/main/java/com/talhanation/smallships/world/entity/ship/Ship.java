@@ -11,6 +11,7 @@ import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -108,6 +109,7 @@ public abstract class Ship extends Boat {
             this.updateWaveAngle();
             this.updateWaterMobs();
             this.floatUp();
+            if(outOfControlTicks > 0) --this.outOfControlTicks;
         }
     }
 
@@ -161,6 +163,23 @@ public abstract class Ship extends Boat {
 
         tag.putBoolean("Sunken", isSunken());
         tag.putBoolean("locked", this.isLocked);
+    }
+
+    public void onAboveBubbleCol(boolean bl) {
+        if (!this.level().isClientSide) {
+            this.isAboveBubbleColumn = true;
+            this.bubbleColumnDirectionIsDown = bl;
+            if (this.getBubbleTime() == 0) {
+                this.setBubbleTime(1200);
+            }
+        }
+
+        this.level().addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7, this.getZ() + (double)this.random.nextFloat(), 0.0, 0.0, 0.0);
+        if (this.random.nextInt(20) == 0) {
+            this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), this.getSwimSplashSound(), this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
+            this.gameEvent(GameEvent.SPLASH, this.getControllingPassenger());
+        }
+
     }
 
     public <T> T getData(EntityDataAccessor<T> accessor) {

@@ -13,3 +13,8 @@ accessible method net/minecraft/client/renderer/entity/EntityRenderer getBlockLi
 accessible method net/minecraft/world/entity/Entity getEncodeId ()Ljava/lang/String;
 accessible method net/minecraft/world/entity/vehicle/Boat getMaxPassengers ()I
 accessible method net/minecraft/client/renderer/entity/MobRenderer addVertexPair (Lcom/mojang/blaze3d/vertex/VertexConsumer;Lorg/joml/Matrix4f;FFFIIIIFFFFIZ)V
+accessible field net/minecraft/world/entity/vehicle/Boat bubbleColumnDirectionIsDown Z
+accessible method net/minecraft/world/entity/vehicle/Boat getBubbleTime ()I
+accessible method net/minecraft/world/entity/vehicle/Boat setBubbleTime (I)V
+accessible field net/minecraft/world/entity/vehicle/Boat isAboveBubbleColumn Z
+accessible field net/minecraft/world/entity/vehicle/Boat outOfControlTicks F
