@@ -36,6 +36,15 @@ configurations {
     }
 }
 
+// Hack fix for now, force jopt-simple to be exactly 5.0.4 because Mojang ships that version, but some transitive dependencies request 6.0+
+configurations {
+    configureEach {
+        resolutionStrategy {
+            force 'net.sf.jopt-simple:jopt-simple:5.0.4'
+        }
+    }
+}
+
 dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
 
@@ -47,7 +56,6 @@ dependencies {
 
     implementation "com.electronwill.night-config:core:${rootProject.night_config_version}"
     implementation "com.electronwill.night-config:toml:${rootProject.night_config_version}"
-    implementation(include("fuzs.forgeconfigapiport:forgeconfigapiport-forge:${rootProject.forge_config_api_port_version}"))
 }
 
 processResources {

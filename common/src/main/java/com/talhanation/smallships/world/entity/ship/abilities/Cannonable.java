@@ -21,7 +21,6 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public interface Cannonable extends Ability {
-    float getDefaultCannonPower();
     CannonPosition getCannonPosition(int index);
     byte getMaxCannonPerSide();
 
@@ -46,11 +45,6 @@ public interface Cannonable extends Ability {
     }
     default void triggerCannonAdvanced(Cannon cannon, Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy){
         if(cannon.canShootDirection()) cannon.trigger(shootVec, yShootVec, driverEntity, speed, accuracy);
-    }
-
-    default void defineCannonShipSynchedData() {
-        self().getEntityData().define(Ship.CANNON_POWER, this.getDefaultCannonPower());
-        self().getEntityData().define(Ship.CANNON_COUNT, (byte) 0);
     }
 
     @SuppressWarnings("unused")
@@ -95,7 +89,7 @@ public interface Cannonable extends Ability {
             else {
                 this.setCannonCount((byte) (cannonCount + 1));
 
-                self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
+                self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.5F);
                 if (!player.isCreative()) item.shrink(1);
 
                 this.updateCannonCount();
@@ -105,7 +99,7 @@ public interface Cannonable extends Ability {
             this.setCannonCount((byte) (cannonCount - 1));
 
             self().spawnAtLocation(ModItems.CANNON);
-            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
+            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.0F);
             return true;
         }
         return false;

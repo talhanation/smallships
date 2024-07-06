@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GalleyEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable, Paddleable {
+public class GalleyEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Leashable, Paddleable, Ability {
     public static final String ID = "galley";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerGalleyContainerSize.get();
 
@@ -78,7 +78,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
             float d = this.getSinglePassengerXOffset(); // ^ ^ ^+
             float e = 0.0F; // ^ ^+ ^
             float f = this.getSinglePassengerZOffset(); // ^+ ^ ^
-            float g = (float) ((this.isRemoved() ? 0.009999999776482582 : this.getPassengersRidingOffset()) + entity.getMyRidingOffset());
+            float g = 0.0F;
             if (this.getPassengers().size() > 1) {
                 int i = this.getPassengers().indexOf(entity);
                 switch (i) {
@@ -152,11 +152,6 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     @Override
     public Bannerable.BannerPosition getBannerPosition() {
         return new Bannerable.BannerPosition(-180.0F, 90.0F, -4.0D, 0.15D, 0.05D); //+x=up, +y=back, +z=right
-    }
-
-    @Override
-    public float getDefaultCannonPower() {
-        return 4.0F;
     }
 
     @Override

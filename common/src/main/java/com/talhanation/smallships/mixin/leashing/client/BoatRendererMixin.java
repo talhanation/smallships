@@ -43,14 +43,14 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         if (super.shouldRender(boat, frustum, d, e, f)) {
             return true;
         } else {
-            Entity entity = ((BoatLeashAccess)boat).getLeashHolder();
+            Entity entity = ((BoatLeashAccess)boat).smallships$getLeashHolder();
             return entity != null ? frustum.isVisible(entity.getBoundingBoxForCulling()) : false;
         }
     }
 
     @Inject(method = "render(Lnet/minecraft/world/entity/vehicle/Boat;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "RETURN"))
     private void renderLeashBoat(Boat boat, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
-        Entity entity = ((BoatLeashAccess)boat).getLeashHolder();
+        Entity entity = ((BoatLeashAccess)boat).smallships$getLeashHolder();
         if (entity != null) {
             this.renderLeash(boat, g, poseStack, multiBufferSource, entity);
         }

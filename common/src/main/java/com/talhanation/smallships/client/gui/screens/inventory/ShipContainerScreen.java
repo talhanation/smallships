@@ -37,10 +37,10 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int i, int j, float f) {
-        this.renderBackground(guiGraphics);
-        super.render(guiGraphics, i, j, f);
-        this.renderTooltip(guiGraphics, i, j);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override

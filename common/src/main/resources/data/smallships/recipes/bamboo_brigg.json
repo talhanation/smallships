@@ -1,6 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group":"brigg",
+  "category": "misc",
+  "group": "brigg",
   "pattern": [
     "sls",
     "bbb"
@@ -17,6 +18,6 @@
     }
   },
   "result": {
-    "item": "smallships:bamboo_brigg"
+    "id": "smallships:bamboo_brigg"
   }
 }

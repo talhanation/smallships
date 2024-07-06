@@ -2,7 +2,6 @@ package com.talhanation.smallships.world.inventory;
 
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -19,8 +18,7 @@ public class ModMenuTypes {
         throw new AssertionError();
     }
 
-    public static @Nullable ShipContainerMenu extendedShipContainerMenuTypeSupplier(int syncId, Inventory inventory, FriendlyByteBuf buf) {
-        UUID shipUUID = buf.readUUID();
+    public static @Nullable ShipContainerMenu extendedShipContainerMenuTypeSupplier(int syncId, Inventory inventory, UUID shipUUID) {
         ContainerShip containerShip = inventory.player.level().getEntitiesOfClass(ContainerShip.class, inventory.player.getBoundingBoxForCulling()
                         .inflate(16.0D), ship -> ship.getUUID().equals(shipUUID))
                 .stream()

@@ -1,6 +1,6 @@
 package com.talhanation.smallships.duck;
 
 public interface CameraZoomAccess {
-    double getShipZoomData();
-    void setShipZoomData(double zoom);
+    float smallships$getShipZoomData();
+    void smallships$setShipZoomData(float zoom);
 }

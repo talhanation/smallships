@@ -1,17 +1,18 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.network.packet.ServerboundUpdateShipControlPacket;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -34,7 +35,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -62,6 +62,7 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+
     private boolean isLocked = false;
     private int sunkenTime = 0;
     private float prevWaveAngle;
@@ -79,7 +80,6 @@ public abstract class Ship extends Boat {
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
         if (this.getCustomName() == null) this.setCustomName(Component.literal(StringUtils.capitalize(EntityType.getKey(this.getType()).getPath())));
-        this.setMaxUpStep(0.6F);
     }
 
     @Override
@@ -112,21 +112,31 @@ public abstract class Ship extends Boat {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.getEntityData().define(SPEED, 0.0F);
-        this.getEntityData().define(ROT_SPEED, 0.0F);
-        this.getEntityData().define(ATTRIBUTES, this.createDefaultAttributes());
-        this.getEntityData().define(FORWARD, false);
-        this.getEntityData().define(BACKWARD, false);
-        this.getEntityData().define(LEFT, false);
-        this.getEntityData().define(RIGHT, false);
-        this.getEntityData().define(SUNKEN, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
 
-        if (this instanceof Sailable sailShip) sailShip.defineSailShipSynchedData();
-        if (this instanceof Bannerable bannerShip) bannerShip.defineBannerShipSynchedData();
-        if (this instanceof Cannonable cannonShip) cannonShip.defineCannonShipSynchedData();
-        if (this instanceof Shieldable shieldShip) shieldShip.defineShieldShipSynchedData();
+        builder.define(SPEED, 0.0F);
+        builder.define(ROT_SPEED, 0.0F);
+        builder.define(ATTRIBUTES, this.createDefaultAttributes());
+        builder.define(FORWARD, false);
+        builder.define(BACKWARD, false);
+        builder.define(LEFT, false);
+        builder.define(RIGHT, false);
+        builder.define(SUNKEN, false);
+
+        // Sailable
+        builder.define(SAIL_STATE, (byte) 0);
+        builder.define(Ship.SAIL_COLOR, SailModel.Color.WHITE.toString());
+
+        // Bannerable
+        builder.define(Ship.BANNER, ItemStack.EMPTY);
+
+        // Cannonable
+        builder.define(Ship.CANNON_POWER, 4.0F);
+        builder.define(Ship.CANNON_COUNT, (byte) 0);
+
+        // Shieldable
+        builder.define(Ship.SHIELD_DATA, new CompoundTag());
     }
 
     @Override
@@ -265,7 +275,7 @@ public abstract class Ship extends Boat {
         return isLocked;
     }
     public boolean isShipLeashed(){
-        return ((BoatLeashAccess) this).isLeashed();
+        return ((BoatLeashAccess) this).smallships$isLeashed();
     }
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced
@@ -384,7 +394,7 @@ public abstract class Ship extends Boat {
     }
 
     private boolean interactWithNameTag(@NotNull Player player){
-        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().hasCustomHoverName() && !player.getCommandSenderWorld().isClientSide){
+        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().has(DataComponents.CUSTOM_NAME) && !player.getCommandSenderWorld().isClientSide){
             this.setCustomName(player.getMainHandItem().getHoverName());
             this.setCustomNameVisible(false);
             if(!player.isCreative()) player.getMainHandItem().shrink(1);
@@ -454,10 +464,6 @@ public abstract class Ship extends Boat {
     }
     public boolean isSunken(){
         return this.entityData.get(SUNKEN);
-    }
-    @Override
-    public double getPassengersRidingOffset() {
-        return (double)this.getBbHeight() * 0.75D;
     }
 
     private void updateWaveAngle(){
@@ -666,7 +672,7 @@ public abstract class Ship extends Boat {
             needsUpdate = true;
         }
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && player != null) {
-            ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
+            ModPackets.clientSendPacket(new ServerboundUpdateShipControlPacket(forward, backward, left, right));
         }
     }
     @Override

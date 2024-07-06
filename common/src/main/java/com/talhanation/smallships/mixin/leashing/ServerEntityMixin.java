@@ -24,8 +24,8 @@ public class ServerEntityMixin {
     @Inject(method = "sendPairingData", at = @At(value = "TAIL"))
     private void sendPairingDataLeashShip(ServerPlayer serverPlayer, Consumer<Packet<ClientGamePacketListener>> consumer, CallbackInfo ci) {
         if (this.entity instanceof Boat boat) {
-            if (((BoatLeashAccess)boat).isLeashed()) {
-                consumer.accept(new ClientboundSetEntityLinkPacket(boat, ((BoatLeashAccess)boat).getLeashHolder()));
+            if (((BoatLeashAccess)boat).smallships$isLeashed()) {
+                consumer.accept(new ClientboundSetEntityLinkPacket(boat, ((BoatLeashAccess)boat).smallships$getLeashHolder()));
             }
         }
     }

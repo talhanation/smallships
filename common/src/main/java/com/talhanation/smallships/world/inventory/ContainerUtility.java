@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.inventory;
 
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -14,31 +15,30 @@ public class ContainerUtility {
         throw new AssertionError();
     }
 
-    public static void loadAllItems(CompoundTag compoundTag, NonNullList<ItemStack> itemStacks) {
-        ListTag listTag = compoundTag.getList("Items", 10);
+    public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> itemStacks, HolderLookup.Provider levelRegistry) {
+        ListTag listTag = tag.getList("Items", 10);
 
         for (int i = 0; i < listTag.size(); ++i) {
-            CompoundTag compoundTag2 = listTag.getCompound(i);
-            short slot = compoundTag2.getShort("Slot");
+            CompoundTag compoundTag = listTag.getCompound(i);
+            short slot = compoundTag.getShort("Slot");
             if (slot < itemStacks.size()) {
-                itemStacks.set(slot, ItemStack.of(compoundTag2));
+                itemStacks.set(slot, ItemStack.parse(levelRegistry, compoundTag).orElse(ItemStack.EMPTY));
             }
         }
     }
 
-    public static void saveAllItems(CompoundTag compoundTag, NonNullList<ItemStack> itemStacks) {
+    public static void saveAllItems(CompoundTag tag, NonNullList<ItemStack> itemStacks, HolderLookup.Provider levelRegistry) {
         ListTag listTag = new ListTag();
 
         for (int i = 0; i < itemStacks.size(); ++i) {
             ItemStack itemStack = itemStacks.get(i);
             if (!itemStack.isEmpty()) {
-                CompoundTag compoundTag2 = new CompoundTag();
-                compoundTag2.putShort("Slot", (short) i);
-                itemStack.save(compoundTag2);
-                listTag.add(compoundTag2);
+                CompoundTag compoundTag = new CompoundTag();
+                compoundTag.putShort("Slot", (short) i);
+                listTag.add(itemStack.save(levelRegistry, compoundTag));
             }
         }
 
-        compoundTag.put("Items", listTag);
+        tag.put("Items", listTag);
     }
 }

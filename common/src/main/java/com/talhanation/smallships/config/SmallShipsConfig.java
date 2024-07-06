@@ -1,5 +1,6 @@
 package com.talhanation.smallships.config;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import dev.architectury.injectables.annotations.ExpectPlatform;
@@ -9,6 +10,7 @@ import net.minecraftforge.fml.config.IConfigSpec;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +33,7 @@ public class SmallShipsConfig {
     }
 
     @ExpectPlatform
-    public static void registerConfigs(String modId, ModConfig.Type type, IConfigSpec<?> spec) {
+    public static void registerConfigs(String modId, ModConfigWrapper.Type type, IConfigSpec<?> spec) {
         throw new AssertionError();
     }
 
@@ -415,7 +417,7 @@ public class SmallShipsConfig {
         builder.pop();
     }
 
-    public static void updateConfig(ModConfig config) {
+    public static boolean updateConfig(ModConfigWrapper config) {
         int oldSchematicVersion = getSchematicVersion(config);
         boolean hasBeenUpdated = switch (config.getType()) {
             case COMMON -> updateConfig(config, commonSchematicUpdater);
@@ -423,10 +425,11 @@ public class SmallShipsConfig {
             case SERVER -> false;
         };
         int newSchematicVersion = getSchematicVersion(config);
-        if (hasBeenUpdated) SmallShipsMod.LOGGER.warn("Updated config values of " + config.getFileName() + " from schematic version " + oldSchematicVersion + " to " + newSchematicVersion + "!");
+        if (hasBeenUpdated) SmallShipsMod.LOGGER.warn("Updated config values of {} from schematic version {} to {}!", config.getFileName(), oldSchematicVersion, newSchematicVersion);
+        return hasBeenUpdated;
     }
 
-    private static final List<Consumer<ModConfig>> commonSchematicUpdater = new ArrayList<>();
+    private static final List<Consumer<ModConfigWrapper>> commonSchematicUpdater = new ArrayList<>();
     static {
         commonSchematicUpdater.add(config -> {
             resetEntry(config, Common.shipGeneralContainerModifier);
@@ -441,8 +444,8 @@ public class SmallShipsConfig {
         });
         // To make a config update add a new element like the above to the schematic Updater field (don't ever change the order!) and don't forget to increment the default schematicVersion the setup method
     }
-    private static final List<Consumer<ModConfig>> clientSchematicUpdater = new ArrayList<>();
-    private static boolean updateConfig(ModConfig config, List<Consumer<ModConfig>> schematicUpdater) {
+    private static final List<Consumer<ModConfigWrapper>> clientSchematicUpdater = new ArrayList<>();
+    private static boolean updateConfig(ModConfigWrapper config, List<Consumer<ModConfigWrapper>> schematicUpdater) {
         if (getSchematicVersion(config) < schematicUpdater.size() + 1) {
             for (int i = getSchematicVersion(config) - 1; i < schematicUpdater.size(); i++) {
                 int j = 0;
@@ -451,7 +454,7 @@ public class SmallShipsConfig {
                         String[] fileNameExtensionPair = config.getFileName().split("\\.");
                         String backupFileName = fileNameExtensionPair[0] + "-sv" + (i + 1) + (j == 0 ? "" : "-" + j) + "." + fileNameExtensionPair[1] + ".bak";
                         Files.copy(config.getFullPath(), config.getFullPath().resolveSibling(backupFileName));
-                        SmallShipsMod.LOGGER.info("Backed up previous config version: " + backupFileName);
+                        SmallShipsMod.LOGGER.info("Backed up previous config version: {}", backupFileName);
                         break;
                     } catch (FileAlreadyExistsException ignored) {
                         j++;
@@ -463,20 +466,55 @@ public class SmallShipsConfig {
                 setSchematicVersion(config, i + 2);
                 schematicUpdater.get(i).accept(config);
             }
-            config.save();
             return true;
         }
         return false;
     }
 
-    private static int getSchematicVersion(ModConfig config) {
+    private static int getSchematicVersion(ModConfigWrapper config) {
         return config.getConfigData().getInt("schematicVersion");
     }
-    private static void setSchematicVersion(ModConfig config, int i) {
+    private static void setSchematicVersion(ModConfigWrapper config, int i) {
         config.getConfigData().set("schematicVersion", i);
     }
 
-    private static <T> void resetEntry(ModConfig config, ForgeConfigSpec.ConfigValue<T> value) {
+    private static <T> void resetEntry(ModConfigWrapper config, ForgeConfigSpec.ConfigValue<T> value) {
         config.getConfigData().set(value.getPath(), value.getDefault());
+    }
+
+    public static class ModConfigWrapper {
+        private final Type type;
+        private final Path path;
+        private final String fileName;
+        private final CommentedConfig configData;
+
+        public ModConfigWrapper(String type, Path path, String fileName, CommentedConfig configData) {
+            this.path = path;
+            this.fileName = fileName;
+            this.type = Type.valueOf(type);
+            this.configData = configData;
+        }
+
+        public Path getFullPath() {
+            return path;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public Type getType() {
+            return type;
+        }
+
+        public CommentedConfig getConfigData() {
+            return configData;
+        }
+
+        public enum Type {
+            COMMON,
+            CLIENT,
+            SERVER
+        }
     }
 }

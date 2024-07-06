@@ -16,7 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
@@ -25,29 +24,30 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.entity.BannerBlockEntity;
-import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -185,8 +185,8 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     }
     @SuppressWarnings("unused")
     private void renderBanner(Bannerable bannerShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        ItemStack item = bannerShipEntity.self().getData(Ship.BANNER);
-        if (item.getItem() instanceof BannerItem bannerItem) {
+        ItemStack bannerItemStack = bannerShipEntity.self().getData(Ship.BANNER);
+        if (bannerItemStack.getItem() instanceof BannerItem bannerItem) {
             poseStack.pushPose();
             Bannerable.BannerPosition pos = bannerShipEntity.getBannerPosition();
             poseStack.mulPose(Axis.YP.rotationDegrees(pos.yp));
@@ -201,8 +201,9 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 				poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
 			}
 
-            List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(bannerItem.getColor(), BannerBlockEntity.getItemPatterns(item));
-            BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, patterns);
+            BannerPatternLayers bannerPatternLayers = bannerItemStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
+            DyeColor dyeColor = ((BannerItem)bannerItemStack.getItem()).getColor();
+            BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, dyeColor, bannerPatternLayers);
             poseStack.popPose();
         }
     }
@@ -211,8 +212,8 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     @SuppressWarnings("unused")
     private void renderShields(Shieldable shieldShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         for(byte i = 0; i < shieldShipEntity.getShields().size(); i++){
-            ItemStack itemStack = shieldShipEntity.getShields().get(i);
-            if(itemStack.is(Items.SHIELD)){
+            ItemStack shieldItemStack = shieldShipEntity.getShields().get(i);
+            if(shieldItemStack.is(Items.SHIELD)){
                 poseStack.pushPose();
                 Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
                 poseStack.translate(pos.x, pos.y, pos.z);
@@ -221,17 +222,15 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 poseStack.mulPose(Axis.XP.rotationDegrees(20.0F));
                 poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
                 //Taken from BlockEntityWithoutLevelRenderer
-                boolean flag = BlockItem.getBlockEntityData(itemStack) != null;
-
+                BannerPatternLayers bannerPatternLayers = shieldItemStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
+                DyeColor dyeColor = shieldItemStack.get(DataComponents.BASE_COLOR);
+                boolean flag = !bannerPatternLayers.layers().isEmpty() || dyeColor != null;
                 Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
-                VertexConsumer vertexConsumer;
-                //try (TextureAtlasSprite sprite = material.sprite()) {
-                vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, itemStack.hasFoil()));
-                //}
+
+                VertexConsumer vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, shieldItemStack.hasFoil()));
 
                 if (flag) {
-                    List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(ShieldItem.getColor(itemStack), BannerBlockEntity.getItemPatterns(itemStack));
-                    BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, patterns, itemStack.hasFoil());
+                    BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, Objects.requireNonNullElse(dyeColor, DyeColor.WHITE), bannerPatternLayers, shieldItemStack.hasFoil());
                 } else {
                     shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
                 }
@@ -272,14 +271,14 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         if (super.shouldRender(ship, frustum, d, e, f)) {
             return true;
         } else if (ship instanceof Leashable) {
-            Entity entity = ((BoatLeashAccess)ship).getLeashHolder();
+            Entity entity = ((BoatLeashAccess)ship).smallships$getLeashHolder();
             return entity != null ? frustum.isVisible(entity.getBoundingBoxForCulling()) : false;
         }
         return false;
     }
     @SuppressWarnings({"unused", "unchecked"})
     private void renderLeash(Leashable leashShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        Entity leashHolderEntity = ((BoatLeashAccess)leashShipEntity).getLeashHolder();
+        Entity leashHolderEntity = ((BoatLeashAccess)leashShipEntity).smallships$getLeashHolder();
         if (leashHolderEntity == null) return;
         poseStack.pushPose();
         Vec3 vec3 = leashHolderEntity.getRopeHoldPosition(partialTicks);

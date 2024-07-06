@@ -1,7 +1,14 @@
 package com.talhanation.smallships.network;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 
 public interface ModPacket {
-    void toBytes(FriendlyByteBuf buf);
+    void handler(Player player);
+
+    Side side();
+
+    enum Side {
+        CLIENTBOUND,
+        SERVERBOUND
+    }
 }

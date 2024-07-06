@@ -6,7 +6,6 @@
   "client": [
   ],
   "mixins": [
-    "leashing.ChunkMapMixin"
   ],
   "injectors": {
     "defaultRequire": 0

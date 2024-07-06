@@ -2,7 +2,6 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -21,17 +20,12 @@ public interface Bannerable extends Ability {
         }
     }
 
-    default void defineBannerShipSynchedData() {
-        self().getEntityData().define(Ship.BANNER, ItemStack.EMPTY);
-    }
-
     default void readBannerShipSaveData(CompoundTag tag) {
-        Tag bannerTag = tag.get("Banner");
-        if (bannerTag instanceof CompoundTag bannerCompound) self().setData(Ship.BANNER, ItemStack.of(bannerCompound));
+        if (tag.get("Banner") instanceof CompoundTag bannerCompound) self().setData(Ship.BANNER, ItemStack.parse(self().registryAccess(), bannerCompound).orElse(ItemStack.EMPTY));
     }
 
     default void addBannerShipSaveData(CompoundTag tag) {
-        tag.put("Banner", self().getData(Ship.BANNER).save(new CompoundTag()));
+        if (!self().getData(Ship.BANNER).isEmpty()) tag.put("Banner", self().getData(Ship.BANNER).save(self().registryAccess()));
     }
 
     default boolean interactBanner(Player player, InteractionHand interactionHand) {

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
+public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Leashable, Ability {
     public static final String ID = "cog";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCogContainerSize.get();
     public CogEntity(EntityType<? extends Boat> entityType, Level level) {
@@ -76,7 +76,7 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
             float d = this.getSinglePassengerXOffset(); // ^ ^ ^+
             float e = 0.0F; // ^ ^+ ^
             float f = 0.0F; // ^+ ^ ^
-            float g = (float) ((this.isRemoved() ? 0.009999999776482582 : this.getPassengersRidingOffset()) + entity.getMyRidingOffset());
+            float g = 0.0F;
             if (this.getPassengers().size() > 1) {
                 int i = this.getPassengers().indexOf(entity);
                 switch (i) {
@@ -155,11 +155,6 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     @Override
     public BannerPosition getBannerPosition() {
         return new BannerPosition(-180.0F, 90.0F, -4.0D, 0.78D, 0.05D);
-    }
-
-    @Override
-    public float getDefaultCannonPower() {
-        return 4.0F;
     }
 
     @Override

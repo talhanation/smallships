@@ -36,8 +36,8 @@ public class LeashFenceKnotEntityMixin {
         Boat boat;
         while(boatIterator.hasNext()) {
             boat = boatIterator.next();
-            if (((BoatLeashAccess)boat).getLeashHolder() == player && (boat instanceof Leashable || boat.getClass().equals(Boat.class))) {
-                ((BoatLeashAccess)boat).setLeashedTo(self(), true);
+            if (((BoatLeashAccess)boat).smallships$getLeashHolder() == player && (boat instanceof Leashable || boat.getClass().equals(Boat.class))) {
+                ((BoatLeashAccess)boat).smallships$setLeashedTo(self(), true);
                 this.success = true;
             }
         }

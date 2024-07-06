@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Repairable, Leashable {
+public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Leashable, Ability {
     public static final String ID = "brigg";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerBriggContainerSize.get();
 
@@ -78,7 +78,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
             float d = this.getSinglePassengerXOffset(); // ^ ^ ^+
             float e = 0.0F; // ^ ^+ ^
             float f = this.getSinglePassengerZOffset(); // ^+ ^ ^
-            float g = (float) ((this.isRemoved() ? 0.009999999776482582 : this.getPassengersRidingOffset()) + entity.getMyRidingOffset());
+            float g = 0.0F;
             if (this.getPassengers().size() > 1) {
                 int i = this.getPassengers().indexOf(entity);
                 switch (i) {
@@ -161,11 +161,6 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     @Override
     public BannerPosition getBannerPosition() {
         return new BannerPosition(-180.0F, 90.0F, -6.6D, 1.65D, 0.05D);
-    }
-
-    @Override
-    public float getDefaultCannonPower() {
-        return 4.0F;
     }
 
     @Override

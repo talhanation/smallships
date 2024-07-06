@@ -1,6 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group":"cog",
+  "category": "misc",
+  "group": "cog",
   "pattern": [
     "lsl",
     "bbb"
@@ -17,6 +18,6 @@
     }
   },
   "result": {
-    "item": "smallships:birch_cog"
+    "id": "smallships:birch_cog"
   }
 }

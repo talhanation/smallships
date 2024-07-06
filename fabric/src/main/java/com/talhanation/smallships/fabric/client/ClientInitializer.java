@@ -4,6 +4,7 @@ import com.talhanation.smallships.client.model.*;
 import com.talhanation.smallships.client.option.KeyEvent;
 import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.*;
+import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -26,9 +27,11 @@ public class ClientInitializer implements ClientModInitializer {
         initRegisterKeyMappings();
 
         initRegisterTickEvents();
+
+        initRegisterPacketReceivers();
     }
 
-    public void initRendererRegisterRenderers() {
+    private void initRendererRegisterRenderers() {
         EntityRendererRegistry.register(ModEntityTypes.CANNON_BALL, CannonBallRenderer::new);
 
         EntityRendererRegistry.register(ModEntityTypes.COG, CogRenderer::new);
@@ -37,7 +40,7 @@ public class ClientInitializer implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.DRAKKAR, DrakkarRenderer::new);
     }
 
-    public void initRendererRegisterLayerDefinitions() {
+    private void initRendererRegisterLayerDefinitions() {
         EntityModelLayerRegistry.registerModelLayer(CannonBallModel.LAYER_LOCATION, CannonBallModel::createBodyLayer);
 
         EntityModelLayerRegistry.registerModelLayer(CogModel.LAYER_LOCATION, CogModel::createBodyLayer);
@@ -46,11 +49,15 @@ public class ClientInitializer implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(DrakkarModel.LAYER_LOCATION, DrakkarModel::createBodyLayer);
     }
 
-    public void initRegisterKeyMappings() {
+    private void initRegisterKeyMappings() {
         KeyBindingHelper.registerKeyBinding(ModGameOptions.SAIL_KEY);
     }
 
-    public static void initRegisterTickEvents() {
+    private void initRegisterTickEvents() {
         ClientTickEvents.END_CLIENT_TICK.register(KeyEvent::onKeyInput);
+    }
+
+    private void initRegisterPacketReceivers() {
+        ModPacketsImpl.registerClientReceivers();
     }
 }

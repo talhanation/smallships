@@ -7,6 +7,7 @@ import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
@@ -52,15 +53,14 @@ public class Cannon extends Entity { // why is this an entity??
     }
 
 
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    }
+
     public void tick(){
         if (coolDown > 0) coolDown--;
         this.updatePosition();
     }
-
-    @Override
-    protected void defineSynchedData() {
-    }
-
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {

@@ -9,12 +9,11 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class ContainerUtilityImpl {
     public static void openShipMenu(Player player, ContainerShip containerShip) {
-        NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
+        ((ServerPlayer) player).openMenu(new MenuProvider() {
             @Override
             public @NotNull Component getDisplayName() {
                 return containerShip.getName();

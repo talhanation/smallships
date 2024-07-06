@@ -1,6 +1,8 @@
 package com.talhanation.smallships.client.option;
 
 import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.network.packet.ServerboundShootShipCannonPacket;
+import com.talhanation.smallships.network.packet.ServerboundToggleShipSailPacket;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
@@ -20,7 +22,7 @@ public class KeyEvent {
 
                 if(ship instanceof Sailable){
                     if (pressedSailKey && !wasPressedSailKey) {
-                        ModPackets.clientSendPacket(player, ModPackets.serverToggleShipSail.apply());
+                        ModPackets.clientSendPacket(new ServerboundToggleShipSailPacket());
                         wasPressedSailKey = true;
                     }
                     else
@@ -29,10 +31,10 @@ public class KeyEvent {
 
                 if (ship instanceof Cannonable cannonable){
                     if(pressedJumpKey)
-                        ModPackets.clientSendPacket(player, ModPackets.serverShootShipCannon.apply(true));
+                        ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(true));
                     else
                     if (!cannonable.self().isCannonKeyPressed())
-                        ModPackets.clientSendPacket(player, ModPackets.serverShootShipCannon.apply(false));
+                        ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(false));
                 }
 
             }

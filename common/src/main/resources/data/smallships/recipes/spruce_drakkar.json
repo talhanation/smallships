@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "group": "drakkar",
   "pattern": [
     "sys",
@@ -24,6 +25,6 @@
     }
   },
   "result": {
-    "item": "smallships:spruce_drakkar"
+    "id": "smallships:spruce_drakkar"
   }
 }

@@ -19,179 +19,191 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(Boat.class)
 public abstract class BoatMixin implements BoatLeashAccess {
+    @Unique
     @SuppressWarnings("DataFlowIssue")
-    private Boat self() {
+    private Boat smallships$self() {
         return (Boat)(Object)this;
     }
 
-    private boolean isClientSide() {
-        return self().level().isClientSide();
+    @Unique
+    private boolean smallships$isClientSide() {
+        return smallships$self().level().isClientSide();
     }
 
+    @Unique
     private static final String LEASH_TAG = "Leash";
 
+    @Unique
     @Nullable
-    private Entity leashHolder;
+    private Entity smallships$leashHolder;
 
-    private int delayedLeashHolderId;
+    @Unique
+    private int smallships$delayedLeashHolderId;
 
+    @Unique
     @Nullable
-    private CompoundTag leashInfoTag;
+    private CompoundTag smallships$leashInfoTag;
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void tickLeash(CallbackInfo ci) {
-        if (!this.isClientSide() && (self() instanceof Leashable || self().getClass().equals(Boat.class))) {
-            this.tickLeash();
+        if (!this.smallships$isClientSide() && (smallships$self() instanceof Leashable || smallships$self().getClass().equals(Boat.class))) {
+            this.smallships$tickLeash();
         }
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
     private void addAdditionalSaveDataAdditionalShipData(CompoundTag compoundTag, CallbackInfo ci) {
-        if (this.leashHolder != null) {
+        if (this.smallships$leashHolder != null) {
             CompoundTag leashTag = new CompoundTag();
-            if (this.leashHolder instanceof LivingEntity) {
-                UUID uUID = this.leashHolder.getUUID();
+            if (this.smallships$leashHolder instanceof LivingEntity) {
+                UUID uUID = this.smallships$leashHolder.getUUID();
                 leashTag.putUUID("UUID", uUID);
-            } else if (this.leashHolder instanceof HangingEntity) {
-                BlockPos blockPos = ((HangingEntity)this.leashHolder).getPos();
+            } else if (this.smallships$leashHolder instanceof HangingEntity) {
+                BlockPos blockPos = ((HangingEntity)this.smallships$leashHolder).getPos();
                 leashTag.putInt("X", blockPos.getX());
                 leashTag.putInt("Y", blockPos.getY());
                 leashTag.putInt("Z", blockPos.getZ());
             }
 
             compoundTag.put(LEASH_TAG, leashTag);
-        } else if (this.leashInfoTag != null) {
-            compoundTag.put(LEASH_TAG, this.leashInfoTag.copy());
+        } else if (this.smallships$leashInfoTag != null) {
+            compoundTag.put(LEASH_TAG, this.smallships$leashInfoTag.copy());
         }
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
     private void readAdditionalSaveDataAdditionalShipData(CompoundTag compoundTag, CallbackInfo ci) {
         if (compoundTag.contains(LEASH_TAG, 10)) {
-            this.leashInfoTag = compoundTag.getCompound(LEASH_TAG);
+            this.smallships$leashInfoTag = compoundTag.getCompound(LEASH_TAG);
         }
     }
 
     @Inject(method = "interact", at = @At(value = "HEAD"), cancellable = true)
     private void interactLeashShip(Player player, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
-        if (self() instanceof Leashable || self().getClass().equals(Boat.class)) {
-            if (this.getLeashHolder() == player) {
-                this.dropLeash(true, !player.getAbilities().instabuild);
-                cir.setReturnValue(InteractionResult.sidedSuccess(this.isClientSide()));
+        if (smallships$self() instanceof Leashable || smallships$self().getClass().equals(Boat.class)) {
+            if (this.smallships$getLeashHolder() == player) {
+                this.smallships$dropLeash(true, !player.getAbilities().instabuild);
+                cir.setReturnValue(InteractionResult.sidedSuccess(this.smallships$isClientSide()));
             }
             ItemStack itemStack = player.getItemInHand(interactionHand);
-            if (itemStack.is(Items.LEAD) && this.canBeLeashed()) {
-                this.setLeashedTo(player, true);
+            if (itemStack.is(Items.LEAD) && this.smallships$canBeLeashed()) {
+                this.smallships$setLeashedTo(player, true);
                 itemStack.shrink(1);
-                cir.setReturnValue(InteractionResult.sidedSuccess(this.isClientSide()));
+                cir.setReturnValue(InteractionResult.sidedSuccess(this.smallships$isClientSide()));
             }
         }
     }
 
-    protected void tickLeash() {
-        if (this.leashInfoTag != null) {
-            this.restoreLeashFromSave();
+    @Unique
+    protected void smallships$tickLeash() {
+        if (this.smallships$leashInfoTag != null) {
+            this.smallships$restoreLeashFromSave();
         }
 
-        if (this.leashHolder != null) {
+        if (this.smallships$leashHolder != null) {
             //noinspection DataFlowIssue
-            if (!self().isAlive() || !this.leashHolder.isAlive()) {
-                this.dropLeash(true, true);
+            if (!smallships$self().isAlive() || !this.smallships$leashHolder.isAlive()) {
+                this.smallships$dropLeash(true, true);
             }
         }
 
-        Entity entity = this.getLeashHolder();
-        if (entity != null && entity.level() == self().level()) {
-            float distanceToHolderEntity = self().distanceTo(entity);
+        Entity entity = this.smallships$getLeashHolder();
+        if (entity != null && entity.level() == smallships$self().level()) {
+            float distanceToHolderEntity = smallships$self().distanceTo(entity);
             if (distanceToHolderEntity > 10.0F) {
-                this.dropLeash(true, true);
+                this.smallships$dropLeash(true, true);
             } else if (distanceToHolderEntity > 6.0F) {
-                double d1 = (entity.getX() - self().getX()) / (double)distanceToHolderEntity;
-                double d2 = (entity.getY() - self().getY()) / (double)distanceToHolderEntity;
-                double d3 = (entity.getZ() - self().getZ()) / (double)distanceToHolderEntity;
-                double shipWeight = self() instanceof Leashable? -((Leashable)self()).getDefaultShipWeight() / (((Leashable)self()).getDefaultShipWeight() + 1) + 1 : 0.4F;
-                self().setDeltaMovement(self().getDeltaMovement().add(Math.copySign(d1 * d1 * shipWeight, d1), Math.copySign(d2 * d2 * shipWeight, d2), Math.copySign(d3 * d3 * shipWeight, d3)));
+                double d1 = (entity.getX() - smallships$self().getX()) / (double)distanceToHolderEntity;
+                double d2 = (entity.getY() - smallships$self().getY()) / (double)distanceToHolderEntity;
+                double d3 = (entity.getZ() - smallships$self().getZ()) / (double)distanceToHolderEntity;
+                double shipWeight = smallships$self() instanceof Leashable? -((Leashable) smallships$self()).getDefaultShipWeight() / (((Leashable) smallships$self()).getDefaultShipWeight() + 1) + 1 : 0.4F;
+                smallships$self().setDeltaMovement(smallships$self().getDeltaMovement().add(Math.copySign(d1 * d1 * shipWeight, d1), Math.copySign(d2 * d2 * shipWeight, d2), Math.copySign(d3 * d3 * shipWeight, d3)));
             }
         }
     }
 
-    public void dropLeash(boolean shouldUnlink, boolean shouldDropItem) {
-        if (this.leashHolder != null) {
-            this.leashHolder = null;
-            this.leashInfoTag = null;
-            if (!this.isClientSide() && shouldDropItem) {
-                self().spawnAtLocation(Items.LEAD, 4);
+    public void smallships$dropLeash(boolean shouldUnlink, boolean shouldDropItem) {
+        if (this.smallships$leashHolder != null) {
+            this.smallships$leashHolder = null;
+            this.smallships$leashInfoTag = null;
+            if (!this.smallships$isClientSide() && shouldDropItem) {
+                smallships$self().spawnAtLocation(Items.LEAD, 4);
             }
 
-            if (!this.isClientSide() && shouldUnlink && self().level() instanceof ServerLevel serverLevel) {
-                serverLevel.getChunkSource().broadcast(self(), new ClientboundSetEntityLinkPacket(self(), null));
+            if (!this.smallships$isClientSide() && shouldUnlink && smallships$self().level() instanceof ServerLevel serverLevel) {
+                serverLevel.getChunkSource().broadcast(smallships$self(), new ClientboundSetEntityLinkPacket(smallships$self(), null));
             }
         }
 
     }
 
-    public boolean canBeLeashed() {
-        return !this.isLeashed() && !(self().getFirstPassenger() instanceof Player);
+    @Unique
+    public boolean smallships$canBeLeashed() {
+        return !this.smallships$isLeashed() && !(smallships$self().getFirstPassenger() instanceof Player);
     }
 
-    public boolean isLeashed() {
-        return this.leashHolder != null;
+    public boolean smallships$isLeashed() {
+        return this.smallships$leashHolder != null;
     }
 
     @Nullable
-    public Entity getLeashHolder() {
-        if (this.leashHolder == null && this.delayedLeashHolderId != 0 && this.isClientSide()) {
-            this.leashHolder = self().level().getEntity(this.delayedLeashHolderId);
+    public Entity smallships$getLeashHolder() {
+        if (this.smallships$leashHolder == null && this.smallships$delayedLeashHolderId != 0 && this.smallships$isClientSide()) {
+            this.smallships$leashHolder = smallships$self().level().getEntity(this.smallships$delayedLeashHolderId);
         }
 
-        return this.leashHolder;
+        return this.smallships$leashHolder;
     }
 
-    public void setLeashedTo(Entity entity, boolean shouldLink) {
-        this.leashHolder = entity;
-        this.leashInfoTag = null;
-        if (!this.isClientSide() && shouldLink && self().level() instanceof ServerLevel serverLevel) {
-            serverLevel.getChunkSource().broadcast(self(), new ClientboundSetEntityLinkPacket(self(), this.leashHolder));
+    public void smallships$setLeashedTo(Entity entity, boolean shouldLink) {
+        this.smallships$leashHolder = entity;
+        this.smallships$leashInfoTag = null;
+        if (!this.smallships$isClientSide() && shouldLink && smallships$self().level() instanceof ServerLevel serverLevel) {
+            serverLevel.getChunkSource().broadcast(smallships$self(), new ClientboundSetEntityLinkPacket(smallships$self(), this.smallships$leashHolder));
         }
 
-        if (self().isPassenger()) {
-            self().stopRiding();
+        if (smallships$self().isPassenger()) {
+            smallships$self().stopRiding();
         }
 
     }
 
-    public void setDelayedLeashHolderId(int i) {
-        this.delayedLeashHolderId = i;
-        this.dropLeash(false, false);
+    public void smallships$setDelayedLeashHolderId(int i) {
+        this.smallships$delayedLeashHolderId = i;
+        this.smallships$dropLeash(false, false);
     }
 
-    private void restoreLeashFromSave() {
-        if (this.leashInfoTag != null && self().level() instanceof ServerLevel serverLevel) {
-            if (this.leashInfoTag.hasUUID("UUID")) {
-                UUID uUID = this.leashInfoTag.getUUID("UUID");
+    @Unique
+    private void smallships$restoreLeashFromSave() {
+        if (this.smallships$leashInfoTag != null && smallships$self().level() instanceof ServerLevel serverLevel) {
+            assert this.smallships$leashInfoTag != null;
+            if (this.smallships$leashInfoTag.hasUUID("UUID")) {
+                UUID uUID = this.smallships$leashInfoTag.getUUID("UUID");
                 Entity entity = serverLevel.getEntity(uUID);
                 if (entity != null) {
-                    this.setLeashedTo(entity, true);
+                    this.smallships$setLeashedTo(entity, true);
                     return;
                 }
-            } else if (this.leashInfoTag.contains("X", 99) && this.leashInfoTag.contains("Y", 99) && this.leashInfoTag.contains("Z", 99)) {
-                BlockPos blockPos = NbtUtils.readBlockPos(this.leashInfoTag);
-                this.setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(self().level(), blockPos), true);
+            } else if (this.smallships$leashInfoTag.contains("X", 99) && this.smallships$leashInfoTag.contains("Y", 99) && this.smallships$leashInfoTag.contains("Z", 99)) {
+                Optional<BlockPos> blockPos = NbtUtils.readBlockPos(this.smallships$leashInfoTag, LEASH_TAG);
+                blockPos.ifPresent(pos -> this.smallships$setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(smallships$self().level(), pos), true));
                 return;
             }
 
-            if (self().tickCount > 100) {
-                self().spawnAtLocation(Items.LEAD, 4);
-                this.leashInfoTag = null;
+            if (smallships$self().tickCount > 100) {
+                smallships$self().spawnAtLocation(Items.LEAD, 4);
+                this.smallships$leashInfoTag = null;
             }
         }
     }

@@ -11,6 +11,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,9 +21,13 @@ public abstract class MinecraftMixin {
     @Shadow @Final public MouseHandler mouseHandler;
     @Shadow @Nullable public Screen screen;
     @Shadow public abstract Window getWindow();
+    @Unique
     private Screen oldScreen;
+    @Unique
     private int seenNull;
+    @Unique
     private double oldMousePosX;
+    @Unique
     private double oldMousePosY;
 
     @Inject(method = "setScreen(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At(value = "FIELD", target="Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;", opcode = Opcodes.PUTFIELD, shift = At.Shift.BEFORE))

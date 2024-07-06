@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "group": "galley",
   "pattern": [
     "lll",
@@ -21,6 +22,6 @@
     }
   },
   "result": {
-    "item": "smallships:jungle_galley"
+    "id": "smallships:jungle_galley"
   }
 }

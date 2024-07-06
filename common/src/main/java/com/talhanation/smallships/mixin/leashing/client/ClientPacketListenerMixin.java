@@ -18,7 +18,7 @@ public class ClientPacketListenerMixin {
     @Inject(method = "handleEntityLinkPacket", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void handleEntityLinkPacketForShips(ClientboundSetEntityLinkPacket clientboundSetEntityLinkPacket, CallbackInfo ci, Entity entity) {
         if (entity != null && (entity instanceof Leashable || entity.getClass().equals(Boat.class))) {
-            ((BoatLeashAccess)entity).setDelayedLeashHolderId(clientboundSetEntityLinkPacket.getDestId());
+            ((BoatLeashAccess)entity).smallships$setDelayedLeashHolderId(clientboundSetEntityLinkPacket.getDestId());
         }
     }
 }

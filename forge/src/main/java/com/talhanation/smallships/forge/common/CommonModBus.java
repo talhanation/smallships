@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -30,7 +31,8 @@ public class CommonModBus {
 
     @SubscribeEvent
     static void initRegisterConfigs(ModConfigEvent event) {
-        SmallShipsConfig.updateConfig(event.getConfig());
+        ModConfig config = event.getConfig();
+        SmallShipsConfig.updateConfig(new SmallShipsConfig.ModConfigWrapper(config.getType().toString(), config.getFullPath(), config.getFileName(), config.getConfigData()));
     }
 
     @SubscribeEvent

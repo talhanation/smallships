@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[47,)"
+loaderVersion = "[50,)"
 #issueTrackerURL = ""
 license = "All Rights Reserved"
 
@@ -17,13 +17,13 @@ logoFile = "icon.png"
 [[dependencies.smallships]]
 modId = "forge"
 mandatory = true
-versionRange = "[47,)"
+versionRange = "[50,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.smallships]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.1,)"
+versionRange = "[1.20.6,)"
 ordering = "NONE"
 side = "BOTH"

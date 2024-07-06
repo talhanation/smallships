@@ -4,17 +4,17 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.mixin.container.SimpleContainerAccessor;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -30,6 +30,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +46,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     private final int originalContainerSize;
     NonNullList<ItemStack> itemStacks;
     @Nullable
-    private ResourceLocation lootTable;
+    private ResourceKey<LootTable> lootTable;
     private long lootTableSeed;
     public final ContainerData containerData = new ContainerData() {
         public int get(int index) {
@@ -77,20 +78,21 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.getEntityData().define(CONTAINER_SIZE, this.originalContainerSize);
-        this.getEntityData().define(ROWS, (byte) 6);
-        this.getEntityData().define(PAGES, (byte) 1);
-        this.getEntityData().define(PAGE_INDEX, (byte) 0);
-        this.getEntityData().define(CONTAINER_FILL_STATE, (byte) 0);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+
+        builder.define(CONTAINER_SIZE, this.originalContainerSize);
+        builder.define(ROWS, (byte) 6);
+        builder.define(PAGES, (byte) 1);
+        builder.define(PAGE_INDEX, (byte) 0);
+        builder.define(CONTAINER_FILL_STATE, (byte) 0);
     }
 
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         this.readContainerSizeSaveData(tag);
-        this.readChestVehicleSaveData(tag);
+        this.readChestVehicleSaveData(tag, this.registryAccess());
 
         this.setContainerFillState(tag.getByte("ContainerFillState"));
     }
@@ -99,7 +101,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         this.addContainerSizeSaveData(tag);
-        this.addChestVehicleSaveData(tag);
+        this.addChestVehicleSaveData(tag, this.registryAccess());
 
         tag.putByte("ContainerFillState", this.getContainerFillState());
     }
@@ -134,15 +136,14 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         }
     }
 
-    @Nullable
     @Override
-    public ResourceLocation getLootTable() {
+    public @Nullable ResourceKey<LootTable> getLootTable() {
         return this.lootTable;
     }
 
     @Override
-    public void setLootTable(@Nullable ResourceLocation resourceLocation) {
-        this.lootTable = resourceLocation;
+    public void setLootTable(@Nullable ResourceKey<LootTable> lootTable) {
+        this.lootTable = lootTable;
     }
 
     @Override
@@ -222,26 +223,26 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public void readChestVehicleSaveData(@NotNull CompoundTag compoundTag) {
+    public void readChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
         this.clearItemStacks();
-        if (compoundTag.contains("LootTable", 8)) {
-            this.setLootTable(new ResourceLocation(compoundTag.getString("LootTable")));
-            this.setLootTableSeed(compoundTag.getLong("LootTableSeed"));
+        if (tag.contains("LootTable", 8)) {
+            this.setLootTable(ResourceKey.create(Registries.LOOT_TABLE, new ResourceLocation(tag.getString("LootTable"))));
+            this.setLootTableSeed(tag.getLong("LootTableSeed"));
         } else {
-            ContainerUtility.loadAllItems(compoundTag, this.getItemStacks());
+            ContainerUtility.loadAllItems(tag, this.getItemStacks(), levelRegistry);
             this.resizeContainer(this.getContainerSize());
         }
     }
 
     @Override
-    public void addChestVehicleSaveData(@NotNull CompoundTag compoundTag) {
+    public void addChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
         if (this.getLootTable() != null) {
-            compoundTag.putString("LootTable", this.getLootTable().toString());
+            tag.putString("LootTable", this.getLootTable().location().toString());
             if (this.getLootTableSeed() != 0L) {
-                compoundTag.putLong("LootTableSeed", this.getLootTableSeed());
+                tag.putLong("LootTableSeed", this.getLootTableSeed());
             }
         } else {
-            ContainerUtility.saveAllItems(compoundTag, this.getItemStacks());
+            ContainerUtility.saveAllItems(tag, this.getItemStacks(), levelRegistry);
         }
     }
 

@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "group": "drakkar",
   "pattern": [
     "sys",
@@ -20,10 +21,10 @@
       "item": "minecraft:string"
     },
     "b": {
-      "item": "minecraft:bamboo_boat"
+      "item": "minecraft:bamboo_raft"
     }
   },
   "result": {
-    "item": "smallships:bamboo_drakkar"
+    "id": "smallships:bamboo_drakkar"
   }
 }

@@ -14,7 +14,7 @@
     }
   },
   "result": {
-    "item": "smallships:cannon_ball",
+    "id": "smallships:cannon_ball",
     "count": 2
   }
 }

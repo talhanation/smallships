@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Repairable, Leashable, Paddleable, IceBreakable {
+public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Leashable, Paddleable, IceBreakable, Ability {
     public static final String ID = "drakkar";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerDrakkarContainerSize.get();
 
@@ -92,7 +92,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
             float d = this.getSinglePassengerXOffset(); // ^ ^ ^+
             float e = 0.0F; // ^ ^+ ^
             float f = this.getSinglePassengerZOffset(); // ^+ ^ ^
-            float g = (float) ((this.isRemoved() ? 0.009999999776482582 : this.getPassengersRidingOffset()) + entity.getMyRidingOffset());
+            float g = 0.0F;
             if (this.getPassengers().size() > 1) {
                 int i = this.getPassengers().indexOf(entity);
                 switch (i) {

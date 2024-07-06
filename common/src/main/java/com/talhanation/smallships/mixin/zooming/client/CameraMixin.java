@@ -1,5 +1,6 @@
 package com.talhanation.smallships.mixin.zooming.client;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
@@ -8,32 +9,34 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin implements CameraZoomAccess {
     @Shadow public abstract Entity getEntity();
 
-    @ModifyConstant(method = "setup", constant = @Constant(doubleValue = 4.0))
-    private double setupShipZoom(double constant) {
-        if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return constant;
+    @ModifyExpressionValue(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(D)D"))
+    private double setupShipZoom(double original) {
+        if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return original;
         if (this.getEntity().getVehicle() instanceof Ship && !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
-            return this.getShipZoomData();
+            return original * (this.smallships$getShipZoomData() - 4.0F);
         } else {
-            return constant;
+            return original;
         }
     }
 
-    private double shipZoom = 6.0D;
+    @Unique private float smallships$shipZoom = 6.0F;
 
+    @Unique
     @Override
-    public double getShipZoomData() {
-        return this.shipZoom;
+    public float smallships$getShipZoomData() {
+        return this.smallships$shipZoom;
     }
 
+    @Unique
     @Override
-    public void setShipZoomData(double d) {
-        this.shipZoom = d;
+    public void smallships$setShipZoomData(float d) {
+        this.smallships$shipZoom = d;
     }
 }
