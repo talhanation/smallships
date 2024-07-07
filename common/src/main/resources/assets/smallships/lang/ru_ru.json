@@ -6,11 +6,11 @@
   "key.smallships.lower_ship_sail" : "Опустить парус",
   "key.smallships.ship_inventory" : "Корабельный инвентарь",
   
-  "death.attack.cannonBall": "%s убит из пушки.",
-  "death.attack.cannonBall.player": "%s убит из пушки %s.",
+  "death.attack.cannon_ball": "%s убит из пушки.",
+  "death.attack.cannon_ball.player": "%s убит из пушки %s.",
   
-  "death.attack.ship_collision": "%s раздавлен кораблём.",
-  "death.attack.ship_collision.player": "%s раздавлен кораблём %s.",
+  "death.attack.ship_hit": "%s раздавлен кораблём.",
+  "death.attack.ship_hit.player": "%s раздавлен кораблём %s.",
 
   "item.smallships.sail": "Парус",
   "item.smallships.cannon": "Корабельная пушка",
