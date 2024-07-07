@@ -1,5 +1,5 @@
 {
-  "homepage": "https://legacy.curseforge.com/minecraft/mc-mods/small-ships/files/all",
+  "homepage": "https://modrinth.com/mod/small-ships",
   "promos": {
     "1.20.1-recommended": "2.0.0-b1.3",
     "1.19.4-recommended": "2.0.0-a2.3.3",
@@ -43,5 +43,11 @@
     "2.0.0-b1.2": "fixed config errors, buffed cannonballs",
     "2.0.0-b1.1": "added drakkar ship with shields, added sunken feature, added configs, added dis/mounting feature",
     "2.0.0-a2.3.3": "fix registry issues."
+  },
+  "1.20.6": {
+    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits"
+  },
+  "1.21": {
+    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits"
   }
 }

@@ -1,0 +1,13 @@
+{
+  "homepage": "https://modrinth.com/mod/small-ships",
+  "promos": {
+    "1.21-recommended": "2.0.0-b1.3",
+    "1.20.6-recommended": "2.0.0-b1.3"
+  },
+  "1.20.6": {
+    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits"
+  },
+  "1.21": {
+    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits"
+  }
+}
