@@ -141,7 +141,7 @@ public interface Cannonable extends Ability {
     }
 
     default ResourceLocation getTextureLocation() {
-        return new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/cannon/ship_cannon.png");
+        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/cannon/ship_cannon.png");
     }
 
     default void setCannonCount(byte x) {

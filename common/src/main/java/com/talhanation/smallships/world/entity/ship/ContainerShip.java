@@ -226,7 +226,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public void readChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
         this.clearItemStacks();
         if (tag.contains("LootTable", 8)) {
-            this.setLootTable(ResourceKey.create(Registries.LOOT_TABLE, new ResourceLocation(tag.getString("LootTable"))));
+            this.setLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(tag.getString("LootTable"))));
             this.setLootTableSeed(tag.getLong("LootTableSeed"));
         } else {
             ContainerUtility.loadAllItems(tag, this.getItemStacks(), levelRegistry);

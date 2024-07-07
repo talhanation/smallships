@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[50,)"
+loaderVersion = "[51,)"
 #issueTrackerURL = ""
 license = "All Rights Reserved"
 
@@ -24,6 +24,6 @@ side = "BOTH"
 [[dependencies.smallships]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.6,)"
+versionRange = "[1.21,)"
 ordering = "NONE"
 side = "BOTH"

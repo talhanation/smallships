@@ -10,11 +10,10 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 public class GalleySailModel extends SailModel {
     @SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_sail_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_sail_model"), "main");
     private final ModelPart GalleySail;
 
     public GalleySailModel() {
@@ -593,7 +592,8 @@ public class GalleySailModel extends SailModel {
         }
     }
 
-    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        GalleySail.render(poseStack, vertexConsumer, packedLight, packedOverlay);
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        GalleySail.render(poseStack, buffer, packedLight, packedOverlay, color);
     }
 }

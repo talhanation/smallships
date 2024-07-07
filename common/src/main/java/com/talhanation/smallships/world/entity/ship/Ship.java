@@ -2,7 +2,6 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -275,7 +274,7 @@ public abstract class Ship extends Boat {
         return isLocked;
     }
     public boolean isShipLeashed(){
-        return ((BoatLeashAccess) this).smallships$isLeashed();
+        return this.isLeashed();
     }
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced

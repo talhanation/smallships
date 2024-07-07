@@ -40,6 +40,6 @@ public class ModPackets {
 
     @SuppressWarnings("SameParameterValue")
     public static ResourceLocation id(String id) {
-        return new ResourceLocation(SmallShipsMod.MOD_ID, id);
+        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id);
     }
 }

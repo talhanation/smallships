@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class CameraMixin implements CameraZoomAccess {
     @Shadow public abstract Entity getEntity();
 
-    @ModifyExpressionValue(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(D)D"))
-    private double setupShipZoom(double original) {
+    @ModifyExpressionValue(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"))
+    private float setupShipZoom(float original) {
         if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return original;
         if (this.getEntity().getVehicle() instanceof Ship && !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
             return original * (this.smallships$getShipZoomData() - 4.0F);

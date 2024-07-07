@@ -16,7 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
 public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMenu> {
-    private static final ResourceLocation RESOURCE_LOCATION = new ResourceLocation(SmallShipsMod.MOD_ID,"textures/gui/ship_inventory.png" );
+    private static final ResourceLocation RESOURCE_LOCATION = ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/gui/ship_inventory.png" );
     public static final int FONT_COLOR = 4210752;
     private final int rowCount;
     private final int pageCount;

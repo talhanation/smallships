@@ -8,7 +8,6 @@ import com.mojang.math.Axis;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.*;
-import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
@@ -17,41 +16,30 @@ import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
-import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static net.minecraft.client.renderer.entity.MobRenderer.addVertexPair;
 
 public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     protected final Map<Boat.Type, Pair<ResourceLocation, ShipModel<T>>> boatResources;
@@ -128,15 +116,10 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
 
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(shipModel.renderType(resourceLocation));
-        shipModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        shipModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
         poseStack.popPose();
 
         super.render(shipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
-
-        // Pose stack stuff is so weird, that the leash will only render if it's rendered here. Would love to fix this jankiness about models.
-        if (shipEntity instanceof Leashable leashShipEntity) {
-            renderLeash(leashShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
-        }
     }
 
     @SuppressWarnings({"unused", "unchecked"})
@@ -153,7 +136,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             CannonModel cannonModel = new CannonModel();
             cannonModel.setupAnim((T)cannonShipEntity, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(cannonModel.renderType(cannonShipEntity.getTextureLocation()));
-            cannonModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+            cannonModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFF);
             poseStack.popPose();
         }
     }
@@ -232,9 +215,9 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 if (flag) {
                     BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, Objects.requireNonNullElse(dyeColor, DyeColor.WHITE), bannerPatternLayers, shieldItemStack.hasFoil());
                 } else {
-                    shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                    shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
                 }
-                shieldModel.handle().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                shieldModel.handle().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
                 poseStack.popPose();
             }
         }
@@ -262,61 +245,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         SailModel sailModel = sailModels.get(sailShipEntity.getClass());
         sailModel.setupAnim(((T)sailShipEntity), partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(sailModel.renderType(SailModel.getSailColor(sailShipEntity.self().getData(Ship.SAIL_COLOR)).location));
-        sailModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-    }
-
-    @SuppressWarnings("SimplifiableConditionalExpression")
-    @Override
-    public boolean shouldRender(T ship, Frustum frustum, double d, double e, double f) {
-        if (super.shouldRender(ship, frustum, d, e, f)) {
-            return true;
-        } else if (ship instanceof Leashable) {
-            Entity entity = ((BoatLeashAccess)ship).smallships$getLeashHolder();
-            return entity != null ? frustum.isVisible(entity.getBoundingBoxForCulling()) : false;
-        }
-        return false;
-    }
-    @SuppressWarnings({"unused", "unchecked"})
-    private void renderLeash(Leashable leashShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        Entity leashHolderEntity = ((BoatLeashAccess)leashShipEntity).smallships$getLeashHolder();
-        if (leashHolderEntity == null) return;
-        poseStack.pushPose();
-        Vec3 vec3 = leashHolderEntity.getRopeHoldPosition(partialTicks);
-        double d = (Mth.lerp(partialTicks, 0.0D, 0.0D) * 0.017453292F) + 1.5707963267948966;
-        Vec3 vec32 = ((T)leashShipEntity).getLeashOffset(0.0F);
-        double e = Math.cos(d) * vec32.z + Math.sin(d) * vec32.x;
-        double g = Math.sin(d) * vec32.z - Math.cos(d) * vec32.x;
-        double h = Mth.lerp(partialTicks, ((T)leashShipEntity).xo, ((T)leashShipEntity).getX()) + e;
-        double i = Mth.lerp(partialTicks, ((T)leashShipEntity).yo, ((T)leashShipEntity).getY()) + vec32.y;
-        double j = Mth.lerp(partialTicks, ((T)leashShipEntity).zo, ((T)leashShipEntity).getZ()) + g;
-        poseStack.translate(e, vec32.y, g);
-        float k = (float)(vec3.x - h);
-        float l = (float)(vec3.y - i);
-        float m = (float)(vec3.z - j);
-        float n = 0.025F;
-        VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.leash());
-        Matrix4f matrix4f = poseStack.last().pose();
-        float o = (Mth.fastInvCubeRoot(k * k + m * m) * n / 2.0F);
-        float p = m * o;
-        float q = k * o;
-        Function<Vec3, Vec3i> vec3ToVec3i = vec3d -> new Vec3i(Math.round(Double.valueOf(vec3d.x).floatValue()), Math.round(Double.valueOf(vec3d.y).floatValue()), Math.round(Double.valueOf(vec3d.z).floatValue()));
-        BlockPos blockPos = new BlockPos(vec3ToVec3i.apply(((T)leashShipEntity).getEyePosition(partialTicks)));
-        BlockPos blockPos2 = new BlockPos(vec3ToVec3i.apply(leashHolderEntity.getEyePosition(partialTicks)));
-        int r = this.getBlockLightLevel((T)leashShipEntity, blockPos);
-        int s = this.entityRenderDispatcher.getRenderer(leashHolderEntity).getBlockLightLevel(leashHolderEntity, blockPos2);
-        int t = ((T)leashShipEntity).level().getBrightness(LightLayer.SKY, blockPos);
-        int u = ((T)leashShipEntity).level().getBrightness(LightLayer.SKY, blockPos2);
-
-        int v;
-        for(v = 0; v <= 24; ++v) {
-            addVertexPair(vertexConsumer, matrix4f, k, l, m, r, s, t, u, n, n, p, q, v, false);
-        }
-
-        for(v = 24; v >= 0; --v) {
-            addVertexPair(vertexConsumer, matrix4f, k, l, m, r, s, t, u, n, 0.0F, p, q, v, true);
-        }
-
-        poseStack.popPose();
+        sailModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
     }
 
     public static String getNameFromType(Boat.Type type) {

@@ -23,7 +23,7 @@ public class CogRenderer extends ShipRenderer<CogEntity> {
 
     @Override
     protected ResourceLocation getTextureLocation(Boat.Type type) {
-        return new ResourceLocation(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
     }
 
     @Override

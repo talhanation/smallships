@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CannonBallModel extends EntityModel<CannonBallEntity> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, "model_cannonball"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "model_cannonball"), "main");
 	private final ModelPart cannonball;
 
 	public CannonBallModel() {
@@ -57,7 +57,7 @@ public class CannonBallModel extends EntityModel<CannonBallEntity> {
 	}
 
 	@Override
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		cannonball.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+		cannonball.render(poseStack, buffer, packedLight, packedOverlay, color);
 	}
 }

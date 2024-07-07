@@ -34,7 +34,7 @@ public class ModItemsImpl {
     static {
         if (SmallShipsConfig.Common.smallshipsItemGroupEnable.get()) {
             //CUSTOM CREATIVE MENU TAB
-            ResourceKey<CreativeModeTab> creativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab"));
+            ResourceKey<CreativeModeTab> creativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "creative_mode_tab"));
 
             CreativeModeTab customCreativeModeTab = FabricItemGroup.builder()
                     .title(Component.translatable(creativeModeTab.location().toString().replace(":", ".")))
@@ -77,16 +77,16 @@ public class ModItemsImpl {
 
         for (Boat.Type type: Boat.Type.values()) {
 
-            register(new ResourceLocation(type.getName()).getPath() + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
-            register(new ResourceLocation(type.getName()).getPath() + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));
-            register(new ResourceLocation(type.getName()).getPath() + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
-			register(new ResourceLocation(type.getName()).getPath() + "_" + DrakkarEntity.ID,  new DrakkarItem(type, new Item.Properties().stacksTo(1)));
+            register(type.getName() + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
+            register(type.getName() + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));
+            register(type.getName() + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
+			register(type.getName() + "_" + DrakkarEntity.ID,  new DrakkarItem(type, new Item.Properties().stacksTo(1)));
 
         }
     }
 
     private static void register(String id, Item item) {
-        entries.put(id, register(new ResourceLocation(SmallShipsMod.MOD_ID, id), item));
+        entries.put(id, register(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id), item));
     }
 
     private static Item register(ResourceLocation id, Item item) {

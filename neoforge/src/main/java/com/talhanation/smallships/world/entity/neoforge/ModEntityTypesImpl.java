@@ -54,6 +54,6 @@ public class ModEntityTypesImpl {
     }
 
     private static DeferredHolder<EntityType<?>, EntityType<?>> register(String id, EntityType.Builder<?> builder) {
-        return ENTITY_TYPES.register(id, () -> builder.build(new ResourceLocation(SmallShipsMod.MOD_ID, id).toString()));
+        return ENTITY_TYPES.register(id, () -> builder.build(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id).toString()));
     }
 }

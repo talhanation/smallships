@@ -14,22 +14,22 @@ public abstract class SailModel extends EntityModel<Ship> {
     }
 
     public enum Color {
-        WHITE(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/white_sail.png")),
-        ORANGE(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/orange_sail.png")),
-        MAGENTA(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/magenta_sail.png")),
-        LIGHT_BLUE(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/light_blue_sail.png")),
-        YELLOW(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/yellow_sail.png")),
-        LIME(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/lime_sail.png")),
-        PINK(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/pink_sail.png")),
-        GRAY(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/gray_sail.png")),
-        LIGHT_GRAY(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/light_gray_sail.png")),
-        CYAN(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/cyan_sail.png")),
-        PURPLE(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/purple_sail.png")),
-        BLUE(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/blue_sail.png")),
-        BROWN(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/brown_sail.png")),
-        GREEN(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/green_sail.png")),
-        RED(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/red_sail.png")),
-        BLACK(new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/sail/black_sail.png"));
+        WHITE(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/white_sail.png")),
+        ORANGE(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/orange_sail.png")),
+        MAGENTA(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/magenta_sail.png")),
+        LIGHT_BLUE(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/light_blue_sail.png")),
+        YELLOW(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/yellow_sail.png")),
+        LIME(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/lime_sail.png")),
+        PINK(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/pink_sail.png")),
+        GRAY(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/gray_sail.png")),
+        LIGHT_GRAY(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/light_gray_sail.png")),
+        CYAN(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/cyan_sail.png")),
+        PURPLE(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/purple_sail.png")),
+        BLUE(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/blue_sail.png")),
+        BROWN(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/brown_sail.png")),
+        GREEN(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/green_sail.png")),
+        RED(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/red_sail.png")),
+        BLACK(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/black_sail.png"));
 
         public final ResourceLocation location;
 

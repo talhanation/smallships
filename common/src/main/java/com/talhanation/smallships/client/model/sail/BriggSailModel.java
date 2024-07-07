@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused")
 public class BriggSailModel extends SailModel {
 	@SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, BriggEntity.ID + "_sail_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, BriggEntity.ID + "_sail_model"), "main");
 
 	private final ModelPart segel_brigg;
 
@@ -2047,7 +2047,8 @@ public class BriggSailModel extends SailModel {
 		}
 	}
 
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		segel_brigg.render(poseStack, vertexConsumer, packedLight, packedOverlay);
+	@Override
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+		segel_brigg.render(poseStack, buffer, packedLight, packedOverlay);
 	}
 }

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class BriggModel extends ShipModel<BriggEntity> {
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, BriggEntity.ID + "_model"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, BriggEntity.ID + "_model"), "main");
 	private final ModelPart root;
 	private final ModelPart brigg;
 	private final ModelPart chest1;

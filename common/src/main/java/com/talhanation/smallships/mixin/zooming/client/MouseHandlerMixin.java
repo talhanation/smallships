@@ -23,6 +23,7 @@ public class MouseHandlerMixin {
 
     @Unique private boolean smallships$shouldCancel;
 
+    @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(method = "onScroll(JDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;swapPaint(D)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     private void onScrollCaptureScrollDelta(long windowPointer, double xOffset, double yOffset, CallbackInfo ci, boolean bl, double scrollSensitivity, double scrollDeltaX, double scrollDeltaY) {
         if (SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) {

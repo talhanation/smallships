@@ -6,9 +6,6 @@ import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -34,7 +31,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     }
 
     public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, LivingEntity owner, double d1, double d2, double d3, Level world) {
-        super(type, owner, d1, d2, d3, world);
+        super(type, owner, new Vec3(d1, d2, d3), world);
         this.moveTo(d1, d2, d3, this.getYRot(), this.getXRot());
     }
 
@@ -134,7 +131,6 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             }
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
                 if(ownerEntity.getTeam() != null && ownerEntity.getTeam().isAlliedTo(hitEntity.getTeam()) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
-                this.doEnchantDamageEffects(livingOwnerEntity, hitEntity);
                 this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE.value(), this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
 
@@ -201,14 +197,6 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     @Override
     public boolean hurt(DamageSource p_70097_1_, float p_70097_2_) {
         return false;
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        Entity entity = this.getOwner();
-        int i = entity == null ? 0 : entity.getId();
-        return new ClientboundAddEntityPacket(this.getId(), this.getUUID(), this.getX(), this.getY(), this.getZ(), this.getXRot(), this.getYRot(), this.getType(), i, new Vec3(this.xPower, this.yPower, this.zPower), 0.0);
-
     }
 
     @Override

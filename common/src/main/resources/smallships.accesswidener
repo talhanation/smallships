@@ -12,4 +12,3 @@ extendable method net/minecraft/world/item/BoatItem getBoat (Lnet/minecraft/worl
 accessible method net/minecraft/client/renderer/entity/EntityRenderer getBlockLightLevel (Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;)I
 accessible method net/minecraft/world/entity/Entity getEncodeId ()Ljava/lang/String;
 accessible method net/minecraft/world/entity/vehicle/Boat getMaxPassengers ()I
-accessible method net/minecraft/client/renderer/entity/MobRenderer addVertexPair (Lcom/mojang/blaze3d/vertex/VertexConsumer;Lorg/joml/Matrix4f;FFFIIIIFFFFIZ)V

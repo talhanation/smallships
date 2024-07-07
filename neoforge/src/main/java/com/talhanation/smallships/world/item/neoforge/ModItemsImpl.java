@@ -29,8 +29,8 @@ public class ModItemsImpl {
 
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(SmallShipsMod.MOD_ID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SmallShipsMod.MOD_ID);
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> customCreativeModeTab = CREATIVE_MODE_TABS.register(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", "."), () -> CreativeModeTab.builder()
-            .title(Component.translatable(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", ".")))
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> customCreativeModeTab = CREATIVE_MODE_TABS.register(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", "."), () -> CreativeModeTab.builder()
+            .title(Component.translatable(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", ".")))
             .icon(() -> new ItemStack(ModItems.CANNON))
             .build());
 
@@ -41,10 +41,10 @@ public class ModItemsImpl {
         register("cannon_ball", () -> new CannonBallItem((new Item.Properties()).stacksTo(16)));
 
         for (Boat.Type type: Boat.Type.values()) {
-            register(new ResourceLocation(type.getName()).getPath() + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1)));
-            register(new ResourceLocation(type.getName()).getPath() + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1)));
-            register(new ResourceLocation(type.getName()).getPath() + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1)));
-            register(new ResourceLocation(type.getName()).getPath() + "_" + DrakkarEntity.ID,  () -> new DrakkarItem(type, new Item.Properties().stacksTo(1)));
+            register(type.getName() + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1)));
+            register(type.getName() + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1)));
+            register(type.getName() + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1)));
+            register(type.getName() + "_" + DrakkarEntity.ID,  () -> new DrakkarItem(type, new Item.Properties().stacksTo(1)));
         }
     }
 
