@@ -6,11 +6,11 @@
   "key.smallships.lower_ship_sail" : "Lower Sail",
   "key.smallships.ship_inventory" : "Open Ship Inventory",
 
-  "death.attack.cannonBall": "%s was shot with a cannon.",
-  "death.attack.cannonBall.player": "%s was shot with a cannon by %s.",
+  "death.attack.cannon_ball": "%s was shot with a cannon.",
+  "death.attack.cannon_ball.player": "%s was shot with a cannon by %s.",
 
-  "death.attack.ship_collision": "%s was hit by a ship.",
-  "death.attack.ship_collision.player": "%s was hit by %s with a ship.",
+  "death.attack.ship_hit": "%s was hit by a ship.",
+  "death.attack.ship_hit.player": "%s was hit by %s with a ship.",
 
   "item.smallships.sail": "Sail",
   "item.smallships.cannon": "Ship Cannon",

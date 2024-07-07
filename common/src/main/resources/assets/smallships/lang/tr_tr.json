@@ -6,11 +6,11 @@
   "key.smallships.lower_ship_sail": "Yelkeni Aşağı Indir",
   "key.smallships.ship_inventory": "Gemi Envanterini Aç",
 
-  "death.attack.cannonBall": "%s bir top mermisiyle vuruldu.",
-  "death.attack.cannonBall.player": "%s %s tarafından bir top mermisiyle vuruldu.",
+  "death.attack.cannon_ball": "%s bir top mermisiyle vuruldu.",
+  "death.attack.cannon_ball.player": "%s %s tarafından bir top mermisiyle vuruldu.",
 
-  "death.attack.hit_ship": "%s bir gemi tarafından vuruldu.",
-  "death.attack.hit_ship.player": "%s %s tarafından bir gemiyle vuruldu.",
+  "death.attack.ship_hit": "%s bir gemi tarafından vuruldu.",
+  "death.attack.ship_hit.player": "%s %s tarafından bir gemiyle vuruldu.",
 
   "item.smallships.sail": "Yelken",
   "item.smallships.cannon": "Gemi Topu",

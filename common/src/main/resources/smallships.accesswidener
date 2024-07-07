@@ -12,3 +12,9 @@ extendable method net/minecraft/world/item/BoatItem getBoat (Lnet/minecraft/worl
 accessible method net/minecraft/client/renderer/entity/EntityRenderer getBlockLightLevel (Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;)I
 accessible method net/minecraft/world/entity/Entity getEncodeId ()Ljava/lang/String;
 accessible method net/minecraft/world/entity/vehicle/Boat getMaxPassengers ()I
+
+accessible field net/minecraft/world/entity/vehicle/Boat bubbleColumnDirectionIsDown Z
+accessible method net/minecraft/world/entity/vehicle/Boat getBubbleTime ()I
+accessible method net/minecraft/world/entity/vehicle/Boat setBubbleTime (I)V
+accessible field net/minecraft/world/entity/vehicle/Boat isAboveBubbleColumn Z
+accessible field net/minecraft/world/entity/vehicle/Boat outOfControlTicks F
