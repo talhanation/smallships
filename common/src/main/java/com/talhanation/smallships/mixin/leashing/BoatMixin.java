@@ -30,30 +30,21 @@ import java.util.UUID;
 
 @Mixin(Boat.class)
 public abstract class BoatMixin implements BoatLeashAccess {
-    @Unique
-    @SuppressWarnings("DataFlowIssue")
-    private Boat smallships$self() {
+    @Unique private Boat smallships$self() {
         return (Boat)(Object)this;
     }
 
-    @Unique
-    private boolean smallships$isClientSide() {
+    @Unique private boolean smallships$isClientSide() {
         return smallships$self().level().isClientSide();
     }
 
-    @Unique
-    private static final String LEASH_TAG = "Leash";
+    @Unique private static final String LEASH_TAG = "Leash";
 
-    @Unique
-    @Nullable
-    private Entity smallships$leashHolder;
+    @Unique @Nullable private Entity smallships$leashHolder;
 
-    @Unique
-    private int smallships$delayedLeashHolderId;
+    @Unique private int smallships$delayedLeashHolderId;
 
-    @Unique
-    @Nullable
-    private CompoundTag smallships$leashInfoTag;
+    @Unique @Nullable private CompoundTag smallships$leashInfoTag;
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void tickLeash(CallbackInfo ci) {

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[2,)"
+loaderVersion = "[3,)"
 #issueTrackerURL = ""
 license = "All Rights Reserved"
 
@@ -33,3 +33,6 @@ config = "smallships.mixins.json"
 
 [[mixins]]
 config = "smallships-common.mixins.json"
+
+[[mixins]]
+config = "smallships-fabric-neoforge.mixins.json"

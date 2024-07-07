@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -19,32 +20,31 @@ import java.util.List;
 
 @Mixin(LeashFenceKnotEntity.class)
 public class LeashFenceKnotEntityMixin {
-    private boolean success;
+    @Unique private boolean smallships$success;
 
-    @SuppressWarnings("DataFlowIssue")
-    private LeashFenceKnotEntity self() {
+    @Unique private LeashFenceKnotEntity smallships$self() {
         return (LeashFenceKnotEntity)(Object)this;
     }
 
     @SuppressWarnings("ConstantValue")
     @Inject(method = "interact", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/level/Level;getEntitiesOfClass(Ljava/lang/Class;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;", shift = At.Shift.BEFORE))
     private void interactLeashShip(Player player, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
-        this.success = false;
-        List<Boat> list = self().level().getEntitiesOfClass(Boat.class, new AABB(self().getX() - 7.0, self().getY() - 7.0, self().getZ() - 7.0, self().getX() + 7.0, self().getY() + 7.0, self().getZ() + 7.0));
+        this.smallships$success = false;
+        List<Boat> list = smallships$self().level().getEntitiesOfClass(Boat.class, new AABB(smallships$self().getX() - 7.0, smallships$self().getY() - 7.0, smallships$self().getZ() - 7.0, smallships$self().getX() + 7.0, smallships$self().getY() + 7.0, smallships$self().getZ() + 7.0));
         Iterator<Boat> boatIterator = list.iterator();
 
         Boat boat;
         while(boatIterator.hasNext()) {
             boat = boatIterator.next();
             if (((BoatLeashAccess)boat).smallships$getLeashHolder() == player && (boat instanceof Leashable || boat.getClass().equals(Boat.class))) {
-                ((BoatLeashAccess)boat).smallships$setLeashedTo(self(), true);
-                this.success = true;
+                ((BoatLeashAccess)boat).smallships$setLeashedTo(smallships$self(), true);
+                this.smallships$success = true;
             }
         }
     }
 
     @ModifyVariable(method = "interact", at = @At(value = "LOAD"), ordinal = 0)
     private boolean interactLeashShipSuccess(boolean bl) {
-        return bl || this.success;
+        return bl || this.smallships$success;
     }
 }

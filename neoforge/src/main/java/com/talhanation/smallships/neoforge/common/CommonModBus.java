@@ -1,29 +1,40 @@
-package com.talhanation.smallships.forge.common;
+package com.talhanation.smallships.neoforge.common;
 
+import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.forge.SmallshipsModForge;
+import com.talhanation.smallships.neoforge.SmallshipsModNeoForge;
+import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.item.ModItems;
-import com.talhanation.smallships.world.item.forge.ModItemsImpl;
+import com.talhanation.smallships.world.item.neoforge.ModItemsImpl;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.function.Function;
 
+import static com.talhanation.smallships.network.neoforge.ModPacketsImpl.clientboundPackets;
+import static com.talhanation.smallships.network.neoforge.ModPacketsImpl.serverboundPackets;
+
 @SuppressWarnings("unused")
-@Mod.EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class CommonModBus {
     @SubscribeEvent
     static void init(FMLCommonSetupEvent event) {
@@ -39,7 +50,7 @@ public class CommonModBus {
     @SubscribeEvent
     public static void initRegisterCreativeMenuTabs(BuildCreativeModeTabContentsEvent event) {
         Function<ResourceKey<CreativeModeTab>, CreativeModeTab> getCreativeModeTab = BuiltInRegistries.CREATIVE_MODE_TAB::get;
-        if (SmallshipsModForge.hasCustomItemGroup) {
+        if (SmallshipsModNeoForge.hasCustomItemGroup) {
             //CUSTOM CREATIVE MENU TAB
             if (getCreativeModeTab.apply(ModItemsImpl.customCreativeModeTab.getKey()).equals(event.getTab())) {
                 ModItemsImpl.ITEMS.getEntries().forEach(key -> event.accept(key.get()));
@@ -60,6 +71,19 @@ public class CommonModBus {
 
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void initRegisterPackets(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+
+        for (Pair<CustomPacketPayload.Type<ModPacket>, StreamCodec<RegistryFriendlyByteBuf, ModPacket>> packet : serverboundPackets) {
+            registrar.playToServer(packet.getFirst(), packet.getSecond(), (ModPacket payload, IPayloadContext context) -> payload.handler(context.player()));
+        }
+
+        for (Pair<CustomPacketPayload.Type<ModPacket>, StreamCodec<RegistryFriendlyByteBuf, ModPacket>> packet : clientboundPackets) {
+            registrar.playToClient(packet.getFirst(), packet.getSecond(), (ModPacket payload, IPayloadContext context) -> payload.handler(context.player()));
         }
     }
 }

@@ -11,25 +11,30 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class ModPackets {
     public static void registerPackets() {
-        registerPacket(ServerboundOpenShipScreenPacket.TYPE, ServerboundOpenShipScreenPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerPacket(ServerboundToggleShipSailPacket.TYPE, ServerboundToggleShipSailPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerPacket(ServerboundShootShipCannonPacket.TYPE, ServerboundShootShipCannonPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerPacket(ServerboundSetSailStatePacket.TYPE, ServerboundSetSailStatePacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerPacket(ServerboundUpdateShipControlPacket.TYPE, ServerboundUpdateShipControlPacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundOpenShipScreenPacket.TYPE, ServerboundOpenShipScreenPacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundToggleShipSailPacket.TYPE, ServerboundToggleShipSailPacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundShootShipCannonPacket.TYPE, ServerboundShootShipCannonPacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundSetSailStatePacket.TYPE, ServerboundSetSailStatePacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundUpdateShipControlPacket.TYPE, ServerboundUpdateShipControlPacket.CODEC, ModPacket.Side.SERVERBOUND);
     }
 
+    @SuppressWarnings("unchecked")
+    private static <T extends ModPacket> void registerNonPacket(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, ModPacket.Side side) {
+        registerPacket((CustomPacketPayload.Type<ModPacket>)type, (StreamCodec<RegistryFriendlyByteBuf, ModPacket>)codec, side);
+    }
+    
     @ExpectPlatform
-    public static <T extends CustomPacketPayload & ModPacket> void registerPacket(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, ModPacket.Side side) {
+    public static void registerPacket(CustomPacketPayload.Type<ModPacket> type, StreamCodec<RegistryFriendlyByteBuf, ModPacket> codec, ModPacket.Side side) {
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static <T extends CustomPacketPayload & ModPacket> void serverSendPacket(ServerPlayer player, T packet) {
+    public static void serverSendPacket(ServerPlayer player, ModPacket packet) {
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static <T extends CustomPacketPayload & ModPacket> void clientSendPacket(T packet) {
+    public static void clientSendPacket(ModPacket packet) {
         throw new AssertionError();
     }
 

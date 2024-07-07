@@ -1,11 +1,11 @@
-package com.talhanation.smallships.forge.events;
+package com.talhanation.smallships.neoforge.events;
 
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 // This should have been in common/CommonGameBus, instead it is here cluttering the structure of the project
 public class PassengerEvents {

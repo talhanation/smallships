@@ -17,8 +17,7 @@
     "leashing.BoatMixin",
     "leashing.EntityMixin",
     "leashing.LeadItemMixin",
-    "leashing.LeashFenceKnotEntityMixin",
-    "leashing.ServerEntityMixin"
+    "leashing.LeashFenceKnotEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

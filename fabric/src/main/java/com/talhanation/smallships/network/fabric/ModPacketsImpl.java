@@ -18,7 +18,7 @@ public class ModPacketsImpl {
     private static final List<Runnable> clientReceivers = new ArrayList<>();
     private static final List<Runnable> serverReceivers = new ArrayList<>();
 
-    public static <T extends CustomPacketPayload & ModPacket> void registerPacket(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, ModPacket.Side side) {
+    public static void registerPacket(CustomPacketPayload.Type<ModPacket> type, StreamCodec<RegistryFriendlyByteBuf, ModPacket> codec, ModPacket.Side side) {
         switch (side) {
             case ModPacket.Side.CLIENTBOUND -> {
                 PayloadTypeRegistry.playS2C().register(type, codec);
@@ -53,11 +53,11 @@ public class ModPacketsImpl {
         }
     }
 
-    public static <T extends CustomPacketPayload & ModPacket> void serverSendPacket(ServerPlayer player, T packet) {
+    public static void serverSendPacket(ServerPlayer player, ModPacket packet) {
         ServerPlayNetworking.send(player, packet);
     }
 
-    public static <T extends CustomPacketPayload & ModPacket> void clientSendPacket(T packet) {
+    public static void clientSendPacket(ModPacket packet) {
         ClientPlayNetworking.send(packet);
     }
 }

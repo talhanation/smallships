@@ -1,13 +1,15 @@
 {
-  "required": false,
+  "required": true,
   "package": "com.talhanation.smallships.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "container.MouseHandlerAccessor",
+    "container.MinecraftMixin"
   ],
   "mixins": [
   ],
   "injectors": {
-    "defaultRequire": 0
+    "defaultRequire": 1
   }
 }

@@ -15,9 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public class EntityMixin {
-    @Unique
-    @SuppressWarnings("DataFlowIssue")
-    private Entity smallships$self() {
+    @Unique private Entity smallships$self() {
         return (Entity)(Object)this;
     }
 

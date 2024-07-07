@@ -32,7 +32,8 @@
   "mixins": [
     "smallships.mixin.json",
     "smallships-common.mixins.json",
-    "smallships-common-soft.mixins.json"
+    "smallships-fabric-forge.mixins.json",
+    "smallships-fabric-neoforge.mixins.json"
   ],
   "depends": {
     "fabric": "*",

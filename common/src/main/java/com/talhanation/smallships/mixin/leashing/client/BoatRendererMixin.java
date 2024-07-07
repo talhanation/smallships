@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -52,11 +53,12 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
     private void renderLeashBoat(Boat boat, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
         Entity entity = ((BoatLeashAccess)boat).smallships$getLeashHolder();
         if (entity != null) {
-            this.renderLeash(boat, g, poseStack, multiBufferSource, entity);
+            this.smallships$renderLeash(boat, g, poseStack, multiBufferSource, entity);
         }
     }
 
-    private <E extends Entity> void renderLeash(Boat $$0, float $$1, PoseStack $$2, MultiBufferSource $$3, E $$4) {
+    @Unique
+    private <E extends Entity> void smallships$renderLeash(Boat $$0, float $$1, PoseStack $$2, MultiBufferSource $$3, E $$4) {
         $$2.pushPose();
         Vec3 $$5 = $$4.getRopeHoldPosition($$1);
         double $$6 = (Mth.lerp($$1, 0.0D, 0.0D) * (float) (Math.PI / 180.0)) + (Math.PI / 2);
@@ -83,17 +85,18 @@ public abstract class BoatRendererMixin extends EntityRenderer<Boat> {
         int $$27 = $$0.level().getBrightness(LightLayer.SKY, $$23);
 
         for(int $$28 = 0; $$28 <= 24; ++$$28) {
-            addVertexPair($$17, $$18, $$13, $$14, $$15, $$24, $$25, $$26, $$27, 0.025F, $$20, $$21, $$28, false);
+            smallships$addVertexPair($$17, $$18, $$13, $$14, $$15, $$24, $$25, $$26, $$27, 0.025F, $$20, $$21, $$28, false);
         }
 
         for(int $$29 = 24; $$29 >= 0; --$$29) {
-            addVertexPair($$17, $$18, $$13, $$14, $$15, $$24, $$25, $$26, $$27, 0.0F, $$20, $$21, $$29, true);
+            smallships$addVertexPair($$17, $$18, $$13, $$14, $$15, $$24, $$25, $$26, $$27, 0.0F, $$20, $$21, $$29, true);
         }
 
         $$2.popPose();
     }
 
-    private static void addVertexPair(
+    @Unique
+    private static void smallships$addVertexPair(
             VertexConsumer $$0,
             Matrix4f $$1,
             float $$2,

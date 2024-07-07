@@ -21,7 +21,7 @@ public class ModPacketsImpl {
 
     static Channel<CustomPacketPayload> CHANNEL;
 
-    public static <T extends CustomPacketPayload & ModPacket> void registerPacket(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, ModPacket.Side side) {
+    public static void registerPacket(CustomPacketPayload.Type<ModPacket> type, StreamCodec<RegistryFriendlyByteBuf, ModPacket> codec, ModPacket.Side side) {
         switch (side) {
             case ModPacket.Side.CLIENTBOUND -> CHANNEL_PAYLOAD = CHANNEL_PAYLOAD.play().clientbound().add(type, codec, (packet, context) -> {
                 Player player = context.getSender();
@@ -34,12 +34,12 @@ public class ModPacketsImpl {
         }
     }
 
-    public static <T extends CustomPacketPayload & ModPacket> void serverSendPacket(ServerPlayer player, T packet) {
+    public static void serverSendPacket(ServerPlayer player, ModPacket packet) {
         if (CHANNEL == null) CHANNEL = ((PayloadFlow<RegistryFriendlyByteBuf, CustomPacketPayload>) CHANNEL_PAYLOAD).build();
         CHANNEL.send(packet, PacketDistributor.PLAYER.with(player));
     }
 
-    public static <T extends CustomPacketPayload & ModPacket> void clientSendPacket(T packet) {
+    public static void clientSendPacket(ModPacket packet) {
         if (CHANNEL == null) CHANNEL = ((PayloadFlow<RegistryFriendlyByteBuf, CustomPacketPayload>) CHANNEL_PAYLOAD).build();
         CHANNEL.send(packet, PacketDistributor.SERVER.noArg());
     }

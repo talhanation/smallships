@@ -16,6 +16,7 @@ loom {
 
         mixinConfig "smallships.mixins.json"
         mixinConfig "smallships-common.mixins.json"
+        mixinConfig "smallships-fabric-forge.mixins.json"
     }
 }
 
