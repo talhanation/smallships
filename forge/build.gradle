@@ -73,7 +73,7 @@ shadowJar {
 }
 
 remapJar {
-    // Forge uses Official Mojang Mapping so we need to disable remapping to Intermediary Mappings
-    enabled = false
-    // input.set shadowJar.archiveFile
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier = null
 }
