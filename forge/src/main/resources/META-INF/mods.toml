@@ -17,7 +17,7 @@ logoFile = "icon.png"
 [[dependencies.smallships]]
 modId = "forge"
 mandatory = true
-versionRange = "[50,)"
+versionRange = "[51,)"
 ordering = "NONE"
 side = "BOTH"
 
