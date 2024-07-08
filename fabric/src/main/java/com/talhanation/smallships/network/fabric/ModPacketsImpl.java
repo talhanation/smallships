@@ -1,7 +1,8 @@
 package com.talhanation.smallships.network.fabric;
 
 import com.talhanation.smallships.network.ModPacket;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -15,41 +16,35 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class ModPacketsImpl {
-    private static final List<Runnable> clientReceivers = new ArrayList<>();
-    private static final List<Runnable> serverReceivers = new ArrayList<>();
+    private static final List<CustomPacketPayload.Type<ModPacket>> clientReceivers = new ArrayList<>();
+    private static final List<CustomPacketPayload.Type<ModPacket>> serverReceivers = new ArrayList<>();
 
     public static void registerPacket(CustomPacketPayload.Type<ModPacket> type, StreamCodec<RegistryFriendlyByteBuf, ModPacket> codec, ModPacket.Side side) {
         switch (side) {
             case ModPacket.Side.CLIENTBOUND -> {
                 PayloadTypeRegistry.playS2C().register(type, codec);
 
-                clientReceivers.add(() -> ClientPlayNetworking.registerGlobalReceiver(type, (packet, context) -> {
-                    context.client().execute(() -> {
-                        Player player = context.client().player;
-                        packet.handler(player);
-                    });
-                }));
+                clientReceivers.add(type);
             }
             case ModPacket.Side.SERVERBOUND -> {
                 PayloadTypeRegistry.playC2S().register(type, codec);
 
-                serverReceivers.add(() -> ServerPlayNetworking.registerGlobalReceiver(type, (packet, context) -> {
-                    Player player = context.player();
-                    packet.handler(player);
-                }));
+                serverReceivers.add(type);
             }
         }
     }
 
+    @Environment(EnvType.CLIENT)
     public static void registerClientReceivers() {
-        for (Runnable r : clientReceivers) {
-            r.run();
-        }
+        ModPacketsClientHelper.registerClientReceivers(clientReceivers);
     }
 
     public static void registerServerReceivers() {
-        for (Runnable r : serverReceivers) {
-            r.run();
+        for (CustomPacketPayload.Type<ModPacket> type : serverReceivers) {
+            ServerPlayNetworking.registerGlobalReceiver(type, (packet, context) -> {
+                Player player = context.player();
+                packet.handler(player);
+            });
         }
     }
 
@@ -57,7 +52,8 @@ public class ModPacketsImpl {
         ServerPlayNetworking.send(player, packet);
     }
 
+    @Environment(EnvType.CLIENT)
     public static void clientSendPacket(ModPacket packet) {
-        ClientPlayNetworking.send(packet);
+        ModPacketsClientHelper.clientSendPacket(packet);
     }
 }
