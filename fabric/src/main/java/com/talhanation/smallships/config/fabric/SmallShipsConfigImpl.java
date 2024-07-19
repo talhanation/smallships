@@ -7,6 +7,7 @@ import fuzs.forgeconfigapiport.fabric.api.forge.v4.ForgeModConfigEvents;
 import net.minecraftforge.fml.config.IConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 
+@SuppressWarnings("removal")
 public class SmallShipsConfigImpl {
     public SmallShipsConfigImpl() {
         ForgeModConfigEvents.loading(SmallShipsMod.MOD_ID).register(config -> {

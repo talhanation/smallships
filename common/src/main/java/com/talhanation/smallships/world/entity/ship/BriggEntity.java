@@ -1,7 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
@@ -9,8 +8,8 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -73,88 +72,56 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
-    public void positionRider(@NotNull Entity entity) {
-        if (this.hasPassenger(entity)) {
-            float d = this.getSinglePassengerXOffset(); // ^ ^ ^+
-            float e = 0.0F; // ^ ^+ ^
-            float f = this.getSinglePassengerZOffset(); // ^+ ^ ^
-            float g = 0.0F;
-            if (this.getPassengers().size() > 1) {
-                int i = this.getPassengers().indexOf(entity);
-                switch (i) {
-                    case (0) -> {
-                        d = -4.0F;
-                        f = 0.0F;
-                    }
-                    case(1) -> {
-                        d = -2.5F;
-                        f = 0.75F;
-                    }
-                    case(2) -> {
-                        d = -2.5F;
-                        f = -0.75F;
-                    }
-                    case(3) -> {
-                        d = -1.5F;
-                        f = -0.75F;
-                    }
-                    case(4) -> {
-                        d = -1.5F;
-                        f = 0.75F;
-                    }
-                    case(5) -> {
-                        d = -0.5F;
-                        f = -0.75F;
-                    }
-                    case(6) -> {
-                        d = -0.5F;
-                        f = 0.75F;
-                    }
-                    case(7) -> {
-                        d = 0.5F;
-                        f = -0.75F;
-                    }
-                    case(8) -> {
-                        d = 0.5F;
-                        f = 0.75F;
-                    }
-                    case(9) -> {
-                        d = 1.5F;
-                        f = 0.5F;
-                    }
-                    case(10) -> {
-                        d = 1.5F;
-                        f = -0.5F;
-                    }
-                    default -> {
-                        d = 2.0F;
-                        e = 0.75F;
-                        f = 0.0F;
-                    }
+    public @NotNull Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
+        float v = 1.0F;
+        float h = 0.0F;
+        if (!this.getPassengers().isEmpty()) {
+            int i = this.getPassengers().indexOf(entity);
+            switch (i) {
+                case(0) -> {
+                    v += -4.0F;
+                    h = 0.0F;
+                }
+                case(1) -> {
+                    v += -2.5F;
+                    h = 0.75F;
+                }
+                case(2) -> {
+                    v += -2.5F;
+                    h = -0.75F;
+                }
+                case(3) -> {
+                    v += -1.5F;
+                    h = -0.75F;
+                }
+                case(4) -> {
+                    v += -1.5F;
+                    h = 0.75F;
+                }
+                case(5) -> {
+                    v += -0.5F;
+                    h = -0.75F;
+                }
+                case(6) -> {
+                    v += -0.5F;
+                    h = 0.75F;
+                }
+                case(7) -> {
+                    v += 0.5F;
+                    h = -0.75F;
+                }
+                case(8) -> {
+                    v += 0.5F;
+                    h = 0.75F;
+                }
+                default -> {
+                    v += 1.5F;
+                    h = 0.0F;
                 }
             }
-            d += 1;
-
-            Vec3 vec3 = (new Vec3(d, e, f)).yRot(-this.getYRot() * ((float) Math.PI / 180.0F) - ((float)Math.PI / 2.0F));
-            entity.setPos(this.getX() + vec3.x, this.getY() + (double) g, this.getZ() + vec3.z);
-            entity.setYRot(entity.getYRot() + ((BoatAccessor) this).getDeltaRotation());
-            entity.setYHeadRot(entity.getYHeadRot() + ((BoatAccessor) this).getDeltaRotation());
-            this.clampRotation(entity);
-            if (entity instanceof Animal && this.getPassengers().size() == this.getMaxPassengers()) {
-                int j = entity.getId() % 2 == 0 ? 90 : 270;
-                entity.setYBodyRot(((Animal) entity).yBodyRot + (float) j);
-                entity.setYHeadRot(entity.getYHeadRot() + (float) j);
-            }
         }
-    }
 
-    @Override
-    protected float getSinglePassengerXOffset() {
-        return -1.7F; // ^ ^ ^+
-    }
-
-    protected float getSinglePassengerZOffset() {
-        return 0.7F; // ^+ ^ ^
+        return new Vec3(v, dimensions.height() - 0.1, h).yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
     }
 
     // Implement Able-Interfaces
