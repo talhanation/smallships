@@ -1,7 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
@@ -9,8 +8,8 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -71,54 +70,42 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     }
 
     @Override
-    public void positionRider(@NotNull Entity entity) {
-        if (this.hasPassenger(entity)) {
-            float d = this.getSinglePassengerXOffset(); // ^ ^ ^+
-            float e = 0.0F; // ^ ^+ ^
-            float f = 0.0F; // ^+ ^ ^
-            float g = 0.0F;
-            if (this.getPassengers().size() > 1) {
-                int i = this.getPassengers().indexOf(entity);
-                switch (i) {
-                    case(0) -> {
-                        d = -2.25F;
-                        f = 0.0F;
-                    }
-                    case(1) -> {
-                        d = -0.9F;
-                        f = 0.9F;
-                    }
-                    case(2) -> {
-                        d = -0.9F;
-                        f = -0.9F;
-                    }
-                    case(3) -> {
-                        d = 0.65F;
-                        f = -0.75F;
-                    }
-                    case(4) -> {
-                        d = 0.65F;
-                        f = 0.75F;
-                    }
-                    default -> {
-                        d = 1.5F;
-                        f = 0.0F;
-                    }
+    public @NotNull Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
+        float v = 0.0F;
+        float h = 0.0F;
+        if (!this.getPassengers().isEmpty()) {
+            int i = this.getPassengers().indexOf(entity);
+            switch (i) {
+                case(0) -> {
+                    v += -2.25F;
+                    h = 0.0F;
+                }
+                case(1) -> {
+                    v += -0.9F;
+                    h = 0.9F;
+                }
+                case(2) -> {
+                    v += -0.9F;
+                    h = -0.9F;
+                }
+                case(3) -> {
+                    v += 0.65F;
+                    h = -0.75F;
+                }
+                case(4) -> {
+                    v += 0.65F;
+                    h = 0.75F;
+                }
+                default -> {
+                    v += 1.5F;
+                    h = 0.0F;
                 }
             }
-
-            Vec3 vec3 = (new Vec3(d, e, f)).yRot(-this.getYRot() * ((float) Math.PI / 180.0F) - ((float)Math.PI / 2.0F));
-            entity.setPos(this.getX() + vec3.x, this.getY() + (double) g, this.getZ() + vec3.z);
-            entity.setYRot(entity.getYRot() + ((BoatAccessor) this).getDeltaRotation());
-            entity.setYHeadRot(entity.getYHeadRot() + ((BoatAccessor) this).getDeltaRotation());
-            this.clampRotation(entity);
-            if (entity instanceof Animal && this.getPassengers().size() == this.getMaxPassengers()) {
-                int j = entity.getId() % 2 == 0 ? 90 : 270;
-                entity.setYBodyRot(((Animal) entity).yBodyRot + (float) j);
-                entity.setYHeadRot(entity.getYHeadRot() + (float) j);
-            }
         }
+
+        return new Vec3(v, dimensions.height() - 0.1, h).yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
     }
+
     /**
      *  Cannon Positioning:
      *  offset X: Defines the X offset -> positive will increase a placement in ships backward
@@ -144,11 +131,6 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     @Override
     public byte getMaxCannonPerSide(){
         return 2;
-    }
-
-    @Override
-    protected float getSinglePassengerXOffset() {
-        return -1.75F; // ^ ^ ^+
     }
 
     // Implement Able-Interfaces

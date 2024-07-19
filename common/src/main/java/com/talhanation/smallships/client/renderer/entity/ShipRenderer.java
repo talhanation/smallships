@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.*;
@@ -69,7 +70,9 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     protected abstract ShipModel<T> createBoatModel(EntityRendererProvider.Context context, Boat.Type type);
 
-    protected abstract ResourceLocation getTextureLocation(Boat.Type type);
+    protected ResourceLocation getTextureLocation(Boat.Type type) {
+        return new ResourceLocation(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+    }
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull T shipEntity) {
@@ -242,7 +245,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
 
     public Axis getWaveAngleRotation(){
-        return Axis.XN;
+        return Axis.ZN;
     }
 
     @SuppressWarnings({"unused", "EmptyMethod"})
