@@ -45,9 +45,9 @@
     "2.0.0-a2.3.3": "fix registry issues."
   },
   "1.20.6": {
-    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits"
+    "2.0.0-b1.3.5": "port to 1.20.6"
   },
   "1.21": {
-    "2.0.0-b1.3": "fixed team damage, improved performance, added mod compat with villager recruits"
+    "2.0.0-b1.3.5": "port to 1.21"
   }
 }
