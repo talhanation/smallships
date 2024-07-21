@@ -1,18 +1,15 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
-import com.talhanation.smallships.network.packet.ServerboundUpdateShipControlPacket;
 import com.talhanation.smallships.world.entity.projectile.Cannon;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -114,32 +111,23 @@ public abstract class Ship extends Boat {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(SPEED, 0.0F);
+        this.getEntityData().define(ROT_SPEED, 0.0F);
+        this.getEntityData().define(ATTRIBUTES, this.createDefaultAttributes());
+        this.getEntityData().define(FORWARD, false);
+        this.getEntityData().define(BACKWARD, false);
+        this.getEntityData().define(LEFT, false);
+        this.getEntityData().define(RIGHT, false);
+        this.getEntityData().define(SUNKEN, false);
 
-        builder.define(SPEED, 0.0F);
-        builder.define(ROT_SPEED, 0.0F);
-        builder.define(ATTRIBUTES, this.createDefaultAttributes());
-        builder.define(FORWARD, false);
-        builder.define(BACKWARD, false);
-        builder.define(LEFT, false);
-        builder.define(RIGHT, false);
-        builder.define(SUNKEN, false);
-
-        // Sailable
-        builder.define(SAIL_STATE, (byte) 0);
-        builder.define(Ship.SAIL_COLOR, SailModel.Color.WHITE.toString());
-
-        // Bannerable
-        builder.define(Ship.BANNER, ItemStack.EMPTY);
-
-        // Cannonable
-        builder.define(Ship.CANNON_POWER, 4.0F);
-        builder.define(Ship.CANNON_COUNT, (byte) 0);
-
-        // Shieldable
-        builder.define(Ship.SHIELD_DATA, new CompoundTag());
+        if (this instanceof Sailable sailShip) sailShip.defineSailShipSynchedData();
+        if (this instanceof Bannerable bannerShip) bannerShip.defineBannerShipSynchedData();
+        if (this instanceof Cannonable cannonShip) cannonShip.defineCannonShipSynchedData();
+        if (this instanceof Shieldable shieldShip) shieldShip.defineShieldShipSynchedData();
     }
+
 
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
@@ -413,7 +401,7 @@ public abstract class Ship extends Boat {
     }
 
     private boolean interactWithNameTag(@NotNull Player player){
-        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().has(DataComponents.CUSTOM_NAME) && !player.getCommandSenderWorld().isClientSide){
+        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().hasCustomHoverName() && !player.getCommandSenderWorld().isClientSide) {
             this.setCustomName(player.getMainHandItem().getHoverName());
             this.setCustomNameVisible(false);
             if(!player.isCreative()) player.getMainHandItem().shrink(1);
@@ -691,7 +679,7 @@ public abstract class Ship extends Boat {
             needsUpdate = true;
         }
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && player != null) {
-            ModPackets.clientSendPacket(new ServerboundUpdateShipControlPacket(forward, backward, left, right));
+            ModPackets.clientSendPacket(player, ModPackets.serverUpdateShipControl.apply(forward, backward, left, right));
         }
     }
     @Override

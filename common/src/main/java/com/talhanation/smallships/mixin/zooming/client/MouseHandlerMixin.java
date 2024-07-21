@@ -23,14 +23,15 @@ public class MouseHandlerMixin {
 
     @Unique private boolean smallships$shouldCancel;
 
+    @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(method = "onScroll(JDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;swapPaint(D)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     private void onScrollCaptureScrollDelta(long windowPointer, double xOffset, double yOffset, CallbackInfo ci, boolean bl, double scrollSensitivity, double scrollDeltaX, double scrollDeltaY) {
         if (SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) {
             assert this.minecraft.player != null;
             if (!this.minecraft.options.getCameraType().isFirstPerson() && this.minecraft.player.getVehicle() instanceof Ship) {
                 Camera camera = minecraft.gameRenderer.getMainCamera();
-                float shipZoom = Math.min(SmallShipsConfig.Client.shipGeneralCameraZoomMax.get().floatValue(), Math.max(SmallShipsConfig.Client.shipGeneralCameraZoomMin.get().floatValue(), ((CameraZoomAccess) camera).smallships$getShipZoomData() - ((float) scrollDeltaY / 5)));
-                ((CameraZoomAccess) camera).smallships$setShipZoomData(shipZoom);
+                double shipZoom = Math.min(SmallShipsConfig.Client.shipGeneralCameraZoomMax.get(), Math.max(SmallShipsConfig.Client.shipGeneralCameraZoomMin.get(), ((CameraZoomAccess) camera).smallships$getShipZoomData() - scrollDeltaY / 5));
+                ((CameraZoomAccess) camera).smallships$setShipZoomData((float) shipZoom);
                 smallships$shouldCancel = true;
             }
         }

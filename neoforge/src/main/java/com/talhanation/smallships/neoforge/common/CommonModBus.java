@@ -1,17 +1,12 @@
 package com.talhanation.smallships.neoforge.common;
 
-import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.neoforge.SmallshipsModNeoForge;
-import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.item.neoforge.ModItemsImpl;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTab;
@@ -19,14 +14,13 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
 import java.util.function.Function;
 
@@ -34,7 +28,7 @@ import static com.talhanation.smallships.network.neoforge.ModPacketsImpl.clientb
 import static com.talhanation.smallships.network.neoforge.ModPacketsImpl.serverboundPackets;
 
 @SuppressWarnings("unused")
-@EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CommonModBus {
     @SubscribeEvent
     static void init(FMLCommonSetupEvent event) {
@@ -75,15 +69,15 @@ public class CommonModBus {
     }
 
     @SubscribeEvent
-    public static void initRegisterPackets(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("1");
+    public static void initRegisterPackets(RegisterPayloadHandlerEvent event) {
+        IPayloadRegistrar registrar = event.registrar(SmallShipsMod.MOD_ID);
 
-        for (Pair<CustomPacketPayload.Type<ModPacket>, StreamCodec<RegistryFriendlyByteBuf, ModPacket>> packet : serverboundPackets) {
-            registrar.playToServer(packet.getFirst(), packet.getSecond(), (ModPacket payload, IPayloadContext context) -> payload.handler(context.player()));
-        }
+        serverboundPackets.forEach(packet -> {
+            registrar.play(packet.getLeft(), packet.getMiddle(), handler -> handler.server(packet.getRight()));
+        });
 
-        for (Pair<CustomPacketPayload.Type<ModPacket>, StreamCodec<RegistryFriendlyByteBuf, ModPacket>> packet : clientboundPackets) {
-            registrar.playToClient(packet.getFirst(), packet.getSecond(), (ModPacket payload, IPayloadContext context) -> payload.handler(context.player()));
-        }
+        clientboundPackets.forEach(packet -> {
+            registrar.play(packet.getLeft(), packet.getMiddle(), handler -> handler.client(packet.getRight()));
+        });
     }
 }

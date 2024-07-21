@@ -46,7 +46,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     private final int originalContainerSize;
     NonNullList<ItemStack> itemStacks;
     @Nullable
-    private ResourceKey<LootTable> lootTable;
+    private ResourceLocation lootTable;
     private long lootTableSeed;
     public final ContainerData containerData = new ContainerData() {
         public int get(int index) {
@@ -78,21 +78,20 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-
-        builder.define(CONTAINER_SIZE, this.originalContainerSize);
-        builder.define(ROWS, (byte) 6);
-        builder.define(PAGES, (byte) 1);
-        builder.define(PAGE_INDEX, (byte) 0);
-        builder.define(CONTAINER_FILL_STATE, (byte) 0);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(CONTAINER_SIZE, this.originalContainerSize);
+        this.getEntityData().define(ROWS, (byte) 6);
+        this.getEntityData().define(PAGES, (byte) 1);
+        this.getEntityData().define(PAGE_INDEX, (byte) 0);
+        this.getEntityData().define(CONTAINER_FILL_STATE, (byte) 0);
     }
 
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         this.readContainerSizeSaveData(tag);
-        this.readChestVehicleSaveData(tag, this.registryAccess());
+        this.readChestVehicleSaveData(tag);
 
         this.setContainerFillState(tag.getByte("ContainerFillState"));
     }
@@ -101,7 +100,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         this.addContainerSizeSaveData(tag);
-        this.addChestVehicleSaveData(tag, this.registryAccess());
+        this.addChestVehicleSaveData(tag);
 
         tag.putByte("ContainerFillState", this.getContainerFillState());
     }
@@ -136,14 +135,15 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         }
     }
 
+    @Nullable
     @Override
-    public @Nullable ResourceKey<LootTable> getLootTable() {
+    public ResourceLocation getLootTable() {
         return this.lootTable;
     }
 
     @Override
-    public void setLootTable(@Nullable ResourceKey<LootTable> lootTable) {
-        this.lootTable = lootTable;
+    public void setLootTable(@Nullable ResourceLocation resourceLocation) {
+        this.lootTable = resourceLocation;
     }
 
     @Override
@@ -223,26 +223,26 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public void readChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
+    public void readChestVehicleSaveData(@NotNull CompoundTag compoundTag) {
         this.clearItemStacks();
-        if (tag.contains("LootTable", 8)) {
-            this.setLootTable(ResourceKey.create(Registries.LOOT_TABLE, new ResourceLocation(tag.getString("LootTable"))));
-            this.setLootTableSeed(tag.getLong("LootTableSeed"));
+        if (compoundTag.contains("LootTable", 8)) {
+            this.setLootTable(new ResourceLocation(compoundTag.getString("LootTable")));
+            this.setLootTableSeed(compoundTag.getLong("LootTableSeed"));
         } else {
-            ContainerUtility.loadAllItems(tag, this.getItemStacks(), levelRegistry);
+            ContainerUtility.loadAllItems(compoundTag, this.getItemStacks());
             this.resizeContainer(this.getContainerSize());
         }
     }
 
     @Override
-    public void addChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
+    public void addChestVehicleSaveData(@NotNull CompoundTag compoundTag) {
         if (this.getLootTable() != null) {
-            tag.putString("LootTable", this.getLootTable().location().toString());
+            compoundTag.putString("LootTable", this.getLootTable().toString());
             if (this.getLootTableSeed() != 0L) {
-                tag.putLong("LootTableSeed", this.getLootTableSeed());
+                compoundTag.putLong("LootTableSeed", this.getLootTableSeed());
             }
         } else {
-            ContainerUtility.saveAllItems(tag, this.getItemStacks(), levelRegistry);
+            ContainerUtility.saveAllItems(compoundTag, this.getItemStacks());
         }
     }
 

@@ -25,7 +25,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(Boat.class)
@@ -187,8 +186,8 @@ public abstract class BoatMixin implements BoatLeashAccess {
                     return;
                 }
             } else if (this.smallships$leashInfoTag.contains("X", 99) && this.smallships$leashInfoTag.contains("Y", 99) && this.smallships$leashInfoTag.contains("Z", 99)) {
-                Optional<BlockPos> blockPos = NbtUtils.readBlockPos(this.smallships$leashInfoTag, LEASH_TAG);
-                blockPos.ifPresent(pos -> this.smallships$setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(smallships$self().level(), pos), true));
+                BlockPos blockPos = NbtUtils.readBlockPos(this.smallships$leashInfoTag);
+                this.smallships$setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(smallships$self().level(), blockPos), true);
                 return;
             }
 

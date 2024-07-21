@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "group": "cog",
   "pattern": [
     "lsl",
@@ -18,6 +17,6 @@
     }
   },
   "result": {
-    "id": "smallships:acacia_cog"
+    "item": "smallships:acacia_cog"
   }
 }

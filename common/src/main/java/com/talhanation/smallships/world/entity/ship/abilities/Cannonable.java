@@ -47,6 +47,11 @@ public interface Cannonable extends Ability {
         if(cannon.canShootDirection()) cannon.trigger(shootVec, yShootVec, driverEntity, speed, accuracy);
     }
 
+    default void defineCannonShipSynchedData() {
+        self().getEntityData().define(Ship.CANNON_POWER, 4.0F);
+        self().getEntityData().define(Ship.CANNON_COUNT, (byte) 0);
+    }
+
     @SuppressWarnings("unused")
     default void readCannonShipSaveData(CompoundTag tag) {
         if (tag.contains("CannonCount")) {
@@ -89,7 +94,7 @@ public interface Cannonable extends Ability {
             else {
                 this.setCannonCount((byte) (cannonCount + 1));
 
-                self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.5F);
+                self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.5F);
                 if (!player.isCreative()) item.shrink(1);
 
                 this.updateCannonCount();
@@ -99,7 +104,7 @@ public interface Cannonable extends Ability {
             this.setCannonCount((byte) (cannonCount - 1));
 
             self().spawnAtLocation(ModItems.CANNON);
-            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.0F);
+            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         }
         return false;

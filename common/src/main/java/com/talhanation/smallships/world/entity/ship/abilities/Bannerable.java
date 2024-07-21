@@ -20,12 +20,16 @@ public interface Bannerable extends Ability {
         }
     }
 
+    default void defineBannerShipSynchedData() {
+        self().getEntityData().define(Ship.BANNER, ItemStack.EMPTY);
+    }
+
     default void readBannerShipSaveData(CompoundTag tag) {
-        if (tag.get("Banner") instanceof CompoundTag bannerCompound) self().setData(Ship.BANNER, ItemStack.parse(self().registryAccess(), bannerCompound).orElse(ItemStack.EMPTY));
+        if (tag.get("Banner") instanceof CompoundTag bannerCompound) self().setData(Ship.BANNER, ItemStack.of(bannerCompound));
     }
 
     default void addBannerShipSaveData(CompoundTag tag) {
-        if (!self().getData(Ship.BANNER).isEmpty()) tag.put("Banner", self().getData(Ship.BANNER).save(self().registryAccess()));
+        if (!self().getData(Ship.BANNER).isEmpty()) tag.put("Banner", self().getData(Ship.BANNER).save(new CompoundTag()));
     }
 
     default boolean interactBanner(Player player, InteractionHand interactionHand) {

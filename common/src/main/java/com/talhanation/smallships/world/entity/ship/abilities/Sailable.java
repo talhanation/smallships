@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
+import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
@@ -16,6 +17,11 @@ public interface Sailable extends Ability {
 
     default void tickSailShip() {
         if (self().sailStateCooldown > 0) self().sailStateCooldown--;
+    }
+
+    default void defineSailShipSynchedData() {
+        self().getEntityData().define(SAIL_STATE, (byte) 0);
+        self().getEntityData().define(Ship.SAIL_COLOR, SailModel.Color.WHITE.toString());
     }
 
     default void readSailShipSaveData(CompoundTag tag) {

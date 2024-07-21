@@ -4,7 +4,6 @@ import com.talhanation.smallships.client.model.*;
 import com.talhanation.smallships.client.option.KeyEvent;
 import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.*;
-import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -27,8 +26,6 @@ public class ClientInitializer implements ClientModInitializer {
         initRegisterKeyMappings();
 
         initRegisterTickEvents();
-
-        initRegisterPacketReceivers();
     }
 
     private void initRendererRegisterRenderers() {
@@ -55,9 +52,5 @@ public class ClientInitializer implements ClientModInitializer {
 
     private void initRegisterTickEvents() {
         ClientTickEvents.END_CLIENT_TICK.register(KeyEvent::onKeyInput);
-    }
-
-    private void initRegisterPacketReceivers() {
-        ModPacketsImpl.registerClientReceivers();
     }
 }

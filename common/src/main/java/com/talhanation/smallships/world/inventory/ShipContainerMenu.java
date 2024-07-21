@@ -1,7 +1,6 @@
 package com.talhanation.smallships.world.inventory;
 
 import com.talhanation.smallships.network.ModPackets;
-import com.talhanation.smallships.network.packet.ServerboundOpenShipScreenPacket;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -58,7 +57,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(@NotNull Player player, int i) {
         int pageIndex = Mth.clamp(this.getPageIndex() + i, 0, this.getPageCount() - 1);
-        ModPackets.clientSendPacket(new ServerboundOpenShipScreenPacket(this.getContainerShip().getUUID(), pageIndex));
+        ModPackets.clientSendPacket(player, ModPackets.serverOpenShipScreen.apply(this.getContainerShip().getUUID(), pageIndex));
         this.updatePaging(this.getRowCount(), this.getPageCount(), pageIndex);
         return true;
     }

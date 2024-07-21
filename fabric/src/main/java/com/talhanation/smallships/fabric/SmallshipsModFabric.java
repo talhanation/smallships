@@ -24,7 +24,6 @@ public class SmallshipsModFabric implements ModInitializer {
         new ModSoundTypes();
 
         ModPackets.registerPackets();
-        ModPacketsImpl.registerServerReceivers();
 
         UseEntityCallback.EVENT.register(new PassengerEvents());
     }

@@ -4,7 +4,6 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -22,8 +21,8 @@ public interface Shieldable extends Ability {
     default void tickShieldShip() {
     }
 
-    default void defineShieldShipSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(Ship.SHIELD_DATA, new CompoundTag());
+    default void defineShieldShipSynchedData() {
+        self().getEntityData().define(Ship.SHIELD_DATA, new CompoundTag());
     }
 
     default void readShieldShipSaveData(CompoundTag tag) {
@@ -31,7 +30,7 @@ public interface Shieldable extends Ability {
 
         for (int i = 0; i < shieldItems.size(); ++i) {
             CompoundTag compoundTag = shieldItems.getCompound(i);
-            ItemStack itemStack = ItemStack.parse(self().registryAccess(), compoundTag).orElse(ItemStack.EMPTY);
+            ItemStack itemStack = ItemStack.of(compoundTag);
             if (!itemStack.isEmpty()) self().SHIELDS.push(itemStack);
         }
 
@@ -45,7 +44,7 @@ public interface Shieldable extends Ability {
             if (!itemstack.isEmpty()) {
                 CompoundTag compoundTag = new CompoundTag();
                 compoundTag.putByte("Shields", (byte) i);
-                itemstack.save(self().registryAccess(), compoundTag);
+                itemstack.save(compoundTag);
                 listTag.add(compoundTag);
             }
         }

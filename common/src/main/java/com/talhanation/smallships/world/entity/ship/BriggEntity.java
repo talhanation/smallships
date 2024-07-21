@@ -17,6 +17,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Math;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +74,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
-    public @NotNull Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
+    public @NotNull Vector3f getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float scale) {
         float v = 1.0F;
         float h = 0.0F;
         if (!this.getPassengers().isEmpty()) {
@@ -121,7 +123,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
             }
         }
 
-        return new Vec3(v, dimensions.height() - 0.1, h).yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
+        return new Vector3f(v, (float) (dimensions.height - 0.1), h).rotateY((float) (3.0F / 2.0F * Math.PI));
     }
 
     // Implement Able-Interfaces

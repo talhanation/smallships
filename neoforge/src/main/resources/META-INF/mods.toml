@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[3,)"
+loaderVersion = "[2,)"
 #issueTrackerURL = ""
 license = "All Rights Reserved"
 
@@ -16,15 +16,15 @@ logoFile = "icon.png"
 
 [[dependencies.smallships]]
 modId = "neoforge"
-type = "required"
-versionRange = "[20.6,)"
+mandatory = true
+versionRange = "[20.4,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.smallships]]
 modId = "minecraft"
-type = "required"
-versionRange = "[1.20.6,)"
+mandatory = true
+versionRange = "[1.20.4,)"
 ordering = "NONE"
 side = "BOTH"
 
