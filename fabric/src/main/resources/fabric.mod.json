@@ -36,6 +36,7 @@
     "smallships-fabric-neoforge.mixins.json"
   ],
   "depends": {
+    "fabricloader": ">=0.16.0",
     "fabric": "*",
     "minecraft": ">=1.21"
   }
