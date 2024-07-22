@@ -18,6 +18,7 @@ import java.util.*;
 
 public class ModPacketsImpl {
     private static final Map<String, ModPackets.SendablePacket<NeoForgePacket>> entries = new HashMap<>();
+    private static final boolean DEBUG_PACKETS = false;
 
     public static final List<Triple<ResourceLocation, FriendlyByteBuf.Reader<NeoForgePacket>, IPlayPayloadHandler<NeoForgePacket>>> serverboundPackets = new ArrayList<>();
     public static final List<Triple<ResourceLocation, FriendlyByteBuf.Reader<NeoForgePacket>, IPlayPayloadHandler<NeoForgePacket>>> clientboundPackets = new ArrayList<>();
@@ -52,8 +53,7 @@ public class ModPacketsImpl {
 
         entries.put(id.getPath(), args -> {
             try {
-                // Debug packets
-                if (false) {
+                if (DEBUG_PACKETS) {
                     System.out.println("Trying to send " + packetClass.getSimpleName());
                     System.out.println("Available ctors:");
                     System.out.println(Arrays.toString(Arrays.stream(packetClass.getDeclaredConstructors()).map(Constructor::getParameterTypes).map(Arrays::toString).toArray()));
@@ -67,7 +67,9 @@ public class ModPacketsImpl {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {
-                System.out.println("Finished trying to send " + packetClass.getSimpleName());
+                if (DEBUG_PACKETS) {
+                    System.out.println("Finished trying to send " + packetClass.getSimpleName());
+                }
             }
         });
 
