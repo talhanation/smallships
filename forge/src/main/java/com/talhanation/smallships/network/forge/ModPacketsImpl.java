@@ -1,7 +1,7 @@
 package com.talhanation.smallships.network.forge;
 
-import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.ModPacket;
+import com.talhanation.smallships.network.ModPackets;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -21,6 +21,10 @@ public class ModPacketsImpl {
 
     static Channel<CustomPacketPayload> CHANNEL;
 
+    public static void buildChannel() {
+        CHANNEL = ((PayloadFlow<RegistryFriendlyByteBuf, CustomPacketPayload>) CHANNEL_PAYLOAD).build();
+    }
+
     public static void registerPacket(CustomPacketPayload.Type<ModPacket> type, StreamCodec<RegistryFriendlyByteBuf, ModPacket> codec, ModPacket.Side side) {
         switch (side) {
             case ModPacket.Side.CLIENTBOUND -> CHANNEL_PAYLOAD = CHANNEL_PAYLOAD.play().clientbound().add(type, codec, (packet, context) -> {
@@ -35,12 +39,10 @@ public class ModPacketsImpl {
     }
 
     public static void serverSendPacket(ServerPlayer player, ModPacket packet) {
-        if (CHANNEL == null) CHANNEL = ((PayloadFlow<RegistryFriendlyByteBuf, CustomPacketPayload>) CHANNEL_PAYLOAD).build();
         CHANNEL.send(packet, PacketDistributor.PLAYER.with(player));
     }
 
     public static void clientSendPacket(ModPacket packet) {
-        if (CHANNEL == null) CHANNEL = ((PayloadFlow<RegistryFriendlyByteBuf, CustomPacketPayload>) CHANNEL_PAYLOAD).build();
         CHANNEL.send(packet, PacketDistributor.SERVER.noArg());
     }
 }
