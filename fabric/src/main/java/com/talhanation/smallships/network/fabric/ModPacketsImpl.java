@@ -2,7 +2,6 @@ package com.talhanation.smallships.network.fabric;
 
 import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
-import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -13,13 +12,14 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class ModPacketsImpl {
     private static final Map<String, ModPackets.SendablePacket<FabricPacket>> entries = new HashMap<>();
 
     static {
-        entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenFabricPacket(((ContainerShip) params[0]), ((Integer) params[1])));
+        entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenFabricPacket(((UUID) params[0]), ((Integer) params[1])));
         entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailFabricPacket());
         entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonFabricPacket((Boolean) params[0]));
         entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateFabricPacket((Byte) params[0]));

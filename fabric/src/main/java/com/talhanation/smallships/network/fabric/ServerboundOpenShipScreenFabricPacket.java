@@ -19,8 +19,8 @@ public class ServerboundOpenShipScreenFabricPacket implements FabricPacket, Serv
     private final UUID ship;
     private final int pageIndex;
 
-    public ServerboundOpenShipScreenFabricPacket(ContainerShip containerShip, int pageIndex) {
-        this.ship = containerShip.getUUID();
+    public ServerboundOpenShipScreenFabricPacket(UUID containerShipUUID, int pageIndex) {
+        this.ship = containerShipUUID;
         this.pageIndex = pageIndex;
     }
 

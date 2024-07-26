@@ -14,8 +14,8 @@ public class ServerboundOpenShipScreenForgePacket implements ForgePacket {
     private final UUID ship;
     private final int pageIndex;
 
-    ServerboundOpenShipScreenForgePacket(ContainerShip containerShip, int pageIndex) {
-        this.ship = containerShip.getUUID();
+    ServerboundOpenShipScreenForgePacket(UUID containerShipUUID, int pageIndex) {
+        this.ship = containerShipUUID;
         this.pageIndex = pageIndex;
     }
 

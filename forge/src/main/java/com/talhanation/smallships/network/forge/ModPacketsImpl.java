@@ -3,7 +3,6 @@ package com.talhanation.smallships.network.forge;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
-import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +13,7 @@ import net.minecraftforge.network.SimpleChannel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class ModPacketsImpl {
     private static int id = 0;
@@ -21,7 +21,7 @@ public class ModPacketsImpl {
     public static final SimpleChannel SIMPLE_CHANNEL = ChannelBuilder.named(SmallShipsMod.MOD_ID).simpleChannel();
 
     static {
-        entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenForgePacket(((ContainerShip) params[0]), ((Integer) params[1])));
+        entries.put("server_open_ship_screen", (params) -> new ServerboundOpenShipScreenForgePacket(((UUID) params[0]), ((Integer) params[1])));
         entries.put("server_toggle_ship_sail", (params) -> new ServerboundToggleShipSailForgePacket());
         entries.put("server_shoot_ship_cannon", (params) -> new ServerboundShootShipCannonForgePacket((Boolean) params[0]));
         entries.put("server_set_sail_state", (params) -> new ServerboundSetSailStateForgePacket((Byte) params[0]));
