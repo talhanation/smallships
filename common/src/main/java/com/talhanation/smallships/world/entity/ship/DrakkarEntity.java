@@ -16,12 +16,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Leashable, Paddleable, IceBreakable, Ability {
+public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Paddleable, IceBreakable, Ability {
     public static final String ID = "drakkar";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerDrakkarContainerSize.get();
 
@@ -190,9 +189,5 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     @Override
     public byte getMaxShieldsPerSide(){
         return 5;
-    }
-
-    public @Nullable Vec3 applyLeashOffset() {
-        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 }

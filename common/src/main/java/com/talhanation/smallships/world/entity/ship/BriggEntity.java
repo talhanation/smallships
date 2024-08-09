@@ -16,12 +16,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Leashable, Ability {
+public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Ability {
     public static final String ID = "brigg";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerBriggContainerSize.get();
 
@@ -190,9 +189,5 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     @Override
     public byte getMaxCannonPerSide(){
         return 3;
-    }
-
-    public @Nullable Vec3 applyLeashOffset() {
-        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 }

@@ -16,12 +16,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Leashable, Ability {
+public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Ability {
     public static final String ID = "cog";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCogContainerSize.get();
     public CogEntity(EntityType<? extends Boat> entityType, Level level) {
@@ -171,10 +170,5 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
             this.level().addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
 
         }
-    }
-
-    @Override
-    public @Nullable Vec3 applyLeashOffset() {
-        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 }
