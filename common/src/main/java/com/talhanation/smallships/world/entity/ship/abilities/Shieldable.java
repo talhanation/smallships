@@ -4,6 +4,7 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -43,10 +44,10 @@ public interface Shieldable extends Ability {
         for (int i = 0; i < self().SHIELDS.size(); ++i) {
             ItemStack itemstack = self().SHIELDS.get(i);
             if (!itemstack.isEmpty()) {
-                CompoundTag compoundTag = new CompoundTag();
-                compoundTag.putByte("Shields", (byte) i);
-                itemstack.save(self().registryAccess(), compoundTag);
-                listTag.add(compoundTag);
+                CompoundTag inTag = new CompoundTag();
+                inTag.putByte("Shields", (byte) i);
+                Tag itemTag = itemstack.save(self().registryAccess(), inTag);
+                listTag.add(itemTag);
             }
         }
         tag.put("Shields", listTag);
