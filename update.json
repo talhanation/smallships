@@ -4,8 +4,8 @@
     "1.21.1-recommended": "2.0.0-b1.5",
     "1.21-recommended": "2.0.0-b1.5",
     "1.20.6-recommended": "2.0.0-b1.5",
-    "1.20.4-recommended": "2.0.0-b1.3.5",
-    "1.20.1-recommended": "2.0.0-b1.3",
+    "1.20.4-recommended": "2.0.0-b1.4",
+    "1.20.1-recommended": "2.0.0-b1.4",
     "1.19.4-recommended": "2.0.0-a2.3.3",
     "1.19.2-recommended": "2.0.0-b1.3",
     "1.18.2-recommended": "2.0.0-b1.3",
@@ -46,10 +46,12 @@
     "2.0.0-b1.3": "fix team damage, improved performance, add mod compat with villager recruits",
     "2.0.0-b1.2": "fix config errors, buffed cannonballs",
     "2.0.0-b1.1": "add drakkar ship with shields, add sunken feature, add configs, add dis/mounting feature",
-    "2.0.0-a2.3.3": "fix registry issues."
+    "2.0.0-a2.3.3": "fix registry issues.",
+    "2.0.0-b1.4": "fix bamboo and cherry recipe advancements"
   },
   "1.20.4": {
-    "2.0.0-b1.3.5": "port to Forge 1.20.4"
+    "2.0.0-b1.3.5": "port to Forge 1.20.4",
+    "2.0.0-b1.4": "fix bamboo and cherry recipe advancements"
   },
   "1.20.6": {
     "2.0.0-b1.3.5": "port to Forge 1.20.6",
