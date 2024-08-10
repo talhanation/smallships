@@ -2,6 +2,10 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
+repositories {
+    maven { url "https://repo.spongepowered.org/repository/maven-public/" }
+}
+
 architectury {
     platformSetupLoomIde()
     forge()
@@ -17,6 +21,9 @@ loom {
         mixinConfig "smallships.mixins.json"
         mixinConfig "smallships-common.mixins.json"
         mixinConfig "smallships-fabric-forge.mixins.json"
+
+        // see https://discord.com/channels/792699517631594506/792699518083792903/1271452793357729953 also added spongepowered maven
+        useCustomMixin = false
     }
 }
 
