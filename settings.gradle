@@ -9,6 +9,11 @@ pluginManagement {
 
 rootProject.name = 'smallships'
 
+// JUST TO GET FORGE BUILD WORKING DUE TO ARCH BEING SLOW TO PUSH TO MAVEN
+includeBuild('archplugin')
+includeBuild('archloom')
+// END
+
 include 'common'
 include 'fabric'
 include 'forge'

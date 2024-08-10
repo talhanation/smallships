@@ -1,0 +1,8 @@
+[submodule "archloom"]
+	path = archloom
+	url = https://github.com/metroite/architectury-loom.git
+	branch = feature/forge-mod-remap
+[submodule "archplugin"]
+	path = archplugin
+	url = https://github.com/metroite/architectury-plugin.git
+	branch = feature/forge_50
