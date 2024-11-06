@@ -37,9 +37,8 @@ public class ModEntityTypesImpl {
                 .build()));
 
         entries.put(GroundCannonEntity.class, register(GroundCannonEntity.ID, EntityType.Builder.of(GroundCannonEntity::factory, MobCategory.MISC)
-                .sized(1F, 0.75F)
+                .sized(0.85F, 0.75F)
                 .clientTrackingRange(20)
-                .updateInterval(10)
                 .build()));
 
         entries.put(CogEntity.class, register(CogEntity.ID, EntityType.Builder.of(CogEntity::new, MobCategory.MISC)

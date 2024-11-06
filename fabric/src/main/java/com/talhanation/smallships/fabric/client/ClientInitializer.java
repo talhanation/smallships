@@ -35,7 +35,7 @@ public class ClientInitializer implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.CANNON_BALL, CannonBallRenderer::new);
 
         EntityRendererRegistry.register(ModEntityTypes.COG, CogRenderer::new);
-        EntityRendererRegistry.register(ModEntityTypes.GROUND_CANNON, CannonRenderer::new);
+        EntityRendererRegistry.register(ModEntityTypes.GROUND_CANNON, GroundCannonRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.BRIGG, BriggRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.GALLEY, GalleyRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.DRAKKAR, DrakkarRenderer::new);

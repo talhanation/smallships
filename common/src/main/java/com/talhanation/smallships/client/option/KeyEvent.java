@@ -1,8 +1,10 @@
 package com.talhanation.smallships.client.option;
 
 import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.network.packet.ServerboundShootGroundCannonPacket;
 import com.talhanation.smallships.network.packet.ServerboundShootShipCannonPacket;
 import com.talhanation.smallships.network.packet.ServerboundToggleShipSailPacket;
+import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
@@ -38,6 +40,8 @@ public class KeyEvent {
                 }
 
             }
+        } else if (pressedJumpKey && player.getVehicle() instanceof GroundCannonEntity) {
+            ModPackets.clientSendPacket(new ServerboundShootGroundCannonPacket(false));
         }
     }
 }
