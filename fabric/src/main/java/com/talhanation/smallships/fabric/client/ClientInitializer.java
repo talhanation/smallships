@@ -35,6 +35,7 @@ public class ClientInitializer implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.CANNON_BALL, CannonBallRenderer::new);
 
         EntityRendererRegistry.register(ModEntityTypes.COG, CogRenderer::new);
+        EntityRendererRegistry.register(ModEntityTypes.GROUND_CANNON, CannonRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.BRIGG, BriggRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.GALLEY, GalleyRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.DRAKKAR, DrakkarRenderer::new);
@@ -47,6 +48,7 @@ public class ClientInitializer implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(BriggModel.LAYER_LOCATION, BriggModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(GalleyModel.LAYER_LOCATION, GalleyModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(DrakkarModel.LAYER_LOCATION, DrakkarModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(CannonModel.LAYER_LOCATION, CannonModel::createBodyLayer);
     }
 
     private void initRegisterKeyMappings() {
