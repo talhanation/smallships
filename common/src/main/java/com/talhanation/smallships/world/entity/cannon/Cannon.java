@@ -107,7 +107,7 @@ public class Cannon {
     }
 
     private void resetTimer() {
-        this.time = 5 + random.nextInt(10);
+        this.time = 6 + random.nextInt(10);
     }
 
     private void setCoolDown() {
@@ -127,7 +127,7 @@ public class Cannon {
 
         if (this.coolDown == 0 && this.time == 0) {
             this.resetTimer();
-            this.owner.playSound(SoundEvents.TNT_PRIMED, 0.5F, 1F);
+            this.owner.playSound(SoundEvents.TNT_PRIMED, 1F, 1.5F);
 
             this.getOwner().consumeCannonBall();
 
@@ -153,7 +153,6 @@ public class Cannon {
 
     private void playCannonShotSound() {
         if (this.owner.level().isClientSide()) return;
-        this.owner.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
         this.owner.playSound(ModSoundTypes.CANNON_SHOT, 10.0F, 1.0F);
     }
 }

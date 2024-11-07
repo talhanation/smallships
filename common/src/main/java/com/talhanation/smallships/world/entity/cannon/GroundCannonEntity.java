@@ -68,11 +68,10 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         super.onPassengerTurned(entity);
         float prevXRot = ((IMixinEntity) entity).getPrevXRot();
         float prevYRot = ((IMixinEntity) entity).getPrevYRot();
-        entity.setYRot(prevYRot + 0.1F * (entity.getYRot() - prevYRot));
-        entity.setXRot(prevXRot + 0.1F * (entity.getXRot() - prevXRot));
-
-        this.cannon.setYaw(-entity.getYRot());
-        this.cannon.setPitch(entity.getXRot());
+        float yRotChange = Math.clamp(0.1F * (entity.getYRot() - prevYRot), -5, 5);
+        float xRotChange = Math.clamp(0.1F * (entity.getXRot() - prevXRot), -5, 5);
+        entity.setYRot(prevYRot + yRotChange);
+        entity.setXRot(Math.clamp(prevXRot + xRotChange, -90, 20));
     }
 
     @Override
