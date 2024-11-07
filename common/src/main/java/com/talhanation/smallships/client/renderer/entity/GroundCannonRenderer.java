@@ -32,10 +32,12 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
         poseStack.pushPose();
         poseStack.scale(-1.3F, -1.3F, 1.3F);
 
-        float lerpYaw = entity.yRotO + (entity.getYRot() - entity.yRotO) * partialTicks;
+        /* use the cannon to render as it stores orientation and uses that to shoot */
+        Cannon cannon = entity.getCannon();
+        float lerpYaw = -(cannon.getPrevYaw() + (cannon.getYaw() - cannon.getPrevYaw()) * partialTicks);
         poseStack.mulPose(Axis.YP.rotationDegrees(lerpYaw));
 
-        renderCannonModel(entity.getCannon(), partialTicks, resourceLocation, poseStack, multiBufferSource, packedLight);
+        renderCannonModel(cannon, partialTicks, resourceLocation, poseStack, multiBufferSource, packedLight);
 
         poseStack.popPose();
 

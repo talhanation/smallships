@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.cannon;
 
+import com.talhanation.smallships.world.IMixinEntity;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
@@ -10,7 +11,6 @@ import net.minecraft.world.entity.vehicle.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -18,6 +18,10 @@ import org.joml.Vector3f;
 public class GroundCannonEntity extends Minecart implements ICannonBallContainer {
     public static final String ID = "ground_cannon";
     private final Cannon cannon = new Cannon(this);
+    /**
+     * Whether this entity was driven in the previous tick.
+     * Used to keep track when a player enters this minecart.
+     */
     private boolean drivenPrevTick = false;
 
     public GroundCannonEntity(Level level, Vec3 pos) {
@@ -37,6 +41,8 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
      * Trigger on serverside
      */
     public void trigger() {
+        if (this.level().isClientSide()) return;
+
         LivingEntity driver;
         if ((driver = this.getDriver()) == null || this.getCannonBallToShoot() == null) return;
 
@@ -58,6 +64,18 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     }
 
     @Override
+    public void onPassengerTurned(Entity entity) {
+        super.onPassengerTurned(entity);
+        float prevXRot = ((IMixinEntity) entity).getPrevXRot();
+        float prevYRot = ((IMixinEntity) entity).getPrevYRot();
+        entity.setYRot(prevYRot + 0.1F * (entity.getYRot() - prevYRot));
+        entity.setXRot(prevXRot + 0.1F * (entity.getXRot() - prevXRot));
+
+        this.cannon.setYaw(-entity.getYRot());
+        this.cannon.setPitch(entity.getXRot());
+    }
+
+    @Override
     public void tick() {
         /* super tick resets x rot, cache and reapply */
         float xRot = this.getXRot();
@@ -68,23 +86,25 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
         /* detect when a player enters to set the player head yaw and pitch to continue shooting */
         boolean isDriven = this.getDriver() != null;
-        if (!this.drivenPrevTick && isDriven) {
+        final LivingEntity driver = this.getDriver();
+        boolean enteredCannon = !this.drivenPrevTick && isDriven;
+
+        /* set player to the orientation of the cannon on first time enter */
+        if (enteredCannon) {
             this.getDriver().setYRot(this.getYRot());
             this.getDriver().setXRot(this.getXRot());
         }
         this.drivenPrevTick = isDriven;
 
-        LivingEntity controller = this.getDriver();
-        if (controller != null) {
-            xRot = controller.getXRot();
-            yRot = controller.getYRot();
+        if (driver != null) {
+            xRot = driver.getXRot();
+            yRot = driver.getYRot();
         }
 
         this.setYRot(yRot);
         this.setXRot(xRot);
-
-        this.cannon.setYaw(-this.getYRot());
-        this.cannon.setPitch(this.getXRot());
+        this.cannon.setYaw(-yRot);
+        this.cannon.setPitch(xRot);
     }
 
     @Override
@@ -105,7 +125,7 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
     /**
      * @return the controlling passenger.
-     * For some reason when overriding {@link #getControllingPassenger()} it cannot be controller on rails anymore.
+     * For some reason when overriding {@link #getControllingPassenger()} it cannot be controlled on rails anymore.
      */
     @Nullable
     public LivingEntity getDriver() {

@@ -11,7 +11,8 @@
   "mixins": [
     "container.SimpleContainerAccessor",
     "controlling.BoatAccessor",
-    "controlling.BoatMixin"
+    "controlling.BoatMixin",
+    "entity.EntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
