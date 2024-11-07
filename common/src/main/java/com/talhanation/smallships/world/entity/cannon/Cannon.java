@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.util.function.BiConsumer;
 
@@ -23,6 +24,9 @@ public class Cannon {
      * Where to play sounds at and get the cannonballs from
      */
     private final Entity owner;
+    private float yaw = 0;
+    private float pitch = 0;
+    private float prevPitch = 0;
 
     public Cannon(Entity owner) {
         this.owner = owner;
@@ -30,8 +34,29 @@ public class Cannon {
         this.random = level.getRandom();
     }
 
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    public float getPrevPitch() {
+        return this.prevPitch;
+    }
+
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
+    }
+
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+    }
+
     public void tick(){
         if (coolDown > 0) coolDown--;
+        this.prevPitch = this.pitch;
     }
 
     private void resetTimer() {
@@ -43,36 +68,46 @@ public class Cannon {
     }
 
     /**
-     * @param shootVec
-     * @param yShootVec
      * @param pos position from which the ball should be shot
      * @param driverEntity
-     * @param speed
      * @param accuracy
      */
-    public void trigger(Vec3 shootVec, double yShootVec, Vec3 pos, LivingEntity driverEntity, double accuracy) {
+    public void trigger(Vec3 pos, LivingEntity driverEntity, double accuracy) {
         if (coolDown == 0) {
             if (time > 0) time--; //TODO time is more like how often you have to press space...
 
             if (time == 0) {
-                this.shoot(shootVec, yShootVec, pos, driverEntity, accuracy);
+                if (this.owner instanceof ICannonBallContainer container && container.getCannonBallToShoot() == null){
+                    return;
+                }
+
+                Vector3f dir = new Vector3f(0, 0, 1);
+                dir.rotateX((float) Math.toRadians(this.pitch));
+                dir.rotateY((float) Math.toRadians(this.yaw));
+                this.shoot(dir, pos, driverEntity, accuracy);
                 this.resetTimer();
                 this.setCoolDown();
             }
         }
     }
 
-    private void shoot(Vec3 shootVec, double yShootVec, Vec3 pos, LivingEntity driverEntity, double accuracy) {
-        if (shootVec != null) {
-            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, driverEntity, pos.x, pos.y, pos.z);
-            cannonBallEntity.shoot(shootVec.x(), yShootVec, shootVec.z(),2.6F, (float) accuracy);
-            this.level.addFreshEntity(cannonBallEntity);
-            this.owner.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
+    private void shoot(Vector3f shootVec, Vec3 pos, LivingEntity driverEntity, double accuracy) {
+        CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, driverEntity, pos.x, pos.y, pos.z);
+        /* TODO shoot particles are weirdly adjusted by spawning delayed after updating position to spawn at the cannons on a ship.
+            This is bad practice and unflexible, but I want to finish this, so we spawn here and prohibit projectile from spawning particles... */
+        cannonBallEntity.shootParticles = false;
+        cannonBallEntity.shootParticles();
+        cannonBallEntity.shoot(shootVec.x(), shootVec.y(), shootVec.z(), 2.6F, (float) accuracy);
 
-            this.playCannonShotSound();
 
-            if (this.owner instanceof ICannonBallContainer container) container.consumeCannonBall();
-        }
+        this.level.addFreshEntity(cannonBallEntity);
+        this.owner.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
+
+
+
+        this.playCannonShotSound();
+
+        if (this.owner instanceof ICannonBallContainer container) container.consumeCannonBall();
     }
 
     private void playCannonShotSound() {
