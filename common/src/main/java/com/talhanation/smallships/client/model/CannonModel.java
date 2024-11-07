@@ -16,10 +16,12 @@ public class CannonModel extends EntityModel<Ship> {
     @SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "cannon_model"), "main");
     private final ModelPart Cannon;
+    private final ModelPart Lauf;
 
     public CannonModel() {
         ModelPart root = createBodyLayer().bakeRoot();
         this.Cannon = root.getChild("Cannon");
+        this.Lauf = this.Cannon.getChild("Lauf");
     }
 
 
@@ -152,6 +154,10 @@ public class CannonModel extends EntityModel<Ship> {
 
     @Override
     public void setupAnim(@NotNull Ship entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    }
+
+    public void setLaufPitch(float angleInDeg) {
+        this.Lauf.xRot = (float) Math.toRadians(angleInDeg);
     }
 
     @Override

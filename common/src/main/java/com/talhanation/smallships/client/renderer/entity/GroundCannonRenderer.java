@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.CannonModel;
+import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -34,14 +35,14 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
         float lerpYaw = entity.yRotO + (entity.getYRot() - entity.yRotO) * partialTicks;
         poseStack.mulPose(Axis.YP.rotationDegrees(lerpYaw));
 
-        renderCannonModel(resourceLocation, poseStack, multiBufferSource, packedLight);
+        renderCannonModel(entity.getCannon(), partialTicks, resourceLocation, poseStack, multiBufferSource, packedLight);
 
         poseStack.popPose();
 
         super.render(entity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 
-    public static void renderCannonModel(ResourceLocation texture, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+    public static void renderCannonModel(Cannon cannon, float partialTicks, ResourceLocation texture, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
         /* facing positive Z */
         poseStack.mulPose(Axis.YN.rotationDegrees(180));
@@ -51,6 +52,8 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
         poseStack.translate(0, -1.5, 0);
 
         CannonModel model = new CannonModel();
+        float pitch = cannon.getPrevPitch() + partialTicks * (cannon.getPitch() - cannon.getPrevPitch());
+        model.setLaufPitch(pitch);
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(texture));
         model.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFF);
         poseStack.popPose();
