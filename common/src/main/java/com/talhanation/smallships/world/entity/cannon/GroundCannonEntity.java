@@ -1,34 +1,23 @@
 package com.talhanation.smallships.world.entity.cannon;
 
 import com.talhanation.smallships.world.entity.ModEntityTypes;
-import com.talhanation.smallships.world.entity.projectile.AbstractCannonBall;
-import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
+import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.WanderingTrader;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.Minecart;
-import net.minecraft.world.entity.vehicle.MinecartChest;
-import net.minecraft.world.entity.vehicle.VehicleEntity;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
-public class GroundCannonEntity extends Minecart {
+public class GroundCannonEntity extends Minecart implements ICannonBallContainer {
     public static final String ID = "ground_cannon";
+    private final Cannon cannon = new Cannon(this);
 
     public GroundCannonEntity(Level level, Vec3 pos) {
         super(ModEntityTypes.GROUND_CANNON, level);
@@ -39,28 +28,45 @@ public class GroundCannonEntity extends Minecart {
         super(entityType, level);
     }
 
-    public void shoot() {
-        CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level(), this.getControllingPassenger(), this.getX(), this.getY() + 1, this.getZ());
-        cannonBallEntity.shoot(0, 1, 1, (float) 2F, (float) 1F);
-        this.level().addFreshEntity(cannonBallEntity);
-        this.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
+    public void trigger() {
+        LivingEntity driver;
+        if ((driver = this.getDriver()) == null || this.getCannonBallToShoot() == null) return;
 
-        //this.playCannonShotSound();
+        double accuracy = 1F;// 0 = 100%
+        double x = this.getX();
+        double y = this.getY() + 0.3; //try to shoot approximately from the barrel
+        double z = this.getZ();
+
+        this.cannon.trigger(driver.getForward(), driver.getForward().y, new Vec3(x, y, z), driver, accuracy);
     }
 
     protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions entityDimensions, float f) {
-        Vec3 attachment = super.getPassengerAttachmentPoint(entity, entityDimensions, f);
-        return super.getPassengerAttachmentPoint(entity, entityDimensions, f);//new Vec3(-0.65,0.0,0);
+        Vector3f relativePoint = this.getRelativeAttachmentPoint();
+        return new Vec3(relativePoint.x, relativePoint.y, relativePoint.z);
+    }
+
+    private Vector3f getRelativeAttachmentPoint() {
+        Vector3f attachment = new Vector3f(0,0.0F,-0.65F);
+        attachment.rotateAxis(-(float) Math.toRadians(this.getYRot()), 0, 1, 0);
+        return attachment;
     }
 
     @Override
     public void tick() {
+        float xRot = this.getXRot();
+        float yRot = this.getYRot();
+        /* super tick resets x rot, cache and reapply */
         super.tick();
-        LivingEntity controller = this.getControllingPassenger();
+        this.cannon.tick();
+
+        LivingEntity controller = this.getDriver();
         if (controller != null) {
-            this.setYRot(controller.getYRot());
-            this.setXRot(controller.getXRot());
+            xRot = controller.getXRot();
+            yRot = controller.getYRot();
         }
+
+        this.setYRot(yRot);
+        this.setXRot(xRot);
     }
 
     @Override
@@ -69,14 +75,22 @@ public class GroundCannonEntity extends Minecart {
     }
 
     @Override
+    public ItemStack getPickResult() {
+        return new ItemStack(ModItems.CANNON);
+    }
+
+    @Override
     public boolean isPushable() {
-        // cannon is hefty chonky, only push on rails
-        boolean test = this.level().getBlockState(this.blockPosition()).is(BlockTags.RAILS);
+        /* cannon is hefty chonky, only push on rails - also more predictable with placement on solid blocks then */
         return this.level().getBlockState(this.blockPosition()).is(BlockTags.RAILS);
     }
 
+    /**
+     * @return the controlling passenger.
+     * For some reason when overriding {@link #getControllingPassenger()} it cannot be controller on rails anymore.
+     */
     @Nullable
-    public LivingEntity getControllingPassenger() {
+    public LivingEntity getDriver() {
         Entity var2 = this.getFirstPassenger();
         LivingEntity var10000;
         if (var2 instanceof LivingEntity livingEntity) {
@@ -90,5 +104,26 @@ public class GroundCannonEntity extends Minecart {
 
     public static GroundCannonEntity factory(EntityType<? extends GroundCannonEntity> entityType, Level level) {
         return new GroundCannonEntity(entityType, level);
+    }
+
+    @Override
+    public void consumeCannonBall() {
+        if (!(this.getDriver() instanceof Player player)) return;
+        if (player.hasInfiniteMaterials()) return;
+
+        //TODO might be cool to add a one slot inventory to the cannon and consume them from there
+        for (ItemStack itemstack : player.getInventory().items) {
+            if (itemstack.is((ModItems.CANNON_BALL))) {
+                itemstack.shrink(1);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public CannonBallItem getCannonBallToShoot() {
+        if (!(this.getDriver() instanceof Player player)) return null;
+
+        return player.getInventory().items.stream().anyMatch(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL)) ? ModItems.CANNON_BALL : null;
     }
 }
