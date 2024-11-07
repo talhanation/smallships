@@ -18,6 +18,7 @@ import org.joml.Vector3f;
 public class GroundCannonEntity extends Minecart implements ICannonBallContainer {
     public static final String ID = "ground_cannon";
     private final Cannon cannon = new Cannon(this);
+    private boolean drivenPrevTick = false;
 
     public GroundCannonEntity(Level level, Vec3 pos) {
         super(ModEntityTypes.GROUND_CANNON, level);
@@ -53,11 +54,20 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
     @Override
     public void tick() {
+        /* super tick resets x rot, cache and reapply */
         float xRot = this.getXRot();
         float yRot = this.getYRot();
-        /* super tick resets x rot, cache and reapply */
+
         super.tick();
         this.cannon.tick();
+
+        /* detect when a player enters to set the player head yaw and pitch to continue shooting */
+        boolean isDriven = this.getDriver() != null;
+        if (!this.drivenPrevTick && isDriven) {
+            this.getDriver().setYRot(this.getYRot());
+            this.getDriver().setXRot(this.getXRot());
+        }
+        this.drivenPrevTick = isDriven;
 
         LivingEntity controller = this.getDriver();
         if (controller != null) {
