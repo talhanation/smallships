@@ -33,18 +33,17 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         return this.cannon;
     }
 
+    /**
+     * Trigger on serverside
+     */
     public void trigger() {
         LivingEntity driver;
         if ((driver = this.getDriver()) == null || this.getCannonBallToShoot() == null) return;
 
         double accuracy = 1F;// 0 = 100%
-        double x = this.getX();
-        double y = this.getY() + 0.3; //try to shoot approximately from the barrel
-        double z = this.getZ();
-
         this.cannon.setYaw(-driver.getYRot());
         this.cannon.setPitch(driver.getXRot());
-        this.cannon.trigger(new Vec3(x, y, z), driver, accuracy);
+        this.cannon.trigger(driver, accuracy);
     }
 
     protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions entityDimensions, float f) {
@@ -65,7 +64,7 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         float yRot = this.getYRot();
 
         super.tick();
-        this.cannon.tick();
+        this.cannon.tick(this.getX(), this.getY(), this.getZ());
 
         /* detect when a player enters to set the player head yaw and pitch to continue shooting */
         boolean isDriven = this.getDriver() != null;

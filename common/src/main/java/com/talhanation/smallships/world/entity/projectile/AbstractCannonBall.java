@@ -39,6 +39,16 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     public void tick() {
         this.baseTick();
 
+        /* TODO shoot particles are weirdly adjusted by spawning delayed after updating position to spawn at the cannons on a ship.
+            This is bad practice and unflexible and does not work for ground cannons,
+            but I want to finish this so we adjust the projectile movement...
+            Better Solution would be to better calculate cannon positions on the ship and spawn
+            the balls properly there instead of from the middle of the ship */
+        boolean spawnedFromShip = this.getOwner().getVehicle() != null && this.getOwner().getVehicle() instanceof Ship;
+        if (!spawnedFromShip && this.isAlive()) {
+            this.setWasShot(true);
+        }
+
         Vec3 vector3d = this.getDeltaMovement();
         HitResult raytraceresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
 
@@ -59,7 +69,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
         this.setPos(d0, d1, d2);
 
-        if(isAlive()){
+        if(spawnedFromShip && this.isAlive()){
             this.setWasShot(true);
         }
 
@@ -94,6 +104,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     public void setWasShot(boolean bool){
         if (bool != wasShot){
             wasShot = true;
+
             if (this.level().isClientSide()) {
                 this.shootParticles();
             }
