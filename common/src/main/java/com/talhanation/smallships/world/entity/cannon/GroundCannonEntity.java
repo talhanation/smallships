@@ -52,7 +52,7 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     }
 
     private Vector3f getRelativeAttachmentPoint() {
-        Vector3f attachment = new Vector3f(0,0.0F,-0.65F);
+        Vector3f attachment = new Vector3f(0,0,-0.5F);
         attachment.rotateAxis(-(float) Math.toRadians(this.getYRot()), 0, 1, 0);
         return attachment;
     }

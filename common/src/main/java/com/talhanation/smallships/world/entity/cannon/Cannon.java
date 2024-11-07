@@ -11,6 +11,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -31,6 +32,7 @@ public class Cannon {
     private float prevPitch = 0;
     private Vector3d pos = new Vector3d();
     private final float barrelHeight = 0.3F;
+    private Runnable cachedShoot = null;
 
     public Cannon(Entity owner) {
         this.owner = owner;
@@ -66,13 +68,26 @@ public class Cannon {
     }
 
     public void tick(double x, double y, double z) {
-        if (coolDown > 0) coolDown--;
+        if (coolDown > 0)coolDown--;
+        if (time > 0) {
+            if (time == 1 && !this.level.isClientSide() && this.cachedShoot != null) {
+                this.cachedShoot.run();
+                this.cachedShoot = null;
+            }
+
+            time--;
+        }
+
+        if (coolDown == 3) {
+            this.playReloadedSound();
+        }
+
         this.prevPitch = this.pitch;
         this.pos.set(x, y, z);
     }
 
     private void resetTimer() {
-        this.time = 10 + random.nextInt(10);
+        this.time = 5 + random.nextInt(10);
     }
 
     private void setCoolDown() {
@@ -84,18 +99,17 @@ public class Cannon {
      * @param accuracy
      */
     public void trigger(LivingEntity driverEntity, double accuracy) {
-        if (coolDown == 0) {
-            if (time > 0) time--; //TODO time is more like how often you have to press space...
-
-            if (time == 0) {
+        if (coolDown == 0 && this.time == 0) {
+            this.resetTimer();
+            this.owner.playSound(SoundEvents.CREEPER_PRIMED, 0.5F, 1F);
+            this.cachedShoot = () -> {
                 if (this.owner instanceof ICannonBallContainer container && container.getCannonBallToShoot() == null){
                     return;
                 }
 
                 this.shoot(this.getForward(), this.getBarrelEndPoint(), driverEntity, accuracy);
-                this.resetTimer();
                 this.setCoolDown();
-            }
+            };
         }
     }
 
@@ -105,10 +119,18 @@ public class Cannon {
 
         this.level.addFreshEntity(cannonBallEntity);
         this.owner.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
-
         this.playCannonShotSound();
 
         if (this.owner instanceof ICannonBallContainer container) container.consumeCannonBall();
+    }
+
+    private void playReloadedSound() {
+        SoundEvent soundType = SoundEvents.ARMOR_EQUIP_NETHERITE.value();
+        float pitch = 1;
+        float volume = 2;
+        if (!this.owner.level().isClientSide()) {
+            this.owner.playSound(soundType, volume, pitch);
+        }
     }
 
     private void playCannonShotSound() {
