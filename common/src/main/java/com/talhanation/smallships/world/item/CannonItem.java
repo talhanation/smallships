@@ -50,6 +50,7 @@ public class CannonItem extends Item {
 
         Vec3 pos = new Vec3(blockPos.getX() + 0.5, blockPos.getY() + 1, blockPos.getZ() + 0.5);
 
+        /* copied from MinecartItem */
         if (blockState.is(BlockTags.RAILS)) {
             RailShape railShape = blockState.getBlock() instanceof BaseRailBlock ? blockState.getValue(((BaseRailBlock)blockState.getBlock()).getShapeProperty()) : RailShape.NORTH_SOUTH;
             double d = 0.0;
@@ -62,6 +63,8 @@ public class CannonItem extends Item {
 
         if (level instanceof ServerLevel serverLevel) {
             GroundCannonEntity cannon = new GroundCannonEntity(level, pos);
+            cannon.setYRot(player.getYRot());
+
             serverLevel.addFreshEntity(cannon);
             serverLevel.gameEvent(GameEvent.ENTITY_PLACE, blockPos, GameEvent.Context.of(useOnContext.getPlayer(), serverLevel.getBlockState(blockPos.below())));
         }
