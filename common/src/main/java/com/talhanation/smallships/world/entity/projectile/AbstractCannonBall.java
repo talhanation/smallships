@@ -75,7 +75,15 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
 
         if (counter < 4){
-            if (this.level().isClientSide()) tailParticles();
+            if (this.level().isClientSide()) {
+                tailParticles();
+            }
+        }
+
+        if (this.level().isClientSide()) {
+            for (int i = 0; i < 3; ++i) {
+                this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY(), this.getZ() , 0, 0, 0);
+            }
         }
 
         if (isInWater() && counter > 200){
