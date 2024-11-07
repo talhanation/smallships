@@ -2,7 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.world.entity.projectile.Cannon;
+import com.talhanation.smallships.world.entity.projectile.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.item.ModItems;
@@ -25,25 +25,25 @@ public interface Cannonable extends Ability {
     byte getMaxCannonPerSide();
 
     default void tickCannonShip() {
-        for(Cannon cannon : this.getCannons()) {
+        for(ShipCannon cannon : this.getCannons()) {
             cannon.tick();
             if(self().isCannonKeyPressed() && canShoot()){
                 this.triggerCannon(cannon);
             }
         }
     }
-    default void triggerCannon(Cannon cannon){
+    default void triggerCannon(ShipCannon cannon){
         if(cannon.canShootDirection()) cannon.trigger();
     }
 
     //Important for reflection
     default void triggerCannons(Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy){
         if(canShoot()){
-            for(Cannon cannon : this.getCannons())
+            for(ShipCannon cannon : this.getCannons())
                 this.triggerCannonAdvanced(cannon,shootVec, yShootVec, driverEntity, speed, accuracy);
         }
     }
-    default void triggerCannonAdvanced(Cannon cannon, Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy){
+    default void triggerCannonAdvanced(ShipCannon cannon, Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy){
         if(cannon.canShootDirection()) cannon.trigger(shootVec, yShootVec, driverEntity, speed, accuracy);
     }
 
@@ -72,7 +72,7 @@ public interface Cannonable extends Ability {
             CannonPosition cannonPosition = this.getCannonPosition(i);
 
             if(cannonPosition!= null){
-                Cannon cannon = new Cannon(self(), cannonPosition);
+                ShipCannon cannon = new ShipCannon(self(), cannonPosition);
                 this.getCannons().add(cannon);
             }
         }
@@ -151,7 +151,7 @@ public interface Cannonable extends Ability {
         return self().getEntityData().get(Ship.CANNON_COUNT);
     }
 
-    default List<Cannon> getCannons() {
+    default List<ShipCannon> getCannons() {
         return self().CANNONS;
     }
 

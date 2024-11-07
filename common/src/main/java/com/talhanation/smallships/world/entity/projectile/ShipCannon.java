@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-public class Cannon extends Entity { // why is this an entity??
+public class ShipCannon extends Entity { // why is this an entity??
     private final RandomSource random;
     private final double offsetX;
     private final double offsetY;
@@ -34,11 +34,11 @@ public class Cannon extends Entity { // why is this an entity??
     private boolean isRightSided;
     private boolean isLeftSided;
 
-    public Cannon(Ship ship, Cannonable.CannonPosition cannonPosition) {
+    public ShipCannon(Ship ship, Cannonable.CannonPosition cannonPosition) {
         this(ship, cannonPosition.x, cannonPosition.y, cannonPosition.z, cannonPosition.isRightSided, !cannonPosition.isRightSided);
     }
 
-    public Cannon(Ship ship, double offsetX, double offsetY, double offsetZ, boolean isRightSided, boolean isLeftSided) {
+    public ShipCannon(Ship ship, double offsetX, double offsetY, double offsetZ, boolean isRightSided, boolean isLeftSided) {
         super(EntityType.ARMOR_STAND, ship.level());
         this.ship = ship;
         this.level = ship.level();

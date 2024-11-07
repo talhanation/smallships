@@ -9,7 +9,7 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.*;
-import com.talhanation.smallships.world.entity.projectile.Cannon;
+import com.talhanation.smallships.world.entity.projectile.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.Minecraft;
@@ -128,7 +128,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     @SuppressWarnings({"unused", "unchecked"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         for(byte i = 0; i < cannonShipEntity.getCannonCount(); i++){
-            Cannon cannon = new Cannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
+            ShipCannon cannon = new ShipCannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
 
             poseStack.pushPose();
             poseStack.mulPose(Axis.YN.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
