@@ -20,6 +20,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 
 public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     public boolean inWater = false;
@@ -43,8 +44,9 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             This is bad practice and unflexible and does not work for ground cannons,
             but I want to finish this so we adjust the projectile movement...
             Better Solution would be to better calculate cannon positions on the ship and spawn
-            the balls properly there instead of from the middle of the ship */
-        boolean spawnedFromShip = this.getOwner().getVehicle() != null && this.getOwner().getVehicle() instanceof Ship;
+            the balls properly there instead of from the middle of the ship
+            OR spawn the particles at the cannon and not here in the projectile */
+        boolean spawnedFromShip = this.getOwner() != null && this.getOwner().getVehicle() instanceof Ship;
         if (!spawnedFromShip && this.isAlive()) {
             this.setWasShot(true);
         }
@@ -80,24 +82,16 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             this.setInWater(true);
         }
 
-        if (wasShot){
-            counter++;
-        }
-
-        if (counter < 4){
-            if (this.level().isClientSide()) {
-                tailParticles();
-            }
-        }
-
         if (this.level().isClientSide()) {
-            for (int i = 0; i < 3; ++i) {
-                this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY(), this.getZ() , 0, 0, 0);
-            }
+            this.tailParticles();
         }
 
         if (isInWater() && counter > 200){
             this.discard();
+        }
+
+        if (wasShot){
+            counter++;
         }
     }
 
@@ -198,13 +192,53 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
     }
 
-    public void tailParticles(){
-        for (int i = 0; i < 100; ++i) {
-            this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY(), this.getZ() , 0, 0, 0);
-        }
+    public void tailParticles() {
+        /*
+         * TODO this again is a workaround because of ships. Please calculate the position of the cannons properly and spawn the
+         *  projectiles at the actual cannon position OR spawn particles not in the projectile.
+         */
+        boolean spawnedFromShip = this.getOwner() != null && this.getOwner().getVehicle() instanceof Ship;
+        final int maxShotCounter = 2;
+        final int shipOffsetCounter = 2;
+        int counter = this.counter - (spawnedFromShip ? shipOffsetCounter : 0);
+        if (spawnedFromShip && this.counter < shipOffsetCounter) return;
 
-        for (int i = 0; i < 50; ++i) {
-            this.level().addParticle(ParticleTypes.FLAME, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+        Vector3d prevPos = new Vector3d(this.xOld, this.yOld, this.zOld);
+        Vector3d pos = new Vector3d(this.getX(), this.getY(), this.getZ());
+        Vector3d speed = new Vector3d(pos).sub(prevPos).mul(0.025F);
+        final int totalSteps = 6;
+        final int numPoofParticlesPerStep = 150 / totalSteps;
+        final int numFlameParticlesPerStep = 100 / totalSteps;
+
+        /* interpolate because at the high speeds of a cannon ball particles spawning each tick look bad. */
+        for (int step = 1; step <= totalSteps; step++) {
+            float partialStep = (step / (float) totalSteps);
+            Vector3d lerp = new Vector3d(prevPos).lerp(pos, partialStep);
+
+            if (counter < maxShotCounter) {
+                for (int i = 0; i < numPoofParticlesPerStep; ++i) {
+                    /* give particles more spread towards end, when a cannon is shot a plume is formed
+                    /* leave out first tick so it's more noticeable towards the end */
+                    float counterStep = counter == 0 ? 0 : ((counter + partialStep) / (float) maxShotCounter);
+                    double xRand = this.random.nextGaussian() * counterStep * 0.075F;
+                    double yRand = this.random.nextGaussian() * counterStep * 0.075F;
+                    double zRand = this.random.nextGaussian() * counterStep * 0.075F;
+
+                    this.level().addParticle(ParticleTypes.POOF, lerp.x, lerp.y, lerp.z, xRand, yRand, zRand);
+                }
+
+                for (int i = 0; i < numFlameParticlesPerStep; ++i) {
+                    double radius = this.getBbWidth() / 2F;
+                    double xRand = this.random.nextGaussian() * radius;
+                    double yRand = this.random.nextGaussian() * radius;
+                    double zRand = this.random.nextGaussian() * radius;
+
+                    this.level().addParticle(ParticleTypes.FLAME, lerp.x + xRand, lerp.y + yRand, lerp.z + zRand, speed.x, speed.y, speed.z);
+                }
+            }
+
+            /* trail throughout lifetime */
+            this.level().addParticle(ParticleTypes.POOF, lerp.x, lerp.y, lerp.z, 0, 0, 0);
         }
     }
 
