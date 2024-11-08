@@ -40,17 +40,6 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     public void tick() {
         this.baseTick();
 
-        /* TODO shoot particles are weirdly adjusted by spawning delayed after updating position to spawn at the cannons on a ship.
-            This is bad practice and unflexible and does not work for ground cannons,
-            but I want to finish this so we adjust the projectile movement...
-            Better Solution would be to better calculate cannon positions on the ship and spawn
-            the balls properly there instead of from the middle of the ship
-            OR spawn the particles at the cannon and not here in the projectile */
-        boolean spawnedFromShip = this.getOwner() != null && this.getOwner().getVehicle() instanceof Ship;
-        if (!spawnedFromShip && this.isAlive()) {
-            this.setWasShot(true);
-        }
-
         Vec3 vector3d = this.getDeltaMovement();
         HitResult raytraceresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
 
@@ -71,7 +60,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
         }
         this.setPos(d0, d1, d2);
 
-        if(spawnedFromShip && this.isAlive()){
+        if(this.isAlive()){
             this.setWasShot(true);
         }
 
@@ -173,13 +162,21 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     }
 
 
-    public void shootParticles(){
+    public void shootParticles() {
+        //TODO ship workaround so particles spawn at the ground cannon's position....
+        boolean spawnedFromShip = this.getOwner() != null && this.getOwner().getVehicle() instanceof Ship;
+        Vector3d prevPos = new Vector3d(this.xOld, this.yOld, this.zOld);
+        Vector3d movement = new Vector3d(this.getX(), this.getY(), this.getZ()).sub(prevPos);
+
         for (int i = 0; i < 100; ++i) {
             double d0 = this.random.nextGaussian() * 0.03D;
             double d1 = this.random.nextGaussian() * 0.03D;
             double d2 = this.random.nextGaussian() * 0.03D;
             double d3 = 20.0D;
-            this.level().addParticle(ParticleTypes.POOF, this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3, d0, d1, d2);
+            Vector3d particlePos = new Vector3d(this.getX(1.0D) - d0 * d3, this.getRandomY() - d1 * d3, this.getRandomZ(2.0D) - d2 * d3);
+            if (!spawnedFromShip) particlePos.sub(movement);
+
+            this.level().addParticle(ParticleTypes.POOF, particlePos.x, particlePos.y, particlePos.z, d0, d1, d2);
         }
 
         for (int i = 0; i < 50; ++i) {
@@ -187,8 +184,11 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             double d11 = this.random.nextGaussian() * 0.03D;
             double d22 = this.random.nextGaussian() * 0.03D;
             double d44 = 10.0D;
-            this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(1.0D) - d00 * d44, this.getRandomY() - d11 * d44, this.getRandomZ(2.0D) - d22 * d44, d00, d11, d22);
-            this.level().addParticle(ParticleTypes.FLAME, this.getX(1.0D) - d00 * d44, this.getRandomY() - d11 * d44, this.getRandomZ(2.0D) - d22 * d44, 0, 0, 0);
+            Vector3d particlePos = new Vector3d(this.getX(1.0D) - d00 * d44, this.getRandomY() - d11 * d44, this.getRandomZ(2.0D) - d22 * d44);
+            if (!spawnedFromShip) particlePos.sub(movement);
+
+            this.level().addParticle(ParticleTypes.LARGE_SMOKE, particlePos.x, particlePos.y, particlePos.z, d00, d11, d22);
+            this.level().addParticle(ParticleTypes.FLAME, particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
         }
     }
 
@@ -198,10 +198,10 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
          *  projectiles at the actual cannon position OR spawn particles not in the projectile.
          */
         boolean spawnedFromShip = this.getOwner() != null && this.getOwner().getVehicle() instanceof Ship;
-        final int maxShotCounter = 2;
+        final int maxShotCounter = spawnedFromShip ? 2 : 3; //on ships the trail is way longer, maybe because of speed differences as we offset..
         final int shipOffsetCounter = 2;
-        int counter = this.counter - (spawnedFromShip ? shipOffsetCounter : 0);
         if (spawnedFromShip && this.counter < shipOffsetCounter) return;
+        int counter = this.counter - (spawnedFromShip ? shipOffsetCounter : 0);
 
         Vector3d prevPos = new Vector3d(this.xOld, this.yOld, this.zOld);
         Vector3d pos = new Vector3d(this.getX(), this.getY(), this.getZ());
@@ -220,9 +220,9 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
                     /* give particles more spread towards end, when a cannon is shot a plume is formed
                     /* leave out first tick so it's more noticeable towards the end */
                     float counterStep = counter == 0 ? 0 : ((counter + partialStep) / (float) maxShotCounter);
-                    double xRand = this.random.nextGaussian() * counterStep * 0.075F;
-                    double yRand = this.random.nextGaussian() * counterStep * 0.075F;
-                    double zRand = this.random.nextGaussian() * counterStep * 0.075F;
+                    double xRand = this.random.nextGaussian() * counterStep * 0.08F;
+                    double yRand = this.random.nextGaussian() * counterStep * 0.08F;
+                    double zRand = this.random.nextGaussian() * counterStep * 0.08F;
 
                     this.level().addParticle(ParticleTypes.POOF, lerp.x, lerp.y, lerp.z, xRand, yRand, zRand);
                 }
