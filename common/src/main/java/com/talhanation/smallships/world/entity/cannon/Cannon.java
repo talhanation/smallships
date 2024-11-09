@@ -143,7 +143,7 @@ public class Cannon {
     }
 
     public void triggerFuze(Runnable shot) {
-        if (this.isCooldown()) return;
+        if (this.isCooldown() || this.isFuzing()) return;
         this.resetTimer();
         if (this.level.isClientSide()) return;
         this.playFuzeSound();
@@ -234,7 +234,7 @@ public class Cannon {
         for (int i = 0; i < amount; i++) {
             Vector3d rand = this.getRandGaussian();
             Vector3d pos = new Vector3d(rand).mul(0.5)
-                    .add(new Vector3d(this.pos).add(new Vector3d(this.getForward()).mul(0.25F)));
+                    .add(new Vector3d(this.getBarrelEndPoint()).add(new Vector3d(this.getForward()).mul(0.25F)));
             Vector3d v = new Vector3d(rand).mul(0.03);
             this.level.addParticle(ParticleTypes.POOF, pos.x, pos.y, pos.z, v.x, v.y, v.z);
         }
@@ -245,7 +245,7 @@ public class Cannon {
             Vector3f forward = new Vector3f(this.getForward());
             Vector3d rand = this.getRandGaussian();
             Vector3d pos = new Vector3d(rand).mul(0.2)
-                    .add(this.pos);
+                    .add(this.getBarrelEndPoint());
             Vector3d v = new Vector3d(rand).mul(0.03)
                     .add(new Vector3d(forward).mul(Math.abs(this.level.random.nextGaussian()) * 0.4F));
             this.level.addParticle(ParticleTypes.POOF, pos.x, pos.y, pos.z, v.x, v.y, v.z);
@@ -257,7 +257,7 @@ public class Cannon {
             Vector3f forward = new Vector3f(this.getForward());
             Vector3d rand = this.getRandGaussian();
             Vector3d pos = new Vector3d(rand).mul(0.2)
-                    .add(this.pos);
+                    .add(this.getBarrelEndPoint());
             Vector3d v = new Vector3d(rand).mul(0.01)
                     .add(new Vector3d(forward).mul(Math.abs(this.level.random.nextGaussian()) * 0.1F));
             this.level.addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, v.x, v.y, v.z);
@@ -268,7 +268,7 @@ public class Cannon {
         for (int i = 0; i < amount; i++) {
             Vector3d rand = this.getRandGaussian();
             Vector3d pos = new Vector3d(rand).mul(0.2)
-                    .add(this.pos);
+                    .add(this.getBarrelEndPoint());
             Vector3d v = new Vector3d(rand).mul(0.02);
 
             this.level.addParticle(ParticleTypes.LARGE_SMOKE, pos.x, pos.y, pos.z, v.x, v.y, v.z);
