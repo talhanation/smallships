@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.projectile;
 
 
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;
@@ -21,19 +22,33 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 
-public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
+public abstract class AbstractCannonBall extends AbstractHurtingProjectile implements ICannonProjectile {
     public boolean inWater = false;
     public boolean wasShot = false;
     public int counter = 0;
 
-    protected AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, Level world) {
+    public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, Level world) {
         super(type, world);
     }
 
     public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, LivingEntity owner, double d1, double d2, double d3, Level world) {
         super(type, owner, new Vec3(d1, d2, d3), world);
         this.moveTo(d1, d2, d3, this.getYRot(), this.getXRot());
+    }
+
+    @Override
+    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, LivingEntity shooter) {
+        Vector3f deltaMovement = direction.normalize().mul((float) this.accelerationPower);
+        this.setOwner(shooter);
+        this.moveTo(startPos.x, startPos.y, startPos.z, this.getYRot(), this.getXRot());
+        this.reapplyPosition();
+        this.setDeltaMovement(deltaMovement.x, deltaMovement.y, deltaMovement.z);
+        this.hasImpulse = true;
+
+        this.shoot(direction.x(), direction.y(), direction.z(), cannonSpeedMultiplier, cannonAccuracy);
+        this.level().addFreshEntity(this);
     }
 
     @Override
@@ -87,8 +102,8 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     public void setWasShot(boolean bool){
         if (bool != wasShot){
             wasShot = true;
-
-            if (this.level().isClientSide()) {
+            boolean spawnedFromShip = this.getOwner() != null && this.getOwner().getVehicle() instanceof Ship;
+            if (this.level().isClientSide() && spawnedFromShip) {
                 this.shootParticles();
             }
         }
@@ -198,6 +213,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
          *  projectiles at the actual cannon position OR spawn particles not in the projectile.
          */
         boolean spawnedFromShip = this.getOwner() != null && this.getOwner().getVehicle() instanceof Ship;
+
         final int maxShotCounter = spawnedFromShip ? 2 : 3; //on ships the trail is way longer, maybe because of speed differences as we offset..
         final int shipOffsetCounter = 2;
         if (spawnedFromShip && this.counter < shipOffsetCounter) return;
@@ -215,7 +231,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
             float partialStep = (step / (float) totalSteps);
             Vector3d lerp = new Vector3d(prevPos).lerp(pos, partialStep);
 
-            if (counter < maxShotCounter) {
+            if (counter < maxShotCounter && spawnedFromShip) {
                 for (int i = 0; i < numPoofParticlesPerStep; ++i) {
                     /* give particles more spread towards end, when a cannon is shot a plume is formed
                     /* leave out first tick so it's more noticeable towards the end */
@@ -261,5 +277,4 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile {
     protected @NotNull ParticleOptions getTrailParticle() {
         return ParticleTypes.SMOKE;
     }
-
 }
