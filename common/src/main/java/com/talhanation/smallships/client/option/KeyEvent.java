@@ -2,8 +2,6 @@ package com.talhanation.smallships.client.option;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.talhanation.smallships.network.ModPackets;
-import com.talhanation.smallships.network.packet.ServerboundEnterCannonBarrelPacket;
-import com.talhanation.smallships.network.packet.ServerboundShootGroundCannonPacket;
 import com.talhanation.smallships.network.packet.ServerboundShootShipCannonPacket;
 import com.talhanation.smallships.network.packet.ServerboundToggleShipSailPacket;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
@@ -24,7 +22,7 @@ public class KeyEvent {
             if (Minecraft.getInstance().options.keyJump.isDown()) {
                 cannon.trigger();
             } else if (ModGameOptions.ENTER_CANNON_BARREL_KEY.matches(key, scanCode) && action == InputConstants.PRESS) {
-                cannon.putPlayerIntoBarrel(player);
+                cannon.putEntityIntoBarrel(player);
             }
         }
     }

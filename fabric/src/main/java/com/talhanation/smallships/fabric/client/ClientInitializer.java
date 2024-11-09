@@ -53,6 +53,7 @@ public class ClientInitializer implements ClientModInitializer {
 
     private void initRegisterKeyMappings() {
         KeyBindingHelper.registerKeyBinding(ModGameOptions.SAIL_KEY);
+        KeyBindingHelper.registerKeyBinding(ModGameOptions.ENTER_CANNON_BARREL_KEY);
     }
 
     private void initRegisterTickEvents() {
