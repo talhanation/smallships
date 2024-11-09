@@ -190,7 +190,7 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
         if (this.level().isClientSide()) {
             //TODO just for the particle.
-            this.cannon.triggerFuze(() -> {});
+            if (canFuze) this.cannon.triggerFuze(() -> {});
             ModPackets.clientSendPacket(new ServerboundShootGroundCannonPacket(false));
             return;
         }
@@ -227,10 +227,11 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
     private void shootCannonBall(CannonBallItem cannonBallItem) {
         final LivingEntity driver;
-        if ((driver = this.getPassengerDriver()) == null) return;
+        if ((driver = this.getPassengerDriver()) != null) {
+            this.cannon.setYaw(-driver.getYRot());
+            this.cannon.setPitch(driver.getXRot());
+        }
 
-        this.cannon.setYaw(-driver.getYRot());
-        this.cannon.setPitch(driver.getXRot());
         this.cannon.shoot(new CannonBallEntity(this.level()));
     }
 
