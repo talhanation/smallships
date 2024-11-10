@@ -17,6 +17,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.*;
 import net.minecraft.world.item.Item;
@@ -27,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -97,6 +100,26 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         this.setXRot(xRot);
         this.cannon.setYaw(-yRot);
         this.cannon.setPitch(xRot);
+        this.testEntityIntersection();
+    }
+
+    /**
+     * For pushing any entity into the cannon barrel
+     */
+    protected void testEntityIntersection() {
+        if (this.level().isClientSide()) return;
+        List<Entity> list = this.level().getEntities(this, this.getBoundingBox().inflate(0.20000000298023224, 0.0, 0.20000000298023224), EntitySelector.pushableBy(this));
+        if (!list.isEmpty()) {
+            Iterator it = list.iterator();
+            while (it.hasNext()) {
+                Entity entity = (Entity) it.next();
+                boolean isEntityTypeAllowed = !(entity instanceof Player) && !(entity instanceof IronGolem) && !(entity instanceof AbstractMinecart);
+                boolean isBarrelEmpty = this.getPassengerInBarrel() == null;
+                if (isEntityTypeAllowed && isBarrelEmpty && !entity.isPassenger()) {
+                    this.tryPuttingIntoBarrel(entity);
+                }
+            }
+        }
     }
 
     @Override
@@ -152,7 +175,7 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
      */
     public void putEntityIntoBarrel(Entity entity) {
         if (this.level().isClientSide()) {
-            ModPackets.clientSendPacket(new ServerboundEnterCannonBarrelPacket(false));
+            ModPackets.clientSendPacket(new ServerboundEnterCannonBarrelPacket(this.getId(), entity.getId()));
             return;
         }
 
