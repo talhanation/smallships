@@ -17,6 +17,10 @@ public class CannonBallEntity extends AbstractCannonBall {
         super(type, world);
     }
 
+    public CannonBallEntity(Level world) {
+        super(ModEntityTypes.CANNON_BALL, world);
+    }
+
     public CannonBallEntity(Level world, LivingEntity owner, double d1, double d2, double d3) {
         super(ModEntityTypes.CANNON_BALL, owner, d1, d2, d3, world);
     }

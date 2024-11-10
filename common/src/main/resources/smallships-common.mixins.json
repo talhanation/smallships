@@ -4,14 +4,16 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "client.KeyboardHandlerMixin",
+    "render.LivingEntityRendererMixin",
     "zooming.client.CameraMixin",
-    "zooming.client.MouseHandlerMixin",
-    "render.LivingEntityRendererMixin"
+    "zooming.client.MouseHandlerMixin"
   ],
   "mixins": [
     "container.SimpleContainerAccessor",
     "controlling.BoatAccessor",
-    "controlling.BoatMixin"
+    "controlling.BoatMixin",
+    "entity.EntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
