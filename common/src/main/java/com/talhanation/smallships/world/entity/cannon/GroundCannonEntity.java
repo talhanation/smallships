@@ -24,7 +24,6 @@ import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.*;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class GroundCannonEntity extends Minecart implements ICannonBallContainer {
+/**
+ * @author Chryfi
+ */
+public class GroundCannonEntity extends Minecart implements ICannon {
     public static final String ID = "ground_cannon";
     private static final EntityDataAccessor<Optional<UUID>> UUID = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<String> DYE = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.STRING);
@@ -122,7 +124,7 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
         /* detect when a player enters to set the player head yaw and pitch to continue shooting */
         boolean isDriven = this.getPassengerDriver() != null;
-        final LivingEntity driver = this.getPassengerDriver();
+        final Entity driver = this.getPassengerDriver();
         boolean enteredCannon = !this.drivenPrevTick && isDriven;
 
         /* set player to the orientation of the cannon on first time enter */
@@ -269,18 +271,19 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
                 this.consumeCannonBall();
             }
 
+            Entity driver = this.getPassengerDriver();
             this.cannon.triggerFuze(() -> {
                 if (cannonBallToShoot != null) {
-                    this.shootCannonBall(cannonBallToShoot);
+                    this.shootCannonBall(driver, cannonBallToShoot);
                 } else {
-                    this.tryShootBarrelEntity();
+                    this.tryShootBarrelEntity(driver != null ? driver : this.getPassengerInBarrel());
                 }
             });
         }
     }
 
-    private void tryShootBarrelEntity() {
-        LivingEntity driver = this.getPassengerDriver();
+    private void tryShootBarrelEntity(Entity shooter) {
+        Entity driver = this.getPassengerDriver();
         if (driver != null) {
             this.cannon.setYaw(-driver.getYRot());
             this.cannon.setPitch(driver.getXRot());
@@ -288,18 +291,18 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
         Entity barrelEntity = this.getPassengerInBarrel();
         if (barrelEntity != null) {
-            this.cannon.shoot((ICannonProjectile) barrelEntity);
+            this.cannon.shoot(shooter, (ICannonProjectile) barrelEntity);
         }
     }
 
-    private void shootCannonBall(CannonBallItem cannonBallItem) {
-        final LivingEntity driver;
+    private void shootCannonBall(Entity shooter, CannonBallItem cannonBallItem) {
+        final Entity driver;
         if ((driver = this.getPassengerDriver()) != null) {
             this.cannon.setYaw(-driver.getYRot());
             this.cannon.setPitch(driver.getXRot());
         }
 
-        this.cannon.shoot(new CannonBallEntity(this.level()));
+        this.cannon.shoot(shooter, new CannonBallEntity(this.level()));
     }
 
     @Override
@@ -358,10 +361,10 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
      * For some reason when overriding {@link #getControllingPassenger()} it cannot be controlled on rails anymore.
      */
     @Nullable
-    public LivingEntity getPassengerDriver() {
+    public Entity getPassengerDriver() {
         for (Entity passenger : this.getPassengers()) {
-            if (passenger != this.getPassengerInBarrel() && passenger instanceof LivingEntity living) {
-                return living;
+            if (passenger != this.getPassengerInBarrel()) {
+                return passenger;
             }
         }
 
@@ -395,11 +398,10 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
     @Override
     public void consumeCannonBall() {
-        if (this.getPassengerDriver() == null || this.getPassengerDriver().hasInfiniteMaterials()) return;
+        Entity driver = this.getPassengerDriver();
+        if (driver == null || (driver instanceof LivingEntity livingDriver && livingDriver.hasInfiniteMaterials())) return;
 
-        //TODO might be cool to add a one slot inventory to the cannon and consume them from there
-        //TODO inject ICannonBallContainer into Player
-        if (this.getPassengerDriver() instanceof ICannonBallContainer container) {
+        if (driver instanceof ICannonBallSource container) {
             container.consumeCannonBall();
         } else if (this.getPassengerDriver() instanceof Player player) {
             for (ItemStack itemstack : player.getInventory().items) {
@@ -411,6 +413,7 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         }
     }
 
+    @Override
     public ParticleOptions provideShootParticles() {
         if (this.getDye() != null) {
             return new DyedCannonShootOptions(this.getDye());
@@ -419,10 +422,15 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     }
 
     @Override
+    public Level getLevel() {
+        return this.level();
+    }
+
+    @Override
     public CannonBallItem getCannonBallToShoot() {
         if (this.getPassengerDriver() == null) return null;
 
-        if (this.getPassengerDriver() instanceof ICannonBallContainer container) {
+        if (this.getPassengerDriver() instanceof ICannonBallSource container) {
             return container.getCannonBallToShoot();
         } else if (this.getPassengerDriver() instanceof Player player) {
             return player.getInventory().items.stream().anyMatch(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL)) ? ModItems.CANNON_BALL : null;

@@ -51,12 +51,13 @@ public abstract class EntityMixin implements IMixinEntity, ICannonProjectile {
     }
 
     @Override
-    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, LivingEntity shooter) {
+    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, Entity shooter) {
         if (this.level.isClientSide()) return;
         Object thisO = this;
         Entity thisEntity = (Entity) thisO;
 
         ((IMixinEntity) this).setPreventTeleportOnNextPassengerSync(true);
+        ((IMixinEntity) this).setPreventDismountToCoordinates(true);
         this.stopRiding();
         direction.mul(cannonSpeedMultiplier * 3);
 

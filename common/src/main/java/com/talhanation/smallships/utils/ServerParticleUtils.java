@@ -1,4 +1,4 @@
-package com.talhanation.smallships.world.particles;
+package com.talhanation.smallships.utils;
 
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;

@@ -1,19 +1,25 @@
 package com.talhanation.smallships.world.entity.cannon;
 
+import com.talhanation.smallships.utils.VectorMath;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
-import com.talhanation.smallships.world.particles.ServerParticleUtils;
+import com.talhanation.smallships.utils.ServerParticleUtils;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
+/**
+ * @author Chryfi
+ * This class is the core behavior of cannons.
+ * It encapsulates all the information you need to provide for a cannon to work.
+ */
 public class Cannon {
     private final RandomSource random;
     /**
@@ -31,9 +37,9 @@ public class Cannon {
     private int coolDown;
     private final Level level;
     /**
-     * Where to play sounds at and get the cannonballs from
+     * The handler of this cannon.
      */
-    private final Entity owner;
+    private final ICannon owner;
     private float yaw = 0;
     private float prevYaw = 0;
     private float pitch = 0;
@@ -42,14 +48,10 @@ public class Cannon {
     private final float barrelHeight = 0.3F;
     private final float speed = 2.6F;
 
-    public <T extends Entity & ICannonBallContainer> Cannon(T owner) {
+    public Cannon(ICannon owner) {
         this.owner = owner;
-        this.level = owner.level();
+        this.level = owner.getLevel();
         this.random = level.getRandom();
-    }
-
-    public <T extends Entity & ICannonBallContainer> T getOwner() {
-        return (T) this.owner;
     }
 
     public float getYaw() {
@@ -73,7 +75,7 @@ public class Cannon {
     }
 
     public void setPitch(float pitch) {
-        this.pitch = pitch;
+        this.pitch = Math.clamp(pitch, -90, 20);;
     }
 
     public Vector3d getForward() {
@@ -148,20 +150,17 @@ public class Cannon {
         this.cachedShoot = shot;
     }
 
-    public void shoot(ICannonProjectile projectile) {
-        if (!(this.level instanceof ServerLevel serverLevel)) return;
-
+    public void shoot(Entity shooter, ICannonProjectile projectile) {
+        if (!(this.level instanceof ServerLevel serverLevel) || this.isCooldown() || this.isFuzing()) return;
+        this.setCoolDown();
         Vector3d forward = this.getForward();
-        projectile.shootAndSpawn(this, this.getBarrelEndPoint(), new Vector3f((float) forward.x, (float) forward.y, (float) forward.z),
-                this.speed, 1, null);
+        projectile.shootAndSpawn(this, this.getBarrelEndPoint(), VectorMath.castToVector3f(forward), this.speed, 1, shooter);
         this.playCannonShotSound();
 
         Vector3d particlePos = this.getBarrelEndPoint();
         particlePos.add(this.getForward().mul(0.25F));
 
-        if (this.owner instanceof GroundCannonEntity groundCannonEntity) {
-            ServerParticleUtils.sendParticle(serverLevel, groundCannonEntity.provideShootParticles(), particlePos, forward);
-        }
+        ServerParticleUtils.sendParticle(serverLevel, this.owner.provideShootParticles(), particlePos, forward);
 
         ParticleOptions particles = projectile.getAdditionalCannonShootParticles();
         if (particles != null) {
@@ -169,45 +168,22 @@ public class Cannon {
         }
     }
 
-    /**
-     * @param driverEntity
-     * @param accuracy
-     */
-    public void trigger(LivingEntity driverEntity, double accuracy) {
-        if (driverEntity.level().isClientSide()) return;
-
-        if (this.getOwner().getCannonBallToShoot() == null) {
-            return;
-        }
-
-        if (this.coolDown == 0 && this.shootDelayTimer == 0) {
-            this.resetTimer();
-            this.owner.playSound(SoundEvents.TNT_PRIMED, 1F, 1.5F);
-
-            this.getOwner().consumeCannonBall();
-
-            this.cachedShoot = () -> {
-                this.shoot(this.getForward(), this.getBarrelEndPoint(), driverEntity, accuracy);
-                this.setCoolDown();
-            };
-        }
-    }
-
-    private void shoot(Vector3d shootVec, Vector3d pos, LivingEntity driverEntity, double accuracy) {
+    public void shootAdvanced(Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy) {
 
     }
 
     private void playReloadedSound() {
-        if (this.owner.level().isClientSide()) return;
+        if (this.level.isClientSide()) return;
         this.owner.playSound(SoundEvents.ARMOR_EQUIP_NETHERITE.value(), 2, 1);
     }
 
     private void playCannonShotSound() {
-        if (this.owner.level().isClientSide()) return;
+        if (this.level.isClientSide()) return;
         this.owner.playSound(ModSoundTypes.CANNON_SHOT, 10.0F, 1.0F);
     }
 
     private void playFuzeSound() {
+        if (this.level.isClientSide()) return;
         this.owner.playSound(SoundEvents.TNT_PRIMED, 1F, 1.5F);
     }
 }

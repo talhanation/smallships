@@ -40,7 +40,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
     }
 
     @Override
-    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, LivingEntity shooter) {
+    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, Entity shooter) {
         Vector3f deltaMovement = direction.normalize().mul((float) this.accelerationPower);
         this.setOwner(shooter);
         this.moveTo(startPos.x, startPos.y, startPos.z, this.getYRot(), this.getXRot());
