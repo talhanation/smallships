@@ -1,6 +1,8 @@
 package com.talhanation.smallships.world.particles;
 
 import com.mojang.serialization.MapCodec;
+import com.talhanation.smallships.world.particles.cannon.CannonShootOptions;
+import com.talhanation.smallships.world.particles.cannon.CannonShootParticles;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.ParticleOptions;
@@ -10,6 +12,14 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 public class ModParticleTypes {
+    public static final ParticleType<CannonShootOptions> CANNON_SHOOT;
+
+    static {
+        CANNON_SHOOT = register("basic_cannon_shoot",
+                CannonShootOptions.MAP_CODEC, CannonShootOptions.STREAM_CODEC,
+                new CannonShootParticles.Provider());
+    }
+
     /**
      * Register a simple particle without options.
      * @param id

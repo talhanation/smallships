@@ -1,6 +1,8 @@
 package com.talhanation.smallships.world.entity.projectile;
 
 import com.talhanation.smallships.world.entity.cannon.Cannon;
+import com.talhanation.smallships.world.particles.cannon.CannonShootOptions;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -15,4 +17,7 @@ public interface ICannonProjectile {
      * @param shooter
      */
     void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, LivingEntity shooter);
+    default ParticleOptions provideCannonShootParticles() {
+        return new CannonShootOptions(false);
+    }
 }

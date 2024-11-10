@@ -18,7 +18,6 @@ public class ModPackets {
         registerNonPacket(ServerboundEnterCannonBarrelPacket.TYPE, ServerboundEnterCannonBarrelPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundSetSailStatePacket.TYPE, ServerboundSetSailStatePacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundUpdateShipControlPacket.TYPE, ServerboundUpdateShipControlPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ClientboundShootCannonPacket.TYPE, ClientboundShootCannonPacket.CODEC, ModPacket.Side.CLIENTBOUND);
     }
 
     @SuppressWarnings("unchecked")

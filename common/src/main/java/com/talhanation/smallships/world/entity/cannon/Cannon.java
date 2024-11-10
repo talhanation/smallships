@@ -1,8 +1,10 @@
 package com.talhanation.smallships.world.entity.cannon;
 
 import com.talhanation.smallships.network.ModPackets;
-import com.talhanation.smallships.network.packet.ClientboundShootCannonPacket;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
+import com.talhanation.smallships.world.particles.ModParticleTypes;
+import com.talhanation.smallships.world.particles.ServerParticleUtils;
+import com.talhanation.smallships.world.particles.cannon.CannonShootOptions;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -76,8 +78,8 @@ public class Cannon {
         this.pitch = pitch;
     }
 
-    public Vector3f getForward() {
-        Vector3f dir = new Vector3f(0, 0, 1);
+    public Vector3d getForward() {
+        Vector3d dir = new Vector3d(0, 0, 1);
         dir.rotateX((float) Math.toRadians(this.pitch));
         dir.rotateY((float) Math.toRadians(this.yaw));
         return dir;
@@ -143,48 +145,32 @@ public class Cannon {
     }
 
     public void triggerFuze(Runnable shot) {
-        if (this.isCooldown() || this.isFuzing()) return;
+        if (this.level.isClientSide() || this.isCooldown() || this.isFuzing()) return;
         this.resetTimer();
-        if (this.level.isClientSide()) return;
         this.playFuzeSound();
         this.cachedShoot = shot;
     }
 
     public void shoot(ICannonProjectile projectile) {
         if (!(this.level instanceof ServerLevel serverLevel)) return;
-        this.setCoolDown();
-        projectile.shootAndSpawn(this, this.getBarrelEndPoint(), this.getForward(), this.speed, 1, null);
+
+        Vector3d forward = this.getForward();
+        projectile.shootAndSpawn(this, this.getBarrelEndPoint(), new Vector3f((float) forward.x, (float) forward.y, (float) forward.z),
+                this.speed, 1, null);
         this.playCannonShotSound();
-        //TODO register custom particle type and send particles from server.
-        serverLevel.getPlayers(player -> true).forEach(serverPlayer -> {
-            ModPackets.serverSendPacket(serverPlayer, new ClientboundShootCannonPacket(this.owner.getId()));
-        });
+
+        Vector3d particlePos = this.getBarrelEndPoint();
+        particlePos.add(this.getForward().mul(0.25F));
+        ServerParticleUtils.sendParticle(serverLevel, projectile.provideCannonShootParticles(), particlePos, forward);
     }
 
     public void clientFuzingEffects() {
         if (!this.level.isClientSide()) return;
 
         Vector3d pos = this.getPos().add(0, this.barrelHeight, 0);
+
         this.level.addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0, 0.05, 0);
         this.level.addParticle(ParticleTypes.POOF, pos.x, pos.y, pos.z, 0, 0, 0);
-    }
-
-    public void clientShootingEffects() {
-        if (!this.level.isClientSide()) return;
-
-        this.addPoofForwardParticles(100);
-        this.addStaticMainPoofParticles(100);
-        this.addFlamesForwardParticles(75);
-        this.addStaticDarkSmokeParticles(50);
-    }
-
-    public void clientShootingEntityEffects() {
-        if (!this.level.isClientSide()) return;
-
-        this.addPoofForwardParticles(100);
-        this.addStaticMainPoofParticles(100);
-        this.addFlamesForwardParticles(75);
-        this.addStaticDarkSmokeParticles(50);
     }
 
     /**
@@ -211,7 +197,7 @@ public class Cannon {
         }
     }
 
-    private void shoot(Vector3f shootVec, Vector3d pos, LivingEntity driverEntity, double accuracy) {
+    private void shoot(Vector3d shootVec, Vector3d pos, LivingEntity driverEntity, double accuracy) {
 
     }
 
@@ -227,55 +213,5 @@ public class Cannon {
 
     private void playFuzeSound() {
         this.owner.playSound(SoundEvents.TNT_PRIMED, 1F, 1.5F);
-    }
-
-    //TODO do custom particle type - more reusability and less cluttering and synchroniszing from server to clients
-    protected void addStaticMainPoofParticles(int amount) {
-        for (int i = 0; i < amount; i++) {
-            Vector3d rand = this.getRandGaussian();
-            Vector3d pos = new Vector3d(rand).mul(0.5)
-                    .add(new Vector3d(this.getBarrelEndPoint()).add(new Vector3d(this.getForward()).mul(0.25F)));
-            Vector3d v = new Vector3d(rand).mul(0.03);
-            this.level.addParticle(ParticleTypes.POOF, pos.x, pos.y, pos.z, v.x, v.y, v.z);
-        }
-    }
-
-    protected void addPoofForwardParticles(int amount) {
-        for (int i = 0; i < amount; i++) {
-            Vector3f forward = new Vector3f(this.getForward());
-            Vector3d rand = this.getRandGaussian();
-            Vector3d pos = new Vector3d(rand).mul(0.2)
-                    .add(this.getBarrelEndPoint());
-            Vector3d v = new Vector3d(rand).mul(0.03)
-                    .add(new Vector3d(forward).mul(Math.abs(this.level.random.nextGaussian()) * 0.4F));
-            this.level.addParticle(ParticleTypes.POOF, pos.x, pos.y, pos.z, v.x, v.y, v.z);
-        }
-    }
-
-    protected void addFlamesForwardParticles(int amount) {
-        for (int i = 0; i < amount; i++) {
-            Vector3f forward = new Vector3f(this.getForward());
-            Vector3d rand = this.getRandGaussian();
-            Vector3d pos = new Vector3d(rand).mul(0.2)
-                    .add(this.getBarrelEndPoint());
-            Vector3d v = new Vector3d(rand).mul(0.01)
-                    .add(new Vector3d(forward).mul(Math.abs(this.level.random.nextGaussian()) * 0.1F));
-            this.level.addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, v.x, v.y, v.z);
-        }
-    }
-
-    protected void addStaticDarkSmokeParticles(int amount) {
-        for (int i = 0; i < amount; i++) {
-            Vector3d rand = this.getRandGaussian();
-            Vector3d pos = new Vector3d(rand).mul(0.2)
-                    .add(this.getBarrelEndPoint());
-            Vector3d v = new Vector3d(rand).mul(0.02);
-
-            this.level.addParticle(ParticleTypes.LARGE_SMOKE, pos.x, pos.y, pos.z, v.x, v.y, v.z);
-        }
-    }
-
-    private Vector3d getRandGaussian() {
-        return new Vector3d(this.level.random.nextGaussian(), this.level.random.nextGaussian(), this.level.random.nextGaussian());
     }
 }
