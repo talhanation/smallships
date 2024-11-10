@@ -312,16 +312,6 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         }
     }
 
-    @Override
-    public Vec3 getDismountLocationForPassenger(LivingEntity arg) {
-        //TODO scrap
-        if (this.getPassengerInBarrel() == arg) {
-            return this.getBarrelPassengerAttachmentPoint();
-        }
-
-        return super.getDismountLocationForPassenger(arg);
-    }
-
     protected Vec3 getBarrelPassengerAttachmentPoint() {
         Vector3f relativePoint = new Vector3f(0,0,-0.5F).rotateAxis(-(float) Math.toRadians(this.getYRot()), 0, 1, 0);
         return new Vec3(relativePoint.x, relativePoint.y, relativePoint.z);
