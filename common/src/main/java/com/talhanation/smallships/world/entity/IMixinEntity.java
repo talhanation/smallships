@@ -5,15 +5,12 @@ import net.minecraft.world.entity.Entity;
 public interface IMixinEntity {
     float getPrevXRot();
     float getPrevYRot();
-
     /**
-     * execute {@link Entity#stopRiding()} without the teleport stuff, just removePassenger and set vehicle to null.
+     * @return true if on the next syncing of passenger changes this entity should not be teleported
+     *
      */
-    void simpleStopRiding();
-
-    /**
-     * execute removePassenger of Entity without executing game events, just modifying the list.
-     * @param entity
-     */
-    void simpleRemovePassenger(Entity entity);
+    boolean doNotTeleportOnNextPassengerSync();
+    void setPreventTeleportOnNextPassengerSync(boolean prevent);
+    boolean doNotDismountToCoordinates();
+    void setPreventDismountToCoordinates(boolean prevent);
 }

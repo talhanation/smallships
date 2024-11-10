@@ -1,7 +1,6 @@
 package com.talhanation.smallships.mixin.entity;
 
 import com.google.common.collect.ImmutableList;
-import com.talhanation.smallships.world.entity.IEntityRemovePassenger;
 import com.talhanation.smallships.world.entity.IMixinEntity;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
@@ -27,11 +26,12 @@ public abstract class EntityMixin implements IMixinEntity, ICannonProjectile {
     @Shadow
     private float yRot;
     @Shadow
-    private ImmutableList<Entity> passengers;
-    @Shadow
-    private Entity vehicle;
-    @Shadow
     private Level level;
+
+    @Shadow public abstract void stopRiding();
+
+    private boolean preventNextPassengerSyncTeleport;
+    private boolean preventDismountingToCoordinates;
 
     @Inject(method = "turn", at = @At("HEAD"))
     public void turn(double x, double y, CallbackInfo ci) {
@@ -50,34 +50,13 @@ public abstract class EntityMixin implements IMixinEntity, ICannonProjectile {
     }
 
     @Override
-    public void simpleStopRiding() {
-        /* don't call removeVehicle as it calls teleport methods */
-        Entity vehicle = this.vehicle;
-        this.vehicle = null;
-        Object thisO = this;
-        Entity thisEntity = (Entity) thisO;
-        if (vehicle instanceof IEntityRemovePassenger vehicle0) {
-            vehicle0.removePassengerWithoutGameEvent(thisEntity);
-        } else if (vehicle != null) {
-            ((IMixinEntity) vehicle).simpleRemovePassenger(thisEntity);
-        }
-    }
-
-    @Override
-    public void simpleRemovePassenger(Entity entity) {
-        if (!this.passengers.contains(entity)) return;
-        this.passengers = this.passengers.stream().filter((entity2) -> entity2 != entity).collect(ImmutableList.toImmutableList());
-    }
-
-    @Override
     public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, LivingEntity shooter) {
         if (this.level.isClientSide()) return;
         Object thisO = this;
         Entity thisEntity = (Entity) thisO;
 
-        if (thisEntity.getVehicle() == cannon.getOwner()) {
-            ((IMixinEntity) thisEntity).simpleStopRiding();
-        }
+        ((IMixinEntity) this).setPreventTeleportOnNextPassengerSync(true);
+        this.stopRiding();
         direction.mul(cannonSpeedMultiplier * 3);
 
         thisEntity.setPos(startPos.x, startPos.y, startPos.z);
@@ -87,5 +66,24 @@ public abstract class EntityMixin implements IMixinEntity, ICannonProjectile {
             player.startAutoSpinAttack(40, 8.0F, null);
         }
         thisEntity.hurtMarked = true;
+    }
+
+    @Override
+    public boolean doNotTeleportOnNextPassengerSync() {
+        return this.preventNextPassengerSyncTeleport;
+    }
+
+    @Override
+    public void setPreventTeleportOnNextPassengerSync(boolean prevent) {
+        this.preventNextPassengerSyncTeleport = prevent;
+    }
+
+    @Override
+    public boolean doNotDismountToCoordinates() {
+        return this.preventDismountingToCoordinates;
+    }
+
+    public void setPreventDismountToCoordinates(boolean prevent) {
+        this.preventDismountingToCoordinates = prevent;
     }
 }

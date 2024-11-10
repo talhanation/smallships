@@ -3,13 +3,13 @@ package com.talhanation.smallships.world.entity.cannon;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundEnterCannonBarrelPacket;
 import com.talhanation.smallships.network.packet.ServerboundShootGroundCannonPacket;
-import com.talhanation.smallships.world.entity.IEntityRemovePassenger;
 import com.talhanation.smallships.world.entity.IMixinEntity;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
 import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class GroundCannonEntity extends Minecart implements ICannonBallContainer, IEntityRemovePassenger {
+public class GroundCannonEntity extends Minecart implements ICannonBallContainer {
     public static final String ID = "ground_cannon";
     private static final EntityDataAccessor<Optional<UUID>> UUID = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private final Cannon cannon = new Cannon(this);
@@ -60,6 +60,19 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
     public Optional<UUID> getEntityInBarrelUUID() {
         return this.entityData.get(UUID);
+    }
+
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        this.getEntityInBarrelUUID().ifPresent(uuid -> tag.putUUID("EntityInBarrelUUID", uuid));
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("EntityInBarrelUUID")) {
+            this.setEntityInBarrelUUID(tag.getUUID("EntityInBarrelUUID"));
+        }
     }
 
     protected final void setEntityInBarrelUUID(UUID uuid) {
@@ -95,6 +108,8 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
             xRot = driver.getXRot();
             yRot = driver.getYRot();
         }
+
+        xRot = Math.clamp(xRot, -90, 20);
 
         this.setYRot(yRot);
         this.setXRot(xRot);
@@ -139,35 +154,36 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     protected boolean tryRiding(Entity entity) {
         if (this.level().isClientSide()) return false;
 
-        if (this.getPassengerInBarrel() == null && !this.getPassengers().isEmpty()) {
+        if (this.getPassengerInBarrel() == null && !this.getPassengers().isEmpty() && this.canAddPassenger(entity)) {
             return this.tryPuttingIntoBarrel(entity);
         }
-
+        this.cleanEntityInBarrelUUID();
         return entity.startRiding(this);
     }
 
     protected boolean tryPuttingIntoBarrel(Entity entity) {
-        if (this.level().isClientSide()) return false;
+        if (this.level().isClientSide() || entity == null || this.getCannon().isFuzing()) return false;
 
-        if (this.getCannon().isFuzing()) return false;
-
-        if (this.getPassengers().contains(entity)) {
-            Optional<UUID> uuid = this.getEntityInBarrelUUID();
-            if (uuid.isPresent() && uuid.get().equals(entity.getUUID())) {
-                return true;
-            } else if (uuid.isPresent()) {
-                return false;
-            }
+        Entity barrelEntity = this.getPassengerInBarrel();
+        if (barrelEntity == entity) {
+            return true;
         } else if (this.getPassengers().size() == 2) {
             return false;
-        } else if (this.getEntityInBarrelUUID().isPresent()) {
+        } else if (barrelEntity != null) {
             return false;
         }
 
-        entity.startRiding(this);
-        this.setEntityInBarrelUUID(entity.getUUID());
+        if (!this.getPassengers().contains(entity)) {
+            if (entity.startRiding(this)) {
+                this.setEntityInBarrelUUID(entity.getUUID());
+                return true;
+            }
+        } else {
+            this.setEntityInBarrelUUID(entity.getUUID());
+            return true;
+        }
 
-        return true;
+        return false;
     }
 
     /**
@@ -185,22 +201,6 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     @Override
     protected boolean canAddPassenger(Entity entity) {
         return this.getPassengers().size() < 2;
-    }
-
-    @Override
-    protected void removePassenger(Entity entity) {
-        if (this.getPassengerInBarrel() == entity) {
-            this.setEntityInBarrelUUID(null);
-        }
-        super.removePassenger(entity);
-    }
-
-    @Override
-    public void removePassengerWithoutGameEvent(Entity entity) {
-        if (this.getPassengerInBarrel() == entity) {
-            this.setEntityInBarrelUUID(null);
-        }
-        ((IMixinEntity) this).simpleRemovePassenger(entity);
     }
 
     /**
@@ -264,9 +264,23 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
             Vector3d endPoint = this.cannon.getBarrelEndPointLocal();
             return new Vec3(endPoint.x, endPoint.y, endPoint.z);
         } else {
-            Vector3f relativePoint = new Vector3f(0,0,-0.5F).rotateAxis(-(float) Math.toRadians(this.getYRot()), 0, 1, 0);
-            return new Vec3(relativePoint.x, relativePoint.y, relativePoint.z);
+            return this.getBarrelPassengerAttachmentPoint();
         }
+    }
+
+    @Override
+    public Vec3 getDismountLocationForPassenger(LivingEntity arg) {
+        //TODO scrap
+        if (this.getPassengerInBarrel() == arg) {
+            return this.getBarrelPassengerAttachmentPoint();
+        }
+
+        return super.getDismountLocationForPassenger(arg);
+    }
+
+    protected Vec3 getBarrelPassengerAttachmentPoint() {
+        Vector3f relativePoint = new Vector3f(0,0,-0.5F).rotateAxis(-(float) Math.toRadians(this.getYRot()), 0, 1, 0);
+        return new Vec3(relativePoint.x, relativePoint.y, relativePoint.z);
     }
 
     /**
@@ -333,6 +347,12 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         }
 
         return null;
+    }
+
+    protected void cleanEntityInBarrelUUID() {
+        if (this.getPassengers().isEmpty() || this.getPassengerInBarrel() == null) {
+            this.setEntityInBarrelUUID(null);
+        }
     }
 
     public static GroundCannonEntity factory(EntityType<? extends GroundCannonEntity> entityType, Level level) {
