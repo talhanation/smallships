@@ -4,7 +4,7 @@ package com.talhanation.smallships.world.entity.projectile;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.ship.Ship;
-import com.talhanation.smallships.world.particles.cannon.CannonShootOptions;
+import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -53,8 +53,8 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
     }
 
     @Override
-    public ParticleOptions provideCannonShootParticles() {
-        return new CannonShootOptions(false);
+    public ParticleOptions getAdditionalCannonShootParticles() {
+        return ModParticleTypes.CANNON_BALL_SHOOT;
     }
 
     @Override

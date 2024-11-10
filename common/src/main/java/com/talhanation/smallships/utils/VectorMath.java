@@ -1,5 +1,6 @@
 package com.talhanation.smallships.utils;
 
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -31,5 +32,9 @@ public class VectorMath {
         float dotProduct = v.dot(n);
         v.sub(n.mul(dotProduct));
         return v;
+    }
+
+    public static Vector3d getRandGaussian(RandomSource random) {
+        return new Vector3d(random.nextGaussian(), random.nextGaussian(), random.nextGaussian());
     }
 }

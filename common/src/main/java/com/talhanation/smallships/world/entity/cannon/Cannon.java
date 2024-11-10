@@ -1,11 +1,9 @@
 package com.talhanation.smallships.world.entity.cannon;
 
-import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
-import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.particles.ServerParticleUtils;
-import com.talhanation.smallships.world.particles.cannon.CannonShootOptions;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -110,13 +108,12 @@ public class Cannon {
     public void tick(double x, double y, double z) {
         if (this.coolDown > 0) this.coolDown--;
         if (this.shootDelayTimer > 0) {
-            //TODO fuzing/timer is not synchronised. It's better to spawn particles from server
-            this.clientFuzingEffects();
-            if (this.shootDelayTimer == 1 && this.cachedShoot != null) {
+            this.shootDelayTimer--;
+
+            if (!this.level.isClientSide() && this.shootDelayTimer == 0 && this.cachedShoot != null) {
                 this.cachedShoot.run();
                 this.cachedShoot = null;
             }
-            this.shootDelayTimer--;
         }
 
         if (this.coolDown == 3) {
@@ -161,16 +158,15 @@ public class Cannon {
 
         Vector3d particlePos = this.getBarrelEndPoint();
         particlePos.add(this.getForward().mul(0.25F));
-        ServerParticleUtils.sendParticle(serverLevel, projectile.provideCannonShootParticles(), particlePos, forward);
-    }
 
-    public void clientFuzingEffects() {
-        if (!this.level.isClientSide()) return;
+        if (this.owner instanceof GroundCannonEntity groundCannonEntity) {
+            ServerParticleUtils.sendParticle(serverLevel, groundCannonEntity.provideShootParticles(), particlePos, forward);
+        }
 
-        Vector3d pos = this.getPos().add(0, this.barrelHeight, 0);
-
-        this.level.addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0, 0.05, 0);
-        this.level.addParticle(ParticleTypes.POOF, pos.x, pos.y, pos.z, 0, 0, 0);
+        ParticleOptions particles = projectile.getAdditionalCannonShootParticles();
+        if (particles != null) {
+            ServerParticleUtils.sendParticle(serverLevel, particles, particlePos, forward);
+        }
     }
 
     /**

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.talhanation.smallships.world.entity.IMixinEntity;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
-import com.talhanation.smallships.world.particles.cannon.CannonShootOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -87,10 +86,5 @@ public abstract class EntityMixin implements IMixinEntity, ICannonProjectile {
 
     public void setPreventDismountToCoordinates(boolean prevent) {
         this.preventDismountingToCoordinates = prevent;
-    }
-
-    @Override
-    public ParticleOptions provideCannonShootParticles() {
-        return new CannonShootOptions(true);
     }
 }
