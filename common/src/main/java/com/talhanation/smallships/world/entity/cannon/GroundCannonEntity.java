@@ -120,7 +120,6 @@ public class GroundCannonEntity extends Minecart implements ICannon {
         float yRot = this.getYRot();
 
         super.tick();
-        this.cannon.tick(this.getX(), this.getY(), this.getZ());
 
         /* detect when a player enters to set the player head yaw and pitch to continue shooting */
         boolean isDriven = this.getPassengerDriver() != null;
@@ -143,8 +142,7 @@ public class GroundCannonEntity extends Minecart implements ICannon {
 
         this.setYRot(yRot);
         this.setXRot(xRot);
-        this.cannon.setYaw(-yRot);
-        this.cannon.setPitch(xRot);
+        this.cannon.tick(this.getX(), this.getY(), this.getZ(), -yRot, xRot);
         this.testEntityIntersection();
     }
 
@@ -255,7 +253,7 @@ public class GroundCannonEntity extends Minecart implements ICannon {
     /**
      * Can be executed on both client and server, it encapsulates the handling logic.
      */
-    public void trigger() {
+    public void trigger(Entity triggeredBy) {
         if (this.level().isClientSide()) {
             ModPackets.clientSendPacket(new ServerboundShootGroundCannonPacket(false));
             return;
@@ -271,38 +269,14 @@ public class GroundCannonEntity extends Minecart implements ICannon {
                 this.consumeCannonBall();
             }
 
-            Entity driver = this.getPassengerDriver();
-            this.cannon.triggerFuze(() -> {
+            this.cannon.triggerFuze(triggeredBy, () -> {
                 if (cannonBallToShoot != null) {
-                    this.shootCannonBall(driver, cannonBallToShoot);
+                    return new CannonBallEntity(this.level());
                 } else {
-                    this.tryShootBarrelEntity(driver != null ? driver : this.getPassengerInBarrel());
+                    return (ICannonProjectile) this.getPassengerInBarrel();
                 }
             });
         }
-    }
-
-    private void tryShootBarrelEntity(Entity shooter) {
-        Entity driver = this.getPassengerDriver();
-        if (driver != null) {
-            this.cannon.setYaw(-driver.getYRot());
-            this.cannon.setPitch(driver.getXRot());
-        }
-
-        Entity barrelEntity = this.getPassengerInBarrel();
-        if (barrelEntity != null) {
-            this.cannon.shoot(shooter, (ICannonProjectile) barrelEntity);
-        }
-    }
-
-    private void shootCannonBall(Entity shooter, CannonBallItem cannonBallItem) {
-        final Entity driver;
-        if ((driver = this.getPassengerDriver()) != null) {
-            this.cannon.setYaw(-driver.getYRot());
-            this.cannon.setPitch(driver.getXRot());
-        }
-
-        this.cannon.shoot(shooter, new CannonBallEntity(this.level()));
     }
 
     @Override

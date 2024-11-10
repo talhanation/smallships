@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.cannon;
 
+import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.utils.VectorMath;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
 import com.talhanation.smallships.utils.ServerParticleUtils;
@@ -14,6 +15,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
+
+import java.util.function.Supplier;
 
 /**
  * @author Chryfi
@@ -30,7 +33,7 @@ public class Cannon {
     /**
      * Execute the shoot after timer is finished
      */
-    private Runnable cachedShoot = null;
+    private Pair<Entity, Supplier<ICannonProjectile>> cachedShoot = null;
     /**
      * Cooldown timer after a shot
      */
@@ -107,13 +110,22 @@ public class Cannon {
      * @param y new global y coordinates
      * @param z new global z coordinates
      */
-    public void tick(double x, double y, double z) {
+    public void tick(double x, double y, double z, double yaw, double pitch) {
+        this.prevPitch = this.pitch;
+        this.prevYaw = this.yaw;
+        this.setYaw((float) yaw);
+        this.setPitch((float) pitch);
+        this.pos.set(x, y, z);
+
         if (this.coolDown > 0) this.coolDown--;
         if (this.shootDelayTimer > 0) {
             this.shootDelayTimer--;
 
             if (!this.level.isClientSide() && this.shootDelayTimer == 0 && this.cachedShoot != null) {
-                this.cachedShoot.run();
+                ICannonProjectile projectile = this.cachedShoot.getSecond().get();
+                if (projectile != null) {
+                    this.shoot(this.cachedShoot.getFirst(), projectile);
+                }
                 this.cachedShoot = null;
             }
         }
@@ -121,10 +133,6 @@ public class Cannon {
         if (this.coolDown == 3) {
             this.playReloadedSound();
         }
-
-        this.prevPitch = this.pitch;
-        this.prevYaw = this.yaw;
-        this.pos.set(x, y, z);
     }
 
     private void resetTimer() {
@@ -143,14 +151,14 @@ public class Cannon {
         return this.shootDelayTimer > 0;
     }
 
-    public void triggerFuze(Runnable shot) {
+    public void triggerFuze(Entity shooter, Supplier<ICannonProjectile> projectileSupplier) {
         if (this.level.isClientSide() || this.isCooldown() || this.isFuzing()) return;
         this.resetTimer();
         this.playFuzeSound();
-        this.cachedShoot = shot;
+        this.cachedShoot = new Pair<>(shooter, projectileSupplier);
     }
 
-    public void shoot(Entity shooter, ICannonProjectile projectile) {
+    protected void shoot(Entity shooter, ICannonProjectile projectile) {
         if (!(this.level instanceof ServerLevel serverLevel) || this.isCooldown() || this.isFuzing()) return;
         this.setCoolDown();
         Vector3d forward = this.getForward();
