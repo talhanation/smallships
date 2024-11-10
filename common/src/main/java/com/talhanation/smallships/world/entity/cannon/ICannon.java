@@ -6,6 +6,6 @@ import net.minecraft.world.level.Level;
 
 public interface ICannon extends ICannonBallSource {
     ParticleOptions provideShootParticles();
-    void playSound(SoundEvent soundEvent, float volumeMultiplier, float pitch);
+    void playSoundAt(SoundEvent soundEvent, float volumeMultiplier, float pitch);
     Level getLevel();
 }

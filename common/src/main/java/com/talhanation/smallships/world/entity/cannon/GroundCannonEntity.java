@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -393,6 +394,11 @@ public class GroundCannonEntity extends Minecart implements ICannon {
             return new DyedCannonShootOptions(this.getDye());
         }
         return ModParticleTypes.CANNON_SHOOT;
+    }
+
+    @Override
+    public void playSoundAt(SoundEvent soundEvent, float volumeMultiplier, float pitch) {
+        this.playSound(soundEvent, volumeMultiplier, pitch);
     }
 
     @Override

@@ -14,7 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 
 import java.util.function.Supplier;
 
@@ -182,16 +181,16 @@ public class Cannon {
 
     private void playReloadedSound() {
         if (this.level.isClientSide()) return;
-        this.owner.playSound(SoundEvents.ARMOR_EQUIP_NETHERITE.value(), 2, 1);
+        this.owner.playSoundAt(SoundEvents.ARMOR_EQUIP_NETHERITE.value(), 2, 1);
     }
 
     private void playCannonShotSound() {
         if (this.level.isClientSide()) return;
-        this.owner.playSound(ModSoundTypes.CANNON_SHOT, 10.0F, 1.0F);
+        this.owner.playSoundAt(ModSoundTypes.CANNON_SHOT, 10.0F, 1.0F);
     }
 
     private void playFuzeSound() {
         if (this.level.isClientSide()) return;
-        this.owner.playSound(SoundEvents.TNT_PRIMED, 1F, 1.5F);
+        this.owner.playSoundAt(SoundEvents.TNT_PRIMED, 1F, 1.5F);
     }
 }
