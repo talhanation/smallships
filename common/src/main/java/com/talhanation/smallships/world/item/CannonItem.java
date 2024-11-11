@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.item;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -64,7 +66,8 @@ public class CannonItem extends Item {
         if (level instanceof ServerLevel serverLevel) {
             GroundCannonEntity cannon = new GroundCannonEntity(level, pos);
             cannon.setYRot(player.getYRot());
-
+            CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+            if (data != null) data.loadInto(cannon);
             serverLevel.addFreshEntity(cannon);
             serverLevel.gameEvent(GameEvent.ENTITY_PLACE, blockPos, GameEvent.Context.of(useOnContext.getPlayer(), serverLevel.getBlockState(blockPos.below())));
         }

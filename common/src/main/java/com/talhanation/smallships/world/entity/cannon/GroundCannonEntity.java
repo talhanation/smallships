@@ -11,6 +11,7 @@ import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.particles.cannon.DyedCannonShootOptions;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -25,16 +26,15 @@ import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.*;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Chryfi
@@ -313,6 +313,19 @@ public class GroundCannonEntity extends Minecart implements ICannon {
         entity.setYBodyRot(prevYRot + yRotChange);
         entity.xRotO = prevXRot + xRotChange;
         entity.setXRot(Math.clamp(prevXRot + xRotChange, -90, 20));
+    }
+
+    @Override
+    public void destroy(Item arg) {
+        this.kill();
+        if (this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+            ItemStack itemStack = new ItemStack(arg);
+            itemStack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
+            CompoundTag tag = new CompoundTag();
+            this.addAdditionalSaveData(tag);
+            itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            this.spawnAtLocation(itemStack);
+        }
     }
 
     @Override
