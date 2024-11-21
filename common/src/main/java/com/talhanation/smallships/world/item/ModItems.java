@@ -26,10 +26,11 @@ public class ModItems {
     static {
         Boat.Type[] boatTypes = Boat.Type.values();
         for (Boat.Type type : boatTypes) {
-            COG_ITEMS.put(type, getItem(type.getName() + "_" + CogEntity.ID));
-            BRIGG_ITEMS.put(type, getItem(type.getName() + "_" + BriggEntity.ID));
-            GALLEY_ITEMS.put(type, getItem(type.getName() + "_" + GalleyEntity.ID));
-            DRAKKAR_ITEMS.put(type, getItem(type.getName() + "_" + DrakkarEntity.ID));
+            String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
+            COG_ITEMS.put(type, getItem(name + "_" + CogEntity.ID));
+            BRIGG_ITEMS.put(type, getItem(name + "_" + BriggEntity.ID));
+            GALLEY_ITEMS.put(type, getItem(name + "_" + GalleyEntity.ID));
+            DRAKKAR_ITEMS.put(type, getItem(name + "_" + DrakkarEntity.ID));
         }
     }
 
