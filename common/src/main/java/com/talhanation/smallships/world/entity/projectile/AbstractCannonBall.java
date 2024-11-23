@@ -4,6 +4,7 @@ package com.talhanation.smallships.world.entity.projectile;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -39,7 +40,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
     }
 
     @Override
-    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, LivingEntity shooter) {
+    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, Entity shooter) {
         Vector3f deltaMovement = direction.normalize().mul((float) this.accelerationPower);
         this.setOwner(shooter);
         this.moveTo(startPos.x, startPos.y, startPos.z, this.getYRot(), this.getXRot());
@@ -49,6 +50,11 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
 
         this.shoot(direction.x(), direction.y(), direction.z(), cannonSpeedMultiplier, cannonAccuracy);
         this.level().addFreshEntity(this);
+    }
+
+    @Override
+    public ParticleOptions getAdditionalCannonShootParticles() {
+        return ModParticleTypes.CANNON_BALL_SHOOT;
     }
 
     @Override

@@ -20,7 +20,7 @@ public class KeyEvent {
 
         if (player.getVehicle() instanceof GroundCannonEntity cannon) {
             if (Minecraft.getInstance().options.keyJump.isDown()) {
-                cannon.trigger();
+                cannon.trigger(player);
             } else if (ModGameOptions.ENTER_CANNON_BARREL_KEY.matches(key, scanCode) && action == InputConstants.PRESS) {
                 cannon.putEntityIntoBarrel(player);
             }

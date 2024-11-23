@@ -21,7 +21,7 @@ public record ServerboundShootGroundCannonPacket(boolean placeholder) implements
     @Override
     public void handler(Player player) {
         if (player.getVehicle() != null && player.getVehicle() instanceof GroundCannonEntity cannon) {
-            cannon.trigger();
+            cannon.trigger(player);
         }
     }
 

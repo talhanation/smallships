@@ -1,17 +1,13 @@
 package com.talhanation.smallships.world.entity.cannon;
 
 import com.talhanation.smallships.world.item.CannonBallItem;
-import com.talhanation.smallships.world.item.ModItems;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.ContainerEntity;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A source of cannonballs for the cannon.
+ * A source of cannonballs. This can also be used
+ * to redirect consumption to another source.
  */
-public interface ICannonBallContainer {
+public interface ICannonBallSource {
     void consumeCannonBall();
 
     /**

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.talhanation.smallships.world.entity.IMixinEntity;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -50,12 +51,13 @@ public abstract class EntityMixin implements IMixinEntity, ICannonProjectile {
     }
 
     @Override
-    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, LivingEntity shooter) {
+    public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, Entity shooter) {
         if (this.level.isClientSide()) return;
         Object thisO = this;
         Entity thisEntity = (Entity) thisO;
 
         ((IMixinEntity) this).setPreventTeleportOnNextPassengerSync(true);
+        ((IMixinEntity) this).setPreventDismountToCoordinates(true);
         this.stopRiding();
         direction.mul(cannonSpeedMultiplier * 3);
 

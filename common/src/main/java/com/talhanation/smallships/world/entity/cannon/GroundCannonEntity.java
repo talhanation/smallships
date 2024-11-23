@@ -9,10 +9,15 @@ import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
 import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
+import com.talhanation.smallships.world.particles.ModParticleTypes;
+import com.talhanation.smallships.world.particles.cannon.DyedCannonShootOptions;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,22 +25,24 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.*;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-public class GroundCannonEntity extends Minecart implements ICannonBallContainer {
+/**
+ * @author Chryfi
+ */
+public class GroundCannonEntity extends Minecart implements ICannon {
     public static final String ID = "ground_cannon";
     private static final EntityDataAccessor<Optional<UUID>> UUID = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<String> DYE = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.STRING);
     private final Cannon cannon = new Cannon(this);
     /**
      * Whether this entity was driven in the previous tick.
@@ -52,31 +59,55 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         super(entityType, level);
     }
 
+    /*
+     *
+     * DATA
+     *
+     */
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(UUID, Optional.empty());
+        builder.define(DYE, "");
     }
 
     public Optional<UUID> getEntityInBarrelUUID() {
         return this.entityData.get(UUID);
     }
 
+    protected final void setEntityInBarrelUUID(UUID uuid) {
+        this.entityData.set(UUID, Optional.ofNullable(uuid));
+    }
+
+    @Nullable
+    public DyeColor getDye() {
+        String dye = this.entityData.get(DYE);
+        return dye.isEmpty() ? null : DyeColor.byName(this.entityData.get(DYE), null);
+    }
+
+    @Nullable
+    protected final void setDye(@Nullable DyeColor dye) {
+        this.entityData.set(DYE, dye != null ? dye.getSerializedName() : "");
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        DyeColor dye;
+        if ((dye = this.getDye()) != null) tag.putString("Dye", dye.getSerializedName());
         this.getEntityInBarrelUUID().ifPresent(uuid -> tag.putUUID("EntityInBarrelUUID", uuid));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        if (tag.contains("Dye")) {
+            this.setDye(DyeColor.byName(tag.getString("Dye"), null));
+        }
         if (tag.contains("EntityInBarrelUUID")) {
             this.setEntityInBarrelUUID(tag.getUUID("EntityInBarrelUUID"));
         }
-    }
-
-    protected final void setEntityInBarrelUUID(UUID uuid) {
-        this.entityData.set(UUID, Optional.ofNullable(uuid));
     }
 
     public Cannon getCannon() {
@@ -90,11 +121,10 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         float yRot = this.getYRot();
 
         super.tick();
-        this.cannon.tick(this.getX(), this.getY(), this.getZ());
 
         /* detect when a player enters to set the player head yaw and pitch to continue shooting */
         boolean isDriven = this.getPassengerDriver() != null;
-        final LivingEntity driver = this.getPassengerDriver();
+        final Entity driver = this.getPassengerDriver();
         boolean enteredCannon = !this.drivenPrevTick && isDriven;
 
         /* set player to the orientation of the cannon on first time enter */
@@ -113,8 +143,7 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
         this.setYRot(yRot);
         this.setXRot(xRot);
-        this.cannon.setYaw(-yRot);
-        this.cannon.setPitch(xRot);
+        this.cannon.tick(this.getX(), this.getY(), this.getZ(), -yRot, xRot);
         this.testEntityIntersection();
     }
 
@@ -140,7 +169,9 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     @Override
     public InteractionResult interact(Player player, InteractionHand interactionHand) {
         /* copied from Minecart.interact */
-        if (player.isSecondaryUseActive()) {
+        if (this.itemInteraction(player, interactionHand)) {
+            return InteractionResult.CONSUME;
+        } else if (player.isSecondaryUseActive()) {
             return InteractionResult.PASS;
         } else if (this.getPassengers().size() == 2) {
             return InteractionResult.PASS;
@@ -149,6 +180,23 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         } else {
             return InteractionResult.SUCCESS;
         }
+    }
+
+    protected boolean itemInteraction(Player player, InteractionHand interactionHand) {
+        if (!this.level().isClientSide() && interactionHand == InteractionHand.MAIN_HAND) {
+            ItemStack item = player.getMainHandItem();
+            if (item.getItem() instanceof DyeItem dye) {
+                if (!dye.getDyeColor().equals(this.getDye())) {
+                    item.shrink(1);
+                    this.setDye(dye.getDyeColor());
+                }
+                return true;
+            } else if (item.is(Items.FLINT_AND_STEEL)) {
+                this.setDye(null);
+                return true;
+            }
+        }
+        return false;
     }
 
     protected boolean tryRiding(Entity entity) {
@@ -206,17 +254,14 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     /**
      * Can be executed on both client and server, it encapsulates the handling logic.
      */
-    public void trigger() {
-        //TODO don't trigger fuze on client.
-        CannonBallItem cannonBallToShoot = this.getPassengerInBarrel() == null ? this.getCannonBallToShoot() : null;
-        boolean canFuze = cannonBallToShoot != null || this.getPassengerInBarrel() != null;
-
+    public void trigger(Entity triggeredBy) {
         if (this.level().isClientSide()) {
-            //TODO just for the particle.
-            if (canFuze) this.cannon.triggerFuze(() -> {});
             ModPackets.clientSendPacket(new ServerboundShootGroundCannonPacket(false));
             return;
         }
+
+        CannonBallItem cannonBallToShoot = this.getPassengerInBarrel() == null ? this.getCannonBallToShoot() : null;
+        boolean canFuze = cannonBallToShoot != null || this.getPassengerInBarrel() != null;
 
         if (canFuze) {
             /* consume the cannonball, if it's available, and shoot it after a delay.
@@ -225,37 +270,14 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
                 this.consumeCannonBall();
             }
 
-            this.cannon.triggerFuze(() -> {
+            this.cannon.triggerFuze(triggeredBy, () -> {
                 if (cannonBallToShoot != null) {
-                    this.shootCannonBall(cannonBallToShoot);
+                    return new CannonBallEntity(this.level());
                 } else {
-                    this.tryShootBarrelEntity();
+                    return (ICannonProjectile) this.getPassengerInBarrel();
                 }
             });
         }
-    }
-
-    private void tryShootBarrelEntity() {
-        LivingEntity driver = this.getPassengerDriver();
-        if (driver != null) {
-            this.cannon.setYaw(-driver.getYRot());
-            this.cannon.setPitch(driver.getXRot());
-        }
-
-        Entity barrelEntity = this.getPassengerInBarrel();
-        if (barrelEntity != null) {
-            this.cannon.shoot((ICannonProjectile) barrelEntity);
-        }
-    }
-
-    private void shootCannonBall(CannonBallItem cannonBallItem) {
-        final LivingEntity driver;
-        if ((driver = this.getPassengerDriver()) != null) {
-            this.cannon.setYaw(-driver.getYRot());
-            this.cannon.setPitch(driver.getXRot());
-        }
-
-        this.cannon.shoot(new CannonBallEntity(this.level()));
     }
 
     @Override
@@ -266,16 +288,6 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
         } else {
             return this.getBarrelPassengerAttachmentPoint();
         }
-    }
-
-    @Override
-    public Vec3 getDismountLocationForPassenger(LivingEntity arg) {
-        //TODO scrap
-        if (this.getPassengerInBarrel() == arg) {
-            return this.getBarrelPassengerAttachmentPoint();
-        }
-
-        return super.getDismountLocationForPassenger(arg);
     }
 
     protected Vec3 getBarrelPassengerAttachmentPoint() {
@@ -304,6 +316,19 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     }
 
     @Override
+    public void destroy(Item arg) {
+        this.kill();
+        if (this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+            ItemStack itemStack = new ItemStack(arg);
+            itemStack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
+            CompoundTag tag = new CompoundTag();
+            this.addAdditionalSaveData(tag);
+            itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            this.spawnAtLocation(itemStack);
+        }
+    }
+
+    @Override
     public Item getDropItem() {
         return ModItems.CANNON;
     }
@@ -324,10 +349,10 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
      * For some reason when overriding {@link #getControllingPassenger()} it cannot be controlled on rails anymore.
      */
     @Nullable
-    public LivingEntity getPassengerDriver() {
+    public Entity getPassengerDriver() {
         for (Entity passenger : this.getPassengers()) {
-            if (passenger != this.getPassengerInBarrel() && passenger instanceof LivingEntity living) {
-                return living;
+            if (passenger != this.getPassengerInBarrel()) {
+                return passenger;
             }
         }
 
@@ -361,11 +386,10 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
 
     @Override
     public void consumeCannonBall() {
-        if (this.getPassengerDriver() == null || this.getPassengerDriver().hasInfiniteMaterials()) return;
+        Entity driver = this.getPassengerDriver();
+        if (driver == null || (driver instanceof LivingEntity livingDriver && livingDriver.hasInfiniteMaterials())) return;
 
-        //TODO might be cool to add a one slot inventory to the cannon and consume them from there
-        //TODO inject ICannonBallContainer into Player
-        if (this.getPassengerDriver() instanceof ICannonBallContainer container) {
+        if (driver instanceof ICannonBallSource container) {
             container.consumeCannonBall();
         } else if (this.getPassengerDriver() instanceof Player player) {
             for (ItemStack itemstack : player.getInventory().items) {
@@ -378,10 +402,28 @@ public class GroundCannonEntity extends Minecart implements ICannonBallContainer
     }
 
     @Override
+    public ParticleOptions provideShootParticles() {
+        if (this.getDye() != null) {
+            return new DyedCannonShootOptions(this.getDye());
+        }
+        return ModParticleTypes.CANNON_SHOOT;
+    }
+
+    @Override
+    public void playSoundAt(SoundEvent soundEvent, float volumeMultiplier, float pitch) {
+        this.playSound(soundEvent, volumeMultiplier, pitch);
+    }
+
+    @Override
+    public Level getLevel() {
+        return this.level();
+    }
+
+    @Override
     public CannonBallItem getCannonBallToShoot() {
         if (this.getPassengerDriver() == null) return null;
 
-        if (this.getPassengerDriver() instanceof ICannonBallContainer container) {
+        if (this.getPassengerDriver() instanceof ICannonBallSource container) {
             return container.getCannonBallToShoot();
         } else if (this.getPassengerDriver() instanceof Player player) {
             return player.getInventory().items.stream().anyMatch(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL)) ? ModItems.CANNON_BALL : null;

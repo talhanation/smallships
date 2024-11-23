@@ -6,6 +6,9 @@ import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.particles.ModParticleProviders;
+import com.talhanation.smallships.world.particles.fabric.ModParticleProvidersImpl;
+import com.talhanation.smallships.world.particles.fabric.ModParticleTypesImpl;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -29,6 +32,8 @@ public class ClientInitializer implements ClientModInitializer {
         initRegisterTickEvents();
 
         initRegisterPacketReceivers();
+
+        new ModParticleProvidersImpl();
     }
 
     private void initRendererRegisterRenderers() {
