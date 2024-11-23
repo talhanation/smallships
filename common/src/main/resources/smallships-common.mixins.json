@@ -13,7 +13,9 @@
     "container.SimpleContainerAccessor",
     "controlling.BoatAccessor",
     "controlling.BoatMixin",
-    "entity.EntityMixin"
+    "entity.EntityMixin",
+    "entity.LivingEntityMixin",
+    "entity.ServerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

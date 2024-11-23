@@ -152,7 +152,7 @@ public class Cannon {
 
     public void shoot(ICannonProjectile projectile) {
         if (!(this.level instanceof ServerLevel serverLevel)) return;
-
+        this.setCoolDown();
         projectile.shootAndSpawn(this, this.getBarrelEndPoint(), this.getForward(), this.speed, 1, null);
         this.playCannonShotSound();
         //TODO register custom particle type and send particles from server.
