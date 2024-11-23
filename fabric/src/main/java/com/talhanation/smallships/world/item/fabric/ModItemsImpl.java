@@ -76,11 +76,11 @@ public class ModItemsImpl {
         register("cannon_ball", new CannonBallItem((new Item.Properties()).stacksTo(16)));
 
         for (Boat.Type type: Boat.Type.values()) {
-
-            register(type.getName() + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
-            register(type.getName() + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));
-            register(type.getName() + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
-			register(type.getName() + "_" + DrakkarEntity.ID,  new DrakkarItem(type, new Item.Properties().stacksTo(1)));
+            String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
+            register(name + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
+			register(name + "_" + DrakkarEntity.ID,  new DrakkarItem(type, new Item.Properties().stacksTo(1)));
 
         }
     }
