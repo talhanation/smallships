@@ -127,7 +127,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     }
 
     private static final ModelPart cannonModel = CannonModel.createBodyLayer().bakeRoot();
-    @SuppressWarnings({"unused", "unchecked"})
+    @SuppressWarnings({"unused"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         for(byte i = 0; i < cannonShipEntity.getCannonCount(); i++){
             ShipCannon cannon = new ShipCannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
