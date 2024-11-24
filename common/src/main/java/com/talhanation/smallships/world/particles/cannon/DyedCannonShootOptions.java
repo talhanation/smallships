@@ -10,7 +10,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
-import org.jetbrains.annotations.Nullable;
 
 public class DyedCannonShootOptions implements ParticleOptions {
     public static final StreamCodec<RegistryFriendlyByteBuf, DyedCannonShootOptions> STREAM_CODEC;
@@ -45,6 +44,6 @@ public class DyedCannonShootOptions implements ParticleOptions {
 
     @Override
     public ParticleType<?> getType() {
-        return ModParticleTypes.DYED_CANNON_SHOOT;
+        return ModParticleTypes.DYED_CANNON_SHOOT.get();
     }
 }

@@ -6,6 +6,7 @@ import com.talhanation.smallships.neoforge.events.PassengerEvents;
 import com.talhanation.smallships.world.entity.neoforge.ModEntityTypesImpl;
 import com.talhanation.smallships.world.inventory.neoforge.ModMenuTypesImpl;
 import com.talhanation.smallships.world.item.neoforge.ModItemsImpl;
+import com.talhanation.smallships.world.particles.neoforge.ModParticleTypesImpl;
 import com.talhanation.smallships.world.sound.neoforge.ModSoundTypesImpl;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -27,6 +28,7 @@ public class SmallshipsModNeoForge {
         ModEntityTypesImpl.ENTITY_TYPES.register(modEventBus);
         ModMenuTypesImpl.MENU_TYPES.register(modEventBus);
         ModSoundTypesImpl.SOUND_EVENTS.register(modEventBus);
+        ModParticleTypesImpl.PARTICLE_TYPES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(new PassengerEvents());
     }

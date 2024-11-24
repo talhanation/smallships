@@ -9,12 +9,15 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public class ModParticleTypes {
-    public static final SimpleParticleType CANNON_SHOOT;
-    public static final ParticleType<DyedCannonShootOptions> DYED_CANNON_SHOOT;
-    public static final SimpleParticleType CANNON_BALL_SHOOT;
-    public static final ParticleType<CustomPoofParticleOptions> COLORED_POOF;
+    public static final Supplier<SimpleParticleType> CANNON_SHOOT;
+    public static final Supplier<ParticleType<DyedCannonShootOptions>> DYED_CANNON_SHOOT;
+    public static final Supplier<SimpleParticleType> CANNON_BALL_SHOOT;
+    public static final Supplier<ParticleType<CustomPoofParticleOptions>> COLORED_POOF;
 
     static {
         CANNON_SHOOT = register("basic_cannon_shoot");
@@ -25,42 +28,35 @@ public class ModParticleTypes {
         CANNON_BALL_SHOOT = register("cannon_ball_shoot");
     }
 
-    /**
-     * Register a simple particle without options.
-     * @param id
-     * @param provider
-     * @return
-     */
-    public static SimpleParticleType register(String id) {
+    public static Supplier<SimpleParticleType> register(String id) {
         return register(id, false);
     }
 
-    public static SimpleParticleType register(String id, boolean overrideLimiter) {
+    @SuppressWarnings("unchecked")
+    public static Supplier<SimpleParticleType> register(String id, boolean overrideLimiter) {
         SimpleParticleType type = new SimpleParticleTypeImpl(overrideLimiter);
-        register(id, type);
-        return type;
+        return (Supplier<SimpleParticleType>) (Supplier<?>) register(id, type);
     }
 
-    public static <T extends ParticleOptions> ParticleType<T> register(String string,
+    public static <T extends ParticleOptions> Supplier<ParticleType<T>> register(String string,
                                                                        final MapCodec<T> codecSupplier,
                                                                        final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodecSupplier) {
-        ParticleType<T> type = new ParticleType<T>(false) {
+        ParticleType<T> type = new ParticleType<>(false) {
             @Override
-            public MapCodec<T> codec() {
+            public @NotNull MapCodec<T> codec() {
                 return codecSupplier;
             }
 
             @Override
-            public StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
+            public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
                 return streamCodecSupplier;
             }
         };
-        register(string, type);
-        return type;
+        return register(string, type);
     }
 
     @ExpectPlatform
-    public static <T extends ParticleOptions> void register(String string, ParticleType<T> type) {
+    public static @NotNull <T extends ParticleOptions> Supplier<ParticleType<T>> register(String string, ParticleType<T> particleType) {
         throw new AssertionError();
     }
 

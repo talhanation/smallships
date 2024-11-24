@@ -1,6 +1,7 @@
 package com.talhanation.smallships.world.entity.forge;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
@@ -33,6 +34,14 @@ public class ModEntityTypesImpl {
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
                         .build(CannonBallEntity.ID)));
+
+        entries.put(GroundCannonEntity.class, ENTITY_TYPES.register(GroundCannonEntity.ID,
+                () -> EntityType.Builder.of(GroundCannonEntity::factory, MobCategory.MISC)
+                        .sized(0.85F, 0.75F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(GroundCannonEntity.ID)));
 
         entries.put(CogEntity.class, ENTITY_TYPES.register(CogEntity.ID,
                 () -> EntityType.Builder.of(CogEntity::new, MobCategory.MISC)

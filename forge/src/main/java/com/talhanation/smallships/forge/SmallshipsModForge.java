@@ -6,6 +6,7 @@ import com.talhanation.smallships.forge.events.PassengerEvents;
 import com.talhanation.smallships.world.entity.forge.ModEntityTypesImpl;
 import com.talhanation.smallships.world.inventory.forge.ModMenuTypesImpl;
 import com.talhanation.smallships.world.item.forge.ModItemsImpl;
+import com.talhanation.smallships.world.particles.forge.ModParticleTypesImpl;
 import com.talhanation.smallships.world.sound.forge.ModSoundTypesImpl;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -30,6 +31,7 @@ public class SmallshipsModForge {
         ModEntityTypesImpl.ENTITY_TYPES.register(modEventBus);
         ModMenuTypesImpl.MENU_TYPES.register(modEventBus);
         ModSoundTypesImpl.SOUND_EVENTS.register(modEventBus);
+        ModParticleTypesImpl.PARTICLE_TYPES.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(new PassengerEvents());
     }

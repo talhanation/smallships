@@ -406,7 +406,7 @@ public class GroundCannonEntity extends Minecart implements ICannon {
         if (this.getDye() != null) {
             return new DyedCannonShootOptions(this.getDye());
         }
-        return ModParticleTypes.CANNON_SHOOT;
+        return ModParticleTypes.CANNON_SHOOT.get();
     }
 
     @Override

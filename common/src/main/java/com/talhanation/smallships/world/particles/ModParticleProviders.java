@@ -14,10 +14,10 @@ import java.util.function.Supplier;
 
 public class ModParticleProviders {
     public ModParticleProviders() {
-        register(ModParticleTypes.CANNON_SHOOT, CannonPoofParticles.Provider::new);
-        register(ModParticleTypes.DYED_CANNON_SHOOT, CannonPoofParticles.DyedProvider::new);
-        register(ModParticleTypes.COLORED_POOF, CustomPoofParticle.Provider::new);
-        register(ModParticleTypes.CANNON_BALL_SHOOT, CannonBallShootParticles.Provider::new);
+        register(ModParticleTypes.CANNON_SHOOT.get(), CannonPoofParticles.Provider::new);
+        register(ModParticleTypes.DYED_CANNON_SHOOT.get(), CannonPoofParticles.DyedProvider::new);
+        register(ModParticleTypes.COLORED_POOF.get(), CustomPoofParticle.Provider::new);
+        register(ModParticleTypes.CANNON_BALL_SHOOT.get(), CannonBallShootParticles.Provider::new);
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Supplier<ParticleProvider<T>> providerConstructor) {

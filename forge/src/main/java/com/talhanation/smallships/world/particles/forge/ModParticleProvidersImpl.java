@@ -1,21 +1,24 @@
-package com.talhanation.smallships.world.particles.fabric;
+package com.talhanation.smallships.world.particles.forge;
 
-import com.talhanation.smallships.world.particles.ModParticleProviders;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import oshi.util.tuples.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
-public class ModParticleProvidersImpl extends ModParticleProviders {
+public class ModParticleProvidersImpl {
+    public static List<Pair<ParticleType<?>, Object>> PARTICLE_PROVIDERS = new ArrayList<>();
+
     public static <T extends ParticleOptions> void register(ParticleType<T> type, ParticleProvider<T> provider) {
-        ParticleFactoryRegistry.getInstance().register(type, provider);
+        PARTICLE_PROVIDERS.add(new Pair<>(type, provider));
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Function<SpriteSet, ParticleProvider<T>> provider) {
-        ParticleFactoryRegistry.getInstance().register(type, provider::apply);
+        PARTICLE_PROVIDERS.add(new Pair<>(type, provider));
     }
 }

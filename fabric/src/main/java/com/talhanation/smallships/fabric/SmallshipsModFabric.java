@@ -8,7 +8,7 @@ import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import com.talhanation.smallships.world.item.ModItems;
-import com.talhanation.smallships.world.particles.fabric.ModParticleTypesImpl;
+import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -23,7 +23,7 @@ public class SmallshipsModFabric implements ModInitializer {
         new ModMenuTypes();
         new ModItems();
         new ModSoundTypes();
-        new ModParticleTypesImpl();
+        new ModParticleTypes();
 
         ModPackets.registerPackets();
         ModPacketsImpl.registerServerReceivers();

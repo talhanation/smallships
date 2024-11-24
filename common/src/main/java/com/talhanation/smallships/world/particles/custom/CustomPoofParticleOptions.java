@@ -1,6 +1,5 @@
 package com.talhanation.smallships.world.particles.custom;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
@@ -27,6 +26,6 @@ public record CustomPoofParticleOptions(Vector3f color) implements ParticleOptio
 
     @Override
     public ParticleType<?> getType() {
-        return ModParticleTypes.COLORED_POOF;
+        return ModParticleTypes.COLORED_POOF.get();
     }
 }

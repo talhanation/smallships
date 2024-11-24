@@ -54,7 +54,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
 
     @Override
     public ParticleOptions getAdditionalCannonShootParticles() {
-        return ModParticleTypes.CANNON_BALL_SHOOT;
+        return ModParticleTypes.CANNON_BALL_SHOOT.get();
     }
 
     @Override
