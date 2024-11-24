@@ -23,6 +23,8 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     private final int pageIndex;
     private final ContainerShip containerShip;
     private final int offset = 40;
+    private int origLeftPos;
+    private int origTopPos;
 
     public ShipContainerScreen(ShipContainerMenu shipContainerMenu, Inventory inventory, Component component) {
         super(shipContainerMenu, inventory, component);
@@ -53,6 +55,8 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
 
     @Override
     protected void init() {
+        this.origLeftPos = this.leftPos;
+        this.origTopPos = this.topPos;
         this.leftPos = offset + (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
 
@@ -61,6 +65,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
             return;
         }
 
+        // render page forwards / backwards buttons
         Button backward = this.addRenderableWidget(new Button.Builder(Component.literal("<"),
                 button -> this.getMenu().clickMenuButton(this.minecraft.player, -1))
                 .pos(leftPos + 115, topPos + 125).size(12, 12)
@@ -147,8 +152,11 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         guiGraphics.drawString(font, dmg + "%", leftPos2, topPos + gap * 4, FONT_COLOR, false);
         guiGraphics.drawString(font, currentAttachment + "/" + maxAttachment, leftPos2, topPos + gap * 5, FONT_COLOR, false);
 
-        guiGraphics.pose().popPose();
+        // render page number
+        int xOffset = origLeftPos + (int) (133 - (float) (Mth.floor(Math.log10(this.pageCount))) * 6);
+        int yOffset = origTopPos + this.rowCount * 18;
+        if (this.pageCount > 1) guiGraphics.drawString(font, (this.pageIndex + 1) + "/"  + this.pageCount, xOffset, yOffset, FONT_COLOR, false);
 
-        if (this.pageCount > 1) guiGraphics.drawString(font, "" +  (this.pageIndex + 1) + "/"  + this.pageCount, (int) (133 - (float)(Mth.floor(Math.log10(this.pageCount))) * 6), this.rowCount*18+19, FONT_COLOR, false);
+        guiGraphics.pose().popPose();
     }
 }
