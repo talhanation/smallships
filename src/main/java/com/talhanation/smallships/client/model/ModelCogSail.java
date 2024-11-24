@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ModelCogSail extends ModelSail{
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Main.MOD_ID, "model_cogsail"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Main.MOD_ID, "model_cogsail"), "main"); // do we need this?
 	private final ModelPart Segel_0;
 	private final ModelPart Segel_1;
 	private final ModelPart Segel_2;

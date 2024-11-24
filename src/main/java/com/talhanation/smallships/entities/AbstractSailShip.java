@@ -43,7 +43,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     private final float[] paddlePositions = new float[2];
     private float waveAngle;
     private float prevWaveAngle;
-    private boolean collidedLastTick;
+    private boolean collidedLastTick; //Do wee need this?
 
     private static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(AbstractSailShip.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ROT_SPEED = SynchedEntityData.defineId(AbstractSailShip.class, EntityDataSerializers.FLOAT);
@@ -150,7 +150,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
     public String getSailColor() {
         return this.entityData.get(SAIL_COLOR);
     }
-
+    //Do we need this?
     public boolean getSteerState(int side) {
         return this.entityData.<Boolean>get(side == 0 ? LEFT : RIGHT) && this.getControllingPassenger() != null;
     }
@@ -245,7 +245,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             entityData.set(SAIL_STATE, state);
         }
     }
-
+    //Do we need this?
     public void setPaddleState(boolean left, boolean right) {
         this.entityData.set(LEFT_PADDLE, left);
         this.entityData.set(RIGHT_PADDLE, right);
@@ -451,7 +451,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             itemStack.shrink(1);
         }
     }
-
+    //Do we need this?
     public void onCollision(float speed) {
         if (level.isClientSide) {
             //Main.SIMPLE_CHANNEL.sendToServer(new MessageCrash(speed, this));
@@ -608,7 +608,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
             level.playSound(null, getX(), getY(), getZ(), SoundEvents.CROP_BREAK, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * random.nextFloat());
         }
     }
-
+    // Do we need this?
     public Item getItemBoat() {
         return switch (this.getWoodType()) {
             case OAK -> Items.OAK_BOAT;

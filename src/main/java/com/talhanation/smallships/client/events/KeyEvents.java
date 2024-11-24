@@ -17,7 +17,7 @@ public class KeyEvents {
 
     private boolean wasSailPressed;
     private boolean wasInvPressed;
-    private boolean wasLanternPressed;
+    private boolean wasLanternPressed;  //Do we need?
     private boolean wasCannonPressed;
 
     @SubscribeEvent

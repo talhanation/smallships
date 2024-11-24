@@ -18,7 +18,7 @@ import net.minecraftforge.fml.LogicalSide;
 @OnlyIn(Dist.CLIENT)
 public class RenderEvents {
 
-    private static final ResourceLocation SHIP_INFO_TEXTURE = new ResourceLocation(Main.MOD_ID, "textures/gui/ship_info.png");
+    private static final ResourceLocation SHIP_INFO_TEXTURE = new ResourceLocation(Main.MOD_ID, "textures/gui/ship_info.png"); //Do we need this?
     private final Minecraft mc;
     private AbstractSailShip lastVehicle;
 

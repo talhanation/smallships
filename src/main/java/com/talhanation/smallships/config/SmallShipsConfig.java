@@ -47,8 +47,7 @@ public class SmallShipsConfig {
     public static final ForgeConfigSpec.DoubleValue WarGalleyHealth;
     public static final ForgeConfigSpec.DoubleValue DhowHealth;
 
-    public static ForgeConfigSpec.BooleanValue ShowShipInfo;
-    public static ForgeConfigSpec.DoubleValue  ShipInfoScale;
+
 
     public static final ForgeConfigSpec.ConfigValue<List<String>> PassengerBlackList;
 
@@ -290,7 +289,7 @@ public class SmallShipsConfig {
 
         CONFIG = BUILDER.build();
     }
-
+    // do we need this?
     public static void loadConfig(ForgeConfigSpec spec, Path path) {
         CommentedFileConfig configData = CommentedFileConfig.builder(path)
                 .sync()

@@ -15,7 +15,7 @@ public class MessageControlShip implements Message<MessageControlShip> {
 
     private boolean forward, backward, left, right;
     private UUID uuid;
-
+    // Do we need this?
     public MessageControlShip() {
 
     }
