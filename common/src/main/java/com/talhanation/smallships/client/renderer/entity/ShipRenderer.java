@@ -17,6 +17,7 @@ import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -125,6 +126,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         super.render(shipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 
+    private static final ModelPart cannonModel = CannonModel.createBodyLayer().bakeRoot();
     @SuppressWarnings({"unused", "unchecked"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         for(byte i = 0; i < cannonShipEntity.getCannonCount(); i++){
@@ -136,10 +138,9 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
             poseStack.scale(0.6F, 0.6F, 0.6F);
 
-            CannonModel cannonModel = new CannonModel();
-            cannonModel.setupAnim((T)cannonShipEntity, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
-            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(cannonModel.renderType(cannonShipEntity.getTextureLocation()));
-            cannonModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFF);
+            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entitySolid(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/cannon/ship_cannon.png")));
+            cannonModel.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+
             poseStack.popPose();
         }
     }
