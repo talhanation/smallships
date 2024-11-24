@@ -8,6 +8,7 @@ import com.talhanation.smallships.world.entity.IMixinEntity;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
+import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -33,6 +34,8 @@ import java.util.UUID;
 public class GroundCannonEntity extends Minecart implements ICannonBallContainer, IEntityRemovePassenger {
     public static final String ID = "ground_cannon";
     private static final EntityDataAccessor<Optional<UUID>> UUID = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Boolean> FORWARD = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> BACKWARD = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private final Cannon cannon = new Cannon(this);
     /**
      * Whether this entity was driven in the previous tick.
