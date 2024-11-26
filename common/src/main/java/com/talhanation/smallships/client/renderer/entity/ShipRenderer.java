@@ -138,7 +138,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
             poseStack.scale(0.6F, 0.6F, 0.6F);
 
-            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entitySolid(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/cannon/ship_cannon.png")));
+            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entitySolid(cannonShipEntity.getTextureLocation()));
             cannonModel.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 
             poseStack.popPose();
