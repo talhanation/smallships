@@ -23,6 +23,8 @@
     "2.0.0-b1.5": "fix shields not being saved correctly"
   },
   "1.21.1": {
-    "2.0.0-b1.5": "port to NeoForge 1.21.1"
+    "2.0.0-b1.5": "port to NeoForge 1.21.1",
+    "2.0.0-b2.0": "add ground cannons! (thanks to Chryfi), fix incompatibility with new boat type system (thanks to bconlon1), fix ship cannons not rendering with shaders enabled",
+    "2.0.0-b2.1": "fix ground cannons not rendering with shaders enabled"
   }
 }
