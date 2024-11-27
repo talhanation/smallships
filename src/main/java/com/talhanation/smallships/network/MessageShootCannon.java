@@ -10,7 +10,7 @@ import net.minecraftforge.network.NetworkEvent;
 public class MessageShootCannon implements Message<MessageShootCannon> {
 
     private boolean shoot;
-
+    //Do wee need this?
     public MessageShootCannon() {
     }
 
