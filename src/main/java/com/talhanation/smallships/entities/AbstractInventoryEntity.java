@@ -99,7 +99,7 @@ public abstract class AbstractInventoryEntity extends AbstractSailShip {
     }
 
     ////////////////////////////////////SET////////////////////////////////////
-
+    //Do we need this?
     public boolean setSlot(int slot, ItemStack itemStack) {
         if (super.getSlot(slot).set(itemStack)) {
             return true;

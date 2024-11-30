@@ -17,7 +17,7 @@ public class KeyEvents {
 
     private boolean wasSailPressed;
     private boolean wasInvPressed;
-    private boolean wasLanternPressed;
+    //private boolean wasLanternPressed;  Do we need this?
     private boolean wasCannonPressed;
 
     @SubscribeEvent
@@ -74,7 +74,7 @@ public class KeyEvents {
             }
         }
 
-        /*
+        /* Is this still needed if not I suggest to delete it and also delete the wasLaternPressed variable
         if (clientPlayerEntity.equals(boat.getDriver())) {
             if (RegisterKeyMappings.LANTERN_KEY.isDown()) {
                 boat.onLanternPressed();

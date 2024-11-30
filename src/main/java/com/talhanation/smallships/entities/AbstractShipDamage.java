@@ -153,7 +153,7 @@ public abstract class AbstractShipDamage extends AbstractBannerUser {
             damageShip(amount);
         return false;
     }
-
+    // Do we need this?
     public abstract ResourceLocation getLootTable();
 
     public void destroyShip(DamageSource source) {

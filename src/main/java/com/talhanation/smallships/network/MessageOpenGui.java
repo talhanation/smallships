@@ -30,7 +30,7 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
     public Dist getExecutingSide() {
         return Dist.DEDICATED_SERVER;
     }
-
+    //Do we need this?
     public void executeServerSide(NetworkEvent.Context context) {
         ServerPlayer player = context.getSender();
         player.level.getEntitiesOfClass(AbstractInventoryEntity.class, player.getBoundingBoxForCulling()
@@ -42,7 +42,7 @@ public class MessageOpenGui implements Message<MessageOpenGui> {
                 .findAny()
                 .ifPresent(entity -> InventoryEvents.openShipGUI(player, entity, startSlot));
     }
-
+    //Do we need this?
     public MessageOpenGui fromBytes(FriendlyByteBuf buf) {
         this.uuid = buf.readUUID();
         this.ship = buf.readUUID();

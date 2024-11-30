@@ -18,7 +18,7 @@ public class SmallShipsConfig {
     public static final ForgeConfigSpec.IntValue VERSION;
     public static final int NEW_VERSION = 10;
 
-    public static final ForgeConfigSpec.BooleanValue PlaySwimmSound;
+    public static final ForgeConfigSpec.BooleanValue PlaySwimSound;
     public static final ForgeConfigSpec.BooleanValue WaterMobFlee;
 
     public static final ForgeConfigSpec.DoubleValue GalleySpeedFactor;
@@ -47,8 +47,7 @@ public class SmallShipsConfig {
     public static final ForgeConfigSpec.DoubleValue WarGalleyHealth;
     public static final ForgeConfigSpec.DoubleValue DhowHealth;
 
-    public static ForgeConfigSpec.BooleanValue ShowShipInfo;
-    public static ForgeConfigSpec.DoubleValue  ShipInfoScale;
+
 
     public static final ForgeConfigSpec.ConfigValue<List<String>> PassengerBlackList;
 
@@ -179,12 +178,12 @@ public class SmallShipsConfig {
                 .worldRestart()
                 .defineInRange("DhowTurnFactor", 0.3, 0.0, 1.0);
 
-        PlaySwimmSound = BUILDER.comment("""
+        PlaySwimSound = BUILDER.comment("""
 
                         ----Should Ships Make Swimming sounds?----
                         \t(takes effect after restart)
                         \tdefault: true""")
-                .define("PlaySwimmSound", true);
+                .define("PlaySwimSound", true);
 
         WaterMobFlee = BUILDER.comment("""
 
@@ -290,7 +289,7 @@ public class SmallShipsConfig {
 
         CONFIG = BUILDER.build();
     }
-
+    // do we need this?
     public static void loadConfig(ForgeConfigSpec spec, Path path) {
         CommentedFileConfig configData = CommentedFileConfig.builder(path)
                 .sync()

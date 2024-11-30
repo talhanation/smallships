@@ -2,7 +2,7 @@ package com.talhanation.smallships;
 
 import com.talhanation.smallships.client.events.ClientRenderEvent;
 import com.talhanation.smallships.client.events.KeyEvents;
-import com.talhanation.smallships.client.events.PlayerEvents;
+
 import com.talhanation.smallships.client.events.RenderEvents;
 import com.talhanation.smallships.client.gui.BasicShipInvScreen;
 import com.talhanation.smallships.config.SmallShipsConfig;
@@ -86,7 +86,6 @@ public class Main {
         MenuScreens.register(Main.BASIC_SHIP_CONTAINER_TYPE.get(), BasicShipInvScreen::new);
 
         MinecraftForge.EVENT_BUS.register(new RenderEvents());
-        MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new KeyEvents());
 
         ClientRenderEvent.register();

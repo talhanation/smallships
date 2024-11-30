@@ -453,7 +453,7 @@ public abstract class AbstractWaterVehicle extends Entity {
 
             return aboatentity$type[id];
         }
-
+        //Do we need this?
         public static AbstractWaterVehicle.Type getTypeFromString(String nameIn) {
             AbstractWaterVehicle.Type[] aboatentity$type = values();
 
