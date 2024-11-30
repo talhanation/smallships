@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 public class ModelBrigg extends EntityModel<BriggEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "model_brigg"), "main");
 	private final ModelPart ModelBrigg;
-	//Do we need this?
 	public ModelBrigg() {
 		ModelPart root = createBodyLayer().bakeRoot();
 		this.ModelBrigg = root.getChild("ModelBrigg");

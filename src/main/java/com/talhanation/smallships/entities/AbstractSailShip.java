@@ -105,7 +105,7 @@ public abstract class AbstractSailShip extends AbstractWaterVehicle {
 
                 WaterSplash();
 
-                if (SmallShipsConfig.PlaySwimmSound.get()) {
+                if (SmallShipsConfig.PlaySwimSound.get()) {
                     this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SWIM, this.getSoundSource(), 0.05F, 0.8F + 0.4F * this.random.nextFloat());
                 }
             }
