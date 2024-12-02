@@ -17,6 +17,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
 
     private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
 
+    private final BasicShipContainer container;
     private final AbstractInventoryEntity ship;
     private final Inventory playerInventory;
 
@@ -24,6 +25,7 @@ public class BasicShipInvScreen extends ScreenBase<BasicShipContainer> {
         super(GUI_TEXTURE, container, playerInventory, title);
         this.ship = container.getShip();
         this.playerInventory = playerInventory;
+        this.container = container;
         imageWidth = 176;
         imageHeight = 222;
     }
