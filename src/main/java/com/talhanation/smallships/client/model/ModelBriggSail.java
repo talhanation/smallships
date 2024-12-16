@@ -13,22 +13,23 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 
 public class ModelBriggSail extends ModelSail{
+	//Does this happen in reality?
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "model_segelbrigg"), "main");
-	private final ModelPart segel_brigg;
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "model_sailbrigg"), "main");
+	private final ModelPart sail_brigg;
 
 	public ModelBriggSail() {
 		ModelPart root = createBodyLayer().bakeRoot();
-		this.segel_brigg = root.getChild("segel_brigg");
+		this.sail_brigg = root.getChild("sail_brigg");
 	}
 
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition segel_brigg = partdefinition.addOrReplaceChild("segel_brigg", CubeListBuilder.create(), PartPose.offset(0.0F, -98.5F, 20.5F));
+		PartDefinition sail_brigg = partdefinition.addOrReplaceChild("sail_brigg", CubeListBuilder.create(), PartPose.offset(0.0F, -98.5F, 20.5F));
 
-		PartDefinition Sail_4 = segel_brigg.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_4 = sail_brigg.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_11 = Sail_4.addOrReplaceChild("rope_11", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.7031F, -0.2749F, -1.7985F));
 
@@ -141,12 +142,12 @@ public class ModelBriggSail extends ModelSail{
 
 		PartDefinition cube_r152 = rope_2.addOrReplaceChild("cube_r152", CubeListBuilder.create().texOffs(9, 25).addBox(-4.5F, -4.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -10.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
-		PartDefinition segel_6 = Sail_4.addOrReplaceChild("segel_6", CubeListBuilder.create().texOffs(79, 2).addBox(-0.7F, -44.0F, 0.0F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F))
+		PartDefinition sail_6 = Sail_4.addOrReplaceChild("sail_6", CubeListBuilder.create().texOffs(79, 2).addBox(-0.7F, -44.0F, 0.0F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(79, 2).addBox(-0.7F, -29.0F, 0.0F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(79, 2).addBox(-0.7F, 0.0F, 0.0F, 1.0F, 14.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(79, 2).addBox(-0.7F, -14.0F, 0.0F, 1.0F, 14.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.2F, -59.0F, -67.0F, -0.8233F, -0.5571F, 0.5184F));
 
-		PartDefinition cube_r153 = segel_6.addOrReplaceChild("cube_r153", CubeListBuilder.create().texOffs(94, 7).addBox(-0.5F, 16.0F, -8.0F, 1.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r153 = sail_6.addOrReplaceChild("cube_r153", CubeListBuilder.create().texOffs(94, 7).addBox(-0.5F, 16.0F, -8.0F, 1.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
 				.texOffs(94, 7).addBox(-0.5F, 32.0F, -7.0F, 1.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
 				.texOffs(94, 7).addBox(-0.5F, 32.0F, -15.0F, 1.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
 				.texOffs(94, 7).addBox(-0.5F, 32.0F, -23.0F, 1.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
@@ -507,7 +508,7 @@ public class ModelBriggSail extends ModelSail{
 				.texOffs(81, 16).addBox(-0.5F, -6.5F, 0.75F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(76, 16).addBox(-0.5F, 23.5F, 0.75F, 1.0F, 13.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -1.5708F, 0.0F, 0.0F));
 
-		PartDefinition Sail_3 = segel_brigg.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_3 = sail_brigg.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_14 = Sail_3.addOrReplaceChild("rope_14", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.6226F, -0.3589F, -1.9596F));
 
@@ -954,7 +955,7 @@ public class ModelBriggSail extends ModelSail{
 				.texOffs(73, 41).addBox(-51.0F, -41.6933F, 18.2105F, 18.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(85, 4).addBox(-33.0F, -41.6933F, 18.2105F, 16.0F, 3.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(54.5F, -48.8067F, 61.2895F, 2.0595F, 0.0F, 0.0F));
 
-		PartDefinition Sail_2 = segel_brigg.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_2 = sail_brigg.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_26 = Sail_2.addOrReplaceChild("rope_26", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.5789F, -0.577F, -1.9596F));
 
@@ -1357,7 +1358,7 @@ public class ModelBriggSail extends ModelSail{
 				.texOffs(80, 30).addBox(-51.0F, -40.6933F, 30.2105F, 18.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(74, 34).addBox(-33.0F, -40.6933F, 30.2105F, 16.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(54.5F, -48.8067F, 61.2895F, 2.0595F, 0.0F, 0.0F));
 
-		PartDefinition Sail_1 = segel_brigg.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_1 = sail_brigg.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_38 = Sail_1.addOrReplaceChild("rope_38", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.4917F, -1.1006F, -1.9596F));
 
@@ -1720,7 +1721,7 @@ public class ModelBriggSail extends ModelSail{
 
 		PartDefinition cube_r147 = rope_62.addOrReplaceChild("cube_r147", CubeListBuilder.create().texOffs(7, 29).addBox(19.5F, 19.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -0.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
-		PartDefinition Sail_0 = segel_brigg.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_0 = sail_brigg.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_50 = Sail_0.addOrReplaceChild("rope_50", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.4044F, -1.537F, -1.9596F));
 
@@ -2008,43 +2009,43 @@ public class ModelBriggSail extends ModelSail{
 		int state = entityIn.getSailState();
 		switch (state) {
 			case 0 -> {
-				this.segel_brigg.getChild("Sail_0").visible = true;
-				this.segel_brigg.getChild("Sail_1").visible = false;
-				this.segel_brigg.getChild("Sail_2").visible = false;
-				this.segel_brigg.getChild("Sail_3").visible = false;
-				this.segel_brigg.getChild("Sail_4").visible = false;
+				this.sail_brigg.getChild("Sail_0").visible = true;
+				this.sail_brigg.getChild("Sail_1").visible = false;
+				this.sail_brigg.getChild("Sail_2").visible = false;
+				this.sail_brigg.getChild("Sail_3").visible = false;
+				this.sail_brigg.getChild("Sail_4").visible = false;
 			}
 			case 1 -> {
-				this.segel_brigg.getChild("Sail_0").visible = false;
-				this.segel_brigg.getChild("Sail_1").visible = true;
-				this.segel_brigg.getChild("Sail_2").visible = false;
-				this.segel_brigg.getChild("Sail_3").visible = false;
-				this.segel_brigg.getChild("Sail_4").visible = false;
+				this.sail_brigg.getChild("Sail_0").visible = false;
+				this.sail_brigg.getChild("Sail_1").visible = true;
+				this.sail_brigg.getChild("Sail_2").visible = false;
+				this.sail_brigg.getChild("Sail_3").visible = false;
+				this.sail_brigg.getChild("Sail_4").visible = false;
 			}
 			case 2 -> {
-				this.segel_brigg.getChild("Sail_0").visible = false;
-				this.segel_brigg.getChild("Sail_1").visible = false;
-				this.segel_brigg.getChild("Sail_2").visible = true;
-				this.segel_brigg.getChild("Sail_3").visible = false;
-				this.segel_brigg.getChild("Sail_4").visible = false;
+				this.sail_brigg.getChild("Sail_0").visible = false;
+				this.sail_brigg.getChild("Sail_1").visible = false;
+				this.sail_brigg.getChild("Sail_2").visible = true;
+				this.sail_brigg.getChild("Sail_3").visible = false;
+				this.sail_brigg.getChild("Sail_4").visible = false;
 			}
 			case 3 -> {
-				this.segel_brigg.getChild("Sail_0").visible = false;
-				this.segel_brigg.getChild("Sail_1").visible = false;
-				this.segel_brigg.getChild("Sail_2").visible = false;
-				this.segel_brigg.getChild("Sail_3").visible = true;
-				this.segel_brigg.getChild("Sail_4").visible = false;
+				this.sail_brigg.getChild("Sail_0").visible = false;
+				this.sail_brigg.getChild("Sail_1").visible = false;
+				this.sail_brigg.getChild("Sail_2").visible = false;
+				this.sail_brigg.getChild("Sail_3").visible = true;
+				this.sail_brigg.getChild("Sail_4").visible = false;
 			}
 			case 4 -> {
-				this.segel_brigg.getChild("Sail_0").visible = false;
-				this.segel_brigg.getChild("Sail_1").visible = false;
-				this.segel_brigg.getChild("Sail_2").visible = false;
-				this.segel_brigg.getChild("Sail_3").visible = false;
-				this.segel_brigg.getChild("Sail_4").visible = true;
+				this.sail_brigg.getChild("Sail_0").visible = false;
+				this.sail_brigg.getChild("Sail_1").visible = false;
+				this.sail_brigg.getChild("Sail_2").visible = false;
+				this.sail_brigg.getChild("Sail_3").visible = false;
+				this.sail_brigg.getChild("Sail_4").visible = true;
 			}
 		}
 	}
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		segel_brigg.render(poseStack, vertexConsumer, packedLight, packedOverlay);
+		sail_brigg.render(poseStack, vertexConsumer, packedLight, packedOverlay);
 	}
 }

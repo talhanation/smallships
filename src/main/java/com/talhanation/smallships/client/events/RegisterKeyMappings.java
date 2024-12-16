@@ -21,8 +21,8 @@ public class RegisterKeyMappings {
     public static KeyMapping RIGHT_KEY;
 
     @SubscribeEvent
-    public static void keybindSetup(RegisterKeyMappingsEvent event) {
-        System.out.println("registering Keyssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+    public static void keybindingSetup(RegisterKeyMappingsEvent event) {
+        System.out.println("registering Keys");
         FORWARD_KEY = new KeyMapping("key.ship_forward", GLFW.GLFW_KEY_W, "category.smallships");
         BACKWARD_KEY = new KeyMapping("key.ship_backward", GLFW.GLFW_KEY_S, "category.smallships");
         LEFT_KEY = new KeyMapping("key.ship_left", GLFW.GLFW_KEY_A, "category.smallships");
