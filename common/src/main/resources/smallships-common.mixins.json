@@ -11,8 +11,8 @@
   ],
   "mixins": [
     "container.SimpleContainerAccessor",
-    "controlling.BoatAccessor",
-    "controlling.BoatMixin",
+    "controlling.AbstractBoatAccessor",
+    "controlling.AbstractBoatMixin",
     "entity.EntityMixin",
     "entity.LivingEntityMixin",
     "entity.ServerEntityMixin"

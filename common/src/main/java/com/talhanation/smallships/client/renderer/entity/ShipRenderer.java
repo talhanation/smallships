@@ -9,10 +9,12 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.*;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.projectile.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.BannerModel;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
@@ -29,11 +31,11 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -43,79 +45,112 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
-    protected final Map<Boat.Type, Pair<ResourceLocation, ShipModel<T>>> boatResources;
+public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, ShipRenderState> {
+    protected final Map<Ship.Type, Pair<ResourceLocation, ShipModel<T>>> boatResources;
 
     public ShipRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.shadowRadius = 0.8F;
 
-        this.boatResources = Stream.of(Boat.Type.values()).collect(ImmutableMap.toImmutableMap(
+        this.boatResources = Stream.of(Ship.Type.values()).collect(ImmutableMap.toImmutableMap(
                 (type) -> type,
                 (type) -> Pair.of(
                         this.getTextureLocation(type),
                         this.createBoatModel(context, type))));
     }
 
-    protected abstract ShipModel<T> createBoatModel(EntityRendererProvider.Context context, Boat.Type type);
-
-    protected ResourceLocation getTextureLocation(Boat.Type type) {
-        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+    @Override
+    public @NotNull ShipRenderState createRenderState() {
+        return new ShipRenderState();
     }
 
     @Override
+    public void extractRenderState(T entity, ShipRenderState state, float f) {
+        super.extractRenderState(entity, state, f);
+
+        state.shipAttributes = entity.getAttributes();
+        state.hurtTime = entity.getHurtTime() - f;
+        state.hurtDir = entity.getHurtDir();
+        state.damage = entity.getDamage() - f;
+        state.level = entity.level();
+        state.bubbleAngle = entity.getBubbleAngle(f);
+        state.waveAngle = entity.getWaveAngle(f);
+        state.variant = entity.getVariant();
+        state.sunken = entity.isSunken();
+        state.yaw = entity.rotate(Rotation.NONE);
+
+        state.cannonable = entity instanceof Cannonable;
+        state.bannerable = entity instanceof Bannerable;
+        if (entity instanceof Bannerable bannerShip) {
+            state.bannerWaveAngle = bannerShip.getBannerWaveAngle(f);
+        }
+        state.paddleable = entity instanceof Paddleable;
+        state.sailable = entity instanceof Sailable;
+        state.shieldable = entity instanceof Shieldable;
+
+        // I give up. I will just provide the entity instance again.
+        state.ship = entity;
+        state.partialTicks = f;
+    }
+
+    protected abstract ShipModel<T> createBoatModel(EntityRendererProvider.Context context, Ship.Type type);
+
+    protected ResourceLocation getTextureLocation(Ship.Type type) {
+        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+    }
+
     public @NotNull ResourceLocation getTextureLocation(@NotNull T shipEntity) {
         return this.boatResources.get(shipEntity.getVariant()).getFirst();
     }
 
     @Override
-    public void render(T shipEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        Attributes shipAttributes = shipEntity.getAttributes();
-        float h = ((float) shipEntity.getHurtTime() - partialTicks) / ((shipAttributes.maxHealth * shipEntity.getBbWidth()) / 40.0F);
-        float j = shipEntity.getDamage() - partialTicks;
+    public void render(ShipRenderState state, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight) {
+        Attributes shipAttributes = state.shipAttributes;
+        float h = state.hurtTime / ((shipAttributes.maxHealth * state.boundingBoxWidth) / 40.0F);
+        float j = state.damage;
         if (j < 0.0F) {
             j = 0.0F;
         } else {
             if (j > shipAttributes.maxHealth * 0.5F) {
-                shipEntity.level().addParticle(ParticleTypes.LARGE_SMOKE, shipEntity.getRandomX(0.5D), shipEntity.getY() + 1.0D, shipEntity.getRandomZ(0.5D), 0.0D, 0.0D, 0.0D);
+                state.level.addParticle(ParticleTypes.LARGE_SMOKE, state.getRandomPosFrom(state.x, 0.5D), state.y + 1.0D, state.getRandomPosFrom(state.z, 0.5D), 0.0D, 0.0D, 0.0D);
             }
         }
 
         if (h > 0.0F) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(Mth.sin(h) * h * j / 10.0F * (float) shipEntity.getHurtDir()));
+            poseStack.mulPose(Axis.XP.rotationDegrees(Mth.sin(h) * h * j / 10.0F * (float) state.hurtDir));
         }
 
-        float k = shipEntity.getBubbleAngle(partialTicks);
+        float k = state.bubbleAngle;
         if (!Mth.equal(k, 0.0F)) {
             poseStack.mulPose(new Quaternionf().rotateX(k * Mth.DEG_TO_RAD).rotateZ(k * Mth.DEG_TO_RAD));
         }
 
-        float l = shipEntity.getWaveAngle(partialTicks);
-        if (!shipEntity.isSunken() && !Mth.equal(l, 0.0F)) {
+        float l = state.waveAngle;
+        if (!state.sunken && !Mth.equal(l, 0.0F)) {
             poseStack.mulPose(getWaveAngleRotation().rotationDegrees(l));
         }
 
-        Pair<ResourceLocation, ShipModel<T>> pair = this.boatResources.get(shipEntity.getVariant());
+        Pair<ResourceLocation, ShipModel<T>> pair = this.boatResources.get(state.variant);
         ResourceLocation resourceLocation = pair.getFirst();
         ShipModel<T> shipModel = pair.getSecond();
         poseStack.scale(-1.3F, -1.3F, 1.3F);
         poseStack.mulPose(Axis.YP.rotationDegrees(90.0F + 180.0F));
-        shipModel.setupAnim(shipEntity, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
+        shipModel.setupAnim(this.createRenderState());
 
-        if (shipEntity instanceof Cannonable cannonShipEntity) {
-            renderCannon(cannonShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+        if (state.cannonable) {
+            renderCannon(state, poseStack, multiBufferSource, packedLight);
         }
-        if (shipEntity instanceof Bannerable bannerShipEntity) {
-            renderBanner(bannerShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+        if (state.bannerable) {
+            renderBanner(state, poseStack, multiBufferSource, packedLight);
         }
-        if (shipEntity instanceof Paddleable paddleShipEntity) {
-            renderPaddle(paddleShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+        if (state.bannerable) {
+            renderPaddle(state, poseStack, multiBufferSource, packedLight);
         }
-        if (shipEntity instanceof Sailable sailShipEntity) {
-            renderSail(sailShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+        if (state.sailable) {
+            renderSail(state, poseStack, multiBufferSource, packedLight);
         }
-        if (shipEntity instanceof Shieldable shieldShipEntity) {
-            renderShields(shieldShipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+        if (state.shieldable) {
+            renderShields(state, poseStack, multiBufferSource, packedLight);
         }
 
 
@@ -123,13 +158,15 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         shipModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
         poseStack.popPose();
 
-        super.render(shipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+        super.render(state, poseStack, multiBufferSource, packedLight);
     }
 
     private static final ModelPart cannonModel = CannonModel.createBodyLayer().bakeRoot();
+
     @SuppressWarnings({"unused"})
-    private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        for(byte i = 0; i < cannonShipEntity.getCannonCount(); i++){
+    private void renderCannon(ShipRenderState state, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        Cannonable cannonShipEntity = ((Cannonable) state.ship);
+        for (byte i = 0; i < cannonShipEntity.getCannonCount(); i++) {
             ShipCannon cannon = new ShipCannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
 
             poseStack.pushPose();
@@ -165,13 +202,14 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     private static final ModelPart bannerModel;
     static {
-        ModelPart model = BannerRenderer.createBodyLayer().bakeRoot();
-        model.getChild("pole").visible = false;
+        ModelPart model = BannerModel.createBodyLayer(false).bakeRoot();
         model.getChild("bar").visible = false;
         bannerModel = model;
     }
+
     @SuppressWarnings("unused")
-    private void renderBanner(Bannerable bannerShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+    private void renderBanner(ShipRenderState state, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        Bannerable bannerShipEntity = ((Bannerable) state.ship);
         ItemStack bannerItemStack = bannerShipEntity.self().getData(Ship.BANNER);
         if (bannerItemStack.getItem() instanceof BannerItem bannerItem) {
             poseStack.pushPose();
@@ -181,26 +219,28 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             poseStack.translate(pos.x, pos.y, pos.z);
             poseStack.scale(0.5F, 0.5F, 0.5F);
 
-            float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);
-			
-            if (!Mth.equal(bannerWaveAngle, 0F)){
-				poseStack.mulPose(Axis.ZP.rotationDegrees(bannerWaveAngle * 0.5F));
-				poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
-			}
+            float bannerWaveAngle = state.bannerWaveAngle;
+
+            if (!Mth.equal(bannerWaveAngle, 0F)) {
+                poseStack.mulPose(Axis.ZP.rotationDegrees(bannerWaveAngle * 0.5F));
+                poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
+            }
 
             BannerPatternLayers bannerPatternLayers = bannerItemStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
-            DyeColor dyeColor = ((BannerItem)bannerItemStack.getItem()).getColor();
+            DyeColor dyeColor = bannerItem.getColor();
             BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, dyeColor, bannerPatternLayers);
             poseStack.popPose();
         }
     }
 
     private static final ShieldModel shieldModel = new ShieldModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.SHIELD));
+
     @SuppressWarnings("unused")
-    private void renderShields(Shieldable shieldShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        for(byte i = 0; i < shieldShipEntity.getShields().size(); i++){
+    private void renderShields(ShipRenderState state, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        Shieldable shieldShipEntity = ((Shieldable) state.ship);
+        for (byte i = 0; i < shieldShipEntity.getShields().size(); i++) {
             ItemStack shieldItemStack = shieldShipEntity.getShields().get(i);
-            if(shieldItemStack.is(Items.SHIELD)){
+            if (shieldItemStack.is(Items.SHIELD)) {
                 poseStack.pushPose();
                 Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
                 poseStack.translate(pos.x, pos.y, pos.z);
@@ -214,10 +254,10 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 boolean flag = !bannerPatternLayers.layers().isEmpty() || dyeColor != null;
                 Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
 
-                VertexConsumer vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, shieldItemStack.hasFoil()));
+                VertexConsumer vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBuffer(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, shieldItemStack.hasFoil()));
 
                 if (flag) {
-                    BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, Objects.requireNonNullElse(dyeColor, DyeColor.WHITE), bannerPatternLayers, shieldItemStack.hasFoil());
+                    BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, Objects.requireNonNullElse(dyeColor, DyeColor.WHITE), bannerPatternLayers, shieldItemStack.hasFoil(), true);
                 } else {
                     shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
                 }
@@ -233,7 +273,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     }
 
     @SuppressWarnings({"unused", "EmptyMethod"})
-    private void renderPaddle(Paddleable paddleShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+    private void renderPaddle(ShipRenderState state, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
 
     }
 
@@ -244,15 +284,17 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         sailModels.put(GalleyEntity.class, new GalleySailModel());
         sailModels.put(DrakkarEntity.class, new DrakkarSailModel());
     }
+
     @SuppressWarnings({"unused", "unchecked"})
-    private void renderSail(Sailable sailShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+    private void renderSail(ShipRenderState state, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        Sailable sailShipEntity = ((Sailable) state.ship);
         SailModel sailModel = sailModels.get(sailShipEntity.getClass());
-        sailModel.setupAnim(((T)sailShipEntity), partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
+        sailModel.setupAnim(state);
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(sailModel.renderType(SailModel.getSailColor(sailShipEntity.self().getData(Ship.SAIL_COLOR)).location));
         sailModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
     }
 
-    public static String getNameFromType(Boat.Type type) {
+    public static String getNameFromType(Ship.Type type) {
         return type.getName().replace(":", "/");
     }
 }

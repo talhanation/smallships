@@ -1,20 +1,22 @@
 accessWidener v2 named
-extendable method net/minecraft/world/entity/vehicle/Boat controlBoat ()V
+extendable method net/minecraft/world/entity/vehicle/AbstractBoat controlBoat ()V
 extendable method net/minecraft/world/entity/Entity positionRider (Lnet/minecraft/world/entity/Entity;)V
-accessible field net/minecraft/world/entity/vehicle/Boat paddlePositions [F
+accessible field net/minecraft/world/entity/vehicle/AbstractBoat paddlePositions [F
 
 accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
 accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 accessible method net/minecraft/client/gui/screens/MenuScreens register (Lnet/minecraft/world/inventory/MenuType;Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;)V
 
-extendable method net/minecraft/world/item/BoatItem getBoat (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/HitResult;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/entity/vehicle/Boat;
+extendable method net/minecraft/world/item/BoatItem getBoat (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/HitResult;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/entity/vehicle/AbstractBoat;
 
 accessible method net/minecraft/client/renderer/entity/EntityRenderer getBlockLightLevel (Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;)I
 accessible method net/minecraft/world/entity/Entity getEncodeId ()Ljava/lang/String;
-accessible method net/minecraft/world/entity/vehicle/Boat getMaxPassengers ()I
 
-accessible field net/minecraft/world/entity/vehicle/Boat bubbleColumnDirectionIsDown Z
-accessible method net/minecraft/world/entity/vehicle/Boat getBubbleTime ()I
-accessible method net/minecraft/world/entity/vehicle/Boat setBubbleTime (I)V
-accessible field net/minecraft/world/entity/vehicle/Boat isAboveBubbleColumn Z
-accessible field net/minecraft/world/entity/vehicle/Boat outOfControlTicks F
+accessible field net/minecraft/world/entity/vehicle/AbstractBoat bubbleColumnDirectionIsDown Z
+accessible method net/minecraft/world/entity/vehicle/AbstractBoat getBubbleTime ()I
+accessible method net/minecraft/world/entity/vehicle/AbstractBoat setBubbleTime (I)V
+accessible field net/minecraft/world/entity/vehicle/AbstractBoat isAboveBubbleColumn Z
+accessible field net/minecraft/world/entity/vehicle/AbstractBoat outOfControlTicks F
+
+extendable method net/minecraft/world/entity/vehicle/AbstractBoat getDropItem ()Lnet/minecraft/world/item/Item;
+extendable method net/minecraft/world/entity/Entity hurt (Lnet/minecraft/world/damagesource/DamageSource;F)V

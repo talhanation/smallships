@@ -8,6 +8,7 @@ import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -26,6 +27,10 @@ public class ModEntityTypesImpl {
         return (EntityType<T>) entries.get(entityClass).get();
     }
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, SmallShipsMod.MOD_ID);
+
+    private static DeferredHolder<EntityType<?>, EntityType<?>> register(String id, EntityType.Builder<?> builder) {
+        return ENTITY_TYPES.register(id, () -> builder.build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id))));
+    }
 
     static {
         entries.put(CannonBallEntity.class, register(CannonBallEntity.ID, EntityType.Builder.of(CannonBallEntity::factory, MobCategory.MISC)
@@ -57,9 +62,5 @@ public class ModEntityTypesImpl {
                 .sized(3.5F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)));
-    }
-
-    private static DeferredHolder<EntityType<?>, EntityType<?>> register(String id, EntityType.Builder<?> builder) {
-        return ENTITY_TYPES.register(id, () -> builder.build(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id).toString()));
     }
 }

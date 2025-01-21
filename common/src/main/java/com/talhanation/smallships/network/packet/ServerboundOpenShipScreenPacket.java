@@ -27,7 +27,7 @@ public record ServerboundOpenShipScreenPacket(UUID ship, int pageIndex) implemen
 
     @Override
     public void handler(Player player) {
-        player.level().getEntitiesOfClass(ContainerShip.class, player.getBoundingBoxForCulling()
+        player.level().getEntitiesOfClass(ContainerShip.class, player.getBoundingBox()
                         .inflate(16.0D), containerShip -> containerShip.getUUID().equals(this.ship))
                 .stream()
                 .filter(Entity::isAlive)

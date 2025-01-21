@@ -2,6 +2,7 @@ package com.talhanation.smallships.client.model;
 
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -9,7 +10,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 public class DrakkarModel extends ShipModel<DrakkarEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DrakkarEntity.ID + "_model"), "main");
@@ -30,6 +30,8 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 	private final ModelPart row_R_4;
 
 	public DrakkarModel(ModelPart modelPart) {
+		super(modelPart);
+
 		this.root = modelPart;
 		this.drakkar = this.root.getChild("Drakkar");
 		this.chest1 = drakkar.getChild("chest_1");
@@ -222,31 +224,28 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
 
-
-
 	@Override
-	public void setupAnim(DrakkarEntity drakkarEntity, float f, float g, float h, float i, float j) {
+	public void setupAnim(ShipRenderState entityRenderState) {
+		DrakkarEntity ship = ((DrakkarEntity)entityRenderState.ship);
+		float f = entityRenderState.partialTicks;
 
-		this.chest1.visible = drakkarEntity.getInvFillState() >= 15;
-		this.chest2.visible = drakkarEntity.getInvFillState() >= 30;
-		this.chest3.visible = drakkarEntity.getInvFillState() >= 60;
-		this.chest4.visible = drakkarEntity.getInvFillState() >= 90;
+		this.chest1.visible = ship.getInvFillState() >= 15;
+		this.chest2.visible = ship.getInvFillState() >= 30;
+		this.chest3.visible = ship.getInvFillState() >= 60;
+		this.chest4.visible = ship.getInvFillState() >= 90;
 
-		this.steer.yRot = -drakkarEntity.getRotSpeed() * 0.25F;
+		this.steer.yRot = -ship.getRotSpeed() * 0.25F;
 
-		drakkarEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1 , f);
-		drakkarEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2 , f);
-		drakkarEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_3 , f);
-		drakkarEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_4 , f);
+		ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1 , f);
+		ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2 , f);
+		ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_3 , f);
+		ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_4 , f);
 
-		drakkarEntity.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_1 , f);
-		drakkarEntity.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_2 , f);
-		drakkarEntity.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_3 , f);
-		drakkarEntity.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_4 , f);
-	}
+		ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_1 , f);
+		ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_2 , f);
+		ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_3 , f);
+		ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_4 , f);
 
-	@Override
-	public @NotNull ModelPart root() {
-		return this.root;
+		super.setupAnim(entityRenderState);
 	}
 }

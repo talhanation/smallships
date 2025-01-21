@@ -3,7 +3,9 @@ package com.talhanation.smallships.client.model.sail;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
+import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -20,7 +22,8 @@ public class BriggSailModel extends SailModel {
 	private final ModelPart segel_brigg;
 
 	public BriggSailModel() {
-		ModelPart root = createBodyLayer().bakeRoot();
+        super(createBodyLayer().bakeRoot());
+        ModelPart root = createBodyLayer().bakeRoot();
 		this.segel_brigg = root.getChild("SegelBrigg");
 	}
 	@SuppressWarnings("unused")
@@ -2005,9 +2008,10 @@ public class BriggSailModel extends SailModel {
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
 
-
 	@Override
-	public void setupAnim(Ship briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setupAnim(ShipRenderState entityRenderState) {
+		BriggEntity briggEntity = ((BriggEntity)entityRenderState.ship);
+
 		switch (briggEntity.getData(Ship.SAIL_STATE)) {
 			case 0 -> {
 				this.segel_brigg.getChild("Sail_0").visible = true;
@@ -2045,10 +2049,7 @@ public class BriggSailModel extends SailModel {
 				this.segel_brigg.getChild("Sail_4").visible = true;
 			}
 		}
-	}
 
-	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		segel_brigg.render(poseStack, buffer, packedLight, packedOverlay);
+		super.setupAnim(entityRenderState);
 	}
 }

@@ -1,8 +1,7 @@
 package com.talhanation.smallships.client.model.sail;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -10,7 +9,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 public class DrakkarSailModel extends SailModel {
 	@SuppressWarnings("unused")
@@ -19,7 +17,8 @@ public class DrakkarSailModel extends SailModel {
 	private final ModelPart DrakkarSail;
 
 	public DrakkarSailModel() {
-		ModelPart root = createBodyLayer().bakeRoot();
+        super(createBodyLayer().bakeRoot());
+        ModelPart root = createBodyLayer().bakeRoot();
 		this.DrakkarSail = root.getChild("DrakkarSail");
 	}
 
@@ -396,8 +395,10 @@ public class DrakkarSailModel extends SailModel {
 	}
 
 	@Override
-	public void setupAnim(@NotNull Ship drakkar, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		switch (drakkar.getData(Ship.SAIL_STATE)) {
+	public void setupAnim(ShipRenderState entityRenderState) {
+		DrakkarEntity drakkarEntity = ((DrakkarEntity) entityRenderState.ship);
+
+		switch (drakkarEntity.getData(Ship.SAIL_STATE)) {
 			case 0 -> {
 				this.DrakkarSail.getChild("Sail_0").visible = true;
 				this.DrakkarSail.getChild("Sail_1").visible = false;
@@ -434,10 +435,7 @@ public class DrakkarSailModel extends SailModel {
 				this.DrakkarSail.getChild("Sail_4").visible = true;
 			}
 		}
-	}
 
-	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		DrakkarSail.render(poseStack, buffer, packedLight, packedOverlay, color);
+		super.setupAnim(entityRenderState);
 	}
 }

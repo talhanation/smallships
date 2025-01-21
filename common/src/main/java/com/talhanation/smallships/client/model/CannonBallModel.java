@@ -4,10 +4,8 @@ package com.talhanation.smallships.client.model;
 // Exported for Minecraft version 1.17 - 1.18 with Mojang mappings
 // Paste this class into your mod and generate all required imports
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
+import com.talhanation.smallships.client.renderer.entity.state.CannonBallRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -17,15 +15,15 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
-public class CannonBallModel extends EntityModel<CannonBallEntity> {
+public class CannonBallModel extends EntityModel<CannonBallRenderState> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "model_cannonball"), "main");
 	private final ModelPart cannonball;
 
 	public CannonBallModel() {
-		ModelPart root = createBodyLayer().bakeRoot();
+        super(createBodyLayer().bakeRoot());
+        ModelPart root = createBodyLayer().bakeRoot();
 		this.cannonball = root.getChild("cannonball");
 	}
 
@@ -52,12 +50,7 @@ public class CannonBallModel extends EntityModel<CannonBallEntity> {
 	}
 
 	@Override
-	public void setupAnim(@NotNull CannonBallEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-
-	}
-
-	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		cannonball.render(poseStack, buffer, packedLight, packedOverlay, color);
+	public void setupAnim(CannonBallRenderState entityRenderState) {
+		super.setupAnim(entityRenderState);
 	}
 }

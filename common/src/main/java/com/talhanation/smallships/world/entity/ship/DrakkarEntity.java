@@ -10,7 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.AbstractBoat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -39,7 +39,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
         SHIELD_POSITIONS.add(new ShieldPosition(-3.0, 0.8, 1.0, false));
     }
 
-    public DrakkarEntity(EntityType<? extends Boat> entityType, Level level) {
+    public DrakkarEntity(EntityType<? extends AbstractBoat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
 

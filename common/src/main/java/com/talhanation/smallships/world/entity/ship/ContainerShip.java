@@ -13,8 +13,12 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.*;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -23,7 +27,7 @@ import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.AbstractBoat;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
@@ -69,7 +73,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         }
     };
 
-    public ContainerShip(EntityType<? extends Boat> entityType, Level level, int containerSize) {
+    public ContainerShip(EntityType<? extends AbstractBoat> entityType, Level level, int containerSize) {
         super(entityType, level);
         this.originalContainerSize = containerSize;
         this.updatePaging(this.originalContainerSize);
@@ -107,9 +111,9 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    public void destroy(@NotNull DamageSource damageSource) {
-        super.destroy(damageSource);
-        this.chestVehicleDestroyed(damageSource, this.level(), this);
+    public void destroy(ServerLevel level, @NotNull DamageSource damageSource) {
+        super.destroy(level, damageSource);
+        this.chestVehicleDestroyed(damageSource, level, this);
     }
 
     @Override
@@ -132,27 +136,28 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         ContainerUtility.openShipMenu(player, this);
         if (!player.level().isClientSide()) {
             this.gameEvent(GameEvent.CONTAINER_OPEN, player);
-            PiglinAi.angerNearbyPiglins(player, true);//lol
+            PiglinAi.angerNearbyPiglins((ServerLevel) player.level(), player, true);//lol
         }
     }
 
-    @Override
-    public @Nullable ResourceKey<LootTable> getLootTable() {
+    public void unpackLootTable(@Nullable Player player) {
+        this.unpackChestVehicleLootTable(player);
+    }
+
+    @Nullable
+    public ResourceKey<LootTable> getContainerLootTable() {
         return this.lootTable;
     }
 
-    @Override
-    public void setLootTable(@Nullable ResourceKey<LootTable> lootTable) {
-        this.lootTable = lootTable;
+    public void setContainerLootTable(@Nullable ResourceKey<LootTable> resourceKey) {
+        this.lootTable = resourceKey;
     }
 
-    @Override
-    public long getLootTableSeed() {
+    public long getContainerLootTableSeed() {
         return this.lootTableSeed;
     }
 
-    @Override
-    public void setLootTableSeed(long l) {
+    public void setContainerLootTableSeed(long l) {
         this.lootTableSeed = l;
     }
 
@@ -216,7 +221,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Override
     public AbstractContainerMenu createMenu(int syncId, @NotNull Inventory inventory, @NotNull Player player) {
         if (this.lootTable == null || !player.isSpectator()) {
-            this.unpackChestVehicleLootTable(inventory.player);
+            this.unpackLootTable(inventory.player);
             this.openCustomInventoryScreen(player);
         }
         return null;
@@ -226,8 +231,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public void readChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
         this.clearItemStacks();
         if (tag.contains("LootTable", 8)) {
-            this.setLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(tag.getString("LootTable"))));
-            this.setLootTableSeed(tag.getLong("LootTableSeed"));
+            this.setContainerLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(tag.getString("LootTable"))));
+            this.setContainerLootTableSeed(tag.getLong("LootTableSeed"));
         } else {
             ContainerUtility.loadAllItems(tag, this.getItemStacks(), levelRegistry);
             this.resizeContainer(this.getContainerSize());
@@ -236,10 +241,10 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
     @Override
     public void addChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
-        if (this.getLootTable() != null) {
-            tag.putString("LootTable", this.getLootTable().location().toString());
-            if (this.getLootTableSeed() != 0L) {
-                tag.putLong("LootTableSeed", this.getLootTableSeed());
+        if (this.getLootTable().isPresent()) {
+            tag.putString("LootTable", this.getLootTable().get().location().toString());
+            if (this.getContainerLootTableSeed() != 0L) {
+                tag.putLong("LootTableSeed", this.getContainerLootTableSeed());
             }
         } else {
             ContainerUtility.saveAllItems(tag, this.getItemStacks(), levelRegistry);

@@ -3,7 +3,7 @@ package com.talhanation.smallships.world.entity.ship;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.math.Kalkuel;
-import com.talhanation.smallships.mixin.controlling.BoatAccessor;
+import com.talhanation.smallships.mixin.controlling.AbstractBoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundUpdateShipControlPacket;
 import com.talhanation.smallships.world.entity.projectile.ShipCannon;
@@ -18,23 +18,28 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.AbstractBoat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -46,8 +51,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Stack;
+import java.util.function.IntFunction;
 
-public abstract class Ship extends Boat {
+public abstract class Ship extends AbstractBoat {
+    private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<CompoundTag> ATTRIBUTES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     public static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ROT_SPEED = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
@@ -77,8 +84,8 @@ public abstract class Ship extends Boat {
     public float maxSpeed;
     private CameraType previousCameraType;
 
-    public Ship(EntityType<? extends Boat> entityType, Level level) {
-        super(entityType, level);
+    public Ship(EntityType<? extends AbstractBoat> entityType, Level level) {
+        super(entityType, level, () -> Items.AIR);
         if (this.getCustomName() == null) this.setCustomName(Component.literal(StringUtils.capitalize(EntityType.getKey(this.getType()).getPath())));
     }
 
@@ -91,7 +98,7 @@ public abstract class Ship extends Boat {
         }
 
         if(isSunken()){
-            if(++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
+            if(this.level() instanceof ServerLevel level && ++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(level, level.damageSources().drown());
             else this.setDeltaMovement (getDeltaMovement().x, - 0.2D, getDeltaMovement().z);
         }
         else {
@@ -144,6 +151,10 @@ public abstract class Ship extends Boat {
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
 
+        if (tag.contains("Type", 8)) {
+            this.setVariant(Ship.Type.byName(tag.getString("Type")));
+        }
+
         Attributes attributes = new Attributes();
         attributes.loadSaveData(tag, this);
         this.setData(ATTRIBUTES, attributes.getSaveData());
@@ -161,6 +172,8 @@ public abstract class Ship extends Boat {
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
 
+        tag.putString("Type", this.getVariant().getSerializedName());
+
         Attributes attributes = new Attributes();
         attributes.loadSaveData(this.getData(ATTRIBUTES));
         attributes.addSaveData(tag);
@@ -172,6 +185,66 @@ public abstract class Ship extends Boat {
 
         tag.putBoolean("Sunken", isSunken());
         tag.putBoolean("locked", this.isLocked);
+    }
+
+    @Override
+    protected double rideHeight(EntityDimensions entityDimensions) {
+        return 0;
+    }
+
+    public Ship.Type getVariant() {
+        return Ship.Type.byId(this.entityData.get(VARIANT));
+    }
+
+    public void setVariant(Ship.Type type) {
+        this.entityData.set(VARIANT, type.ordinal());
+    }
+
+    public enum Type implements StringRepresentable {
+        OAK(Blocks.OAK_PLANKS, "oak"),
+        SPRUCE(Blocks.SPRUCE_PLANKS, "spruce"),
+        BIRCH(Blocks.BIRCH_PLANKS, "birch"),
+        JUNGLE(Blocks.JUNGLE_PLANKS, "jungle"),
+        ACACIA(Blocks.ACACIA_PLANKS, "acacia"),
+        CHERRY(Blocks.CHERRY_PLANKS, "cherry"),
+        DARK_OAK(Blocks.DARK_OAK_PLANKS, "dark_oak"),
+        MANGROVE(Blocks.MANGROVE_PLANKS, "mangrove"),
+        BAMBOO(Blocks.BAMBOO_PLANKS, "bamboo");
+
+        private final String name;
+        private final Block planks;
+        public static final StringRepresentable.EnumCodec<Ship.Type> CODEC = StringRepresentable.fromEnum(Ship.Type::values);
+        private static final IntFunction<Type> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+
+        Type(Block block, String string2) {
+            this.name = string2;
+            this.planks = block;
+        }
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return this.name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public Block getPlanks() {
+            return this.planks;
+        }
+
+        public String toString() {
+            return this.name;
+        }
+
+        public static Ship.Type byId(int i) {
+            return BY_ID.apply(i);
+        }
+
+        public static Ship.Type byName(String string) {
+            return CODEC.byName(string, OAK);
+        }
     }
 
     public void onAboveBubbleCol(boolean bl) {
@@ -224,7 +297,7 @@ public abstract class Ship extends Boat {
 
             Player player = getDriver();
             if(player != null)
-                updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
+                updateControls(((AbstractBoatAccessor) this).isInputUp(),((AbstractBoatAccessor) this).isInputDown(), ((AbstractBoatAccessor) this).isInputLeft(), ((AbstractBoatAccessor) this).isInputRight(), player);
         }
 
         if(this.isInWater() && !this.isShipLeashed() && !this.isSunken() && !isLocked()){
@@ -252,7 +325,7 @@ public abstract class Ship extends Boat {
             this.calculateSpeed(acceleration);
 
             //CALCULATE ROTATION SPEED//
-            //((BoatAccessor) this).setDeltaRotation(0); // IDK WHAT THIS IS FOR BUT IT WORKS WITHOUT IT
+            //((AbstractBoatAccessor) this).setDeltaRotation(0); // IDK WHAT THIS IS FOR BUT IT WORKS WITHOUT IT
             float rotationSpeed = Kalkuel.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
 
             if(getDriver() != null) {
@@ -270,8 +343,8 @@ public abstract class Ship extends Boat {
             }
             this.setRotSpeed(rotationSpeed);
 
-            ((BoatAccessor) this).setDeltaRotation(rotationSpeed);
-            setYRot(getYRot() + ((BoatAccessor) this).getDeltaRotation());
+            ((AbstractBoatAccessor) this).setDeltaRotation(rotationSpeed);
+            setYRot(getYRot() + ((AbstractBoatAccessor) this).getDeltaRotation());
 
 
             if(getDriver() != null) {
@@ -513,10 +586,10 @@ public abstract class Ship extends Boat {
         return cannonKeyPressed;
     }
 
-    @Override
     // keep until multi part entity, otherwise entity just vanishes (stops rendering) on screen edges
-    public @NotNull AABB getBoundingBoxForCulling() {
-        return this.getBoundingBox().inflate(5.0D);
+    @Override
+    public boolean shouldRender(double d, double e, double f) {
+        return true;
     }
 
     @Override
@@ -574,11 +647,8 @@ public abstract class Ship extends Boat {
     }
 
     @Override
-    public boolean hurt(DamageSource damageSource, float f) {
-        if (this.isInvulnerableTo(damageSource)) {
-            return false;
-        }
-        else if (!this.getCommandSenderWorld().isClientSide() && !this.isRemoved()) {
+    public void hurt(DamageSource damageSource, float f) {
+        if (!this.getCommandSenderWorld().isClientSide() && !this.isRemoved()) {
             this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip ? shieldShip.getDamageModifier() : 1));
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
@@ -587,7 +657,10 @@ public abstract class Ship extends Boat {
 
             if (this.getDamage() > this.getAttributes().maxHealth) {
                 if(this.isSunken() && this.sunkenTime > 200){
-                    this.destroy(this.getCommandSenderWorld().damageSources().drown());
+                    if (!this.level().isClientSide()) {
+                        ServerLevel level = (ServerLevel) this.level();
+                        this.destroy(level, level.damageSources().drown());
+                    }
                 }
                 else
                     this.setSunken(true);
@@ -595,10 +668,6 @@ public abstract class Ship extends Boat {
             if(bl){
                 this.discard();
             }
-
-            return true;
-        } else {
-            return true;
         }
     }
 
@@ -694,11 +763,11 @@ public abstract class Ship extends Boat {
         }
     }
     @Override
-    public void destroy(@NotNull DamageSource damageSource) {
-        super.destroy(damageSource);
-        if (this.getCommandSenderWorld().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-            if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getCommandSenderWorld(), this);
-            if(this instanceof Cannonable cannonableShip) cannonableShip.cannonShipDestroyed(this.getCommandSenderWorld(), this);
+    public void destroy(ServerLevel level, @NotNull DamageSource damageSource) {
+        super.destroy(level, damageSource);
+        if (level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+            if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, level, this);
+            if(this instanceof Cannonable cannonableShip) cannonableShip.cannonShipDestroyed(level, this);
         }
 
         discard();

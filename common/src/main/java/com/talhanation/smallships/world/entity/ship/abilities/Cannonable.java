@@ -8,6 +8,7 @@ import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -82,25 +82,27 @@ public interface Cannonable extends Ability {
     default boolean interactCannon(Player player, InteractionHand interactionHand) {
         ItemStack item = player.getItemInHand(interactionHand);
         byte cannonCount = this.getCannonCount();
-        if (item.getItem() == ModItems.CANNON && self() instanceof ContainerShip) {
-            if (cannonCount >= getMaxCannonPerSide() * 2) {
-                return false;
+        if (self().level() instanceof ServerLevel serverLevel) {
+            if (item.getItem() == ModItems.CANNON && self() instanceof ContainerShip) {
+                if (cannonCount >= getMaxCannonPerSide() * 2) {
+                    return false;
+                }
+                else {
+                    this.setCannonCount((byte) (cannonCount + 1));
+
+                    serverLevel.playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.5F);
+                    if (!player.isCreative()) item.shrink(1);
+
+                    this.updateCannonCount();
+                }
+                return true;
+            } else if (item.getItem() instanceof AxeItem && cannonCount > 0) {
+                this.setCannonCount((byte) (cannonCount - 1));
+
+                self().spawnAtLocation(serverLevel, ModItems.CANNON);
+                serverLevel.playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.0F);
+                return true;
             }
-            else {
-                this.setCannonCount((byte) (cannonCount + 1));
-
-                self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.5F);
-                if (!player.isCreative()) item.shrink(1);
-
-                this.updateCannonCount();
-            }
-            return true;
-        } else if (item.getItem() instanceof AxeItem && cannonCount > 0) {
-            this.setCannonCount((byte) (cannonCount - 1));
-
-            self().spawnAtLocation(ModItems.CANNON);
-            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.0F);
-            return true;
         }
         return false;
     }
@@ -155,9 +157,9 @@ public interface Cannonable extends Ability {
         return self().CANNONS;
     }
 
-    default void cannonShipDestroyed(Level level, Ship ship){
+    default void cannonShipDestroyed(ServerLevel level, Ship ship){
         for(int i = 0; i < getCannonCount(); i++){
-            ship.spawnAtLocation(ModItems.CANNON,4);
+            ship.spawnAtLocation(level, ModItems.CANNON,4);
         }
     }
 

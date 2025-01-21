@@ -1,13 +1,13 @@
 package com.talhanation.smallships.client.model;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 
 @SuppressWarnings("FieldCanBeLocal")
@@ -22,7 +22,8 @@ public class BriggModel extends ShipModel<BriggEntity> {
 	private final ModelPart steer;
 
 	public BriggModel(ModelPart modelPart) {
-		this.root = modelPart;
+        super(modelPart);
+        this.root = modelPart;
 		this.brigg = this.root.getChild("ModelBrigg");
 		this.chest1 = brigg.getChild("chest_1");
 		this.chest2 = brigg.getChild("chest_2");
@@ -194,17 +195,16 @@ public class BriggModel extends ShipModel<BriggEntity> {
 	}
 
 	@Override
-	public void setupAnim(BriggEntity briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.chest1.visible = briggEntity.getInvFillState() >= 15;
-		this.chest2.visible = briggEntity.getInvFillState() >= 30;
-		this.chest3.visible = briggEntity.getInvFillState() >= 60;
-		this.chest4.visible = briggEntity.getInvFillState() >= 90;
+	public void setupAnim(ShipRenderState entityRenderState) {
+		BriggEntity ship = ((BriggEntity)entityRenderState.ship);
 
-		this.steer.yRot = -briggEntity.getRotSpeed() * 0.25F;
-	}
+		this.chest1.visible = ship.getInvFillState() >= 15;
+		this.chest2.visible = ship.getInvFillState() >= 30;
+		this.chest3.visible = ship.getInvFillState() >= 60;
+		this.chest4.visible = ship.getInvFillState() >= 90;
 
-	@Override
-	public @NotNull ModelPart root() {
-		return this.root;
+		this.steer.yRot = -ship.getRotSpeed() * 0.25F;
+
+		super.setupAnim(entityRenderState);
 	}
 }

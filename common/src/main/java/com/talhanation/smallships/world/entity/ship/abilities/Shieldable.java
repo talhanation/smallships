@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -76,9 +77,9 @@ public interface Shieldable extends Ability {
                self().getCommandSenderWorld().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.5F);
                return true;
            }
-       } else if (itemStack.getItem() instanceof AxeItem && shieldCount > 0) {
+       } else if (itemStack.getItem() instanceof AxeItem && shieldCount > 0 && self().level() instanceof ServerLevel serverLevel) {
            ItemStack removedShield = this.getShields().pop();
-           self().spawnAtLocation(removedShield, 2);
+           self().spawnAtLocation(serverLevel, removedShield, 2);
 
            // TODO: remove from SHIP_DATA as well
            

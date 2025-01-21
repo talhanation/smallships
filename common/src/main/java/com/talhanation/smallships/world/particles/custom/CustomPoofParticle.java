@@ -2,7 +2,7 @@ package com.talhanation.smallships.world.particles.custom;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -20,9 +20,10 @@ public class CustomPoofParticle extends ExplodeParticle {
         return 15728880;
     }
 
+    // TODO: idk what replaces ParticleRenderType.PARTICLE_SHEET_LIT, just used ParticleRenderType.PARTICLE_SHEET_OPAQUE
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_LIT;
+    public @NotNull ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
     public static class Provider implements ParticleProvider<CustomPoofParticleOptions> {

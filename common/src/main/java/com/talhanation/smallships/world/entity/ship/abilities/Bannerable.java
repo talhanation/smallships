@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -32,17 +33,19 @@ public interface Bannerable extends Ability {
         ItemStack item = player.getItemInHand(interactionHand);
         ItemStack shipBanner = self().getData(Ship.BANNER);
         shipBanner.setCount(1);
-        if (item.getItem() instanceof BannerItem) {
-            if (!shipBanner.isEmpty()) self().spawnAtLocation(shipBanner, 4);
-            self().setData(Ship.BANNER, item.copy());
-            if (!player.isCreative()) item.shrink(1);
-            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
-            return true;
-        } else if (item.getItem() instanceof ShearsItem && !shipBanner.isEmpty()) {
-            self().spawnAtLocation(shipBanner,4);
-            self().setData(Ship.BANNER, ItemStack.EMPTY);
-            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
-            return true;
+        if (self().level() instanceof ServerLevel serverLevel) {
+            if (item.getItem() instanceof BannerItem) {
+                self().spawnAtLocation(serverLevel, shipBanner, 4);
+                self().setData(Ship.BANNER, item.copy());
+                if (!player.isCreative()) item.shrink(1);
+                serverLevel.playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
+                return true;
+            } else if (item.getItem() instanceof ShearsItem && !shipBanner.isEmpty()) {
+                self().spawnAtLocation(serverLevel, shipBanner,4);
+                self().setData(Ship.BANNER, ItemStack.EMPTY);
+                serverLevel.playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
+                return true;
+            }
         }
         return false;
     }

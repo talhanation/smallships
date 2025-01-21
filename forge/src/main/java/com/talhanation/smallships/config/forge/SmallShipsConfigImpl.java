@@ -5,6 +5,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.IConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 
+@SuppressWarnings("removal")
 public class SmallShipsConfigImpl {
     public static void registerConfigs(String modId, SmallShipsConfig.ModConfigWrapper.Type type, IConfigSpec<?> spec) {
         ModLoadingContext.get().registerConfig(ModConfig.Type.valueOf(type.toString()), spec);

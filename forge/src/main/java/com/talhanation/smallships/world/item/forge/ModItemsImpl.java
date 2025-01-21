@@ -1,15 +1,11 @@
 package com.talhanation.smallships.world.item.forge;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.item.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -41,7 +37,7 @@ public class ModItemsImpl {
         register("cannon", () -> new CannonItem((new Item.Properties()).stacksTo(1)));
         register("cannon_ball", () -> new CannonBallItem((new Item.Properties()).stacksTo(16)));
 
-        for (Boat.Type type: Boat.Type.values()) {
+        for (Ship.Type type: Ship.Type.values()) {
             String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
             register(name + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1)));

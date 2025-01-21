@@ -1,13 +1,13 @@
 package com.talhanation.smallships.client.model;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 public class CogModel extends ShipModel<CogEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, CogEntity.ID + "_model"), "main");
@@ -19,7 +19,8 @@ public class CogModel extends ShipModel<CogEntity> {
 	private final ModelPart steer;
 
 	public CogModel(ModelPart modelPart) {
-		this.root = modelPart;
+        super(modelPart);
+        this.root = modelPart;
 		ModelPart cog = this.root.getChild("Cog");
 		this.chest1 = cog.getChild("chest_1");
 		this.chest2 = cog.getChild("chest_2");
@@ -157,17 +158,16 @@ public class CogModel extends ShipModel<CogEntity> {
 	}
 
 	@Override
-	public void setupAnim(@NotNull CogEntity cogEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.chest1.visible = cogEntity.getInvFillState() >= 15;
-		this.chest2.visible = cogEntity.getInvFillState() >= 30;
-		this.chest3.visible = cogEntity.getInvFillState() >= 60;
-		this.chest4.visible = cogEntity.getInvFillState() >= 90;
+	public void setupAnim(ShipRenderState entityRenderState) {
+		CogEntity ship = ((CogEntity)entityRenderState.ship);
 
-		this.steer.yRot = -cogEntity.getRotSpeed() * 0.25F;
-	}
+		this.chest1.visible = ship.getInvFillState() >= 15;
+		this.chest2.visible = ship.getInvFillState() >= 30;
+		this.chest3.visible = ship.getInvFillState() >= 60;
+		this.chest4.visible = ship.getInvFillState() >= 90;
 
-	@Override
-	public @NotNull ModelPart root() {
-		return this.root;
+		this.steer.yRot = -ship.getRotSpeed() * 0.25F;
+
+		super.setupAnim(entityRenderState);
 	}
 }

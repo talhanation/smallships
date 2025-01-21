@@ -1,13 +1,18 @@
 package com.talhanation.smallships.client.model.sail;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
 
-public abstract class SailModel extends EntityModel<Ship> {
+public abstract class SailModel extends EntityModel<ShipRenderState> {
+
+    protected SailModel(ModelPart modelPart) {
+        super(modelPart);
+    }
 
     public static SailModel.Color getSailColor(String stringColor) {
         return Arrays.stream(Color.values()).filter(color -> color.toString().equals(stringColor)).findAny().orElse(Color.WHITE);

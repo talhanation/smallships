@@ -20,7 +20,7 @@ import java.util.Arrays;
 public class SmallshipsModForge {
     public static final boolean hasCustomItemGroup = TomlFormat.instance().createParser().parse(Path.of("config", "smallships-client.toml"), (file, configFormat) -> false).getOrElse(Arrays.asList("General", "smallshipsItemGroupEnable"), () -> false); //Forge doesn't do early config initialization. Will have to parse the config ourselves.
 
-    @SuppressWarnings("InstantiationOfUtilityClass")
+    @SuppressWarnings({"InstantiationOfUtilityClass", "removal"})
     public SmallshipsModForge() {
         new SmallShipsMod();
 

@@ -1,24 +1,22 @@
 package com.talhanation.smallships.client.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
-public class CannonModel extends EntityModel<Ship> {
+public class CannonModel extends EntityModel<ShipRenderState> {
     @SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "cannon_model"), "main");
     private final ModelPart Cannon;
     private final ModelPart Lauf;
 
     public CannonModel() {
+        super(createBodyLayer().bakeRoot());
         ModelPart root = createBodyLayer().bakeRoot();
         this.Cannon = root.getChild("Cannon");
         this.Lauf = this.Cannon.getChild("Lauf");
@@ -151,17 +149,12 @@ public class CannonModel extends EntityModel<Ship> {
         return LayerDefinition.create(meshdefinition, 128, 64);
     }
 
-
     @Override
-    public void setupAnim(@NotNull Ship entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setupAnim(ShipRenderState entityRenderState) {
+        super.setupAnim(entityRenderState);
     }
 
     public void setLaufPitch(float angleInDeg) {
         this.Lauf.xRot = (float) Math.toRadians(angleInDeg);
-    }
-
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-        Cannon.render(poseStack, buffer, packedLight, packedOverlay, color);
     }
 }

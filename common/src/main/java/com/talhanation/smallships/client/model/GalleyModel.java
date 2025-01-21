@@ -1,6 +1,7 @@
 package com.talhanation.smallships.client.model;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -8,7 +9,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class GalleyModel extends ShipModel<GalleyEntity> {
@@ -30,6 +30,7 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
     private final ModelPart row_R_4;
 
     public GalleyModel(ModelPart modelPart) {
+        super(modelPart);
         this.root = modelPart;
         this.galley = this.root.getChild("Galley");
         this.chest1 = galley.getChild("chest_1");
@@ -223,27 +224,27 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
     }
 
     @Override
-    public void setupAnim(GalleyEntity galleyEntity, float f, float g, float h, float i, float j) {
-        this.chest1.visible = galleyEntity.getInvFillState() >= 15;
-        this.chest2.visible = galleyEntity.getInvFillState() >= 30;
-        this.chest3.visible = galleyEntity.getInvFillState() >= 60;
-        this.chest4.visible = galleyEntity.getInvFillState() >= 90;
+    public void setupAnim(ShipRenderState entityRenderState) {
+        GalleyEntity ship = ((GalleyEntity)entityRenderState.ship);
+        float f = entityRenderState.partialTicks;
 
-        this.steer.yRot = -galleyEntity.getRotSpeed() * 0.25F;
+        this.chest1.visible = ship.getInvFillState() >= 15;
+        this.chest2.visible = ship.getInvFillState() >= 30;
+        this.chest3.visible = ship.getInvFillState() >= 60;
+        this.chest4.visible = ship.getInvFillState() >= 90;
 
-        galleyEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1 , f);
-        galleyEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2 , f);
-        galleyEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_3 , f);
-        galleyEntity.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_4 , f);
+        this.steer.yRot = -ship.getRotSpeed() * 0.25F;
 
-        galleyEntity.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_1 , f);
-        galleyEntity.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_2 , f);
-        galleyEntity.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_3 , f);
-        galleyEntity.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_4 , f);
-    }
+        ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1, f);
+        ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2, f);
+        ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_3, f);
+        ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_4, f);
 
-    @Override
-    public @NotNull ModelPart root() {
-        return this.root;
+        ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_1, f);
+        ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_2, f);
+        ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_3, f);
+        ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_4, f);
+
+        super.setupAnim(entityRenderState);
     }
 }

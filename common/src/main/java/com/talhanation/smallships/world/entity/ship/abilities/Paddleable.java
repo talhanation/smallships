@@ -1,7 +1,7 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.mixin.controlling.BoatAccessor;
+import com.talhanation.smallships.mixin.controlling.AbstractBoatAccessor;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 
@@ -34,11 +34,11 @@ public interface Paddleable extends Ability {
     }
 
     private boolean shouldPaddleLeft(){
-        return (((BoatAccessor)self()).isInputRight() && !((BoatAccessor)self()).isInputLeft()) || ((BoatAccessor)self()).isInputUp();
+        return (((AbstractBoatAccessor)self()).isInputRight() && !((AbstractBoatAccessor)self()).isInputLeft()) || ((AbstractBoatAccessor)self()).isInputUp();
     }
 
     private boolean shouldPaddleRight(){
-        return (((BoatAccessor)self()).isInputLeft() && !((BoatAccessor)self()).isInputRight()) || ((BoatAccessor)self()).isInputUp();
+        return (((AbstractBoatAccessor)self()).isInputLeft() && !((AbstractBoatAccessor)self()).isInputRight()) || ((AbstractBoatAccessor)self()).isInputUp();
     }
 
     enum PaddleSide {

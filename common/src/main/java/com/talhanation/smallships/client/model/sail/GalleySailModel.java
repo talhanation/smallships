@@ -1,8 +1,7 @@
 package com.talhanation.smallships.client.model.sail;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -17,6 +16,7 @@ public class GalleySailModel extends SailModel {
     private final ModelPart GalleySail;
 
     public GalleySailModel() {
+        super(createBodyLayer().bakeRoot());
         ModelPart root = createBodyLayer().bakeRoot();
         this.GalleySail = root.getChild("GalleySail");
     }
@@ -549,11 +549,11 @@ public class GalleySailModel extends SailModel {
         return LayerDefinition.create(meshdefinition, 128, 64);
     }
 
-
-
     @Override
-    public void setupAnim(Ship briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        switch (briggEntity.getData(Ship.SAIL_STATE)) {
+    public void setupAnim(ShipRenderState entityRenderState) {
+        GalleyEntity galleyEntity = ((GalleyEntity) entityRenderState.ship);
+
+        switch (galleyEntity.getData(Ship.SAIL_STATE)) {
             case 0 -> {
                 this.GalleySail.getChild("Sail_0").visible = true;
                 this.GalleySail.getChild("Sail_1").visible = false;
@@ -590,10 +590,7 @@ public class GalleySailModel extends SailModel {
                 this.GalleySail.getChild("Sail_4").visible = true;
             }
         }
-    }
 
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-        GalleySail.render(poseStack, buffer, packedLight, packedOverlay, color);
+        super.setupAnim(entityRenderState);
     }
 }

@@ -17,6 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -316,16 +317,17 @@ public class GroundCannonEntity extends Minecart implements ICannon {
     }
 
     @Override
-    public void destroy(Item arg) {
-        this.kill();
-        if (this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+    public void destroy(ServerLevel level, Item arg) {
+        if (level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             ItemStack itemStack = new ItemStack(arg);
             itemStack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
             CompoundTag tag = new CompoundTag();
             this.addAdditionalSaveData(tag);
             itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-            this.spawnAtLocation(itemStack);
+            this.spawnAtLocation(level, itemStack);
         }
+
+        this.discard();
     }
 
     @Override

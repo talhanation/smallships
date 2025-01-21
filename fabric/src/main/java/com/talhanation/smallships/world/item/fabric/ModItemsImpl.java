@@ -2,10 +2,7 @@ package com.talhanation.smallships.world.item.fabric;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.item.*;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -15,7 +12,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.*;
 
 import java.util.ArrayList;
@@ -43,7 +39,7 @@ public class ModItemsImpl {
                             .lookup(Registries.ITEM)
                             .ifPresent(registryLookup -> registryLookup.listElementIds()
                                     .filter(itemResourceKey -> SmallShipsMod.MOD_ID.equals(itemResourceKey.location().getNamespace()))
-                                    .forEach(itemResourceKey -> output.accept(BuiltInRegistries.ITEM.getOrThrow(itemResourceKey)))
+                                    .forEach(itemResourceKey -> output.accept(BuiltInRegistries.ITEM.getOrThrow(itemResourceKey).value()))
                             ))
                     .build();
 
@@ -60,7 +56,7 @@ public class ModItemsImpl {
 
             ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
                 List<Item> shipItems = new ArrayList<>();
-                for (Boat.Type type : Boat.Type.values()) {
+                for (Ship.Type type : Ship.Type.values()) {
                     shipItems.add(ModItems.COG_ITEMS.get(type));
                     shipItems.add(ModItems.BRIGG_ITEMS.get(type));
                     shipItems.add(ModItems.GALLEY_ITEMS.get(type));
@@ -75,7 +71,7 @@ public class ModItemsImpl {
         register("cannon", new CannonItem((new Item.Properties()).stacksTo(1)));
         register("cannon_ball", new CannonBallItem((new Item.Properties()).stacksTo(16)));
 
-        for (Boat.Type type: Boat.Type.values()) {
+        for (Ship.Type type: Ship.Type.values()) {
             String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
             register(name + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));

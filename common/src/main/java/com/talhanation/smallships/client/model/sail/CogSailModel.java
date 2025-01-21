@@ -1,8 +1,7 @@
 package com.talhanation.smallships.client.model.sail;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -10,7 +9,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 public class CogSailModel extends SailModel {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
@@ -20,7 +18,8 @@ public class CogSailModel extends SailModel {
 	private final ModelPart CogSail;
 
 	public CogSailModel() {
-		ModelPart root = createBodyLayer().bakeRoot();
+        super(createBodyLayer().bakeRoot());
+        ModelPart root = createBodyLayer().bakeRoot();
 		this.CogSail = root.getChild("CogSail");
 	}
 
@@ -400,11 +399,11 @@ public class CogSailModel extends SailModel {
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
 
-
-
 	@Override
-	public void setupAnim(@NotNull Ship cog, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		switch (cog.getData(Ship.SAIL_STATE)) {
+	public void setupAnim(ShipRenderState entityRenderState) {
+		CogEntity cogEntity = ((CogEntity) entityRenderState.ship);
+
+		switch (cogEntity.getData(Ship.SAIL_STATE)) {
 			case 0 -> {
 				this.CogSail.getChild("Sail_0").visible = true;
 				this.CogSail.getChild("Sail_1").visible = false;
@@ -441,10 +440,7 @@ public class CogSailModel extends SailModel {
 				this.CogSail.getChild("Sail_4").visible = true;
 			}
 		}
-	}
 
-	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		CogSail.render(poseStack, buffer, packedLight, packedOverlay, color);
+		super.setupAnim(entityRenderState);
 	}
 }

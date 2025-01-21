@@ -10,6 +10,7 @@ import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -49,8 +50,8 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
         int k = offset + (this.width - this.imageWidth) / 2;
         int l = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(RESOURCE_LOCATION, k, l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
-        guiGraphics.blit(RESOURCE_LOCATION, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
+        guiGraphics.blit(RenderType::guiTextured, RESOURCE_LOCATION, k, l, 0F, 0F, this.imageWidth, this.rowCount * 18 + 17, 256, 256);
+        guiGraphics.blit(RenderType::guiTextured, RESOURCE_LOCATION, k, l + this.rowCount * 18 + 17, 0F, 126F, this.imageWidth, 96, 256, 256);
     }
 
     @Override
