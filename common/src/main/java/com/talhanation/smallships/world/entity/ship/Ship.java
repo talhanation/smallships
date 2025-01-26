@@ -123,6 +123,7 @@ public abstract class Ship extends AbstractBoat {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
 
+        builder.define(VARIANT, 0);
         builder.define(SPEED, 0.0F);
         builder.define(ROT_SPEED, 0.0F);
         builder.define(ATTRIBUTES, this.createDefaultAttributes());

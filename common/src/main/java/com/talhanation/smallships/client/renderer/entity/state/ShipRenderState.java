@@ -2,6 +2,7 @@ package com.talhanation.smallships.client.renderer.entity.state;
 
 import com.talhanation.smallships.world.entity.ship.Attributes;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -21,17 +22,18 @@ public class ShipRenderState extends EntityRenderState {
     public float waveAngle;
     public Ship.Type variant;
     public boolean sunken;
-
-
-    public boolean cannonable;
-    public boolean bannerable;
-    public float bannerWaveAngle;
-    public boolean paddleable;
-    public boolean sailable;
-    public boolean shieldable;
-    public Ship ship;
     public float yaw;
+    public float rotationSpeed;
     public float partialTicks;
+
+    public boolean hasContainer;
+    public byte invFillState;
+
+    public Cannonable cannonable;
+    public Bannerable bannerable;
+    public Paddleable paddleable;
+    public Sailable sailable;
+    public Shieldable shieldable;
 
     public double getRandomPosFrom(double pos, double d) {
         return this.getPos(pos, ((double)2.0F * random.nextDouble() - (double)1.0F) * d);

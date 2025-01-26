@@ -550,10 +550,8 @@ public class GalleySailModel extends SailModel {
     }
 
     @Override
-    public void setupAnim(ShipRenderState entityRenderState) {
-        GalleyEntity galleyEntity = ((GalleyEntity) entityRenderState.ship);
-
-        switch (galleyEntity.getData(Ship.SAIL_STATE)) {
+    public void setupAnim(ShipRenderState state) {
+        switch (state.sailable.getSailState()) {
             case 0 -> {
                 this.GalleySail.getChild("Sail_0").visible = true;
                 this.GalleySail.getChild("Sail_1").visible = false;
@@ -591,6 +589,6 @@ public class GalleySailModel extends SailModel {
             }
         }
 
-        super.setupAnim(entityRenderState);
+        super.setupAnim(state);
     }
 }

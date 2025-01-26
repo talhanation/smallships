@@ -8,23 +8,14 @@
     "bbb"
   ],
   "key": {
-    "y": {
-      "item": "smallships:sail"
-    },
-    "x": {
-      "item": "minecraft:chest"
-    },
-    "l": {
-      "item": "minecraft:lead"
-    },
-    "s": {
-      "item": "minecraft:string"
-    },
-    "b": {
-      "item": "minecraft:mangrove_boat"
-    }
+    "y": "smallships:sail",
+    "x": "minecraft:chest",
+    "l": "minecraft:lead",
+    "s": "minecraft:string",
+    "b": "minecraft:mangrove_boat"
   },
   "result": {
+    "count": 1,
     "id": "smallships:mangrove_drakkar"
   }
 }

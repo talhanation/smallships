@@ -7,17 +7,12 @@
     "bbb"
   ],
   "key": {
-    "s": {
-      "item": "smallships:sail"
-    },
-    "l": {
-      "item": "minecraft:lead"
-    },
-    "b": {
-      "item": "minecraft:dark_oak_boat"
-    }
+    "s": "smallships:sail",
+    "l": "minecraft:lead",
+    "b": "minecraft:dark_oak_boat"
   },
   "result": {
+    "count": 1,
     "id": "smallships:dark_oak_cog"
   }
 }

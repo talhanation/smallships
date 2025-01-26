@@ -8,20 +8,13 @@
     "bbb"
   ],
   "key": {
-    "s": {
-      "item": "smallships:sail"
-    },
-    "c": {
-      "item": "minecraft:chest"
-    },
-    "l": {
-      "item": "minecraft:lead"
-    },
-    "b": {
-      "item": "minecraft:mangrove_boat"
-    }
+    "s": "smallships:sail",
+    "c": "minecraft:chest",
+    "l": "minecraft:lead",
+    "b": "minecraft:mangrove_boat"
   },
   "result": {
+    "count": 1,
     "id": "smallships:mangrove_galley"
   }
 }

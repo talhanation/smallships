@@ -224,27 +224,26 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
     }
 
     @Override
-    public void setupAnim(ShipRenderState entityRenderState) {
-        GalleyEntity ship = ((GalleyEntity)entityRenderState.ship);
-        float f = entityRenderState.partialTicks;
+    public void setupAnim(ShipRenderState state) {
+        float f = state.partialTicks;
 
-        this.chest1.visible = ship.getInvFillState() >= 15;
-        this.chest2.visible = ship.getInvFillState() >= 30;
-        this.chest3.visible = ship.getInvFillState() >= 60;
-        this.chest4.visible = ship.getInvFillState() >= 90;
+        this.chest1.visible = state.invFillState >= 15;
+        this.chest2.visible = state.invFillState >= 30;
+        this.chest3.visible = state.invFillState >= 60;
+        this.chest4.visible = state.invFillState >= 90;
 
-        this.steer.yRot = -ship.getRotSpeed() * 0.25F;
+        this.steer.yRot = -state.rotationSpeed * 0.25F;
 
-        ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1, f);
-        ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2, f);
-        ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_3, f);
-        ship.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_4, f);
+        state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1, f);
+        state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2, f);
+        state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_3, f);
+        state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_4, f);
 
-        ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_1, f);
-        ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_2, f);
-        ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_3, f);
-        ship.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_4, f);
+        state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_1, f);
+        state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_2, f);
+        state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_3, f);
+        state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_4, f);
 
-        super.setupAnim(entityRenderState);
+        super.setupAnim(state);
     }
 }

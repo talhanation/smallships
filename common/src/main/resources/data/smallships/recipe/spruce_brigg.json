@@ -7,17 +7,12 @@
     "bbb"
   ],
   "key": {
-    "l": {
-      "item": "minecraft:lead"
-    },
-    "s": {
-      "item": "smallships:sail"
-    },
-    "b": {
-      "item": "minecraft:spruce_chest_boat"
-    }
+    "l": "minecraft:lead",
+    "s": "smallships:sail",
+    "b": "minecraft:spruce_chest_boat"
   },
   "result": {
+    "count": 1,
     "id": "smallships:spruce_brigg"
   }
 }

@@ -2009,10 +2009,8 @@ public class BriggSailModel extends SailModel {
 	}
 
 	@Override
-	public void setupAnim(ShipRenderState entityRenderState) {
-		BriggEntity briggEntity = ((BriggEntity)entityRenderState.ship);
-
-		switch (briggEntity.getData(Ship.SAIL_STATE)) {
+	public void setupAnim(ShipRenderState state) {
+		switch (state.sailable.getSailState()) {
 			case 0 -> {
 				this.segel_brigg.getChild("Sail_0").visible = true;
 				this.segel_brigg.getChild("Sail_1").visible = false;
@@ -2050,6 +2048,6 @@ public class BriggSailModel extends SailModel {
 			}
 		}
 
-		super.setupAnim(entityRenderState);
+		super.setupAnim(state);
 	}
 }

@@ -7,17 +7,12 @@
     "bbb"
   ],
   "key": {
-    "l": {
-      "item": "minecraft:lead"
-    },
-    "s": {
-      "item": "smallships:sail"
-    },
-    "b": {
-      "item": "minecraft:bamboo_chest_raft"
-    }
+    "l": "minecraft:lead",
+    "s": "smallships:sail",
+    "b": "minecraft:bamboo_chest_raft"
   },
   "result": {
+    "count": 1,
     "id": "smallships:bamboo_brigg"
   }
 }

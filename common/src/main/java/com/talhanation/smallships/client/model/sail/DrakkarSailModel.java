@@ -3,7 +3,6 @@ package com.talhanation.smallships.client.model.sail;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -395,10 +394,8 @@ public class DrakkarSailModel extends SailModel {
 	}
 
 	@Override
-	public void setupAnim(ShipRenderState entityRenderState) {
-		DrakkarEntity drakkarEntity = ((DrakkarEntity) entityRenderState.ship);
-
-		switch (drakkarEntity.getData(Ship.SAIL_STATE)) {
+	public void setupAnim(ShipRenderState state) {
+		switch (state.sailable.getSailState()) {
 			case 0 -> {
 				this.DrakkarSail.getChild("Sail_0").visible = true;
 				this.DrakkarSail.getChild("Sail_1").visible = false;
@@ -436,6 +433,6 @@ public class DrakkarSailModel extends SailModel {
 			}
 		}
 
-		super.setupAnim(entityRenderState);
+		super.setupAnim(state);
 	}
 }

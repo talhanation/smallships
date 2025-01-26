@@ -7,17 +7,12 @@
     "bbb"
   ],
   "key": {
-    "s": {
-      "item": "smallships:sail"
-    },
-    "l": {
-      "item": "minecraft:lead"
-    },
-    "b": {
-      "item": "minecraft:mangrove_boat"
-    }
+    "s": "smallships:sail",
+    "l": "minecraft:lead",
+    "b": "minecraft:mangrove_boat"
   },
   "result": {
+    "count": 1,
     "id": "smallships:mangrove_cog"
   }
 }

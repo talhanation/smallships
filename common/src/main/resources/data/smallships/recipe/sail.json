@@ -6,17 +6,12 @@
     "sIs"
   ],
   "key": {
-    "I": {
-      "tag": "minecraft:logs"
-    },
-    "x": {
-      "tag": "minecraft:wool"
-    },
-    "s": {
-      "item": "minecraft:lead"
-    }
+    "I": "minecraft:logs",
+    "x": "minecraft:wool",
+    "s": "minecraft:lead"
   },
   "result": {
+    "count": 1,
     "id": "smallships:sail"
   }
 }

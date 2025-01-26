@@ -158,16 +158,14 @@ public class CogModel extends ShipModel<CogEntity> {
 	}
 
 	@Override
-	public void setupAnim(ShipRenderState entityRenderState) {
-		CogEntity ship = ((CogEntity)entityRenderState.ship);
+	public void setupAnim(ShipRenderState state) {
+		this.chest1.visible = state.invFillState >= 15;
+		this.chest2.visible = state.invFillState >= 30;
+		this.chest3.visible = state.invFillState >= 60;
+		this.chest4.visible = state.invFillState >= 90;
 
-		this.chest1.visible = ship.getInvFillState() >= 15;
-		this.chest2.visible = ship.getInvFillState() >= 30;
-		this.chest3.visible = ship.getInvFillState() >= 60;
-		this.chest4.visible = ship.getInvFillState() >= 90;
+		this.steer.yRot = -state.rotationSpeed * 0.25F;
 
-		this.steer.yRot = -ship.getRotSpeed() * 0.25F;
-
-		super.setupAnim(entityRenderState);
+		super.setupAnim(state);
 	}
 }

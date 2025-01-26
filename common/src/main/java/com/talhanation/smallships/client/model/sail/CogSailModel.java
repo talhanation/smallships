@@ -400,10 +400,8 @@ public class CogSailModel extends SailModel {
 	}
 
 	@Override
-	public void setupAnim(ShipRenderState entityRenderState) {
-		CogEntity cogEntity = ((CogEntity) entityRenderState.ship);
-
-		switch (cogEntity.getData(Ship.SAIL_STATE)) {
+	public void setupAnim(ShipRenderState state) {
+		switch (state.sailable.getSailState()) {
 			case 0 -> {
 				this.CogSail.getChild("Sail_0").visible = true;
 				this.CogSail.getChild("Sail_1").visible = false;
@@ -441,6 +439,6 @@ public class CogSailModel extends SailModel {
 			}
 		}
 
-		super.setupAnim(entityRenderState);
+		super.setupAnim(state);
 	}
 }

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @SuppressWarnings({"CodeBlock2Expr", "UnstableApiUsage"})
 public class ModItemsImpl {
@@ -66,30 +67,22 @@ public class ModItemsImpl {
             });
         }
 
-        register("sail", new SailItem((new Item.Properties()).stacksTo(16)));
+        register("sail", SailItem::new, new Item.Properties().stacksTo(16));
 
-        register("cannon", new CannonItem((new Item.Properties()).stacksTo(1)));
-        register("cannon_ball", new CannonBallItem((new Item.Properties()).stacksTo(16)));
+        register("cannon", CannonItem::new, new Item.Properties().stacksTo(1));
+        register("cannon_ball", CannonBallItem::new, new Item.Properties().stacksTo(16));
 
         for (Ship.Type type: Ship.Type.values()) {
             String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
-            register(name + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
-			register(name + "_" + DrakkarEntity.ID,  new DrakkarItem(type, new Item.Properties().stacksTo(1)));
-
+            register(name + "_" + CogEntity.ID, (prop) -> new CogItem(Ship.Type.byName(name), prop), new Item.Properties().stacksTo(1));
+            register(name + "_" + BriggEntity.ID, (prop) -> new BriggItem(Ship.Type.byName(name), prop), new Item.Properties().stacksTo(1));
+            register(name + "_" + GalleyEntity.ID, (prop) -> new GalleyItem(Ship.Type.byName(name), prop), new Item.Properties().stacksTo(1));
+            register(name + "_" + DrakkarEntity.ID, (prop) -> new DrakkarItem(Ship.Type.byName(name), prop), new Item.Properties().stacksTo(1));
         }
     }
 
-    private static void register(String id, Item item) {
-        entries.put(id, register(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id), item));
-    }
-
-    private static Item register(ResourceLocation id, Item item) {
-        if (item instanceof BlockItem blockItem) {
-            blockItem.registerBlocks(Item.BY_BLOCK, blockItem);
-        }
-
-        return Registry.register(BuiltInRegistries.ITEM, id, item);
+    private static void register(String id, Function<Item.Properties, Item> factory, Item.Properties properties) {
+        ResourceKey<Item> rk = ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id));
+        entries.put(id, Items.registerItem(rk, factory, properties));
     }
 }

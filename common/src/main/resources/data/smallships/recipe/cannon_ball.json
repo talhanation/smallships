@@ -6,16 +6,12 @@
     "###"
   ],
   "key": {
-    "#": {
-      "item": "minecraft:iron_nugget"
-    },
-    "G": {
-      "item": "minecraft:gunpowder"
-    }
+    "#": "minecraft:iron_ingot",
+    "G": "minecraft:gunpowder"
   },
   "result": {
-    "id": "smallships:cannon_ball",
-    "count": 2
+    "count": 2,
+    "id": "smallships:cannon_ball"
   }
 }
 
