@@ -394,45 +394,7 @@ public class DrakkarSailModel extends SailModel {
 	}
 
 	@Override
-	public void setupAnim(ShipRenderState state) {
-		switch (state.sailable.getSailState()) {
-			case 0 -> {
-				this.DrakkarSail.getChild("Sail_0").visible = true;
-				this.DrakkarSail.getChild("Sail_1").visible = false;
-				this.DrakkarSail.getChild("Sail_2").visible = false;
-				this.DrakkarSail.getChild("Sail_3").visible = false;
-				this.DrakkarSail.getChild("Sail_4").visible = false;
-			}
-			case 1 -> {
-				this.DrakkarSail.getChild("Sail_0").visible = false;
-				this.DrakkarSail.getChild("Sail_1").visible = true;
-				this.DrakkarSail.getChild("Sail_2").visible = false;
-				this.DrakkarSail.getChild("Sail_3").visible = false;
-				this.DrakkarSail.getChild("Sail_4").visible = false;
-			}
-			case 2 -> {
-				this.DrakkarSail.getChild("Sail_0").visible = false;
-				this.DrakkarSail.getChild("Sail_1").visible = false;
-				this.DrakkarSail.getChild("Sail_2").visible = true;
-				this.DrakkarSail.getChild("Sail_3").visible = false;
-				this.DrakkarSail.getChild("Sail_4").visible = false;
-			}
-			case 3 -> {
-				this.DrakkarSail.getChild("Sail_0").visible = false;
-				this.DrakkarSail.getChild("Sail_1").visible = false;
-				this.DrakkarSail.getChild("Sail_2").visible = false;
-				this.DrakkarSail.getChild("Sail_3").visible = true;
-				this.DrakkarSail.getChild("Sail_4").visible = false;
-			}
-			case 4 -> {
-				this.DrakkarSail.getChild("Sail_0").visible = false;
-				this.DrakkarSail.getChild("Sail_1").visible = false;
-				this.DrakkarSail.getChild("Sail_2").visible = false;
-				this.DrakkarSail.getChild("Sail_3").visible = false;
-				this.DrakkarSail.getChild("Sail_4").visible = true;
-			}
-		}
-
-		super.setupAnim(state);
+	protected ModelPart getSailModelPart() {
+		return DrakkarSail;
 	}
 }

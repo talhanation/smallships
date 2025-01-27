@@ -1,7 +1,6 @@
 package com.talhanation.smallships.client.model;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -12,20 +11,13 @@ import net.minecraft.resources.ResourceLocation;
 public class CogModel extends ShipModel<CogEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, CogEntity.ID + "_model"), "main");
 	private final ModelPart root;
-	private final ModelPart chest1;
-	private final ModelPart chest2;
-	private final ModelPart chest3;
-	private final ModelPart chest4;
-	private final ModelPart steer;
+	private final ModelPart cog;
 
 	public CogModel(ModelPart modelPart) {
         super(modelPart);
         this.root = modelPart;
-		ModelPart cog = this.root.getChild("Cog");
-		this.chest1 = cog.getChild("chest_1");
-		this.chest2 = cog.getChild("chest_2");
-		this.chest3 = cog.getChild("chest_3");
-		this.chest4 = cog.getChild("chest_4");
+		this.cog = this.root.getChild("Cog");
+		this.chests = new ModelPart[]{cog.getChild("chest_1"), cog.getChild("chest_2"), cog.getChild("chest_3"), cog.getChild("chest_4")};
 		this.steer = cog.getChild("steer");
 	}
 
@@ -155,17 +147,5 @@ public class CogModel extends ShipModel<CogEntity> {
 		PartDefinition BannerStick = Cog.addOrReplaceChild("BannerStick", CubeListBuilder.create().texOffs(8, 0).addBox(12.0F, -94.0F, -0.5F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -1.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 128, 64);
-	}
-
-	@Override
-	public void setupAnim(ShipRenderState state) {
-		this.chest1.visible = state.invFillState >= 15;
-		this.chest2.visible = state.invFillState >= 30;
-		this.chest3.visible = state.invFillState >= 60;
-		this.chest4.visible = state.invFillState >= 90;
-
-		this.steer.yRot = -state.rotationSpeed * 0.25F;
-
-		super.setupAnim(state);
 	}
 }

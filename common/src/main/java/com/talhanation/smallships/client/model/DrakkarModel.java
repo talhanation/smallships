@@ -1,10 +1,9 @@
 package com.talhanation.smallships.client.model;
 
 
+import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -15,38 +14,17 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DrakkarEntity.ID + "_model"), "main");
 	private final ModelPart root;
 	private final ModelPart drakkar;
-	private final ModelPart chest1;
-	private final ModelPart chest2;
-	private final ModelPart chest3;
-	private final ModelPart chest4;
-	private final ModelPart steer;
-	private final ModelPart row_L_1;
-	private final ModelPart row_L_2;
-	private final ModelPart row_L_3;
-	private final ModelPart row_L_4;
-	private final ModelPart row_R_1;
-	private final ModelPart row_R_2;
-	private final ModelPart row_R_3;
-	private final ModelPart row_R_4;
 
 	public DrakkarModel(ModelPart modelPart) {
 		super(modelPart);
 
 		this.root = modelPart;
 		this.drakkar = this.root.getChild("Drakkar");
-		this.chest1 = drakkar.getChild("chest_1");
-		this.chest2 = drakkar.getChild("chest_2");
-		this.chest3 = drakkar.getChild("chest_3");
-		this.chest4 = drakkar.getChild("chest_4");
+		this.chests = new ModelPart[]{drakkar.getChild("chest_1"), drakkar.getChild("chest_2"), drakkar.getChild("chest_3"), drakkar.getChild("chest_4")};
+		ModelPart[] left_paddles = new ModelPart[]{drakkar.getChild("row_L_1"), drakkar.getChild("row_L_2"), drakkar.getChild("row_L_3"), drakkar.getChild("row_L_4")};
+		ModelPart[] right_paddles = new ModelPart[]{drakkar.getChild("row_R_1"), drakkar.getChild("row_R_2"), drakkar.getChild("row_R_3"), drakkar.getChild("row_R_4")};
+		this.paddles = new Pair<>(left_paddles, right_paddles);
 		this.steer = drakkar.getChild("steer");
-		this.row_L_1 = drakkar.getChild("row_L_1");
-		this.row_L_2 = drakkar.getChild("row_L_2");
-		this.row_L_3 = drakkar.getChild("row_L_3");
-		this.row_L_4 = drakkar.getChild("row_L_4");
-		this.row_R_1 = drakkar.getChild("row_R_1");
-		this.row_R_2 = drakkar.getChild("row_R_2");
-		this.row_R_3 = drakkar.getChild("row_R_3");
-		this.row_R_4 = drakkar.getChild("row_R_4");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -222,29 +200,5 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 		PartDefinition cube_r19 = chest_4.addOrReplaceChild("cube_r19", CubeListBuilder.create().texOffs(96, 38).addBox(-4.0F, -4.0F, 15.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-17.0001F, -9.0F, -8.5002F, 0.0F, -1.5708F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 128, 64);
-	}
-
-	@Override
-	public void setupAnim(ShipRenderState state) {
-		float f = state.partialTicks;
-
-		this.chest1.visible = state.invFillState >= 15;
-		this.chest2.visible = state.invFillState >= 30;
-		this.chest3.visible = state.invFillState >= 60;
-		this.chest4.visible = state.invFillState >= 90;
-
-		this.steer.yRot = -state.rotationSpeed * 0.25F;
-
-		state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1 , f);
-		state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2 , f);
-		state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_3 , f);
-		state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_4 , f);
-
-		state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_1 , f);
-		state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_2 , f);
-		state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_3 , f);
-		state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_4 , f);
-
-		super.setupAnim(state);
 	}
 }

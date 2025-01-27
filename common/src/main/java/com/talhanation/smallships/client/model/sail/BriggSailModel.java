@@ -1,30 +1,24 @@
 package com.talhanation.smallships.client.model.sail;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
-import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class BriggSailModel extends SailModel {
 	@SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, BriggEntity.ID + "_sail_model"), "main");
 
-	private final ModelPart segel_brigg;
+	private final ModelPart BriggSail;
 
 	public BriggSailModel() {
         super(createBodyLayer().bakeRoot());
         ModelPart root = createBodyLayer().bakeRoot();
-		this.segel_brigg = root.getChild("SegelBrigg");
+		this.BriggSail = root.getChild("SegelBrigg");
 	}
 	@SuppressWarnings("unused")
 	public static LayerDefinition createBodyLayer() {
@@ -2009,45 +2003,7 @@ public class BriggSailModel extends SailModel {
 	}
 
 	@Override
-	public void setupAnim(ShipRenderState state) {
-		switch (state.sailable.getSailState()) {
-			case 0 -> {
-				this.segel_brigg.getChild("Sail_0").visible = true;
-				this.segel_brigg.getChild("Sail_1").visible = false;
-				this.segel_brigg.getChild("Sail_2").visible = false;
-				this.segel_brigg.getChild("Sail_3").visible = false;
-				this.segel_brigg.getChild("Sail_4").visible = false;
-			}
-			case 1 -> {
-				this.segel_brigg.getChild("Sail_0").visible = false;
-				this.segel_brigg.getChild("Sail_1").visible = true;
-				this.segel_brigg.getChild("Sail_2").visible = false;
-				this.segel_brigg.getChild("Sail_3").visible = false;
-				this.segel_brigg.getChild("Sail_4").visible = false;
-			}
-			case 2 -> {
-				this.segel_brigg.getChild("Sail_0").visible = false;
-				this.segel_brigg.getChild("Sail_1").visible = false;
-				this.segel_brigg.getChild("Sail_2").visible = true;
-				this.segel_brigg.getChild("Sail_3").visible = false;
-				this.segel_brigg.getChild("Sail_4").visible = false;
-			}
-			case 3 -> {
-				this.segel_brigg.getChild("Sail_0").visible = false;
-				this.segel_brigg.getChild("Sail_1").visible = false;
-				this.segel_brigg.getChild("Sail_2").visible = false;
-				this.segel_brigg.getChild("Sail_3").visible = true;
-				this.segel_brigg.getChild("Sail_4").visible = false;
-			}
-			case 4 -> {
-				this.segel_brigg.getChild("Sail_0").visible = false;
-				this.segel_brigg.getChild("Sail_1").visible = false;
-				this.segel_brigg.getChild("Sail_2").visible = false;
-				this.segel_brigg.getChild("Sail_3").visible = false;
-				this.segel_brigg.getChild("Sail_4").visible = true;
-			}
-		}
-
-		super.setupAnim(state);
+	protected ModelPart getSailModelPart() {
+		return BriggSail;
 	}
 }

@@ -1,9 +1,8 @@
 package com.talhanation.smallships.client.model;
 
+import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
-import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -15,37 +14,16 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_model"), "main");
     private final ModelPart root;
     private final ModelPart galley;
-    private final ModelPart chest1;
-    private final ModelPart chest2;
-    private final ModelPart chest3;
-    private final ModelPart chest4;
-    private final ModelPart steer;
-    private final ModelPart row_L_1;
-    private final ModelPart row_L_2;
-    private final ModelPart row_L_3;
-    private final ModelPart row_L_4;
-    private final ModelPart row_R_1;
-    private final ModelPart row_R_2;
-    private final ModelPart row_R_3;
-    private final ModelPart row_R_4;
 
     public GalleyModel(ModelPart modelPart) {
         super(modelPart);
         this.root = modelPart;
         this.galley = this.root.getChild("Galley");
-        this.chest1 = galley.getChild("chest_1");
-        this.chest2 = galley.getChild("chest_2");
-        this.chest3 = galley.getChild("chest_3");
-        this.chest4 = galley.getChild("chest_4");
+        this.chests = new ModelPart[]{galley.getChild("chest_1"), galley.getChild("chest_2"), galley.getChild("chest_3"), galley.getChild("chest_4")};
+        ModelPart[] left_paddles = new ModelPart[]{galley.getChild("row_L_1"), galley.getChild("row_L_2"), galley.getChild("row_L_3"), galley.getChild("row_L_4")};
+        ModelPart[] right_paddles = new ModelPart[]{galley.getChild("row_R_1"), galley.getChild("row_R_2"), galley.getChild("row_R_3"), galley.getChild("row_R_4")};
+        this.paddles = new Pair<>(left_paddles, right_paddles);
         this.steer = galley.getChild("steer");
-        this.row_L_1 = galley.getChild("row_L_1");
-        this.row_L_2 = galley.getChild("row_L_2");
-        this.row_L_3 = galley.getChild("row_L_3");
-        this.row_L_4 = galley.getChild("row_L_4");
-        this.row_R_1 = galley.getChild("row_R_1");
-        this.row_R_2 = galley.getChild("row_R_2");
-        this.row_R_3 = galley.getChild("row_R_3");
-        this.row_R_4 = galley.getChild("row_R_4");
     }
 
     @SuppressWarnings("unused")
@@ -221,29 +199,5 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
                 .texOffs(9, 0).addBox(4.0F, -3.3296F, 6.7059F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-4.5F, 8.0F, -16.0F, 1.5708F, 0.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 128, 64);
-    }
-
-    @Override
-    public void setupAnim(ShipRenderState state) {
-        float f = state.partialTicks;
-
-        this.chest1.visible = state.invFillState >= 15;
-        this.chest2.visible = state.invFillState >= 30;
-        this.chest3.visible = state.invFillState >= 60;
-        this.chest4.visible = state.invFillState >= 90;
-
-        this.steer.yRot = -state.rotationSpeed * 0.25F;
-
-        state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_1, f);
-        state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_2, f);
-        state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_3, f);
-        state.paddleable.animatePaddle(Paddleable.PaddleSide.LEFT, this.row_L_4, f);
-
-        state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_1, f);
-        state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_2, f);
-        state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_3, f);
-        state.paddleable.animatePaddle(Paddleable.PaddleSide.RIGHT, this.row_R_4, f);
-
-        super.setupAnim(state);
     }
 }

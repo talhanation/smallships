@@ -1,5 +1,7 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
+import com.mojang.datafixers.util.Pair;
+import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.mixin.controlling.AbstractBoatAccessor;
 import net.minecraft.client.model.geom.ModelPart;
@@ -16,6 +18,16 @@ public interface Paddleable extends Ability {
     default void controlBoatPaddleShip() {
         if(self().isControlledByLocalInstance()) {
             self().setPaddleState(this.shouldPaddleLeft(), this.shouldPaddleRight());
+        }
+    }
+
+    default void setupAnim(ShipRenderState state, Pair<ModelPart[], ModelPart[]> paddles) {
+        for (ModelPart paddle : paddles.getFirst()) {
+            this.animatePaddle(Paddleable.PaddleSide.LEFT, paddle, state.partialTicks);
+        }
+
+        for (ModelPart paddle : paddles.getSecond()) {
+            this.animatePaddle(PaddleSide.RIGHT, paddle, state.partialTicks);
         }
     }
 

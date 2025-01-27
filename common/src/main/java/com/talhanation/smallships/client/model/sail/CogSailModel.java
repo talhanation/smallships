@@ -1,9 +1,7 @@
 package com.talhanation.smallships.client.model.sail;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -400,45 +398,7 @@ public class CogSailModel extends SailModel {
 	}
 
 	@Override
-	public void setupAnim(ShipRenderState state) {
-		switch (state.sailable.getSailState()) {
-			case 0 -> {
-				this.CogSail.getChild("Sail_0").visible = true;
-				this.CogSail.getChild("Sail_1").visible = false;
-				this.CogSail.getChild("Sail_2").visible = false;
-				this.CogSail.getChild("Sail_3").visible = false;
-				this.CogSail.getChild("Sail_4").visible = false;
-			}
-			case 1 -> {
-				this.CogSail.getChild("Sail_0").visible = false;
-				this.CogSail.getChild("Sail_1").visible = true;
-				this.CogSail.getChild("Sail_2").visible = false;
-				this.CogSail.getChild("Sail_3").visible = false;
-				this.CogSail.getChild("Sail_4").visible = false;
-			}
-			case 2 -> {
-				this.CogSail.getChild("Sail_0").visible = false;
-				this.CogSail.getChild("Sail_1").visible = false;
-				this.CogSail.getChild("Sail_2").visible = true;
-				this.CogSail.getChild("Sail_3").visible = false;
-				this.CogSail.getChild("Sail_4").visible = false;
-			}
-			case 3 -> {
-				this.CogSail.getChild("Sail_0").visible = false;
-				this.CogSail.getChild("Sail_1").visible = false;
-				this.CogSail.getChild("Sail_2").visible = false;
-				this.CogSail.getChild("Sail_3").visible = true;
-				this.CogSail.getChild("Sail_4").visible = false;
-			}
-			case 4 -> {
-				this.CogSail.getChild("Sail_0").visible = false;
-				this.CogSail.getChild("Sail_1").visible = false;
-				this.CogSail.getChild("Sail_2").visible = false;
-				this.CogSail.getChild("Sail_3").visible = false;
-				this.CogSail.getChild("Sail_4").visible = true;
-			}
-		}
-
-		super.setupAnim(state);
+	protected ModelPart getSailModelPart() {
+		return CogSail;
 	}
 }

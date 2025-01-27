@@ -1,9 +1,7 @@
 package com.talhanation.smallships.client.model.sail;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
-import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -550,45 +548,7 @@ public class GalleySailModel extends SailModel {
     }
 
     @Override
-    public void setupAnim(ShipRenderState state) {
-        switch (state.sailable.getSailState()) {
-            case 0 -> {
-                this.GalleySail.getChild("Sail_0").visible = true;
-                this.GalleySail.getChild("Sail_1").visible = false;
-                this.GalleySail.getChild("Sail_2").visible = false;
-                this.GalleySail.getChild("Sail_3").visible = false;
-                this.GalleySail.getChild("Sail_4").visible = false;
-            }
-            case 1 -> {
-                this.GalleySail.getChild("Sail_0").visible = false;
-                this.GalleySail.getChild("Sail_1").visible = true;
-                this.GalleySail.getChild("Sail_2").visible = false;
-                this.GalleySail.getChild("Sail_3").visible = false;
-                this.GalleySail.getChild("Sail_4").visible = false;
-            }
-            case 2 -> {
-                this.GalleySail.getChild("Sail_0").visible = false;
-                this.GalleySail.getChild("Sail_1").visible = false;
-                this.GalleySail.getChild("Sail_2").visible = true;
-                this.GalleySail.getChild("Sail_3").visible = false;
-                this.GalleySail.getChild("Sail_4").visible = false;
-            }
-            case 3 -> {
-                this.GalleySail.getChild("Sail_0").visible = false;
-                this.GalleySail.getChild("Sail_1").visible = false;
-                this.GalleySail.getChild("Sail_2").visible = false;
-                this.GalleySail.getChild("Sail_3").visible = true;
-                this.GalleySail.getChild("Sail_4").visible = false;
-            }
-            case 4 -> {
-                this.GalleySail.getChild("Sail_0").visible = false;
-                this.GalleySail.getChild("Sail_1").visible = false;
-                this.GalleySail.getChild("Sail_2").visible = false;
-                this.GalleySail.getChild("Sail_3").visible = false;
-                this.GalleySail.getChild("Sail_4").visible = true;
-            }
-        }
-
-        super.setupAnim(state);
+    protected ModelPart getSailModelPart() {
+        return GalleySail;
     }
 }
