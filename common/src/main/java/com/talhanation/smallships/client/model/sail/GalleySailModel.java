@@ -3,7 +3,6 @@ package com.talhanation.smallships.client.model.sail;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
@@ -11,12 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 public class GalleySailModel extends SailModel {
     @SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_sail_model"), "main");
-    private final ModelPart GalleySail;
 
     public GalleySailModel() {
         super(createBodyLayer().bakeRoot());
-        ModelPart root = createBodyLayer().bakeRoot();
-        this.GalleySail = root.getChild("GalleySail");
     }
 
     @SuppressWarnings("unused")
@@ -24,9 +20,9 @@ public class GalleySailModel extends SailModel {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
 
-        PartDefinition GalleySail = partdefinition.addOrReplaceChild("GalleySail", CubeListBuilder.create(), PartPose.offset(-2.1F, 26.2F, 0.0F));
+        PartDefinition sail = partdefinition.addOrReplaceChild("Sail", CubeListBuilder.create(), PartPose.offset(-2.1F, 26.2F, 0.0F));
 
-        PartDefinition Sail_4 = GalleySail.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offsetAndRotation(-32.0F, -31.0F, 2.6F, 0.2443F, -0.2793F, 0.0F));
+        PartDefinition Sail_4 = sail.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offsetAndRotation(-32.0F, -31.0F, 2.6F, 0.2443F, -0.2793F, 0.0F));
 
         PartDefinition Base1 = Sail_4.addOrReplaceChild("Base1", CubeListBuilder.create().texOffs(91, 9).addBox(2.4311F, -0.7772F, 2.0974F, 6.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(91, 9).addBox(0.4311F, 0.2228F, 2.0974F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
@@ -175,7 +171,7 @@ public class GalleySailModel extends SailModel {
                 .texOffs(91, 9).addBox(59.4311F, -7.425F, 2.0614F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(91, 9).addBox(58.4311F, -5.425F, 2.0614F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -4.0F, 0.0F));
 
-        PartDefinition Sail_3 = GalleySail.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offsetAndRotation(-32.0F, -31.0F, 2.6F, 0.2443F, -0.2793F, 0.0F));
+        PartDefinition Sail_3 = sail.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offsetAndRotation(-32.0F, -31.0F, 2.6F, 0.2443F, -0.2793F, 0.0F));
 
         PartDefinition Base20 = Sail_3.addOrReplaceChild("Base20", CubeListBuilder.create(), PartPose.offsetAndRotation(5.9F, -5.1F, -2.9F, -0.0175F, -0.1571F, 0.0F));
 
@@ -312,7 +308,7 @@ public class GalleySailModel extends SailModel {
                 .texOffs(87, 7).addBox(30.9385F, -11.676F, -3.1522F, 10.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
                 .texOffs(87, 7).addBox(20.9385F, -11.676F, -3.1522F, 10.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-18.7509F, 9.8947F, -2.2001F, 0.0F, -0.1309F, 0.0F));
 
-        PartDefinition Sail_2 = GalleySail.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offsetAndRotation(-32.0F, -31.0F, 2.6F, 0.2443F, -0.2793F, 0.0F));
+        PartDefinition Sail_2 = sail.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offsetAndRotation(-32.0F, -31.0F, 2.6F, 0.2443F, -0.2793F, 0.0F));
 
         PartDefinition Base39 = Sail_2.addOrReplaceChild("Base39", CubeListBuilder.create(), PartPose.offsetAndRotation(5.9F, -5.1F, -2.9F, -0.0175F, -0.1571F, 0.0F));
 
@@ -419,7 +415,7 @@ public class GalleySailModel extends SailModel {
                 .texOffs(87, 7).addBox(43.9385F, -16.676F, -3.1522F, 10.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(87, 7).addBox(32.9385F, -16.676F, -3.1522F, 11.0F, 5.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-18.7509F, 9.8947F, -2.2001F, 0.0F, -0.1309F, 0.0F));
 
-        PartDefinition Sail_1 = GalleySail.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-32.0F, -31.0F, 2.6F, 0.2443F, -0.2793F, 0.0F));
+        PartDefinition Sail_1 = sail.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-32.0F, -31.0F, 2.6F, 0.2443F, -0.2793F, 0.0F));
 
         PartDefinition Base58 = Sail_1.addOrReplaceChild("Base58", CubeListBuilder.create(), PartPose.offsetAndRotation(5.9F, -5.1F, -2.9F, -0.0175F, -0.1571F, 0.0F));
 
@@ -493,7 +489,7 @@ public class GalleySailModel extends SailModel {
                 .texOffs(87, 7).addBox(49.9385F, -23.676F, -3.1522F, 10.0F, 6.0F, 6.0F, new CubeDeformation(0.0F))
                 .texOffs(87, 7).addBox(39.9385F, -23.676F, -3.1522F, 10.0F, 6.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-18.7509F, 9.8947F, -2.2001F, 0.0F, -0.1309F, 0.0F));
 
-        PartDefinition Sail_0 = GalleySail.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(-25.9F, -32.2F, 3.0F));
+        PartDefinition Sail_0 = sail.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(-25.9F, -32.2F, 3.0F));
 
         PartDefinition bone4 = Sail_0.addOrReplaceChild("bone4", CubeListBuilder.create(), PartPose.offsetAndRotation(4.3333F, 1.0F, 0.0F, 0.0F, 0.0F, -0.7418F));
 
@@ -509,7 +505,7 @@ public class GalleySailModel extends SailModel {
                 .texOffs(87, 7).addBox(-48.0F, -2.0F, -1.0F, 10.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(87, 7).addBox(-38.0F, -2.0F, -1.0F, 10.0F, 5.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(45.6667F, -7.0F, 0.0F, 0.0F, 0.0F, -0.0873F));
 
-        PartDefinition ropes = GalleySail.addOrReplaceChild("ropes", CubeListBuilder.create(), PartPose.offset(56.6F, -29.2F, 0.0F));
+        PartDefinition ropes = sail.addOrReplaceChild("ropes", CubeListBuilder.create(), PartPose.offset(56.6F, -29.2F, 0.0F));
 
         PartDefinition rope_13 = ropes.addOrReplaceChild("rope_13", CubeListBuilder.create(), PartPose.offsetAndRotation(8.0F, 8.0F, 0.0F, 0.0F, -1.5708F, -0.7854F));
 
@@ -545,10 +541,5 @@ public class GalleySailModel extends SailModel {
         PartDefinition cube_r21 = rope_2.addOrReplaceChild("cube_r21", CubeListBuilder.create().texOffs(13, 28).addBox(-1.5F, -1.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -10.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
         return LayerDefinition.create(meshdefinition, 128, 64);
-    }
-
-    @Override
-    protected ModelPart getSailModelPart() {
-        return GalleySail;
     }
 }

@@ -1,10 +1,8 @@
 package com.talhanation.smallships.client.model.sail;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
@@ -13,21 +11,17 @@ public class DrakkarSailModel extends SailModel {
 	@SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DrakkarEntity.ID + "_sail_model"), "main");
 
-	private final ModelPart DrakkarSail;
-
 	public DrakkarSailModel() {
         super(createBodyLayer().bakeRoot());
-        ModelPart root = createBodyLayer().bakeRoot();
-		this.DrakkarSail = root.getChild("DrakkarSail");
 	}
 
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition DrakkarSail = partdefinition.addOrReplaceChild("DrakkarSail", CubeListBuilder.create(), PartPose.offset(-14.0F, 25.0F, 0.0F));
+		PartDefinition sail = partdefinition.addOrReplaceChild("Sail", CubeListBuilder.create(), PartPose.offset(-14.0F, 25.0F, 0.0F));
 
-		PartDefinition Sail_4 = DrakkarSail.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition Sail_4 = sail.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition segel_1_7 = Sail_4.addOrReplaceChild("segel_1_7", CubeListBuilder.create(), PartPose.offsetAndRotation(8.5F, -11.0F, 20.5F, 0.0F, 1.5708F, 0.0F));
 
@@ -109,7 +103,7 @@ public class DrakkarSailModel extends SailModel {
 
 		PartDefinition cube_r101 = rope_16.addOrReplaceChild("cube_r101", CubeListBuilder.create().texOffs(12, 28).addBox(1.5F, 1.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -0.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
-		PartDefinition Sail_3 = DrakkarSail.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition Sail_3 = sail.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition segel_1_9 = Sail_3.addOrReplaceChild("segel_1_9", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
 
@@ -189,7 +183,7 @@ public class DrakkarSailModel extends SailModel {
 				.texOffs(83, 14).addBox(-24.0F, -41.6933F, 18.2105F, 13.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(84, 5).addBox(-11.0F, -41.6933F, 18.2105F, 9.0F, 3.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(55.5F, -1.8067F, 44.7895F, 2.0595F, 0.0F, 0.0F));
 
-		PartDefinition Sail_2 = DrakkarSail.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition Sail_2 = sail.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition segel_1_6 = Sail_2.addOrReplaceChild("segel_1_6", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
 
@@ -257,7 +251,7 @@ public class DrakkarSailModel extends SailModel {
 				.texOffs(82, 6).addBox(6.9F, -2.25F, -2.0F, 13.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(84, 5).addBox(19.9F, -2.25F, -2.0F, 9.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(24.6F, -7.5398F, 5.0626F, -2.2166F, 0.0F, 0.0F));
 
-		PartDefinition Sail_1 = DrakkarSail.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition Sail_1 = sail.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition segel_1_2 = Sail_1.addOrReplaceChild("segel_1_2", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
 
@@ -313,7 +307,7 @@ public class DrakkarSailModel extends SailModel {
 				.texOffs(80, 17).addBox(6.9F, -2.25F, -2.0F, 13.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(88, 6).addBox(19.9F, -2.25F, -2.0F, 9.0F, 5.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(24.6F, -7.5398F, 5.0626F, -2.2166F, 0.0F, 0.0F));
 
-		PartDefinition Sail_0 = DrakkarSail.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition Sail_0 = sail.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition segel_1_3 = Sail_0.addOrReplaceChild("segel_1_3", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
 
@@ -359,7 +353,7 @@ public class DrakkarSailModel extends SailModel {
 				.texOffs(78, 17).addBox(6.9F, -3.25F, -3.0F, 13.0F, 6.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(90, 23).addBox(19.9F, -3.25F, -3.0F, 9.0F, 6.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.25F, 0.0F, -2.2166F, 0.0F, 0.0F));
 
-		PartDefinition ropes = DrakkarSail.addOrReplaceChild("ropes", CubeListBuilder.create(), PartPose.offset(43.5F, -16.0F, 0.0F));
+		PartDefinition ropes = sail.addOrReplaceChild("ropes", CubeListBuilder.create(), PartPose.offset(43.5F, -16.0F, 0.0F));
 
 		PartDefinition rope_13 = ropes.addOrReplaceChild("rope_13", CubeListBuilder.create(), PartPose.offsetAndRotation(14.0F, -3.0F, 0.0F, 0.0F, -1.5708F, -0.6981F));
 
@@ -391,10 +385,5 @@ public class DrakkarSailModel extends SailModel {
 		PartDefinition cube_r86 = rope_14.addOrReplaceChild("cube_r86", CubeListBuilder.create().texOffs(12, 28).addBox(-1.5F, -1.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -10.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
 		return LayerDefinition.create(meshdefinition, 128, 64);
-	}
-
-	@Override
-	protected ModelPart getSailModelPart() {
-		return DrakkarSail;
 	}
 }

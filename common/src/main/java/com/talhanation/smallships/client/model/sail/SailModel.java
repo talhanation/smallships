@@ -14,15 +14,13 @@ public abstract class SailModel extends EntityModel<ShipRenderState> {
     protected SailModel(ModelPart modelPart) {
         super(modelPart);
 
-        ModelPart sail = getSailModelPart();
+        ModelPart sail = modelPart.getChild("Sail");
         sailParts = new ModelPart[] { sail.getChild("Sail_0"), sail.getChild("Sail_1"), sail.getChild("Sail_2"), sail.getChild("Sail_3"), sail.getChild("Sail_4") };
     }
 
     public static SailModel.Color getSailColor(String stringColor) {
         return Arrays.stream(Color.values()).filter(color -> color.toString().equals(stringColor)).findAny().orElse(Color.WHITE);
     }
-
-    protected abstract ModelPart getSailModelPart();
 
     @Override
     public void setupAnim(ShipRenderState state) {

@@ -3,7 +3,6 @@ package com.talhanation.smallships.client.model.sail;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
@@ -13,21 +12,17 @@ public class BriggSailModel extends SailModel {
 	@SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, BriggEntity.ID + "_sail_model"), "main");
 
-	private final ModelPart BriggSail;
-
 	public BriggSailModel() {
         super(createBodyLayer().bakeRoot());
-        ModelPart root = createBodyLayer().bakeRoot();
-		this.BriggSail = root.getChild("SegelBrigg");
 	}
 	@SuppressWarnings("unused")
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition SegelBrigg = partdefinition.addOrReplaceChild("SegelBrigg", CubeListBuilder.create(), PartPose.offsetAndRotation(20.0F, -98.25F, 0.0F, 0.0F, 1.5708F, 0.0F));
+		PartDefinition sail = partdefinition.addOrReplaceChild("Sail", CubeListBuilder.create(), PartPose.offsetAndRotation(20.0F, -98.25F, 0.0F, 0.0F, 1.5708F, 0.0F));
 
-		PartDefinition Sail_4 = SegelBrigg.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_4 = sail.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_11 = Sail_4.addOrReplaceChild("rope_11", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.7031F, -0.2749F, -1.7985F));
 
@@ -506,7 +501,7 @@ public class BriggSailModel extends SailModel {
 				.texOffs(113, 6).addBox(-0.5F, -6.5F, 0.75F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(110, 11).addBox(-0.5F, 23.5F, 0.75F, 1.0F, 13.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -1.5708F, 0.0F, 0.0F));
 
-		PartDefinition Sail_3 = SegelBrigg.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_3 = sail.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_14 = Sail_3.addOrReplaceChild("rope_14", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.6226F, -0.3589F, -1.9596F));
 
@@ -953,7 +948,7 @@ public class BriggSailModel extends SailModel {
 				.texOffs(75, 24).addBox(-51.0F, -41.6933F, 18.2105F, 18.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(76, 24).addBox(-33.0F, -41.6933F, 18.2105F, 16.0F, 3.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(54.5F, -48.8067F, 61.2895F, 2.0595F, 0.0F, 0.0F));
 
-		PartDefinition Sail_2 = SegelBrigg.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_2 = sail.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_26 = Sail_2.addOrReplaceChild("rope_26", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.5789F, -0.577F, -1.9596F));
 
@@ -1356,7 +1351,7 @@ public class BriggSailModel extends SailModel {
 				.texOffs(71, 30).addBox(-51.0F, -40.6933F, 30.2105F, 18.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(76, 24).addBox(-33.0F, -40.6933F, 30.2105F, 16.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(54.5F, -48.8067F, 61.2895F, 2.0595F, 0.0F, 0.0F));
 
-		PartDefinition Sail_1 = SegelBrigg.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_1 = sail.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_38 = Sail_1.addOrReplaceChild("rope_38", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.4917F, -1.1006F, -1.9596F));
 
@@ -1719,7 +1714,7 @@ public class BriggSailModel extends SailModel {
 
 		PartDefinition cube_r147 = rope_62.addOrReplaceChild("cube_r147", CubeListBuilder.create().texOffs(11, 27).addBox(19.5F, 19.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -0.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
-		PartDefinition Sail_0 = SegelBrigg.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
+		PartDefinition Sail_0 = sail.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(0.0F, 122.5F, -20.5F));
 
 		PartDefinition rope_50 = Sail_0.addOrReplaceChild("rope_50", CubeListBuilder.create(), PartPose.offsetAndRotation(-37.0F, -81.7F, 22.6F, 2.4044F, -1.537F, -1.9596F));
 
@@ -2000,10 +1995,5 @@ public class BriggSailModel extends SailModel {
 		PartDefinition cube_r150 = rope_63.addOrReplaceChild("cube_r150", CubeListBuilder.create().texOffs(11, 27).addBox(25.5F, 25.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -0.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
 		return LayerDefinition.create(meshdefinition, 128, 64);
-	}
-
-	@Override
-	protected ModelPart getSailModelPart() {
-		return BriggSail;
 	}
 }
