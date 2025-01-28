@@ -6,8 +6,8 @@
     "sIs"
   ],
   "key": {
-    "I": "minecraft:logs",
-    "x": "minecraft:wool",
+    "I": "#minecraft:logs",
+    "x": "#minecraft:wool",
     "s": "minecraft:lead"
   },
   "result": {

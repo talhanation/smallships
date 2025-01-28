@@ -6,7 +6,7 @@
     " LL"
   ],
   "key": {
-    "L": "minecraft:logs",
+    "L": "#minecraft:logs",
     "S": "minecraft:string",
     "I": "minecraft:iron_block"
   },
