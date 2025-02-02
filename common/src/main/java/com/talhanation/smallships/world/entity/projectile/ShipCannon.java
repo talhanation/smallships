@@ -4,18 +4,9 @@ import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerEntity;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -23,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-public class ShipCannon extends Entity { // why is this an entity??
+public class ShipCannon {
     private final RandomSource random;
     private final double offsetX;
     private final double offsetY;
@@ -36,12 +27,15 @@ public class ShipCannon extends Entity { // why is this an entity??
     private boolean isRightSided;
     private boolean isLeftSided;
 
+    private double posX;
+    private double posY;
+    private double posZ;
+
     public ShipCannon(Ship ship, Cannonable.CannonPosition cannonPosition) {
         this(ship, cannonPosition.x, cannonPosition.y, cannonPosition.z, cannonPosition.isRightSided, !cannonPosition.isRightSided);
     }
 
     public ShipCannon(Ship ship, double offsetX, double offsetY, double offsetZ, boolean isRightSided, boolean isLeftSided) {
-        super(EntityType.ARMOR_STAND, ship.level());
         this.ship = ship;
         this.level = ship.level();
         this.random = level.getRandom();
@@ -55,33 +49,9 @@ public class ShipCannon extends Entity { // why is this an entity??
         if (isLeftSided) this.setLeftSided();
     }
 
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-    }
-
     public void tick(){
         if (coolDown > 0) coolDown--;
         this.updatePosition();
-    }
-
-    @Override
-    public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
-        return false;
-    }
-
-    @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
-    }
-
-    @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
-    }
-
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity serverEntity) {
-        return null;
     }
 
     public void trigger() {
@@ -122,6 +92,12 @@ public class ShipCannon extends Entity { // why is this an entity??
         this.moveTo(d1, d2, d3);
     }
 
+    private void moveTo(double x, double y, double z) {
+        this.posX = x;
+        this.posY = y;
+        this.posZ = z;
+    }
+
     private void resetTimer() {
         this.time = 10 + random.nextInt(10);
     }
@@ -130,7 +106,7 @@ public class ShipCannon extends Entity { // why is this an entity??
         this.coolDown = 50;
     }
     public void shoot(){
-        LivingEntity driverEntity = (LivingEntity) ship.getControllingPassenger();
+        LivingEntity driverEntity = ship.getControllingPassenger();
         if (driverEntity == null) return;
 
         Vec3 forward = ship.getForward().normalize();
@@ -146,7 +122,7 @@ public class ShipCannon extends Entity { // why is this an entity??
 
     public void shoot(Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy) {
         if (shootVec != null) {
-            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, driverEntity, this.getX(), this.getY() + 1, this.getZ());
+            CannonBallEntity cannonBallEntity = new CannonBallEntity(this.level, driverEntity, this.posX, this.posY + 1, this.posZ);
             cannonBallEntity.shoot(shootVec.x(), yShootVec, shootVec.z(), (float) speed, (float) accuracy);
             this.level.addFreshEntity(cannonBallEntity);
             ship.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F / (0.4F + 1.2F) + 0.5F);
@@ -208,7 +184,7 @@ public class ShipCannon extends Entity { // why is this an entity??
     }
 
     public boolean canShootDirection() {
-        LivingEntity driver = (LivingEntity) ship.getControllingPassenger();
+        LivingEntity driver = ship.getControllingPassenger();
         if (driver == null) return false;
 
         Vec3 forward = ship.getForward().normalize();
@@ -223,15 +199,6 @@ public class ShipCannon extends Entity { // why is this an entity??
         }
     }
 
-    public CompoundTag getData(){
-        CompoundTag compoundtag = new CompoundTag();
-        compoundtag.putDouble("x", this.getOffsetX());
-        compoundtag.putDouble("y", this.getOffsetY());
-        compoundtag.putDouble("z", this.getOffsetZ());
-        compoundtag.putBoolean("isRightSided", this.isRightSided());
-        return compoundtag;
-    }
-
     private void playCannonShotSound() {
         BiConsumer<SoundEvent, Pair<Float, Float>> play = (sound, modifier) -> {
             if (!ship.level().isClientSide()) ship.playSound(sound, modifier.getFirst(), modifier.getSecond());
@@ -239,7 +206,4 @@ public class ShipCannon extends Entity { // why is this an entity??
         };
         play.accept(ModSoundTypes.CANNON_SHOT, Pair.of(10.0F, 1.0F));
     }
-
-
-
 }
