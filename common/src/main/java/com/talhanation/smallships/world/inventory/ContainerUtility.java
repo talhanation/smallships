@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.inventory;
 
+import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.HolderLookup;
@@ -10,8 +11,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class ContainerUtility {
-    @ExpectPlatform
     public static void openShipMenu(Player player, ContainerShip containerShip) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static void openCannonMenu(Player player, GroundCannonEntity groundCannonEntity) {
         throw new AssertionError();
     }
 

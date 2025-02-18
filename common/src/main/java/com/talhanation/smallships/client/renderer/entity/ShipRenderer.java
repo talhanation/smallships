@@ -9,7 +9,7 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.*;
-import com.talhanation.smallships.world.entity.projectile.ShipCannon;
+import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.Minecraft;
@@ -60,7 +60,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     protected abstract ShipModel<T> createBoatModel(EntityRendererProvider.Context context, Boat.Type type);
 
     protected ResourceLocation getTextureLocation(Boat.Type type) {
-        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/uuid/" + ShipRenderer.getNameFromType(type) + ".png");
     }
 
     @Override

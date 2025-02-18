@@ -29,5 +29,11 @@ public class ModMenuTypesImpl {
                         Objects.requireNonNull(ModMenuTypes.extendedShipContainerMenuTypeSupplier(i, inv, buf.readUUID()))
                 ))
         );
+
+        entries.put("cannon_container", MENU_TYPES.register("cannon_container",
+                () -> IMenuTypeExtension.create((IContainerFactory<AbstractContainerMenu>) (i, inv, buf) ->
+                        Objects.requireNonNull(ModMenuTypes.groundCannonContainerMenuTypeSupplier(i, inv, buf.readUUID()))
+                ))
+        );
     }
 }

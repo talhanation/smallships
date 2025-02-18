@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
     public GroundCannonRenderer(EntityRendererProvider.Context context) {
         super(context);
+        this.shadowRadius = 0.8F;
     }
 
     @Override

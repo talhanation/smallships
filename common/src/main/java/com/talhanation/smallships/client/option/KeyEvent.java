@@ -33,6 +33,10 @@ public class KeyEvent {
         boolean pressedSailKey = ModGameOptions.SAIL_KEY.consumeClick();
         boolean pressedEnterKey = ModGameOptions.ENTER_CANNON_BARREL_KEY.consumeClick();
         boolean pressedJumpKey = client.options.keyJump.isDown();
+        boolean forwardKey = client.options.keyUp.isDown();
+        boolean backwardKey = client.options.keyDown.isDown();
+        boolean leftKey = client.options.keyLeft.isDown();
+        boolean rightKey = client.options.keyRight.isDown();
         if (player.getVehicle() instanceof Ship ship) {
             if (player.equals(ship.getDriver())) { // is driver
                 if(ship instanceof Sailable){
@@ -52,6 +56,9 @@ public class KeyEvent {
                         ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(false));
                 }
             }
+        }
+        else if (player.getVehicle() instanceof GroundCannonEntity cannon){
+            cannon.updateControls(forwardKey, backwardKey, leftKey, rightKey, player);
         }
     }
 }

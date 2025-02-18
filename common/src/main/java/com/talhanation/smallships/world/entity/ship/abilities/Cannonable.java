@@ -2,7 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.world.entity.projectile.ShipCannon;
+import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.item.ModItems;

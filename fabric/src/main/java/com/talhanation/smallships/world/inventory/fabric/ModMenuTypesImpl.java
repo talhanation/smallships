@@ -26,5 +26,9 @@ public class ModMenuTypesImpl {
     static {
         entries.put("ship_container", register("ship_container",
                 new ExtendedScreenHandlerType<>((syncId, inventory, data) -> ModMenuTypes.extendedShipContainerMenuTypeSupplier(syncId, inventory, data.ship()), ContainerUtilityImpl.ContainerMenuData.PACKET_CODEC)));
+
+        entries.put("cannon_container", register("cannon_container",
+                new ExtendedScreenHandlerType<>((syncId, inventory, data) -> ModMenuTypes.groundCannonContainerMenuTypeSupplier(syncId, inventory, data.ship()), ContainerUtilityImpl.ContainerMenuData.PACKET_CODEC)));
+
     }
 }

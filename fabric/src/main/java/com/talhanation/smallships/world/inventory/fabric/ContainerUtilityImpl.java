@@ -1,6 +1,8 @@
 package com.talhanation.smallships.world.inventory.fabric;
 
+import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
+import com.talhanation.smallships.world.inventory.GroundCannonContainerMenu;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -32,6 +34,25 @@ public class ContainerUtilityImpl {
             @Override
             public @NotNull Component getDisplayName() {
                 return containerShip.getName();
+            }
+        });
+    }
+
+    public static void openCannonMenu(Player player, GroundCannonEntity groundCannonEntity) {
+        player.openMenu(new ExtendedScreenHandlerFactory<ContainerUtilityImpl.ContainerMenuData>() {
+            @Override
+            public ContainerUtilityImpl.ContainerMenuData getScreenOpeningData(ServerPlayer player) {
+                return new ContainerUtilityImpl.ContainerMenuData(groundCannonEntity.getUUID());
+            }
+
+            @Override
+            public @NotNull AbstractContainerMenu createMenu(int syncId, @NotNull Inventory inventory, @NotNull Player player) {
+                return new GroundCannonContainerMenu(ModMenuTypes.CANNON_CONTAINER, syncId, groundCannonEntity, inventory);
+            }
+
+            @Override
+            public @NotNull Component getDisplayName() {
+                return groundCannonEntity.getName();
             }
         });
     }

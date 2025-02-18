@@ -6,7 +6,7 @@ import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundUpdateShipControlPacket;
-import com.talhanation.smallships.world.entity.projectile.ShipCannon;
+import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -527,7 +527,7 @@ public abstract class Ship extends Boat {
     public abstract CompoundTag createDefaultAttributes();
 
     /************************************
-     * Natural slowdown of the ship
+     * Natural slowdown of the uuid
      * increase -> slowdown will be higher
      * decrease -> slowdown will be lower
      ************************************/

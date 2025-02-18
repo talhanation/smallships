@@ -1,6 +1,7 @@
-package com.talhanation.smallships.world.entity.projectile;
+package com.talhanation.smallships.world.entity.cannon;
 
 import com.mojang.datafixers.util.Pair;
+import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.sound.ModSoundTypes;

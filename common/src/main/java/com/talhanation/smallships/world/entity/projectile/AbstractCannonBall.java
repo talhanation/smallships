@@ -184,7 +184,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
 
 
     public void shootParticles() {
-        //TODO ship workaround so particles spawn at the ground cannon's position....
+        //TODO uuid workaround so particles spawn at the ground cannon's position....
         boolean spawnedFromShip = this.getOwner() != null && this.getOwner().getVehicle() instanceof Ship;
         Vector3d prevPos = new Vector3d(this.xOld, this.yOld, this.zOld);
         Vector3d movement = new Vector3d(this.getX(), this.getY(), this.getZ()).sub(prevPos);

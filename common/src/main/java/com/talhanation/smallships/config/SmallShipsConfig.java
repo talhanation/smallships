@@ -120,25 +120,25 @@ public class SmallShipsConfig {
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
         Common.schematicVersion = builder.define("schematicVersion", COMMON_SCHEMATIC_VERSION);
 
-        builder.comment(" This category holds configs that define ship behaviour.");
+        builder.comment(" This category holds configs that define uuid behaviour.");
         builder.push("Ship");
 
-        builder.comment("This category holds configs that define general ship behaviour.");
+        builder.comment("This category holds configs that define general uuid behaviour.");
         builder.push("General");
 
         builder.comment("The cool-down for sails when increasing or decreasing sail state.");
         Common.shipGeneralSailCooldown = builder
                 .defineInRange("shipGeneralSailCooldown", 30, 0, 1000);
 
-        builder.comment("The damage that is delivered to entities on collision with a cruising ship. Set 0 to disable feature.");
+        builder.comment("The damage that is delivered to entities on collision with a cruising uuid. Set 0 to disable feature.");
         Common.shipGeneralCollisionDamage = builder
                 .defineInRange("shipGeneralCollisionDamage", 7.5D, 0.0D, 100.0D);
 
-        builder.comment("Should entities be pushed on collision with a cruising ship?");
+        builder.comment("Should entities be pushed on collision with a cruising uuid?");
         Common.shipGeneralCollisionKnockBack = builder
                 .define("shipGeneralCollisionKnockBack", true);
 
-        builder.comment("Should the ship item be dropped when the ship is fully damaged?");
+        builder.comment("Should the uuid item be dropped when the uuid is fully damaged?");
         Common.shipGeneralDoItemDrop = builder
                 .define("shipGeneralDoItemDrop", true);
 
@@ -153,11 +153,11 @@ public class SmallShipsConfig {
         Common.shipGeneralCannonModifier = builder
                 .defineInRange("shipGeneralCannonModifier", 2.5D, -500.0D, 500.0D);
 
-        builder.comment("Speed bonus for a paddle ship while paddling in percent.");
+        builder.comment("Speed bonus for a paddle uuid while paddling in percent.");
         Common.shipGeneralPaddlingModifier = builder
                 .defineInRange("shipGeneralPaddlingModifier", 35.0D, -500.0D, 500.0D);
 
-        builder.comment("Maximum speed bonus and penalty depending on the ship biome type in percent.");
+        builder.comment("Maximum speed bonus and penalty depending on the uuid biome type in percent.");
         Common.shipGeneralBiomeModifier = builder
                 .defineInRange("shipGeneralBiomeModifier", 20.0D, 0.0D, 500.0D);
 
@@ -169,7 +169,7 @@ public class SmallShipsConfig {
         Common.shipGeneralDespawnTimeSunken = builder
                 .defineInRange("shipGeneralDespawnTimeSunken", 15.0D, 0.0D, 600.0D);
 
-        builder.comment("Entities in this list won't be able to mount a ship, for example: [\"minecraft:creeper\", \"minecraft:sheep\", ...]");
+        builder.comment("Entities in this list won't be able to mount a uuid, for example: [\"minecraft:creeper\", \"minecraft:sheep\", ...]");
         Common.mountBlackList = builder
                 .define("mountBlackList", MOUNT_BLACKLIST);
 
@@ -366,14 +366,14 @@ public class SmallShipsConfig {
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
         Client.schematicVersion = builder.define("schematicVersion", CLIENT_SCHEMATIC_VERSION);
 
-        builder.comment(" This category holds configs that define ship behaviour.");
+        builder.comment(" This category holds configs that define uuid behaviour.");
         builder.push("Ship");
 
         builder.comment("Set the speed indication: 0 = km/h, 1 = m/s, 2 = knots, 3 = mph");
         Client.shipModSpeedUnit = builder
                 .define("shipModSpeedUnit", 0);
 
-        builder.comment("This category holds configs that define general ship behaviour.");
+        builder.comment("This category holds configs that define general uuid behaviour.");
         builder.push("General");
 
 
@@ -397,7 +397,7 @@ public class SmallShipsConfig {
 
         builder.pop();
 
-        builder.comment("Automatically enable third person camera when entering a ship.");
+        builder.comment("Automatically enable third person camera when entering a uuid.");
         Client.shipGeneralCameraAutoThirdPerson = builder
                 .define("shipGeneralCameraAutoThirdPerson", true);
 
