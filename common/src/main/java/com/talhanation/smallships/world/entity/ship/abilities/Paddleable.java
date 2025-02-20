@@ -21,21 +21,19 @@ public interface Paddleable extends Ability {
         }
     }
 
-    default void setupAnim(ShipRenderState state, Pair<ModelPart[], ModelPart[]> paddles) {
+    static void setupAnim(ShipRenderState state, Pair<ModelPart[], ModelPart[]> paddles) {
         for (ModelPart paddle : paddles.getFirst()) {
-            this.animatePaddle(Paddleable.PaddleSide.LEFT, paddle, state.partialTicks);
+            animatePaddle(state.rowingTimeLeft, Paddleable.PaddleSide.LEFT, paddle);
         }
 
         for (ModelPart paddle : paddles.getSecond()) {
-            this.animatePaddle(PaddleSide.RIGHT, paddle, state.partialTicks);
+            animatePaddle(state.rowingTimeRight, PaddleSide.RIGHT, paddle);
         }
     }
 
-    default void animatePaddle(PaddleSide side, ModelPart modelPart, float f) {
-        float f2 = self().getRowingTime(side.ordinal(), f);
-
-        float xRotChange = Mth.clampedLerp(-1.0471976f, -0.2617994f, (Mth.sin(-f2) + 1.0f) / 2.0f);
-        float yRotChange = Mth.clampedLerp(-0.7853982f, 0.7853982f, (Mth.sin(-f2 + 1.0f) + 1.0f) / 2.0f);
+    static void animatePaddle(float f, PaddleSide side, ModelPart modelPart) {
+        float xRotChange = Mth.clampedLerp(-1.0471976f, -0.2617994f, (Mth.sin(-f) + 1.0f) / 2.0f);
+        float yRotChange = Mth.clampedLerp(-0.7853982f, 0.7853982f, (Mth.sin(-f + 1.0f) + 1.0f) / 2.0f);
         if (side.equals(PaddleSide.LEFT)) {
             modelPart.yRot = -yRotChange;
             modelPart.xRot = 4.55F - (Mth.PI - xRotChange);

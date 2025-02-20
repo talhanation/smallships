@@ -3,8 +3,11 @@ package com.talhanation.smallships.client.model;
 import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.client.renderer.entity.state.ShipRenderState;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.abilities.Paddleable;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
+
+import java.lang.reflect.ParameterizedType;
 
 public abstract class ShipModel<T extends Ship> extends EntityModel<ShipRenderState> {
     protected ModelPart[] chests;
@@ -15,8 +18,15 @@ public abstract class ShipModel<T extends Ship> extends EntityModel<ShipRenderSt
         super(modelPart);
     }
 
+    @SuppressWarnings("unchecked")
+    Class<T> getType() {
+        return ((Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+    }
+
     @Override
     public void setupAnim(ShipRenderState state) {
+        super.setupAnim(state);
+
         if (state.hasContainer) {
             this.chests[0].visible = state.invFillState >= 15;
             this.chests[1].visible = state.invFillState >= 30;
@@ -24,12 +34,10 @@ public abstract class ShipModel<T extends Ship> extends EntityModel<ShipRenderSt
             this.chests[3].visible = state.invFillState >= 90;
         }
 
-        if (state.paddleable != null) {
-            state.paddleable.setupAnim(state, paddles);
+        if (state.isPaddleShip) {
+            Paddleable.setupAnim(state, paddles);
         }
 
         this.steer.yRot = -state.rotationSpeed * 0.25F;
-
-        super.setupAnim(state);
     }
 }

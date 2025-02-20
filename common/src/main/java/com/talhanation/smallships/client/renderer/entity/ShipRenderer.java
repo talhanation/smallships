@@ -92,8 +92,10 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
         if (entity instanceof Bannerable bannerShip) {
             state.bannerable = bannerShip;
         }
-        if (entity instanceof Paddleable paddleShip) {
-            state.paddleable = paddleShip;
+        if (entity instanceof Paddleable) {
+            state.isPaddleShip = true;
+            state.rowingTimeLeft = entity.getRowingTime(0, f);
+            state.rowingTimeRight = entity.getRowingTime(1, f);
         }
         if (entity instanceof Sailable sailShip) {
             state.sailable = sailShip;
@@ -107,10 +109,6 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
 
     protected ResourceLocation getTextureLocation(Ship.Type type) {
         return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
-    }
-
-    public @NotNull ResourceLocation getTextureLocation(@NotNull T shipEntity) {
-        return this.boatResources.get(shipEntity.getVariant()).getFirst();
     }
 
     @Override
@@ -145,7 +143,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
         ShipModel<T> shipModel = pair.getSecond();
         poseStack.scale(-1.3F, -1.3F, 1.3F);
         poseStack.mulPose(Axis.YP.rotationDegrees(90.0F + 180.0F));
-        shipModel.setupAnim(this.createRenderState());
+        shipModel.setupAnim(state);
 
         if (state.cannonable != null) {
             renderCannon(state, poseStack, multiBufferSource, packedLight);
@@ -153,7 +151,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
         if (state.bannerable != null) {
             renderBanner(state, poseStack, multiBufferSource, packedLight);
         }
-        if (state.paddleable != null) {
+        if (state.isPaddleShip) {
             renderPaddle(state, poseStack, multiBufferSource, packedLight);
         }
         if (state.sailable != null) {

@@ -31,9 +31,12 @@ public class ShipRenderState extends EntityRenderState {
 
     public Cannonable cannonable;
     public Bannerable bannerable;
-    public Paddleable paddleable;
+    public boolean isPaddleShip;
     public Sailable sailable;
     public Shieldable shieldable;
+
+    public float rowingTimeLeft;
+    public float rowingTimeRight;
 
     public double getRandomPosFrom(double pos, double d) {
         return this.getPos(pos, ((double)2.0F * random.nextDouble() - (double)1.0F) * d);
