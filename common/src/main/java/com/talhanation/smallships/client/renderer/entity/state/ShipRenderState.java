@@ -22,7 +22,7 @@ public class ShipRenderState extends EntityRenderState {
     public float waveAngle;
     public Ship.Type variant;
     public boolean sunken;
-    public float yaw;
+    public float yRot;
     public float rotationSpeed;
     public float partialTicks;
 

@@ -27,7 +27,7 @@ public class BriggRenderer extends ShipRenderer<BriggEntity> {
     @Override
     public void render(ShipRenderState state, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - state.yaw));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - state.yRot));
         poseStack.translate(0.0D, 2.0D,0.0D);
         super.render(state, poseStack, multiBufferSource, packedLight);
     }

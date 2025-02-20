@@ -35,7 +35,6 @@ import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -77,7 +76,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
         state.waveAngle = entity.getWaveAngle(f);
         state.variant = entity.getVariant();
         state.sunken = entity.isSunken();
-        state.yaw = entity.rotate(Rotation.NONE);
+        state.yRot = entity.getYRot(f);
         state.rotationSpeed = entity.getRotSpeed();
         state.partialTicks = f;
 
