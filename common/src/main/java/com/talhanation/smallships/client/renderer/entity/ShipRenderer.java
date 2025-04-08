@@ -14,7 +14,6 @@ import com.talhanation.smallships.world.entity.projectile.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.BannerModel;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
@@ -50,6 +49,9 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
     public ShipRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.shadowRadius = 0.8F;
+        if (bannerModel == null) {
+            bannerModel = context.bakeLayer(ModelLayers.STANDING_BANNER_FLAG);
+        }
 
         this.boatResources = Stream.of(Ship.Type.values()).collect(ImmutableMap.toImmutableMap(
                 (type) -> type,
@@ -206,13 +208,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
         return 0;
     }
 
-    private static final ModelPart bannerModel;
-    static {
-        ModelPart model = BannerModel.createBodyLayer(false).bakeRoot();
-        model.getChild("bar").visible = false;
-        bannerModel = model;
-    }
-
+    private static ModelPart bannerModel;
     @SuppressWarnings("unused")
     private void renderBanner(ShipRenderState state, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         ItemStack bannerItemStack = state.bannerable.self().getData(Ship.BANNER);
@@ -221,7 +217,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
             Bannerable.BannerPosition pos = state.bannerable.getBannerPosition();
             poseStack.mulPose(Axis.YP.rotationDegrees(pos.yp));
             poseStack.mulPose(Axis.ZP.rotationDegrees(pos.zp));
-            poseStack.translate(pos.x, pos.y, pos.z);
+            poseStack.translate(pos.x + 0.01D, pos.y + 0.1D, pos.z);
             poseStack.scale(0.5F, 0.5F, 0.5F);
 
             float bannerWaveAngle = state.bannerable.getBannerWaveAngle(state.partialTicks);

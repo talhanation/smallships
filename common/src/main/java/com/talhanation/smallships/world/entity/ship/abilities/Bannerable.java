@@ -36,7 +36,9 @@ public interface Bannerable extends Ability {
         if (self().level() instanceof ServerLevel serverLevel) {
             if (item.getItem() instanceof BannerItem) {
                 self().spawnAtLocation(serverLevel, shipBanner, 4);
-                self().setData(Ship.BANNER, item.copy());
+                var copy = item.copy();
+                copy.setCount(1);
+                self().setData(Ship.BANNER, copy);
                 if (!player.isCreative()) item.shrink(1);
                 serverLevel.playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
                 return true;
