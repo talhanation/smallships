@@ -183,7 +183,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     public ShieldPosition getShieldPosition(int index){
-        return SHIELD_POSITIONS.get(index);
+        return SHIELD_POSITIONS.get(Math.clamp(index, 0, SHIELD_POSITIONS.size() - 1));
     }
 
     @Override

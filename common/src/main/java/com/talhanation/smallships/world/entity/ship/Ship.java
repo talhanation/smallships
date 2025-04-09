@@ -50,7 +50,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Stack;
 import java.util.function.IntFunction;
 
 public abstract class Ship extends AbstractBoat {
@@ -80,7 +79,6 @@ public abstract class Ship extends AbstractBoat {
     public int sailStateCooldown = 0;
     private float setPoint;
     public final List<ShipCannon> CANNONS = new ArrayList<>();
-    public final Stack<ItemStack> SHIELDS = new Stack<>();
     public float maxSpeed;
     private CameraType previousCameraType;
 
@@ -383,13 +381,6 @@ public abstract class Ship extends AbstractBoat {
         }
 
         this.setSpeed(speed);
-    }
-
-    public CompoundTag getShieldData() {
-        return entityData.get(SHIELD_DATA);
-    }
-    public void setShieldData(CompoundTag f) {
-        this.entityData.set(SHIELD_DATA, f);
     }
 
     public float getSpeed() {
