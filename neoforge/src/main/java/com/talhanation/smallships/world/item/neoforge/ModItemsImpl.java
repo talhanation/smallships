@@ -18,6 +18,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class ModItemsImpl {
@@ -41,7 +42,11 @@ public class ModItemsImpl {
         register("cannon_ball", () -> new CannonBallItem((new Item.Properties()).stacksTo(16)));
 
         for (Boat.Type type: Boat.Type.values()) {
-            String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
+            String name = type.getName();
+            if (!Set.of("oak", "spruce", "birch", "jungle", "acacia", "dark_oak", "mangrove", "cherry", "bamboo").contains(name)) continue;;
+
+            name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
+            
             register(name + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1)));
