@@ -135,6 +135,8 @@ public abstract class Ship extends Boat {
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
 
+        this.setDamage(tag.getFloat("Damage"));
+
         Attributes attributes = new Attributes();
         attributes.loadSaveData(tag, this);
         this.setData(ATTRIBUTES, attributes.getSaveData());
@@ -151,6 +153,8 @@ public abstract class Ship extends Boat {
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+
+        tag.putFloat("Damage", this.getDamage());
 
         Attributes attributes = new Attributes();
         attributes.loadSaveData(this.getData(ATTRIBUTES));
@@ -374,8 +378,8 @@ public abstract class Ship extends Boat {
 
 
         boolean coldType = shipBiomeType == BiomeModifierType.COLD;
-        boolean neutralType = shipBiomeType == BiomeModifierType.NEUTRAL;;
-        boolean warmType = shipBiomeType == BiomeModifierType.WARM;;
+        boolean neutralType = shipBiomeType == BiomeModifierType.NEUTRAL;
+        boolean warmType = shipBiomeType == BiomeModifierType.WARM;
 
         if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
             return modifier;
