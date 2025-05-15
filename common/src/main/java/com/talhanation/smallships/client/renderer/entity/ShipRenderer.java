@@ -217,8 +217,8 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
             Bannerable.BannerPosition pos = state.bannerable.getBannerPosition();
             poseStack.mulPose(Axis.YP.rotationDegrees(pos.yp));
             poseStack.mulPose(Axis.ZP.rotationDegrees(pos.zp));
-            poseStack.translate(pos.x + 0.01D, pos.y + 0.1D, pos.z);
-            poseStack.scale(0.5F, 0.5F, 0.5F);
+            poseStack.translate(pos.x + 0.01D, pos.y - 0.1D, pos.z);
+            poseStack.scale(0.5F, -0.5F, 0.5F);
 
             float bannerWaveAngle = state.bannerable.getBannerWaveAngle(state.partialTicks);
 
