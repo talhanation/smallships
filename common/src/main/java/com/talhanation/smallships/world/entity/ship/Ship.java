@@ -208,7 +208,8 @@ public abstract class Ship extends AbstractBoat {
         CHERRY(Blocks.CHERRY_PLANKS, "cherry"),
         DARK_OAK(Blocks.DARK_OAK_PLANKS, "dark_oak"),
         MANGROVE(Blocks.MANGROVE_PLANKS, "mangrove"),
-        BAMBOO(Blocks.BAMBOO_PLANKS, "bamboo");
+        BAMBOO(Blocks.BAMBOO_PLANKS, "bamboo"),
+        PALE_OAK(Blocks.PALE_OAK_PLANKS, "pale_oak");
 
         private final String name;
         private final Block planks;

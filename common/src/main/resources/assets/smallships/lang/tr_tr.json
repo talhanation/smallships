@@ -24,6 +24,7 @@
   "item.smallships.oak_cog": "Meşe Cog'u",
   "item.smallships.dark_oak_cog": "Koyu Meşe Cog'u",
   "item.smallships.mangrove_cog": "Mangrov Cog'u",
+  "item.smallships.pale_oak_cog": "Soluk Meşe Cog'u",
 
   "entity.smallships.galley": "Kadırga",
   "item.smallships.acacia_galley": "Akasya Kadırgası",
@@ -33,6 +34,7 @@
   "item.smallships.oak_galley": "Meşe Kadırgası",
   "item.smallships.dark_oak_galley": "Koyu Meşe Kadırgası",
   "item.smallships.mangrove_galley": "Mangrov Kadırgası",
+  "item.smallships.pale_oak_galley": "Soluk Meşe Kadırgası",
 
   "entity.smallships.war_galley": "Savaş Kadırgası",
   "item.smallships.acacia_war_galley": "Akasya Savaş Kadırgası",
@@ -42,6 +44,7 @@
   "item.smallships.oak_war_galley": "Meşe Savaş Kadırgası",
   "item.smallships.dark_oak_war_galley": "Koyu Meşe Savaş Kadırgası",
   "item.smallships.mangrove_war_galley": "Mangrov Savaş Kadırgası",
+  "item.smallships.pale_oak_war_galley": "Soluk Meşe Savaş Kadırgası",
 
   "entity.smallships.rowboat": "Kürekli Kayık",
   "item.smallships.acacia_rowboat": "Akasya Kürekli Kayık",
@@ -51,6 +54,7 @@
   "item.smallships.oak_rowboat": "Meşe Kürekli Kayık",
   "item.smallships.dark_oak_rowboat": "Koyu Meşe Kürekli Kayık",
   "item.smallships.mangrove_rowboat": "Mangrov Kürekli Kayık",
+  "item.smallships.pale_oak_rowboat": "Soluk Meşe Kürekli Kayık",
 
   "entity.smallships.drakkar": "Drakkar",
   "item.smallships.acacia_drakkar": "Akasya Drakkar",
@@ -60,6 +64,7 @@
   "item.smallships.oak_drakkar": "Meşe Drakkar",
   "item.smallships.dark_oak_drakkar": "Koyu Meşe Drakkar",
   "item.smallships.mangrove_drakkar": "Mangrov Drakkar",
+  "item.smallships.pale_oak_drakkar": "Soluk Meşe Drakkar",
 
   "entity.smallships.dhow": "Dhow",
   "item.smallships.oak_dhow": "Meşe Dhow'u",
@@ -69,6 +74,7 @@
   "item.smallships.acacia_dhow": "Akasya Dhow'u",
   "item.smallships.dark_oak_dhow": "Koyu Meşe Dhow'u",
   "item.smallships.mangrove_dhow": "Mangrov Dhow'u",
+  "item.smallships.pale_oak_dhow": "Soluk Meşe Dhow'u",
 
   "entity.smallships.brigg": "Brigg",
   "item.smallships.oak_brigg": "Meşe Brigg'i",
@@ -78,6 +84,7 @@
   "item.smallships.acacia_brigg": "Akasya Brigg'i",
   "item.smallships.dark_oak_brigg": "Koyu Meşe Brigg'i",
   "item.smallships.mangrove_brigg": "Mangrov Brigg'i",
+  "item.smallships.pale_oak_brigg": "Soluk Meşe Brigg'i",
 
   "tooltip.plane.damage": "Hasar: %s %%",
   "tooltip.plane.throttle": "Gaz: %s %%",

@@ -24,6 +24,7 @@
 "item.smallships.oak_cog": "Eichen-Kogge",
 "item.smallships.dark_oak_cog": "Schwarzeichen-Kogge",
 "item.smallships.mangrove_cog": "Mangroven-Kogge",
+"item.smallships.pale_oak_cog": "Blasseichen-Kogge",
 
 "entity.smallships.galley": "Galeere",
 "item.smallships.acacia_galley": "Akazien-Galeere",
@@ -33,6 +34,7 @@
 "item.smallships.oak_galley": "Eichen-Galeere",
 "item.smallships.dark_oak_galley": "Schwarzeichen-Galeere",
 "item.smallships.mangrove_galley": "Mangroven-Galeere",
+"item.smallships.pale_oak_galley": "Blasseichen-Galeere",
 
 "entity.smallships.war_galley": "Kriegsgaleere",
 "item.smallships.acacia_war_galley": "Akazien-Kriegsgaleere",
@@ -42,6 +44,7 @@
 "item.smallships.oak_war_galley": "Eichen-Kriegsgaleere",
 "item.smallships.dark_oak_war_galley": "Schwarzeichen-Kriegsgaleere",
 "item.smallships.mangrove_war_galley": "Mangroven-Kriegsgaleere",
+"item.smallships.pale_oak_war_galley": "Blasseichen-Kriegsgaleere",
 
 "entity.smallships.rowboat": "Ruderboot",
 "item.smallships.acacia_rowboat": "Akazien-Ruderboot",
@@ -51,6 +54,7 @@
 "item.smallships.oak_rowboat": "Eichen-Ruderboot",
 "item.smallships.dark_oak_rowboat": "Schwarzeichen-Ruderboot",
 "item.smallships.mangrove_rowboat": "Mangroven-Ruderboot",
+"item.smallships.pale_oak_rowboat": "Blasseichen-Ruderboot",
 
 "entity.smallships.drakkar": "Drakkar",
 "item.smallships.acacia_drakkar": "Akazien-Drakkar",
@@ -60,6 +64,7 @@
 "item.smallships.oak_drakkar": "Eichen-Drakkar",
 "item.smallships.dark_oak_drakkar": "Schwarzeichen-Drakkar",
 "item.smallships.mangrove_drakkar": "Mangroven-Drakkar",
+"item.smallships.pale_oak_drakkar": "Blasseichen-Drakkar",
 
 "entity.smallships.dhow": "Dhau",
 "item.smallships.oak_dhow": "Eichen-Dhau",
@@ -69,6 +74,7 @@
 "item.smallships.acacia_dhow": "Akazien-Dhau",
 "item.smallships.dark_oak_dhow": "Schwarzeichen-Dhau",
 "item.smallships.mangrove_dhow": "Mangroven-Dhau",
+"item.smallships.pale_oak_dhow": "Blasseichen-Dhau",
 
 "entity.smallships.brigg": "Brigg",
 "item.smallships.oak_brigg": "Eichen-Brigg",
@@ -78,6 +84,7 @@
 "item.smallships.acacia_brigg": "Akazien-Brigg",
 "item.smallships.dark_oak_brigg": "Schwarzeichen-Brigg",
 "item.smallships.mangrove_brigg": "Mangroven-Brigg",
+"item.smallships.pale_oak_brigg": "Blasseichen-Brigg",
 
 "tooltip.plane.damage": "Schaden: %s %%",
 "tooltip.plane.throttle": "Gas: %s %%",

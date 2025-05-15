@@ -24,6 +24,7 @@
   "item.smallships.oak_cog": "Cog de chêne",
   "item.smallships.dark_oak_cog": "Cog de chêne noir",
   "item.smallships.mangrove_cog": "Cog de mangrove",
+  "item.smallships.pale_oak_cog": "Cog de chêne pâle",
 
   "entity.smallships.galley": "Galère",
   "item.smallships.acacia_galley": "Galère d'acajou",
@@ -33,6 +34,7 @@
   "item.smallships.oak_galley": "Galère de chêne",
   "item.smallships.dark_oak_galley": "Galère de chêne noir",
   "item.smallships.mangrove_galley": "Galère de mangrove",
+  "item.smallships.pale_oak_galley": "Galère de chêne pâle",
 
   "entity.smallships.war_galley": "Galère de guerre",
   "item.smallships.acacia_war_galley": "Galère de guerre d'acajou",
@@ -42,6 +44,7 @@
   "item.smallships.oak_war_galley": "Galère de guerre de chêne",
   "item.smallships.dark_oak_war_galley": "Galère de guerre de chêne noir",
   "item.smallships.mangrove_war_galley": "Galère de guerre de mangrove",
+  "item.smallships.pale_oak_war_galley": "Galère de guerre de chêne pâle",
 
   "entity.smallships.rowboat": "Bateau à rames",
   "item.smallships.acacia_rowboat": "Bateau à rames d'acajou",
@@ -51,6 +54,7 @@
   "item.smallships.oak_rowboat": "Bateau à rames de chêne",
   "item.smallships.dark_oak_rowboat": "Bateau à rames de chêne noir",
   "item.smallships.mangrove_rowboat": "Bateau à rames de mangrove",
+  "item.smallships.pale_oak_rowboat": "Bateau à rames de chêne pâle",
 
   "entity.smallships.drakkar": "Drakkar",
   "item.smallships.acacia_drakkar": "Drakkar d'acajou",
@@ -60,6 +64,7 @@
   "item.smallships.oak_drakkar": "Drakkar de chêne",
   "item.smallships.dark_oak_drakkar": "Drakkar de chêne noir",
   "item.smallships.mangrove_drakkar": "Drakkar de mangrove",
+  "item.smallships.pale_oak_drakkar": "Drakkar de chêne pâle",
 
   "entity.smallships.dhow": "Dhow",
   "item.smallships.oak_dhow": "Dhow de chêne",
@@ -69,6 +74,7 @@
   "item.smallships.acacia_dhow": "Dhow d'acajou",
   "item.smallships.dark_oak_dhow": "Dhow de chêne noir",
   "item.smallships.mangrove_dhow": "Dhow de mangrove",
+  "item.smallships.pale_oak_dhow": "Dhow de chêne pâle",
 
   "entity.smallships.brigg": "Brigg",
   "item.smallships.oak_brigg": "Brigg de chêne",
@@ -78,6 +84,7 @@
   "item.smallships.acacia_brigg": "Brigg d'acajou",
   "item.smallships.dark_oak_brigg": "Brigg de chêne noir",
   "item.smallships.mangrove_brigg": "Brigg de mangrove",
+  "item.smallships.pale_oak_brigg": "Brigg de chêne pâle",
 
   "tooltip.plane.damage": "Dommages : %s %%",
   "tooltip.plane.throttle": "Accélérateur : %s %%",

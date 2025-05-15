@@ -26,6 +26,7 @@
   "item.smallships.mangrove_cog": "Coca de mangle",
   "item.smallships.cherry_cog": "Coca de cerezo",
   "item.smallships.bamboo_cog": "Coca de bambú",
+  "item.smallships.pale_oak_cog": "Coca de roble pálido",
 
   "entity.smallships.galley": "Galera",
   "item.smallships.acacia_galley": "Galera de acacia",
@@ -37,6 +38,7 @@
   "item.smallships.mangrove_galley": "Galera de mangle",
   "item.smallships.cherry_galley": "Galera de cerezo",
   "item.smallships.bamboo_galley": "Galera de bambú",
+  "item.smallships.pale_oak_galley": "Galera de roble pálido",
 
   "entity.smallships.war_galley": "Galera de guerra",
   "item.smallships.acacia_war_galley": "Galera de guerra de acacia",
@@ -48,6 +50,7 @@
   "item.smallships.mangrove_war_galley": "Galera de guerra de mangle",
   "item.smallships.cherry_war_galley": "Galera de guerra de cerezo",
   "item.smallships.bamboo_war_galley": "Galera de guerra de bambú",
+  "item.smallships.pale_oak_war_galley": "Galera de guerra de roble pálido",
 
   "entity.smallships.rowboat": "Barca de remos",
   "item.smallships.acacia_rowboat": "Barca de remos de acacia",
@@ -59,6 +62,7 @@
   "item.smallships.mangrove_rowboat": "Barca de remos de mangle",
   "item.smallships.cherry_rowboat": "Barca de remos de cerezo",
   "item.smallships.bamboo_rowboat": "Barca de remos de bambú",
+  "item.smallships.pale_oak_rowboat": "Barca de remos de roble pálido",
 
   "entity.smallships.drakkar": "Drakkar",
   "item.smallships.acacia_drakkar": "Drakkar de acacia",
@@ -70,6 +74,7 @@
   "item.smallships.mangrove_drakkar": "Drakkar de mangle",
   "item.smallships.cherry_drakkar": "Drakkar de cerezo",
   "item.smallships.bamboo_drakkar": "Bamboo Drakkar",
+  "item.smallships.pale_oak_drakkar": "Drakkar de roble pálido",
 
   "entity.smallships.dhow": "Dhow",
   "item.smallships.oak_dhow": "Dhow de roble",
@@ -81,6 +86,7 @@
   "item.smallships.mangrove_dhow": "Dhow de mangle",
   "item.smallships.cherry_dhow": "Dhow de cerezo",
   "item.smallships.bamboo_dhow": "Dhow de bambú",
+  "item.smallships.pale_oak_dhow": "Dhow de roble pálido",
 
   "entity.smallships.brigg": "Bergantín",
   "item.smallships.oak_brigg": "Bergantín de roble",
@@ -92,6 +98,7 @@
   "item.smallships.mangrove_brigg": "Bergantín de mangle",
   "item.smallships.cherry_brigg": "Bergantín de cerezo",
   "item.smallships.bamboo_brigg": "Bergantín de bambú",
+  "item.smallships.pale_oak_brigg": "Bergantín de roble pálido",
 
   "tooltip.plane.damage": "Daño: %s %%",
   "tooltip.plane.throttle": "Marcha: %s %%",

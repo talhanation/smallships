@@ -26,6 +26,7 @@
   "item.smallships.mangrove_cog": "Mangrove Cog",
   "item.smallships.cherry_cog": "Cherry Cog",
   "item.smallships.bamboo_cog": "Bamboo Cog",
+  "item.smallships.pale_oak_cog": "Pale Oak Cog",
 
   "entity.smallships.galley": "Galley",
   "item.smallships.acacia_galley": "Acacia Galley",
@@ -37,6 +38,7 @@
   "item.smallships.mangrove_galley": "Mangrove Galley",
   "item.smallships.cherry_galley": "Cherry Galley",
   "item.smallships.bamboo_galley": "Bamboo Galley",
+  "item.smallships.pale_oak_galley": "Pale Oak Galley",
 
   "entity.smallships.war_galley": "War Galley",
   "item.smallships.acacia_war_galley": "Acacia War Galley",
@@ -48,6 +50,7 @@
   "item.smallships.mangrove_war_galley": "Mangrove War Galley",
   "item.smallships.cherry_war_galley": "Cherry War Galley",
   "item.smallships.bamboo_war_galley": "Bamboo War Galley",
+  "item.smallships.pale_oak_war_galley": "Pale Oak War Galley",
 
   "entity.smallships.rowboat": "Rowing Boat",
   "item.smallships.acacia_rowboat": "Acacia Rowing Boat",
@@ -59,6 +62,7 @@
   "item.smallships.mangrove_rowboat": "Mangrove Rowing Boat",
   "item.smallships.cherry_rowboat": "Cherry Rowing Boat",
   "item.smallships.bamboo_rowboat": "Bamboo Rowing Boat",
+  "item.smallships.pale_oak_rowboat": "Pale Oak Rowing Boat",
 
   "entity.smallships.drakkar": "Drakkar",
   "item.smallships.acacia_drakkar": "Acacia Drakkar",
@@ -70,6 +74,7 @@
   "item.smallships.mangrove_drakkar": "Mangrove Drakkar",
   "item.smallships.cherry_drakkar": "Cherry Drakkar",
   "item.smallships.bamboo_drakkar": "Bamboo Drakkar",
+  "item.smallships.pale_oak_drakkar": "Pale Oak Drakkar",
 
   "entity.smallships.dhow": "Dhow",
   "item.smallships.oak_dhow": "Oak Dhow",
@@ -81,6 +86,7 @@
   "item.smallships.mangrove_dhow": "Mangrove Dhow",
   "item.smallships.cherry_dhow": "Cherry Dhow",
   "item.smallships.bamboo_dhow": "Bamboo Dhow",
+  "item.smallships.pale_oak_dhow": "Pale Oak Dhow",
 
   "entity.smallships.brigg": "Brigg",
   "item.smallships.oak_brigg": "Oak Brigg",
@@ -92,6 +98,7 @@
   "item.smallships.mangrove_brigg": "Mangrove Brigg",
   "item.smallships.cherry_brigg": "Cherry Brigg",
   "item.smallships.bamboo_brigg": "Bamboo Brigg",
+  "item.smallships.pale_oak_brigg": "Pale Oak Brigg",
 
   "tooltip.plane.damage": "Damage: %s %%",
   "tooltip.plane.throttle": "Throttle: %s %%",

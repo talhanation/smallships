@@ -26,6 +26,7 @@
   "item.smallships.mangrove_cog": "Namorzynowa koga",
   "item.smallships.cherry_cog": "Wiśniowa koga",
   "item.smallships.bamboo_cog": "Bambusowa koga",
+  "item.smallships.pale_oak_cog": "Bladodębowa koga",
 
   "entity.smallships.galley": "Galera",
   "item.smallships.acacia_galley": "Akacjowa galera",
@@ -37,6 +38,7 @@
   "item.smallships.mangrove_galley": "Namorzynowa galera",
   "item.smallships.cherry_galley": "Wiśniowa galera",
   "item.smallships.bamboo_galley": "Bambusowa galera",
+  "item.smallships.pale_oak_galley": "Bladodębowa galera",
 
   "entity.smallships.war_galley": "Galera wojenna",
   "item.smallships.acacia_war_galley": "Akacjowa galera wojenna",
@@ -48,6 +50,7 @@
   "item.smallships.mangrove_war_galley": "Namorzynowa galera wojenna",
   "item.smallships.cherry_war_galley": "Wiśniowa galera wojenna",
   "item.smallships.bamboo_war_galley": "Bambusowa galera wojenna",
+  "item.smallships.pale_oak_war_galley": "Bladodębowa galera wojenna",
 
   "entity.smallships.rowboat": "Łódź wiosłowa",
   "item.smallships.acacia_rowboat": "Akacjowa łódź wiosłowa",
@@ -59,6 +62,7 @@
   "item.smallships.mangrove_rowboat": "Namorzynowa łódź wiosłowa",
   "item.smallships.cherry_rowboat": "Wiśniowa łódź wiosłowa",
   "item.smallships.bamboo_rowboat": "Bambusowa łódź wiosłowa",
+  "item.smallships.pale_oak_rowboat": "Bladodębowa łódź wiosłowa",
 
   "entity.smallships.drakkar": "Drakkar",
   "item.smallships.acacia_drakkar": "Akacjowy drakkar",
@@ -70,6 +74,7 @@
   "item.smallships.mangrove_drakkar": "Namorzynowy drakkar",
   "item.smallships.cherry_drakkar": "Wiśniowy drakkar",
   "item.smallships.bamboo_drakkar": "Bambusowy drakkar",
+  "item.smallships.pale_oak_drakkar": "Bladodębowy drakkar",
 
   "entity.smallships.dhow": "Dau",
   "item.smallships.oak_dhow": "Dębowy dau",
@@ -81,6 +86,7 @@
   "item.smallships.mangrove_dhow": "Namorzynowy dau",
   "item.smallships.cherry_dhow": "Wiśniowy dau",
   "item.smallships.bamboo_dhow": "Bambusowy dau",
+  "item.smallships.pale_oak_dhow": "Bladodębowy dau",
 
   "entity.smallships.brigg": "Bryg",
   "item.smallships.oak_brigg": "Dębowy bryg",
@@ -92,6 +98,7 @@
   "item.smallships.mangrove_brigg": "Namorzynowy bryg",
   "item.smallships.cherry_brigg": "Wiśniowy bryg",
   "item.smallships.bamboo_brigg": "Bambusowy bryg",
+  "item.smallships.pale_oak_brigg": "Bladodębowy bryg",
 
   "tooltip.plane.damage": "Uszkodzenia: %s %%",
   "tooltip.plane.throttle": "Ciąg: %s %%",
