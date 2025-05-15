@@ -20,6 +20,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -112,6 +113,15 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
         return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
     }
 
+//    Prevent ships from being culled too early by the frustum culler
+    @Override
+    public boolean shouldRender(T entity, Frustum frustum, double d, double e, double f) {
+        entity.setBoundingBox(entity.getBoundingBox().inflate(4D, 8D, 4D));
+        var b = super.shouldRender(entity, frustum, d, e, f);
+        entity.setBoundingBox(entity.getBoundingBox().inflate(-4D, -8D, -4D));
+        return b;
+    }
+
     @Override
     public void render(ShipRenderState state, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight) {
         Attributes shipAttributes = state.shipAttributes;
@@ -161,7 +171,6 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T, Sh
         if (state.shieldable != null) {
             renderShields(state, poseStack, multiBufferSource, packedLight);
         }
-
 
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(shipModel.renderType(resourceLocation));
         shipModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
