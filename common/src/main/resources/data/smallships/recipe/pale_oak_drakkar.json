@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "drakkar",
+  "pattern": [
+    "sys",
+    "xlx",
+    "bbb"
+  ],
+  "key": {
+    "y": "smallships:sail",
+    "x": "minecraft:chest",
+    "l": "minecraft:lead",
+    "s": "minecraft:string",
+    "b": "minecraft:pale_oak_boat"
+  },
+  "result": {
+    "count": 1,
+    "id": "smallships:pale_oak_drakkar"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "brigg",
+  "pattern": [
+    "sls",
+    "bbb"
+  ],
+  "key": {
+    "l": "minecraft:lead",
+    "s": "smallships:sail",
+    "b": "minecraft:pale_oak_chest_boat"
+  },
+  "result": {
+    "count": 1,
+    "id": "smallships:pale_oak_brigg"
+  }
+}

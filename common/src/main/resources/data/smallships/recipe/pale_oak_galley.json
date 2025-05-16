@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "galley",
+  "pattern": [
+    "lll",
+    "csc",
+    "bbb"
+  ],
+  "key": {
+    "s": "smallships:sail",
+    "c": "minecraft:chest",
+    "l": "minecraft:lead",
+    "b": "minecraft:pale_oak_boat"
+  },
+  "result": {
+    "count": 1,
+    "id": "smallships:pale_oak_galley"
+  }
+}
