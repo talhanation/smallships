@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 architectury {
@@ -75,5 +75,5 @@ shadowJar {
 
 remapJar {
     injectAccessWidener = true
-    input.set shadowJar.archiveFile
+    inputFile.set shadowJar.archiveFile
 }

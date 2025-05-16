@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 repositories {
@@ -80,7 +80,7 @@ shadowJar {
 }
 
 remapJar {
-    input.set shadowJar.archiveFile
+    inputFile.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier = null
 }
