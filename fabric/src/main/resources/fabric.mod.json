@@ -30,7 +30,7 @@
     ]
   },
   "mixins": [
-    "smallships.mixin.json",
+    "smallships.mixins.json",
     "smallships-common.mixins.json",
     "smallships-fabric-forge.mixins.json",
     "smallships-fabric-neoforge.mixins.json"
