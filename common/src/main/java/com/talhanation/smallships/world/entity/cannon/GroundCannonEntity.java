@@ -42,7 +42,7 @@ import java.util.*;
  */
 public class GroundCannonEntity extends Minecart implements ICannon {
     public static final String ID = "ground_cannon";
-    private static final EntityDataAccessor<Optional<UUID>> UUID = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<String> UUID = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> DYE = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.STRING);
     private final Cannon cannon = new Cannon(this);
     /**
@@ -69,16 +69,16 @@ public class GroundCannonEntity extends Minecart implements ICannon {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(UUID, Optional.empty());
+        builder.define(UUID, "");
         builder.define(DYE, "");
     }
 
     public Optional<UUID> getEntityInBarrelUUID() {
-        return this.entityData.get(UUID);
+        return Optional.of(java.util.UUID.fromString(this.entityData.get(UUID)));
     }
 
     protected final void setEntityInBarrelUUID(UUID uuid) {
-        this.entityData.set(UUID, Optional.ofNullable(uuid));
+        this.entityData.set(UUID, uuid.toString());
     }
 
     @Nullable
@@ -97,17 +97,17 @@ public class GroundCannonEntity extends Minecart implements ICannon {
         super.addAdditionalSaveData(tag);
         DyeColor dye;
         if ((dye = this.getDye()) != null) tag.putString("Dye", dye.getSerializedName());
-        this.getEntityInBarrelUUID().ifPresent(uuid -> tag.putUUID("EntityInBarrelUUID", uuid));
+        this.getEntityInBarrelUUID().ifPresent(uuid -> tag.putString("EntityInBarrelUUID", uuid.toString()));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("Dye")) {
-            this.setDye(DyeColor.byName(tag.getString("Dye"), null));
+            this.setDye(DyeColor.byName(tag.getString("Dye").orElseThrow(), null));
         }
         if (tag.contains("EntityInBarrelUUID")) {
-            this.setEntityInBarrelUUID(tag.getUUID("EntityInBarrelUUID"));
+            this.setEntityInBarrelUUID(java.util.UUID.fromString(tag.getString("EntityInBarrelUUID").orElseThrow()));
         }
     }
 
@@ -394,7 +394,7 @@ public class GroundCannonEntity extends Minecart implements ICannon {
         if (driver instanceof ICannonBallSource container) {
             container.consumeCannonBall();
         } else if (this.getPassengerDriver() instanceof Player player) {
-            for (ItemStack itemstack : player.getInventory().items) {
+            for (ItemStack itemstack : player.getInventory().getNonEquipmentItems()) {
                 if (itemstack.is((ModItems.CANNON_BALL))) {
                     itemstack.shrink(1);
                     break;
@@ -428,7 +428,7 @@ public class GroundCannonEntity extends Minecart implements ICannon {
         if (this.getPassengerDriver() instanceof ICannonBallSource container) {
             return container.getCannonBallToShoot();
         } else if (this.getPassengerDriver() instanceof Player player) {
-            return player.getInventory().items.stream().anyMatch(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL)) ? ModItems.CANNON_BALL : null;
+            return player.getInventory().getNonEquipmentItems().stream().anyMatch(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL)) ? ModItems.CANNON_BALL : null;
         } else {
             return null;
         }

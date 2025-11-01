@@ -19,9 +19,9 @@ public interface Sailable extends Ability {
     }
 
     default void readSailShipSaveData(CompoundTag tag) {
-        CompoundTag compoundTag = tag.getCompound("Sail");
-        self().setData(SAIL_STATE, compoundTag.getByte("State"));
-        self().setData(Ship.SAIL_COLOR, compoundTag.getString("Color"));
+        CompoundTag compoundTag = tag.getCompound("Sail").orElseThrow();
+        self().setData(SAIL_STATE, compoundTag.getByte("State").orElseThrow());
+        self().setData(Ship.SAIL_COLOR, compoundTag.getString("Color").orElseThrow());
 
     }
 

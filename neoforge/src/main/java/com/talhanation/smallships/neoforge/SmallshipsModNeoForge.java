@@ -8,7 +8,7 @@ import com.talhanation.smallships.world.inventory.neoforge.ModMenuTypesImpl;
 import com.talhanation.smallships.world.item.neoforge.ModItemsImpl;
 import com.talhanation.smallships.world.particles.neoforge.ModParticleTypesImpl;
 import com.talhanation.smallships.world.sound.neoforge.ModSoundTypesImpl;
-import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -18,9 +18,14 @@ import java.util.Arrays;
 @Mod(SmallShipsMod.MOD_ID)
 public class SmallshipsModNeoForge {
     public static final boolean hasCustomItemGroup = TomlFormat.instance().createParser().parse(Path.of("config", "smallships-client.toml"), (file, configFormat) -> false).getOrElse(Arrays.asList("General", "smallshipsItemGroupEnable"), () -> false); //Forge doesn't do early config initialization. Will have to parse the config ourselves.
+    public static ModContainer modContainer = null;
 
     @SuppressWarnings("InstantiationOfUtilityClass")
-    public SmallshipsModNeoForge(IEventBus modEventBus) {
+    public SmallshipsModNeoForge(ModContainer modContainer) {
+        SmallshipsModNeoForge.modContainer = modContainer;
+        var modEventBus = modContainer.getEventBus();
+        assert modEventBus != null;
+
         new SmallShipsMod();
 
         ModItemsImpl.ITEMS.register(modEventBus);

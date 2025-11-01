@@ -1,12 +1,14 @@
 package com.talhanation.smallships.config.neoforge;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
-import fuzs.forgeconfigapiport.neoforge.api.forge.v4.ForgeConfigRegistry;
-import net.minecraftforge.fml.config.IConfigSpec;
+import com.talhanation.smallships.neoforge.SmallshipsModNeoForge;
+import fuzs.forgeconfigapiport.neoforge.impl.forge.ForgeConfigSpecAdapter;
 import net.neoforged.fml.config.ModConfig;
 
+@SuppressWarnings("unused")
 public class SmallShipsConfigImpl {
-    public static void registerConfigs(String modId, SmallShipsConfig.ModConfigWrapper.Type type, IConfigSpec<?> spec) {
-        ForgeConfigRegistry.INSTANCE.register(modId, ModConfig.Type.valueOf(type.toString()), spec);
+    @SuppressWarnings("UnstableApiUsage")
+    public static void registerConfigs(String ignoredModId, SmallShipsConfig.ModConfigWrapper.Type type, net.minecraftforge.fml.config.IConfigSpec<?> spec) {
+        SmallshipsModNeoForge.modContainer.registerConfig(ModConfig.Type.valueOf(type.toString()), new ForgeConfigSpecAdapter(spec));
     }
 }

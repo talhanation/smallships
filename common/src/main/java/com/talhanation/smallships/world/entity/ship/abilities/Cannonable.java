@@ -50,7 +50,7 @@ public interface Cannonable extends Ability {
     @SuppressWarnings("unused")
     default void readCannonShipSaveData(CompoundTag tag) {
         if (tag.contains("CannonCount")) {
-            this.setCannonCount(tag.getByte("CannonCount"));
+            this.setCannonCount(tag.getByte("CannonCount").orElseThrow());
             this.updateCannonCount();
         }
     }
@@ -114,7 +114,7 @@ public interface Cannonable extends Ability {
                     .anyMatch(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL));
         }
         else if(self().getControllingPassenger() instanceof Player player) {
-            return player.getInventory().items
+            return player.getInventory().getNonEquipmentItems()
                     .stream()
                     .anyMatch(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL));
         }
@@ -133,7 +133,7 @@ public interface Cannonable extends Ability {
         }
 
         else if(self().getControllingPassenger() instanceof Player player) {
-            for (ItemStack itemstack : player.getInventory().items) {
+            for (ItemStack itemstack : player.getInventory().getNonEquipmentItems()) {
                 if (itemstack.is((ModItems.CANNON_BALL))) {
                     itemstack.shrink(1);
                     break;

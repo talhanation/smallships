@@ -150,8 +150,8 @@ public abstract class Ship extends AbstractBoat {
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
 
-        if (tag.contains("Type", 8)) {
-            this.setVariant(Ship.Type.byName(tag.getString("Type")));
+        if (tag.contains("Type")) {
+            this.setVariant(Ship.Type.byName(tag.getString("Type").orElseThrow()));
         }
 
         Attributes attributes = new Attributes();
@@ -163,8 +163,8 @@ public abstract class Ship extends AbstractBoat {
         if (this instanceof Cannonable cannonShip) cannonShip.readCannonShipSaveData(tag);
         if (this instanceof Shieldable shieldShip) shieldShip.readShieldShipSaveData(tag);
 
-        this.setSunken(tag.getBoolean("Sunken"));
-        this.isLocked = (tag.getBoolean("locked"));
+        this.setSunken(tag.getBoolean("Sunken").orElseThrow());
+        this.isLocked = (tag.getBoolean("locked").orElseThrow());
     }
 
     @Override

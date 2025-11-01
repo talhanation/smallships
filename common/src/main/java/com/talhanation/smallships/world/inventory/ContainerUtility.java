@@ -16,11 +16,11 @@ public class ContainerUtility {
     }
 
     public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> itemStacks, HolderLookup.Provider levelRegistry) {
-        ListTag listTag = tag.getList("Items", 10);
+        ListTag listTag = tag.getList("Items").orElseThrow();
 
         for (int i = 0; i < listTag.size(); ++i) {
-            CompoundTag compoundTag = listTag.getCompound(i);
-            short slot = compoundTag.getShort("Slot");
+            CompoundTag compoundTag = listTag.getCompound(i).orElseThrow();
+            short slot = compoundTag.getShort("Slot").orElseThrow();
             if (slot < itemStacks.size()) {
                 itemStacks.set(slot, ItemStack.parse(levelRegistry, compoundTag).orElse(ItemStack.EMPTY));
             }

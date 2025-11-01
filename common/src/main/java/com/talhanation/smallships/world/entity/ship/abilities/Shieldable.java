@@ -25,10 +25,10 @@ public interface Shieldable extends Ability {
     }
 
     default void readShieldShipSaveData(CompoundTag tag) {
-        ListTag shieldItems = tag.getList("Shields", 10);
+        ListTag shieldItems = tag.getList("Shields").orElseThrow();
 
         for (int i = 0; i < shieldItems.size(); ++i) {
-            CompoundTag compoundTag = shieldItems.getCompound(i);
+            CompoundTag compoundTag = shieldItems.getCompound(i).orElseThrow();
             ItemStack itemStack = ItemStack.parse(self().registryAccess(), compoundTag).orElse(ItemStack.EMPTY);
             if (!itemStack.isEmpty()) this.getShields().add(itemStack);
         }
@@ -54,7 +54,7 @@ public interface Shieldable extends Ability {
 
     default List<ItemStack> getShields() {
         CompoundTag tag = self().getData(Ship.SHIELD_DATA);
-        ListTag shieldItems = tag.getList("Shields", 10);
+        ListTag shieldItems = tag.getList("Shields").orElseThrow();
 
         List<ItemStack> shields = new ArrayList<>() {
             private <T> T updateDataAndReturn(T out) {
@@ -84,7 +84,7 @@ public interface Shieldable extends Ability {
         };
 
         for (int i = 0; i < shieldItems.size(); ++i) {
-            CompoundTag shieldItem = shieldItems.getCompound(i);
+            CompoundTag shieldItem = shieldItems.getCompound(i).orElseThrow();
             ItemStack itemStack = ItemStack.parse(self().registryAccess(), shieldItem).orElse(ItemStack.EMPTY);
             if (!itemStack.isEmpty()) shields.add(itemStack);
         }

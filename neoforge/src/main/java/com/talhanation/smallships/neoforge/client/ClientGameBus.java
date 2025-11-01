@@ -8,7 +8,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
 
 @SuppressWarnings("ALL")
-@EventBusSubscriber(modid = SmallShipsMod.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = SmallShipsMod.MOD_ID, value = Dist.CLIENT)
 public class ClientGameBus {
     @SubscribeEvent
     static void initRegisterInputEvents(InputEvent.Key event) {

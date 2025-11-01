@@ -35,14 +35,14 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
 
     public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, LivingEntity owner, double d1, double d2, double d3, Level world) {
         super(type, owner, new Vec3(d1, d2, d3), world);
-        this.moveTo(d1, d2, d3, this.getYRot(), this.getXRot());
+        this.moveOrInterpolateTo(new Vec3(d1, d2, d3), this.getYRot(), this.getXRot());
     }
 
     @Override
     public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, Entity shooter) {
         Vector3f deltaMovement = direction.normalize().mul((float) this.accelerationPower);
         this.setOwner(shooter);
-        this.moveTo(startPos.x, startPos.y, startPos.z, this.getYRot(), this.getXRot());
+        this.moveOrInterpolateTo(new Vec3(startPos.x, startPos.y, startPos.z), this.getYRot(), this.getXRot());
         this.reapplyPosition();
         this.setDeltaMovement(deltaMovement.x, deltaMovement.y, deltaMovement.z);
         this.hasImpulse = true;

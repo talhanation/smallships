@@ -98,7 +98,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.readContainerSizeSaveData(tag);
         this.readChestVehicleSaveData(tag, this.registryAccess());
 
-        this.setContainerFillState(tag.getByte("ContainerFillState"));
+        this.setContainerFillState(tag.getByte("ContainerFillState").orElseThrow());
     }
 
     @Override
@@ -230,9 +230,9 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     @Override
     public void readChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
         this.clearItemStacks();
-        if (tag.contains("LootTable", 8)) {
-            this.setContainerLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(tag.getString("LootTable"))));
-            this.setContainerLootTableSeed(tag.getLong("LootTableSeed"));
+        if (tag.contains("LootTable")) {
+            this.setContainerLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(tag.getString("LootTable").orElseThrow())));
+            this.setContainerLootTableSeed(tag.getLong("LootTableSeed").orElseThrow());
         } else {
             ContainerUtility.loadAllItems(tag, this.getItemStacks(), levelRegistry);
             this.resizeContainer(this.getContainerSize());
@@ -252,8 +252,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     public void readContainerSizeSaveData(CompoundTag tag) {
-        if (!tag.contains("ContainerSize", 3)) tag.putInt("ContainerSize", this.originalContainerSize); // If defineSychedData worked, this line wouldn't be needed
-        int containerSize = tag.getInt("ContainerSize");
+        if (!tag.contains("ContainerSize")) tag.putInt("ContainerSize", this.originalContainerSize); // If defineSychedData worked, this line wouldn't be needed
+        int containerSize = tag.getInt("ContainerSize").orElseThrow();
         if (containerSize == 0) containerSize = this.originalContainerSize;
         this.updatePaging(containerSize);
         this.setData(CONTAINER_SIZE, containerSize);

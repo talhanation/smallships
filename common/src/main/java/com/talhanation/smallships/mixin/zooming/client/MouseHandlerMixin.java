@@ -23,7 +23,7 @@ public class MouseHandlerMixin {
 
     @Unique private boolean smallships$shouldCancel;
 
-    @Inject(method = "onScroll(JDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedHotbarSlot(I)V", shift = At.Shift.BEFORE))
+    @Inject(method = "onScroll(JDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedSlot(I)V", shift = At.Shift.BEFORE))
     private void onScrollCaptureScrollDelta(long windowPointer, double xOffset, double yOffset, CallbackInfo ci, @Local(ordinal = 4) double scrollDeltaY) {
         if (SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) {
             assert this.minecraft.player != null;
@@ -36,7 +36,7 @@ public class MouseHandlerMixin {
         }
     }
 
-    @WrapWithCondition(method = "onScroll(JDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedHotbarSlot(I)V"))
+    @WrapWithCondition(method = "onScroll(JDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedSlot(I)V"))
     private boolean cancelScrollApplyInventoryPaint(Inventory instance, int i) {
         boolean shouldContinue = !smallships$shouldCancel;
         smallships$shouldCancel = false;
