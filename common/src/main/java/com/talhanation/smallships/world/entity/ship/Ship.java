@@ -9,6 +9,8 @@ import com.talhanation.smallships.network.packet.ServerboundUpdateShipControlPac
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.world.entity.ship.seat.SeatType;
+import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.wind.Wind;
 import com.talhanation.smallships.world.wind.WindManager;
 import com.talhanation.smallships.client.wind.ClientWindManager;
@@ -47,6 +49,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EntityDimensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -75,6 +79,10 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<Float> SAIL_HEALTH = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     /** Installed dockyard upgrades, see ShipUpgrade. */
     public static final EntityDataAccessor<CompoundTag> UPGRADES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+    /** Occupied cannon slots (dockyard mounting), see Cannonable. */
+    public static final EntityDataAccessor<CompoundTag> CANNON_SLOTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+    /** Fixed seat assignments: Seat<id> -> passenger UUID, see Seatable. */
+    public static final EntityDataAccessor<CompoundTag> SEAT_ASSIGNMENTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
 
     private boolean isLocked = false;
     private int sunkenTime = 0;
@@ -97,6 +105,10 @@ public abstract class Ship extends Boat {
 
     @Override
     public void tick() {
+        // seat system: clean up assignments of passengers that left (server, every second)
+        if (this instanceof Seatable seatable && !this.level().isClientSide() && this.tickCount % 20 == 0) {
+            seatable.validateSeatAssignments();
+        }
         super.tick();
 
         if (this.getDamage() > 0.0F) {
@@ -160,6 +172,12 @@ public abstract class Ship extends Boat {
 
         // Dockyard upgrades
         builder.define(Ship.UPGRADES, new CompoundTag());
+
+        // Cannon slots
+        builder.define(Ship.CANNON_SLOTS, new CompoundTag());
+
+        // Seat assignments
+        builder.define(Ship.SEAT_ASSIGNMENTS, new CompoundTag());
     }
 
     @Override
@@ -178,6 +196,7 @@ public abstract class Ship extends Boat {
         this.setSunken(tag.getBoolean("Sunken"));
         this.isLocked = (tag.getBoolean("locked"));
         if (tag.contains("Upgrades")) this.setData(UPGRADES, tag.getCompound("Upgrades"));
+        if (this instanceof Seatable && tag.contains("SeatAssignments")) this.setData(SEAT_ASSIGNMENTS, tag.getCompound("SeatAssignments"));
     }
 
     @Override
@@ -196,6 +215,7 @@ public abstract class Ship extends Boat {
         tag.putBoolean("Sunken", isSunken());
         tag.putBoolean("locked", this.isLocked);
         tag.put("Upgrades", this.getData(UPGRADES));
+        if (this instanceof Seatable) tag.put("SeatAssignments", this.getData(SEAT_ASSIGNMENTS));
     }
 
     public void onAboveBubbleCol(boolean bl) {
@@ -449,12 +469,49 @@ public abstract class Ship extends Boat {
             return 0;
 
     }
+
+    /**
+     * Seat system: vanilla passes the exact hit position on the hitbox here.
+     * - Riding this ship + empty hand: switch to the nearest free seat at the click point.
+     * - Not riding: remember the hit so addPassenger assigns the nearest seat to it.
+     */
+    @Override
+    public @NotNull InteractionResult interactAt(@NotNull Player player, @NotNull Vec3 hitVec, @NotNull InteractionHand interactionHand) {
+        if (this instanceof Seatable seatable && !this.isLocked()) {
+            Vec3 worldHit = this.position().add(hitVec);
+            if (player.getVehicle() == this) {
+                // seat switch while riding (empty hand only, so item use is not hijacked)
+                if (player.getItemInHand(interactionHand).isEmpty()) {
+                    if (!this.level().isClientSide()) {
+                        ShipSeat target = seatable.findNearestFreeSeat(worldHit, true);
+                        if (target != null && !target.equals(seatable.getSeatOf(player))) {
+                            seatable.assignSeat(player, target.id());
+                            // repositioning happens automatically in the next tick
+                        }
+                    }
+                    return InteractionResult.sidedSuccess(this.level().isClientSide());
+                }
+            } else if (!this.level().isClientSide()) {
+                // remember the click point for the seat assignment in addPassenger
+                this.pendingSeatHit = worldHit;
+                this.pendingSeatHitFor = player.getUUID();
+            }
+        }
+        return super.interactAt(player, hitVec, interactionHand);
+    }
+
+    /** transient, server side: hit position of the mounting right click */
+    @Nullable
+    private Vec3 pendingSeatHit;
+    @Nullable
+    private java.util.UUID pendingSeatHitFor;
+
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if(!this.isLocked()){
             if(this.interactWithNameTag(player)) return InteractionResult.SUCCESS;
             if(this.interactIronNuggets(player)) return InteractionResult.SUCCESS;
-            if (this instanceof Cannonable cannonShip && cannonShip.interactCannon(player, interactionHand)) return InteractionResult.SUCCESS;
+            // cannon mounting moved to the dockyard (no field mounting anymore)
             if (this instanceof Sailable sailShip && sailShip.interactSail(player, interactionHand)) return InteractionResult.SUCCESS;
             if (this instanceof Bannerable bannerShip && bannerShip.interactBanner(player, interactionHand)) return InteractionResult.SUCCESS;
             if (this instanceof Shieldable shieldShip && shieldShip.interactShield(player, interactionHand)) return InteractionResult.SUCCESS;
@@ -504,6 +561,25 @@ public abstract class Ship extends Boat {
         this.setDamage(newDamage);
     }
 
+
+    /**
+     * Seat system: passengers are positioned by their FIXED seat assignment,
+     * never by their index in the passenger list.
+     */
+    @Override
+    public @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity entity, @NotNull EntityDimensions dimensions, float partialTick) {
+        if (this instanceof Seatable seatable) {
+            ShipSeat seat = seatable.getSeatOf(entity);
+            if (seat != null) {
+                return seat.getAttachmentPoint(this, dimensions);
+            }
+            // not yet assigned (first tick / edge case): center of the deck
+            return new Vec3(1.5F, dimensions.height() - 0.1, 0.0F)
+                    .yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
+        }
+        return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
+    }
+
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
         if (this instanceof Sailable sailShip && sailShip.getSailState() != 0) sailShip.toggleSail();
@@ -523,10 +599,25 @@ public abstract class Ship extends Boat {
             ShipCameraHandler.startTransition();
         }
         super.addPassenger(entity);
+
+        // seat system: assign the fixed seat (never index based)
+        if (this instanceof Seatable seatable && !this.level().isClientSide() && seatable.getSeatOf(entity) == null) {
+            Vec3 from = entity.position();
+            if (entity.getUUID().equals(this.pendingSeatHitFor) && this.pendingSeatHit != null) {
+                from = this.pendingSeatHit;
+            }
+            this.pendingSeatHit = null;
+            this.pendingSeatHitFor = null;
+            ShipSeat seat = seatable.findNearestFreeSeat(from, entity instanceof Player);
+            if (seat != null) seatable.assignSeat(entity, seat.id());
+        }
     }
 
     @Override
     protected void removePassenger(Entity entity) {
+        if (this instanceof Seatable seatable && !this.level().isClientSide()) {
+            seatable.freeSeatOf(entity);
+        }
         // Auto third person: Disable
         if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
             Minecraft.getInstance().options.setCameraType(this.previousCameraType);
@@ -706,22 +797,40 @@ public abstract class Ship extends Boat {
     }
     @Nullable
     public Player getDriver() {
-        List<Entity> passengers = getPassengers();
-        if (passengers.isEmpty()) {
+        Player driver = this.getDriverAnySide();
+        if (driver == null) return null;
+        if (this.getCommandSenderWorld().isClientSide) {
+            // keep the old semantics: client side only "yourself" counts as driver
+            return driver.equals(Minecraft.getInstance().player) ? driver : null;
+        }
+        return driver;
+    }
+
+    /**
+     * @return the player occupying the DRIVER seat (both sides), independent
+     * of the passenger list order. Falls back to the first player passenger
+     * for ships without a seat layout.
+     */
+    @Nullable
+    public Player getDriverAnySide() {
+        if (this instanceof Seatable seatable) {
+            for (ShipSeat seat : seatable.getSeats()) {
+                if (seat.type() == SeatType.DRIVER && seatable.getSeatOccupant(seat.id()) instanceof Player player) {
+                    return player;
+                }
+            }
             return null;
         }
+        return !this.getPassengers().isEmpty() && this.getPassengers().get(0) instanceof Player player ? player : null;
+    }
 
-        if (passengers.get(0) instanceof Player player) {
-            if(this.getCommandSenderWorld().isClientSide){
-                Minecraft minecraft = Minecraft.getInstance();
-                Player instancePlayer = minecraft.player;
-
-                return player.equals(instancePlayer) ? player : null;
-            }
-            else return (Player) passengers.get(0);
+    @Override
+    public LivingEntity getControllingPassenger() {
+        if (this instanceof Seatable) {
+            // only the DRIVER seat occupant controls the ship - NOT the first passenger
+            return this.getDriverAnySide();
         }
-
-        return null;
+        return super.getControllingPassenger();
     }
     /************************************
      * Used by Workers and Recruits Mod -> Player == null

@@ -5,6 +5,9 @@ import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundSetCannonAimPacket;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.Seatable;
+import com.talhanation.smallships.world.entity.ship.seat.SeatType;
+import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -28,6 +31,7 @@ public class CannonAimHandler {
     private static boolean aiming = false;
     private static boolean dirty = false;
     private static boolean lastRightSide = false;
+    private static int lastSlot = -1;
     private static float angle;
     private static float rotation;
     private static int tickCounter = 0;
@@ -41,8 +45,9 @@ public class CannonAimHandler {
         Player player = minecraft.player;
         if (player == null || minecraft.screen != null) return false;
         if (!(player.getVehicle() instanceof Ship ship) || !(ship instanceof Cannonable cannonable)) return false;
-        if (!player.equals(ship.getDriver())) return false;
         if (cannonable.getCannonCount() <= 0) return false;
+        // driver (broadside) or gunner on a CANNON seat (his single cannon)
+        if (!player.equals(ship.getDriver()) && getGunnerSlot(player, ship) < 0) return false;
         return ModGameOptions.CANNON_AIM_KEY.isDown();
     }
 
@@ -55,13 +60,21 @@ public class CannonAimHandler {
         Player player = minecraft.player;
         if (player == null || !(player.getVehicle() instanceof Ship ship) || !(ship instanceof Cannonable cannonable)) return;
 
-        boolean rightSide = isLookingAtStarboard(player, ship);
-        if (!aiming || rightSide != lastRightSide) {
-            // start aiming this side from its stored values
-            angle = cannonable.getCannonAngle(rightSide);
-            rotation = cannonable.getCannonRotation(rightSide);
+        int slot = getGunnerSlot(player, ship);
+        boolean rightSide;
+        if (slot >= 0) {
+            // gunner: the side is fixed by the mounted cannon
+            rightSide = cannonable.getCannonPosition(slot) != null && cannonable.getCannonPosition(slot).isRightSided;
+        } else {
+            rightSide = isLookingAtStarboard(player, ship);
+        }
+        if (!aiming || rightSide != lastRightSide || slot != lastSlot) {
+            // start aiming from the stored values (per-cannon aim falls back to the broadside)
+            angle = cannonable.getCannonAngle(slot, rightSide);
+            rotation = cannonable.getCannonRotation(slot, rightSide);
             aiming = true;
             lastRightSide = rightSide;
+            lastSlot = slot;
         }
 
         // mouse up = angle up; mouse right = rotate towards the direction the mouse moves
@@ -71,7 +84,7 @@ public class CannonAimHandler {
         rotation = Mth.clamp(rotation + (rightSide ? -rotationDelta : rotationDelta), -Cannonable.CANNON_ROTATION_MAX, Cannonable.CANNON_ROTATION_MAX);
 
         // instant client side feedback
-        cannonable.setCannonAim(rightSide, angle, rotation);
+        cannonable.setCannonAim(slot, rightSide, angle, rotation);
         dirty = true;
 
         minecraft.gui.setOverlayMessage(Component.translatable("gui.smallships.cannon_aim", String.format("%.0f", angle), String.format("%.0f", rotation)), false);
@@ -89,7 +102,7 @@ public class CannonAimHandler {
 
         if (dirty && (!active || tickCounter % SYNC_INTERVAL_TICKS == 0)) {
             if (player.getVehicle() instanceof Ship ship) {
-                ModPackets.clientSendPacket(new ServerboundSetCannonAimPacket(ship.getId(), lastRightSide, angle, rotation));
+                ModPackets.clientSendPacket(new ServerboundSetCannonAimPacket(ship.getId(), lastSlot, lastRightSide, angle, rotation));
             }
             dirty = false;
         }
@@ -97,6 +110,13 @@ public class CannonAimHandler {
         if (!active) {
             aiming = false;
         }
+    }
+
+    /** @return the cannon slot the player mans as a gunner, or -1. */
+    private static int getGunnerSlot(Player player, Ship ship) {
+        if (!(ship instanceof Seatable seatable)) return -1;
+        ShipSeat seat = seatable.getSeatOf(player);
+        return seat != null && seat.type() == SeatType.CANNON ? seat.mappedCannonSlot() : -1;
     }
 
     private static boolean isLookingAtStarboard(Player player, Ship ship) {

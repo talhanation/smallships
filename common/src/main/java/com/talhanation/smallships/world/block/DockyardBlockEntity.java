@@ -46,7 +46,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         NONE(0),
         BUILD_SHIP(1),
         INSTALL_UPGRADE(2),
-        REMOVE_UPGRADE(3);
+        REMOVE_UPGRADE(3),
+        MOUNT_CANNON(4),
+        REMOVE_CANNON(5);
 
         public final int id;
         Task(int id) { this.id = id; }
@@ -65,6 +67,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     @Nullable private BlockPos spawnSpot;
     /** UPGRADE task data */
     private int upgradeOrdinal;
+    private int cannonSlot;
     @Nullable private java.util.UUID targetShipUUID;
 
     public DockyardBlockEntity(BlockPos pos, BlockState blockState) {
@@ -203,6 +206,62 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.setChanged();
     }
 
+
+    /**
+     * Mount / dismount a cannon on the nearest ship (dockyard-only mounting).
+     * Mounting consumes one cannon item from the player inventory; removal
+     * drops the cannon at the ship.
+     */
+    public void startCannonTask(ServerPlayer player, int cannonSlot, boolean mount) {
+        if (this.level == null || this.level.isClientSide() || this.isBusy()) return;
+
+        Ship ship = this.findNearestShip();
+        if (!(ship instanceof com.talhanation.smallships.world.entity.ship.abilities.Cannonable cannonable)) {
+            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.no_ship"), true);
+            return;
+        }
+        if (cannonSlot < 0 || cannonSlot >= cannonable.getTotalCannonSlots()) return;
+        if (mount == cannonable.isCannonInSlot(cannonSlot)) return;
+
+        if (mount) {
+            if (!player.hasInfiniteMaterials()) {
+                boolean consumed = false;
+                for (var stack : player.getInventory().items) {
+                    if (stack.is(com.talhanation.smallships.world.item.ModItems.CANNON)) {
+                        stack.shrink(1);
+                        consumed = true;
+                        break;
+                    }
+                }
+                if (!consumed) {
+                    player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
+                    return;
+                }
+            }
+        }
+
+        this.task = mount ? Task.MOUNT_CANNON : Task.REMOVE_CANNON;
+        this.cannonSlot = cannonSlot;
+        this.targetShipUUID = ship.getUUID();
+        this.totalTime = 10 * 20;
+        this.progress = 0;
+        this.setChanged();
+    }
+
+    private void finishCannon(Level level, BlockPos pos) {
+        if (this.targetShipUUID == null || !(level instanceof ServerLevel serverLevel)) return;
+        if (!(serverLevel.getEntity(this.targetShipUUID) instanceof Ship ship)) return;
+        if (!(ship instanceof com.talhanation.smallships.world.entity.ship.abilities.Cannonable cannonable)) return;
+
+        boolean mount = this.task == Task.MOUNT_CANNON;
+        cannonable.setCannonInSlot(this.cannonSlot, mount);
+        if (!mount) {
+            ship.spawnAtLocation(com.talhanation.smallships.world.item.ModItems.CANNON);
+        }
+        level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, mount ? 1.0F : 0.8F);
+        this.targetShipUUID = null;
+    }
+
     /* ---------------- ticking ---------------- */
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, DockyardBlockEntity dockyard) {
@@ -230,6 +289,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         switch (this.task) {
             case BUILD_SHIP -> this.finishBuildShip(level, pos);
             case INSTALL_UPGRADE, REMOVE_UPGRADE -> this.finishUpgrade(level, pos);
+            case MOUNT_CANNON, REMOVE_CANNON -> this.finishCannon(level, pos);
             default -> {}
         }
         this.task = Task.NONE;
@@ -292,6 +352,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("ShipType", this.shipTypeId);
         tag.putInt("WoodType", this.woodTypeOrdinal);
         tag.putInt("Upgrade", this.upgradeOrdinal);
+        tag.putInt("CannonSlot", this.cannonSlot);
         if (this.spawnSpot != null) tag.putLong("SpawnSpot", this.spawnSpot.asLong());
         if (this.targetShipUUID != null) tag.putUUID("TargetShip", this.targetShipUUID);
     }
@@ -305,6 +366,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.shipTypeId = tag.getInt("ShipType");
         this.woodTypeOrdinal = tag.getInt("WoodType");
         this.upgradeOrdinal = tag.getInt("Upgrade");
+        this.cannonSlot = tag.getInt("CannonSlot");
         this.spawnSpot = tag.contains("SpawnSpot") ? BlockPos.of(tag.getLong("SpawnSpot")) : null;
         this.targetShipUUID = tag.hasUUID("TargetShip") ? tag.getUUID("TargetShip") : null;
     }

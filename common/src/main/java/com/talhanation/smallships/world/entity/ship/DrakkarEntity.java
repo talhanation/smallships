@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Paddleable, IceBreakable, Ability {
+public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Paddleable, IceBreakable, Seatable, Ability {
     public static final String ID = "drakkar";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerDrakkarContainerSize.get();
 
@@ -70,7 +71,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
 
     @Override
     public int getMaxPassengers() {
-        return 11;
+        return this.getSeats().size();
     }
 
     @Override
@@ -84,65 +85,22 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
         return SmallShipsConfig.Common.shipModifierDrakkarBiome.get();
     }
 
-    @Override
-    public @NotNull Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
-        float v = 1.0F;
-        float h = 0.0F;
-        if (!this.getPassengers().isEmpty()) {
-            int i = this.getPassengers().indexOf(entity);
-            switch (i) {
-                case (0) -> {
-                    v += -4.0F;
-                    h = 0.0F;
-                }
-                case(1) -> {
-                    v += -2.5F;
-                    h = 0.75F;
-                }
-                case(2) -> {
-                    v += -2.5F;
-                    h = -0.75F;
-                }
-                case(3) -> {
-                    v += -1.5F;
-                    h = -0.75F;
-                }
-                case(4) -> {
-                    v += -1.5F;
-                    h = 0.75F;
-                }
-                case(5) -> {
-                    v += -0.5F;
-                    h = -0.75F;
-                }
-                case(6) -> {
-                    v += -0.5F;
-                    h = 0.75F;
-                }
-                case(7) -> {
-                    v += 0.5F;
-                    h = -0.75F;
-                }
-                case(8) -> {
-                    v += 0.5F;
-                    h = 0.75F;
-                }
-                case(9) -> {
-                    v += 1.5F;
-                    h = 0.5F;
-                }
-                case(10) -> {
-                    v += 1.5F;
-                    h = -0.5F;
-                }
-                default -> {
-                    v += 2.0F;
-                    h = 0.0F;
-                }
-            }
-        }
+    private static final java.util.List<ShipSeat> SEATS = java.util.List.of(
+            ShipSeat.driver(0, -3.0F, 0.0F),
+            ShipSeat.passenger(1, -1.5F, 0.75F),
+            ShipSeat.passenger(2, -1.5F, -0.75F),
+            ShipSeat.passenger(3, -0.5F, 0.75F),
+            ShipSeat.passenger(4, -0.5F, -0.75F),
+            ShipSeat.passenger(5, 0.5F, 0.75F),
+            ShipSeat.passenger(6, 0.5F, -0.75F),
+            ShipSeat.passenger(7, 1.5F, 0.75F),
+            ShipSeat.passenger(8, 1.5F, -0.75F),
+            ShipSeat.passenger(9, 2.5F, 0.5F),
+            ShipSeat.passenger(10, 2.5F, -0.5F));
 
-        return new Vec3(v, dimensions.height() - 0.1, h).yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
+    @Override
+    public java.util.List<ShipSeat> getSeats() {
+        return SEATS;
     }
 
     // Implement Able-Interfaces

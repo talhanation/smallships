@@ -23,6 +23,7 @@ public class ModPackets {
         registerNonPacket(ServerboundSetCannonAimPacket.TYPE, ServerboundSetCannonAimPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundDockyardBuildPacket.TYPE, ServerboundDockyardBuildPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundDockyardUpgradePacket.TYPE, ServerboundDockyardUpgradePacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundDockyardCannonPacket.TYPE, ServerboundDockyardCannonPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ClientboundWindPacket.TYPE, ClientboundWindPacket.CODEC, ModPacket.Side.CLIENTBOUND);
 
     }

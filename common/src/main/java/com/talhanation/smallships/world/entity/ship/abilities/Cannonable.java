@@ -33,11 +33,47 @@ public interface Cannonable extends Ability {
     CannonPosition getCannonPosition(int index);
     byte getMaxCannonPerSide();
 
+
+    /* ---------------- cannon slots (dockyard mounting) ---------------- */
+
+    /** @return true if the given cannon slot is occupied. */
+    default boolean isCannonInSlot(int slot) {
+        return self().getData(Ship.CANNON_SLOTS).getBoolean("S" + slot);
+    }
+
+    default void setCannonInSlot(int slot, boolean occupied) {
+        CompoundTag tag = self().getData(Ship.CANNON_SLOTS).copy();
+        if (occupied) tag.putBoolean("S" + slot, true);
+        else tag.remove("S" + slot);
+        self().setData(Ship.CANNON_SLOTS, tag);
+        this.updateCannons();
+    }
+
+    default int getTotalCannonSlots() {
+        return this.getMaxCannonPerSide() * 2;
+    }
+
     default void tickCannonShip() {
         for(ShipCannon cannon : this.getCannons()) {
             cannon.tick();
             if(self().isCannonKeyPressed() && canShoot()){
+                // the driver's volley skips manned cannons - their gunners fire themselves
+                if (this instanceof Seatable seatable && seatable.getGunner(cannon.getSlotIndex()) != null) continue;
                 this.triggerCannon(cannon);
+            }
+        }
+    }
+
+    /**
+     * Fires the single cannon in the given slot, triggered by its gunner.
+     * The gunner's cannon fires regardless of the driver's look direction.
+     */
+    default void triggerGunnerCannon(int slot) {
+        if (!canShoot()) return;
+        for (ShipCannon cannon : this.getCannons()) {
+            if (cannon.getSlotIndex() == slot) {
+                cannon.trigger(this instanceof Seatable seatable ? seatable.getGunner(slot) : null);
+                return;
             }
         }
     }
@@ -54,6 +90,50 @@ public interface Cannonable extends Ability {
     }
     default void triggerCannonAdvanced(ShipCannon cannon, Vec3 shootVec, double yShootVec, LivingEntity driverEntity, double speed, double accuracy){
         if(cannon.canShootDirection()) cannon.trigger(shootVec, yShootVec, driverEntity, speed, accuracy);
+    }
+
+
+    /* ---------------- per-cannon aim (gunner seats) ---------------- */
+
+    /**
+     * @return the effective aim angle for a specific cannon slot: the gunner's
+     * per-cannon aim if the mapped seat is manned and set, otherwise the
+     * driver's broadside aim.
+     */
+    default float getCannonAngle(int slot, boolean rightSide) {
+        if (this.hasPerCannonAim(slot)) {
+            return self().getData(Ship.CANNON_AIM).getFloat("C" + slot + "Angle");
+        }
+        return this.getCannonAngle(rightSide);
+    }
+
+    default float getCannonRotation(int slot, boolean rightSide) {
+        if (this.hasPerCannonAim(slot)) {
+            return self().getData(Ship.CANNON_AIM).getFloat("C" + slot + "Rotation");
+        }
+        return this.getCannonRotation(rightSide);
+    }
+
+    default boolean hasPerCannonAim(int slot) {
+        if (!(this instanceof Seatable seatable) || seatable.getGunner(slot) == null) return false;
+        return self().getData(Ship.CANNON_AIM).contains("C" + slot + "Angle");
+    }
+
+    /**
+     * Sets the per-cannon aim (gunner) or, with slot = -1, the broadside aim
+     * of the given side (driver, existing behavior).
+     */
+    default void setCannonAim(int slot, boolean rightSide, float angle, float rotation) {
+        if (slot < 0) {
+            this.setCannonAim(rightSide, angle, rotation);
+            return;
+        }
+        angle = Mth.clamp(angle, CANNON_ANGLE_MIN, CANNON_ANGLE_MAX);
+        rotation = Mth.clamp(rotation, -CANNON_ROTATION_MAX, CANNON_ROTATION_MAX);
+        CompoundTag tag = self().getData(Ship.CANNON_AIM).copy();
+        tag.putFloat("C" + slot + "Angle", angle);
+        tag.putFloat("C" + slot + "Rotation", rotation);
+        self().setData(Ship.CANNON_AIM, tag);
     }
 
     /* ---------------- Broadside aim (Better Cannon Gameplay) ---------------- */
@@ -93,18 +173,27 @@ public interface Cannonable extends Ability {
 
     @SuppressWarnings("unused")
     default void readCannonShipSaveData(CompoundTag tag) {
-        if (tag.contains("CannonCount")) {
-            this.setCannonCount(tag.getByte("CannonCount"));
-            this.updateCannonCount();
+        if (tag.contains("CannonSlots")) {
+            self().setData(Ship.CANNON_SLOTS, tag.getCompound("CannonSlots"));
+        } else if (tag.contains("CannonCount")) {
+            // migration from old saves: CannonCount = n fills the slots 0..n-1
+            CompoundTag slots = new CompoundTag();
+            int count = tag.getByte("CannonCount");
+            for (int slot = 0; slot < Math.min(count, this.getTotalCannonSlots()); slot++) {
+                slots.putBoolean("S" + slot, true);
+            }
+            self().setData(Ship.CANNON_SLOTS, slots);
         }
         if (tag.contains("CannonAim")) {
             self().setData(Ship.CANNON_AIM, tag.getCompound("CannonAim"));
         }
+        this.updateCannons();
     }
 
     @SuppressWarnings("unused")
     default void addCannonShipSaveData(CompoundTag tag) {
         tag.putInt("CannonCount", this.getCannonCount());
+        tag.put("CannonSlots", self().getData(Ship.CANNON_SLOTS));
         tag.put("CannonAim", self().getData(Ship.CANNON_AIM));
     }
 
@@ -112,46 +201,30 @@ public interface Cannonable extends Ability {
         return this.getCannonCount() * SmallShipsConfig.Common.shipGeneralCannonModifier.get().floatValue();
     }
 
-    default void updateCannonCount(){
-        byte cannons = this.getCannonCount();
-
+    /**
+     * Rebuilds the ShipCannon list from the occupied slots.
+     */
+    default void updateCannons() {
         this.getCannons().clear();
-        for (int i = 0; i < cannons; i++) {
-            CannonPosition cannonPosition = this.getCannonPosition(i);
-
-            if(cannonPosition!= null){
-                ShipCannon cannon = new ShipCannon(self(), cannonPosition);
-                this.getCannons().add(cannon);
+        byte count = 0;
+        for (int slot = 0; slot < this.getTotalCannonSlots(); slot++) {
+            if (!this.isCannonInSlot(slot)) continue;
+            CannonPosition cannonPosition = this.getCannonPosition(slot);
+            if (cannonPosition != null) {
+                this.getCannons().add(new ShipCannon(self(), cannonPosition, slot));
+                count++;
             }
         }
-
-        this.setCannonCount(cannons);
+        this.setCannonCount(count);
     }
-    default boolean interactCannon(Player player, InteractionHand interactionHand) {
-        ItemStack item = player.getItemInHand(interactionHand);
-        byte cannonCount = this.getCannonCount();
-        if (item.getItem() == ModItems.CANNON && self() instanceof ContainerShip) {
-            if (cannonCount >= getMaxCannonPerSide() * 2) {
-                return false;
-            }
-            else {
-                this.setCannonCount((byte) (cannonCount + 1));
 
-                self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.5F);
-                if (!player.isCreative()) item.shrink(1);
-
-                this.updateCannonCount();
-            }
-            return true;
-        } else if (item.getItem() instanceof AxeItem && cannonCount > 0) {
-            this.setCannonCount((byte) (cannonCount - 1));
-
-            self().spawnAtLocation(ModItems.CANNON);
-            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), self().getSoundSource(), 15.0F, 1.0F);
-            return true;
-        }
-        return false;
+    /** @deprecated kept as alias, use {@link #updateCannons()} */
+    @Deprecated
+    default void updateCannonCount() {
+        this.updateCannons();
     }
+    // Feature: cannons are mounted/dismounted at the DOCKYARD only,
+    // the old field mounting via right click (interactCannon) was removed.
 
     /* ---------------- ammunition ---------------- */
 

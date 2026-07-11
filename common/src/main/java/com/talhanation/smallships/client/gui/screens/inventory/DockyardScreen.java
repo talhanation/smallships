@@ -2,10 +2,14 @@ package com.talhanation.smallships.client.gui.screens.inventory;
 
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundDockyardBuildPacket;
+import com.talhanation.smallships.network.packet.ServerboundDockyardCannonPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardUpgradePacket;
 import com.talhanation.smallships.world.dockyard.DockyardRecipe;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
+import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.item.ModItems;
+import net.minecraft.world.item.ItemStack;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -47,6 +51,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private Button shipTypeButton;
     private Button woodTypeButton;
     private final List<UpgradeButton> upgradeButtons = new ArrayList<>();
+    private final List<CannonSlotButton> cannonSlotButtons = new ArrayList<>();
 
     public DockyardScreen(DockyardMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -84,6 +89,22 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                     this.onUpgradeClicked(upgrade));
             this.upgradeButtons.add(this.addRenderableWidget(upgradeButton));
         }
+
+        // cannon slot buttons (modify mode, dockyard-only cannon mounting)
+        this.cannonSlotButtons.clear();
+        for (int slot = 0; slot < 6; slot++) {
+            final int s = slot;
+            CannonSlotButton slotButton = new CannonSlotButton(left + 8 + slot * 24, top + 100, slot, button ->
+                    this.onCannonSlotClicked(s));
+            this.cannonSlotButtons.add(this.addRenderableWidget(slotButton));
+        }
+    }
+
+    private void onCannonSlotClicked(int slot) {
+        Ship ship = this.getShip();
+        if (!(ship instanceof Cannonable cannonable)) return;
+        boolean mount = !cannonable.isCannonInSlot(slot);
+        ModPackets.clientSendPacket(new ServerboundDockyardCannonPacket(this.menu.getDockyardPos(), slot, mount));
     }
 
     private void onUpgradeClicked(ShipUpgrade upgrade) {
@@ -123,10 +144,18 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.woodTypeButton.visible = !modify;
         this.buildButton.visible = !modify;
         this.buildButton.active = !busy && this.canAffordSelection();
+        Ship ship = this.getShip();
         for (UpgradeButton button : this.upgradeButtons) {
             button.visible = modify;
             button.active = modify && !busy;
-            button.ship = this.getShip();
+            button.ship = ship;
+        }
+        boolean cannonShip = ship instanceof Cannonable;
+        int totalSlots = cannonShip ? ((Cannonable) ship).getTotalCannonSlots() : 0;
+        for (CannonSlotButton button : this.cannonSlotButtons) {
+            button.visible = modify && cannonShip && button.slot < totalSlots;
+            button.active = button.visible && !busy;
+            button.ship = ship;
         }
     }
 
@@ -141,6 +170,11 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.renderTooltip(guiGraphics, mouseX, mouseY);
 
         for (UpgradeButton button : this.upgradeButtons) {
+            if (button.visible && button.isHoveredOrFocused()) {
+                guiGraphics.renderComponentTooltip(this.font, button.getTooltipLines(), mouseX, mouseY);
+            }
+        }
+        for (CannonSlotButton button : this.cannonSlotButtons) {
             if (button.visible && button.isHoveredOrFocused()) {
                 guiGraphics.renderComponentTooltip(this.font, button.getTooltipLines(), mouseX, mouseY);
             }
@@ -218,6 +252,47 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         Lighting.setupFor3DItems();
 
         guiGraphics.pose().popPose();
+    }
+
+    /**
+     * A cannon slot button: cannon item as icon, green frame when a cannon is
+     * mounted in this slot. Click = mount (costs 1 cannon) / dismount (drops it).
+     */
+    private class CannonSlotButton extends Button {
+        private final int slot;
+        private Ship ship;
+
+        protected CannonSlotButton(int x, int y, int slot, OnPress onPress) {
+            super(x, y, 22, 22, Component.empty(), onPress, DEFAULT_NARRATION);
+            this.slot = slot;
+        }
+
+        private boolean isMounted() {
+            return this.ship instanceof Cannonable cannonable && cannonable.isCannonInSlot(this.slot);
+        }
+
+        @Override
+        protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            boolean mounted = this.isMounted();
+            int frame = mounted ? 0xFF55B14C : (this.isHoveredOrFocused() ? 0xFFFFFFFF : 0xFF777777);
+            guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, frame);
+            guiGraphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, 0xFF2B2B2B);
+            guiGraphics.renderItem(new ItemStack(ModItems.CANNON), this.getX() + 3, this.getY() + 3);
+            if (!mounted) {
+                guiGraphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, 0x88000000);
+            }
+        }
+
+        public List<Component> getTooltipLines() {
+            List<Component> lines = new ArrayList<>();
+            boolean right = this.ship instanceof Cannonable cannonable && cannonable.getCannonPosition(this.slot) != null && cannonable.getCannonPosition(this.slot).isRightSided;
+            lines.add(Component.translatable("gui.smallships.dockyard.cannon_slot", this.slot + 1,
+                    Component.translatable(right ? "gui.smallships.dockyard.starboard" : "gui.smallships.dockyard.port")).withStyle(ChatFormatting.GOLD));
+            lines.add((this.isMounted()
+                    ? Component.translatable("gui.smallships.dockyard.click_remove").withStyle(ChatFormatting.RED)
+                    : Component.translatable("gui.smallships.dockyard.click_mount").withStyle(ChatFormatting.GREEN)));
+            return lines;
+        }
     }
 
     /**

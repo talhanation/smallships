@@ -132,12 +132,13 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     private static final CannonModel cannonModel = new CannonModel();
     @SuppressWarnings({"unused"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        for(byte i = 0; i < cannonShipEntity.getCannonCount(); i++){
-            ShipCannon cannon = new ShipCannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
+        for(int slot = 0; slot < cannonShipEntity.getTotalCannonSlots(); slot++){
+            if (!cannonShipEntity.isCannonInSlot(slot)) continue;
+            ShipCannon cannon = new ShipCannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(slot), slot);
 
-            // broadside aim (Better Cannon Gameplay)
-            float aimRotation = cannonShipEntity.getCannonRotation(cannon.isRightSided());
-            float aimAngle = cannonShipEntity.getCannonAngle(cannon.isRightSided());
+            // per-cannon aim (gunner) with broadside fallback (driver)
+            float aimRotation = cannonShipEntity.getCannonRotation(slot, cannon.isRightSided());
+            float aimAngle = cannonShipEntity.getCannonAngle(slot, cannon.isRightSided());
 
             poseStack.pushPose();
             poseStack.mulPose(Axis.YN.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));

@@ -107,5 +107,9 @@
   "gui.smallships.upgrade.copper_plating.description": "+20% Manövrierfähigkeit",
   "key.smallships.cannon_aim": "Schiffskanonen ausrichten (halten)",
   "key.smallships.cannon_barrel_up": "Kanonenrohr anheben",
-  "key.smallships.cannon_barrel_down": "Kanonenrohr senken"
+  "key.smallships.cannon_barrel_down": "Kanonenrohr senken",
+  "gui.smallships.dockyard.cannon_slot": "Kanonen-Slot %s (%s)",
+  "gui.smallships.dockyard.starboard": "Steuerbord",
+  "gui.smallships.dockyard.port": "Backbord",
+  "gui.smallships.dockyard.click_mount": "Klicken zum Montieren (kostet 1 Kanone)"
 }

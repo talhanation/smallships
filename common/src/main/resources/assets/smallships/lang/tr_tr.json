@@ -107,5 +107,9 @@
   "gui.smallships.upgrade.copper_plating.description": "+20% maneuverability",
   "key.smallships.cannon_aim": "Aim Ship Cannons (hold)",
   "key.smallships.cannon_barrel_up": "Raise Cannon Barrel",
-  "key.smallships.cannon_barrel_down": "Lower Cannon Barrel"
+  "key.smallships.cannon_barrel_down": "Lower Cannon Barrel",
+  "gui.smallships.dockyard.cannon_slot": "Cannon Slot %s (%s)",
+  "gui.smallships.dockyard.starboard": "Starboard",
+  "gui.smallships.dockyard.port": "Port",
+  "gui.smallships.dockyard.click_mount": "Click to mount (costs 1 cannon)"
 }

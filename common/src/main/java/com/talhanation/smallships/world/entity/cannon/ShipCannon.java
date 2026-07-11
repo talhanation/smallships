@@ -27,6 +27,8 @@ public class ShipCannon implements ICannon {
     private final Level level;
     private final Cannon cannon;
 
+    /** the cannon slot this cannon occupies (stable id for aim + gunner seat mapping) */
+    private final int slotIndex;
     private final double offsetX;
     private final double offsetY;
     private final double offsetZ;
@@ -36,6 +38,11 @@ public class ShipCannon implements ICannon {
     private double angle;
 
     public ShipCannon(Ship ship, Cannonable.CannonPosition cannonPosition) {
+        this(ship, cannonPosition, -1);
+    }
+
+    public ShipCannon(Ship ship, Cannonable.CannonPosition cannonPosition, int slotIndex) {
+        this.slotIndex = slotIndex;
         this.ship = ship;
         this.level = ship.level();
         this.offsetX = cannonPosition.x;
@@ -55,8 +62,9 @@ public class ShipCannon implements ICannon {
      */
     public void tick() {
         Cannonable cannonable = (Cannonable) this.ship;
-        float aimAngle = cannonable.getCannonAngle(this.isRightSided);       // -20..60, positive = up
-        float aimRotation = cannonable.getCannonRotation(this.isRightSided); // -10..10, positive = towards bow
+        // per-cannon aim when a gunner mans the mapped seat, broadside aim otherwise
+        float aimAngle = cannonable.getCannonAngle(this.slotIndex, this.isRightSided);       // -20..60, positive = up
+        float aimRotation = cannonable.getCannonRotation(this.slotIndex, this.isRightSided); // -10..10, positive = towards bow
 
         float sideYaw = this.ship.getYRot() + (this.isRightSided ? 90.0F : -90.0F);
         float entityYaw = sideYaw + (this.isRightSided ? -aimRotation : aimRotation);
@@ -84,7 +92,14 @@ public class ShipCannon implements ICannon {
      * Default trigger: shoots with the current broadside aim.
      */
     public void trigger() {
-        Entity driverEntity = this.ship.getControllingPassenger();
+        this.trigger((Entity) this.ship.getControllingPassenger());
+    }
+
+    /**
+     * Fires this cannon with the given shooter (driver volley or gunner).
+     */
+    public void trigger(Entity shooterEntity) {
+        Entity driverEntity = shooterEntity;
         if (driverEntity == null || this.level.isClientSide()) return;
         if (!(this.ship instanceof Cannonable cannonable)) return;
 
@@ -106,6 +121,8 @@ public class ShipCannon implements ICannon {
                 this.cannon.triggerFuze(driverEntity, () -> this.createProjectile(type));
             }
         }
+        // grape shot: additional pellets are spawned by the projectile itself on shoot,
+        // see CannonBallEntity/AbstractCannonBall handling of projectileCount
     }
 
     private CannonBallEntity createProjectile(CannonBallItem.Type type) {
@@ -185,6 +202,10 @@ public class ShipCannon implements ICannon {
 
     public boolean isRightSided() {
         return this.isRightSided;
+    }
+
+    public int getSlotIndex() {
+        return this.slotIndex;
     }
 
     public CompoundTag getData() {

@@ -6,6 +6,10 @@ import com.talhanation.smallships.network.packet.ServerboundShootShipCannonPacke
 import com.talhanation.smallships.network.packet.ServerboundToggleShipSailPacket;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.seat.SeatType;
+import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
+import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.Seatable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import net.minecraft.client.Minecraft;
@@ -13,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class KeyEvent {
     static boolean wasPressedSailKey = false;
+    static boolean wasPressedGunnerKey = false;
 
     public static void onKeyInput(int key, int scanCode, int action, int modifiers) {
         final Player player;
@@ -38,6 +43,16 @@ public class KeyEvent {
         boolean leftKey = client.options.keyLeft.isDown();
         boolean rightKey = client.options.keyRight.isDown();
         if (player.getVehicle() instanceof Ship ship) {
+            // gunner: a player on a CANNON seat fires his mapped cannon with the jump key
+            if (!player.equals(ship.getDriver()) && ship instanceof Seatable seatable && ship instanceof Cannonable) {
+                ShipSeat seat = seatable.getSeatOf(player);
+                if (seat != null && seat.type() == SeatType.CANNON) {
+                    if (pressedJumpKey && !wasPressedGunnerKey) {
+                        ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(true, seat.mappedCannonSlot()));
+                    }
+                    wasPressedGunnerKey = pressedJumpKey;
+                }
+            }
             if (player.equals(ship.getDriver())) { // is driver
                 if(ship instanceof Sailable){
                     if (pressedSailKey && !wasPressedSailKey) {
@@ -50,10 +65,10 @@ public class KeyEvent {
 
                 if (ship instanceof Cannonable cannonable){
                     if(pressedJumpKey)
-                        ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(true));
+                        ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(true, -1));
                     else
                     if (!cannonable.self().isCannonKeyPressed())
-                        ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(false));
+                        ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(false, -1));
                 }
             }
         }
