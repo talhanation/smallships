@@ -1,21 +1,17 @@
 {
-  "category.smallships" : "Small Ships",
+  "category.smallships": "Small Ships",
   "smallships.creative_mode_tab": "Small Ships",
-  "key.smallships.ship_sail" : "Rozwiń/zwiń żagiel",
-  "key.smallships.higher_ship_sail" : "Opuść żagiel",
-  "key.smallships.lower_ship_sail" : "Podnieś żagiel",
-  "key.smallships.ship_inventory" : "Otwórz ekwipunek statku",
-
+  "key.smallships.ship_sail": "Rozwiń/zwiń żagiel",
+  "key.smallships.higher_ship_sail": "Opuść żagiel",
+  "key.smallships.lower_ship_sail": "Podnieś żagiel",
+  "key.smallships.ship_inventory": "Otwórz ekwipunek statku",
   "death.attack.cannon_ball": "%s dostał(a) z armaty.",
   "death.attack.cannon_ball.player": "%s dostał(a) kulą armatnią wystrzeloną przez %s.",
-
   "death.attack.ship_hit": "%s został(a) potrącony/a przez statek.",
   "death.attack.ship_hit.player": "%s został(a) potrącony/a przez %s w statku.",
-
   "item.smallships.sail": "Żagiel",
   "item.smallships.cannon": "Armata",
   "item.smallships.cannon_ball": "Kula armatnia",
-
   "entity.smallships.cog": "Koga",
   "item.smallships.acacia_cog": "Akacjowa koga",
   "item.smallships.birch_cog": "Brzozowa koga",
@@ -26,7 +22,6 @@
   "item.smallships.mangrove_cog": "Namorzynowa koga",
   "item.smallships.cherry_cog": "Wiśniowa koga",
   "item.smallships.bamboo_cog": "Bambusowa koga",
-
   "entity.smallships.galley": "Galera",
   "item.smallships.acacia_galley": "Akacjowa galera",
   "item.smallships.birch_galley": "Brzozowa galera",
@@ -37,7 +32,6 @@
   "item.smallships.mangrove_galley": "Namorzynowa galera",
   "item.smallships.cherry_galley": "Wiśniowa galera",
   "item.smallships.bamboo_galley": "Bambusowa galera",
-
   "entity.smallships.war_galley": "Galera wojenna",
   "item.smallships.acacia_war_galley": "Akacjowa galera wojenna",
   "item.smallships.birch_war_galley": "Brzozowa galera wojenna",
@@ -48,7 +42,6 @@
   "item.smallships.mangrove_war_galley": "Namorzynowa galera wojenna",
   "item.smallships.cherry_war_galley": "Wiśniowa galera wojenna",
   "item.smallships.bamboo_war_galley": "Bambusowa galera wojenna",
-
   "entity.smallships.rowboat": "Łódź wiosłowa",
   "item.smallships.acacia_rowboat": "Akacjowa łódź wiosłowa",
   "item.smallships.birch_rowboat": "Brzozowa łódź wiosłowa",
@@ -59,7 +52,6 @@
   "item.smallships.mangrove_rowboat": "Namorzynowa łódź wiosłowa",
   "item.smallships.cherry_rowboat": "Wiśniowa łódź wiosłowa",
   "item.smallships.bamboo_rowboat": "Bambusowa łódź wiosłowa",
-
   "entity.smallships.drakkar": "Drakkar",
   "item.smallships.acacia_drakkar": "Akacjowy drakkar",
   "item.smallships.birch_drakkar": "Brzozowy drakkar",
@@ -70,7 +62,6 @@
   "item.smallships.mangrove_drakkar": "Namorzynowy drakkar",
   "item.smallships.cherry_drakkar": "Wiśniowy drakkar",
   "item.smallships.bamboo_drakkar": "Bambusowy drakkar",
-
   "entity.smallships.dhow": "Dau",
   "item.smallships.oak_dhow": "Dębowy dau",
   "item.smallships.spruce_dhow": "Świerkowy dau",
@@ -81,7 +72,6 @@
   "item.smallships.mangrove_dhow": "Namorzynowy dau",
   "item.smallships.cherry_dhow": "Wiśniowy dau",
   "item.smallships.bamboo_dhow": "Bambusowy dau",
-
   "entity.smallships.brigg": "Bryg",
   "item.smallships.oak_brigg": "Dębowy bryg",
   "item.smallships.spruce_brigg": "Świerkowy bryg",
@@ -92,7 +82,6 @@
   "item.smallships.mangrove_brigg": "Namorzynowy bryg",
   "item.smallships.cherry_brigg": "Wiśniowy bryg",
   "item.smallships.bamboo_brigg": "Bambusowy bryg",
-
   "tooltip.plane.damage": "Uszkodzenia: %s %%",
   "tooltip.plane.throttle": "Ciąg: %s %%",
   "tooltip.plane.speed": "Prędkość: %s",
@@ -101,16 +90,41 @@
   "key.ship_left": "Skręć statkiem w lewo",
   "key.ship_backward": "Płyń statkiem do przodu",
   "key.ship_forward": "Płyń statkiem do tyłu",
-
   "subtitles.smallships.sail_move": "Ruszanie żaglem",
   "subtitles.smallships.sail_pull": "Ciągnięcie żagla",
   "subtitles.smallships.cannon_shot": "Wystrzał z armaty",
   "subtitles.smallships.ship_hit": "Coś uderza w statek",
-
   "death.attack.cannonBall": "%s dostał(a) z armaty.",
   "death.attack.cannonBall.player": "%s dostał(a) kulą armatnią wystrzeloną przez %s.",
-
   "death.attack.hit_ship": "%s został(a) potrącony/a przez statek.",
   "death.attack.hit_ship.player": "%s został(a) potrącony/a przez %s w statku.",
-  "itemGroup.smallships.smallships": "Small Ships Mod"
+  "itemGroup.smallships.smallships": "Small Ships Mod",
+  "item.smallships.chained_shot": "Chained Shot",
+  "item.smallships.grape_shot": "Grape Shot",
+  "item.smallships.fine_grain_powder": "Fine-Grain Powder",
+  "block.smallships.dockyard": "Dockyard",
+  "item.smallships.chained_shot.tooltip": "25% less range and damage, heavily damages sails",
+  "item.smallships.grape_shot.tooltip": "Short range, devastating against crews",
+  "item.smallships.fine_grain_powder.tooltip": "Consumed on reload: +50% range",
+  "gui.smallships.cannon_aim": "Cannon aim: %s° / rotation: %s°",
+  "gui.smallships.dockyard.build": "Build ship",
+  "gui.smallships.dockyard.ship_type": "Ship: %s",
+  "gui.smallships.dockyard.wood_type": "Wood: %s",
+  "gui.smallships.dockyard.working": "Working...",
+  "gui.smallships.dockyard.missing_materials": "You are missing materials!",
+  "gui.smallships.dockyard.no_water_spot": "No suitable water spot (5x5) nearby!",
+  "gui.smallships.dockyard.no_ship": "No ship within 16 blocks!",
+  "gui.smallships.dockyard.modify_hint": "Nearest ship detected - manage upgrades below",
+  "gui.smallships.dockyard.cost": "Cost: %sx %s",
+  "gui.smallships.dockyard.click_install": "Click to install",
+  "gui.smallships.dockyard.click_remove": "Click to remove",
+  "gui.smallships.upgrade.iron_scantlings": "Iron Scantlings",
+  "gui.smallships.upgrade.iron_scantlings.description": "+100% durability",
+  "gui.smallships.upgrade.cotton_sails": "Cotton Sails",
+  "gui.smallships.upgrade.cotton_sails.description": "+25% ship speed",
+  "gui.smallships.upgrade.copper_plating": "Copper Plating",
+  "gui.smallships.upgrade.copper_plating.description": "+20% maneuverability",
+  "key.smallships.cannon_aim": "Aim Ship Cannons (hold)",
+  "key.smallships.cannon_barrel_up": "Raise Cannon Barrel",
+  "key.smallships.cannon_barrel_down": "Lower Cannon Barrel"
 }

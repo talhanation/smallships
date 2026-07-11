@@ -18,6 +18,7 @@ public class ModParticleTypes {
     public static final Supplier<ParticleType<DyedCannonShootOptions>> DYED_CANNON_SHOOT;
     public static final Supplier<SimpleParticleType> CANNON_BALL_SHOOT;
     public static final Supplier<ParticleType<CustomPoofParticleOptions>> COLORED_POOF;
+    public static final Supplier<SimpleParticleType> WIND_LINE;
 
     static {
         CANNON_SHOOT = register("basic_cannon_shoot");
@@ -26,6 +27,7 @@ public class ModParticleTypes {
         COLORED_POOF = register("colored_poof",
                 CustomPoofParticleOptions.MAP_CODEC, CustomPoofParticleOptions.STREAM_CODEC);
         CANNON_BALL_SHOOT = register("cannon_ball_shoot");
+        WIND_LINE = register("wind_line");
     }
 
     public static Supplier<SimpleParticleType> register(String id) {

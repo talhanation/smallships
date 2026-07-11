@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "smallships:block/dockyard" },
+    "facing=south": { "model": "smallships:block/dockyard", "y": 180 },
+    "facing=west": { "model": "smallships:block/dockyard", "y": 270 },
+    "facing=east": { "model": "smallships:block/dockyard", "y": 90 }
+  }
+}

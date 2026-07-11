@@ -12,6 +12,9 @@ import com.talhanation.smallships.client.model.sail.*;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.client.wind.ClientWindManager;
+import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -126,20 +129,30 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         super.render(shipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 
-    private static final ModelPart cannonModel = CannonModel.createBodyLayer().bakeRoot();
+    private static final CannonModel cannonModel = new CannonModel();
     @SuppressWarnings({"unused"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         for(byte i = 0; i < cannonShipEntity.getCannonCount(); i++){
             ShipCannon cannon = new ShipCannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(i));
 
+            // broadside aim (Better Cannon Gameplay)
+            float aimRotation = cannonShipEntity.getCannonRotation(cannon.isRightSided());
+            float aimAngle = cannonShipEntity.getCannonAngle(cannon.isRightSided());
+
             poseStack.pushPose();
             poseStack.mulPose(Axis.YN.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
             poseStack.translate(cannon.isRightSided() ? -cannon.getOffsetX() : cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), -cannon.getOffsetZ());
 
+            // aim rotation around the cannon's OWN vertical axis (after the translate!)
+            poseStack.mulPose(Axis.YN.rotationDegrees(cannon.isRightSided() ? -aimRotation : aimRotation));
+
             poseStack.scale(0.6F, 0.6F, 0.6F);
 
+            // barrel elevation, mc pitch convention (negative = up)
+            cannonModel.setLaufPitch(-aimAngle);
+
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entitySolid(cannonShipEntity.getTextureLocation()));
-            cannonModel.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+            cannonModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
 
             poseStack.popPose();
         }
@@ -176,7 +189,14 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         if (bannerItemStack.getItem() instanceof BannerItem bannerItem) {
             poseStack.pushPose();
             Bannerable.BannerPosition pos = bannerShipEntity.getBannerPosition();
-            poseStack.mulPose(Axis.YP.rotationDegrees(pos.yp));
+            float bannerYaw = pos.yp;
+            if (SmallShipsConfig.Common.windEnable.get() && SmallShipsConfig.Client.windBannerEnable.get()) {
+                // rotate the banner so it streams in the direction the wind blows to;
+                // the default pos.yp corresponds to the banner streaming backwards (headwind)
+                float windOffset = net.minecraft.util.Mth.wrapDegrees(ClientWindManager.getDirection(partialTicks) - entityYaw - 180.0F);
+                bannerYaw += windOffset * Math.min(1.0F, ClientWindManager.getStrength(partialTicks) * 2.0F);
+            }
+            poseStack.mulPose(Axis.YP.rotationDegrees(bannerYaw));
             poseStack.mulPose(Axis.ZP.rotationDegrees(pos.zp));
             poseStack.translate(pos.x, pos.y, pos.z);
             poseStack.scale(0.5F, 0.5F, 0.5F);
@@ -246,9 +266,16 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     }
     @SuppressWarnings({"unused", "unchecked"})
     private void renderSail(Sailable sailShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        // sail damage system: destroyed sails are not rendered at all,
+        // torn sails (50 HP or below) use the damaged texture variant
+        SailDamage.State sailState = SailDamage.getState(sailShipEntity.self());
+        if (sailState == SailDamage.State.DESTROYED) return;
+
         SailModel sailModel = sailModels.get(sailShipEntity.getClass());
         sailModel.setupAnim(((T)sailShipEntity), partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
-        VertexConsumer vertexConsumer = multiBufferSource.getBuffer(sailModel.renderType(SailModel.getSailColor(sailShipEntity.self().getData(Ship.SAIL_COLOR)).location));
+        SailModel.Color sailColor = SailModel.getSailColor(sailShipEntity.self().getData(Ship.SAIL_COLOR));
+        ResourceLocation sailTexture = sailState == SailDamage.State.TORN ? sailColor.damagedLocation : sailColor.location;
+        VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutoutNoCull(sailTexture));
         sailModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
     }
 

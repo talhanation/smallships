@@ -17,6 +17,10 @@ public class ModItems {
 
     public static final Item CANNON = getItem("cannon");
     public static final CannonBallItem CANNON_BALL = (CannonBallItem) getItem("cannon_ball");
+    public static final CannonBallItem CHAINED_SHOT = (CannonBallItem) getItem("chained_shot");
+    public static final CannonBallItem GRAPE_SHOT = (CannonBallItem) getItem("grape_shot");
+    public static final Item FINE_GRAIN_POWDER = getItem("fine_grain_powder");
+    public static final Item DOCKYARD = getItem("dockyard");
 
     public static final Map<Boat.Type, Item> COG_ITEMS = new HashMap<>(Boat.Type.values().length);
     public static final Map<Boat.Type, Item> BRIGG_ITEMS = new HashMap<>(Boat.Type.values().length);

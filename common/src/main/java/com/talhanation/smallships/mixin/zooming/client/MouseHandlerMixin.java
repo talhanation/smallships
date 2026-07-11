@@ -1,6 +1,7 @@
 package com.talhanation.smallships.mixin.zooming.client;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
@@ -20,6 +21,26 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(MouseHandler.class)
 public class MouseHandlerMixin {
     @Shadow @Final private Minecraft minecraft;
+
+    @Shadow private double accumulatedDX;
+    @Shadow private double accumulatedDY;
+
+    /**
+     * Better Cannon Gameplay: while the ship driver holds right click, the
+     * accumulated mouse movement adjusts the broadside cannon aim instead of
+     * turning the camera.
+     * Note: in 1.20.3+ mojmap the method that applies the accumulated mouse
+     * movement to the player is called "handleAccumulatedMovement".
+     */
+    @Inject(method = "handleAccumulatedMovement", at = @At("HEAD"), cancellable = true)
+    private void smallships$captureAimMovement(CallbackInfo ci) {
+        if (CannonAimHandler.isAiming()) {
+            CannonAimHandler.handleMouseDelta(this.accumulatedDX, this.accumulatedDY);
+            this.accumulatedDX = 0.0D;
+            this.accumulatedDY = 0.0D;
+            ci.cancel();
+        }
+    }
 
     @Unique private boolean smallships$shouldCancel;
 

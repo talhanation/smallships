@@ -32,9 +32,12 @@ public abstract class SailModel extends EntityModel<Ship> {
         BLACK(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/sail/black_sail.png"));
 
         public final ResourceLocation location;
+        /** torn variant of the sail texture, used at 50 sail HP or below */
+        public final ResourceLocation damagedLocation;
 
         Color(ResourceLocation location) {
             this.location = location;
+            this.damagedLocation = ResourceLocation.fromNamespaceAndPath(location.getNamespace(), location.getPath().replace("_sail.png", "_sail_damaged.png"));
         }
 
         @Override

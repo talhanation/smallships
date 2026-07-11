@@ -21,6 +21,17 @@ import java.util.List;
 public abstract class BoatMixin {
     @Shadow protected abstract void controlBoat();
 
+    /**
+     * Better Ship Camera: skip the vanilla passenger rotation clamp for ships,
+     * so a full 360 degree view around the ship is possible.
+     */
+    @Inject(method = "clampRotation", at = @At("HEAD"), cancellable = true)
+    private void smallships$skipRotationClampForShips(Entity entity, CallbackInfo ci) {
+        if (((Boat)(Object)this) instanceof Ship && SmallShipsConfig.Common.shipGeneralCameraFreeLook.get()) {
+            ci.cancel();
+        }
+    }
+
 
     @SuppressWarnings("ConstantValue")
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;tickLerp()V"))

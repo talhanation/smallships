@@ -3,6 +3,8 @@ package com.talhanation.smallships.forge;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.forge.events.PassengerEvents;
+import com.talhanation.smallships.world.block.forge.ModBlockEntityTypesImpl;
+import com.talhanation.smallships.world.block.forge.ModBlocksImpl;
 import com.talhanation.smallships.world.entity.forge.ModEntityTypesImpl;
 import com.talhanation.smallships.world.inventory.forge.ModMenuTypesImpl;
 import com.talhanation.smallships.world.item.forge.ModItemsImpl;
@@ -28,11 +30,14 @@ public class SmallshipsModForge {
 
         ModItemsImpl.ITEMS.register(modEventBus);
         if (hasCustomItemGroup) ModItemsImpl.CREATIVE_MODE_TABS.register(modEventBus);
+        ModBlocksImpl.BLOCKS.register(modEventBus);
+        ModBlockEntityTypesImpl.BLOCK_ENTITY_TYPES.register(modEventBus);
         ModEntityTypesImpl.ENTITY_TYPES.register(modEventBus);
         ModMenuTypesImpl.MENU_TYPES.register(modEventBus);
         ModSoundTypesImpl.SOUND_EVENTS.register(modEventBus);
         ModParticleTypesImpl.PARTICLE_TYPES.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(new PassengerEvents());
+        MinecraftForge.EVENT_BUS.register(new com.talhanation.smallships.forge.events.WindEvents());
     }
 }

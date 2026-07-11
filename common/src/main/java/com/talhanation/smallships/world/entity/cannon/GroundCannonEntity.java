@@ -58,6 +58,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     private static final EntityDataAccessor<Boolean> BACKWARD = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> BARREL_UP = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> BARREL_DOWN = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> HEALTH = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     @Nullable
@@ -65,6 +67,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     private long lootTableSeed;
     private final Cannon cannon = new Cannon(this);
     public float maxSpeedInKmH = 7F;// 7km/h
+    /** barrel elevation speed in degrees per tick (key-only aiming) */
+    private static final float BARREL_PITCH_SPEED = 0.75F;
     private float maxSpeed = maxSpeedInKmH / (60F * 1.15F);
 
     private float wheelRotation;
@@ -82,6 +86,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     public GroundCannonEntity(Level level, Vec3 pos) {
         super(ModEntityTypes.GROUND_CANNON, level);
+        this.cannon.setPitchBounds(-60.0F, 20.0F);
         this.setPos(pos);
         recalculateBoundingBox();
         this.inventory = new SimpleContainer(1);
@@ -89,6 +94,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     public GroundCannonEntity(EntityType<? extends Entity> entityType, Level level) {
         super(entityType, level);
+        this.cannon.setPitchBounds(-60.0F, 20.0F);
     }
 
     public Item getDropItem() {
@@ -113,6 +119,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         builder.define(BACKWARD, false);
         builder.define(LEFT, false);
         builder.define(RIGHT, false);
+        builder.define(BARREL_UP, false);
+        builder.define(BARREL_DOWN, false);
         builder.define(SPEED, 0F);
         builder.define(HEALTH, 100F);
     }
@@ -278,8 +286,9 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     }
 
     public void control(Entity driver, float xRot, float yRot) {
+        float speed = Kalkuel.subtractToZero(getSpeed(), getRollResistance());
         if(driver != null) {
-            float speed = Kalkuel.subtractToZero(getSpeed(), getRollResistance());
+
             if (isForward()) {
                 if (speed <= maxSpeed) {
                     speed = Math.min(speed + 0.01F, maxSpeed);
@@ -291,33 +300,28 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
                     speed = Math.max(speed - 0.01F, -maxSpeed);
                 }
             }
+            // key-only aiming: A/D rotate the cannon around its own axis,
+            // the barrel up/down keys change the elevation. The driver's mouse
+            // view is completely decoupled and free.
             deltaRotation = 0;
-            if(isLeft()||isRight()){
-                if(isLeft()){
-                    --deltaRotation;
-                }
-
-                if(isRight()){
-                    ++deltaRotation;
-                }
+            if(isLeft()){
+                --deltaRotation;
             }
-            else{
-                yRot = driver.getYRot();
+            if(isRight()){
+                ++deltaRotation;
             }
             float newYRot = yRot + this.deltaRotation;
 
-             xRot = driver.getXRot();
-            xRot = Math.clamp(xRot, -90, 20);
+            if (isBarrelUp()) {
+                xRot -= BARREL_PITCH_SPEED;
+            }
+            if (isBarrelDown()) {
+                xRot += BARREL_PITCH_SPEED;
+            }
+            xRot = Math.clamp(xRot, -60, 20);
 
             this.setXRot(xRot);
             this.setYRot(newYRot);
-            driver.setYRot(newYRot);
-
-
-
-            this.setSpeed(speed);
-
-            setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
         }
         else {
             setForward(false);
@@ -325,6 +329,9 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             setLeft(false);
             setRight(false);
         }
+
+        this.setSpeed(speed);
+        setDeltaMovement(Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()), getDeltaMovement().y, Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()));
     }
 
     private float getRollResistance() {
@@ -358,7 +365,48 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             needsUpdate = true;
         }
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && livingEntity instanceof Player) {
-            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(forward, backward, left, right));
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(forward, backward, left, right, this.isBarrelUp(), this.isBarrelDown()));
+        }
+    }
+
+
+    public void setBarrelUp(boolean up) {
+        entityData.set(BARREL_UP, up);
+    }
+
+    public void setBarrelDown(boolean down) {
+        entityData.set(BARREL_DOWN, down);
+    }
+
+    public boolean isBarrelUp() {
+        if (this.getDriver() == null) return false;
+        return entityData.get(BARREL_UP);
+    }
+
+    public boolean isBarrelDown() {
+        if (this.getDriver() == null) return false;
+        return entityData.get(BARREL_DOWN);
+    }
+
+    /**
+     * Key-only barrel elevation. Kept separate from updateControls so the
+     * reflection signature used by the Workers/Recruits mod stays stable.
+     */
+    public void updateBarrelControls(boolean barrelUp, boolean barrelDown, @Nullable LivingEntity livingEntity) {
+        boolean needsUpdate = false;
+
+        if (this.isBarrelUp() != barrelUp) {
+            this.setBarrelUp(barrelUp);
+            needsUpdate = true;
+        }
+
+        if (this.isBarrelDown() != barrelDown) {
+            this.setBarrelDown(barrelDown);
+            needsUpdate = true;
+        }
+
+        if (this.getCommandSenderWorld().isClientSide && needsUpdate && livingEntity instanceof Player) {
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), barrelUp, barrelDown));
         }
     }
 
@@ -435,13 +483,24 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         if (canFuze) {
             /* consume the cannonball, if it's available, and shoot it after a delay.
              * If no cannonball is available, try to shoot an entity from the barrel if it is still available after fuzing */
+            final CannonBallItem.Type ballType = cannonBallToShoot != null ? cannonBallToShoot.getType() : CannonBallItem.Type.BALL;
             if (cannonBallToShoot != null) {
                 this.consumeCannonBall();
+
+                float speedMultiplier = ballType.speedMultiplier;
+                if (this.consumeFineGrainPowder()) {
+                    speedMultiplier *= 1.5F;
+                }
+                this.cannon.setSpeedMultiplier(speedMultiplier);
+            } else {
+                this.cannon.setSpeedMultiplier(1.0F);
             }
 
             this.cannon.triggerFuze(triggeredBy, () -> {
                 if (cannonBallToShoot != null) {
-                    return new CannonBallEntity(this.level());
+                    CannonBallEntity ball = new CannonBallEntity(this.level());
+                    ball.setBallType(ballType);
+                    return ball;
                 } else {
                     return (ICannonProjectile) this.getPassengerInBarrel();
                 }
@@ -471,17 +530,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     @Override
     public void onPassengerTurned(Entity entity) {
         super.onPassengerTurned(entity);
-
-
-        /* slow down turn movement */
-        float prevXRot = ((IMixinEntity) entity).getPrevXRot();
-        float prevYRot = ((IMixinEntity) entity).getPrevYRot();
-        float yRotChange = Math.clamp(0.1F * (entity.getYRot() - prevYRot), -5, 5);
-        float xRotChange = Math.clamp(0.1F * (entity.getXRot() - prevXRot), -5, 5);
-        entity.setYRot(prevYRot + yRotChange);
-        entity.setYBodyRot(prevYRot + yRotChange);
-        entity.xRotO = prevXRot + xRotChange;
-        entity.setXRot(Math.clamp(prevXRot + xRotChange, -90, 20));
+        // the cannon is aimed with keys only now, the driver's view is free -
+        // the former slow-turn drag of the passenger rotation was removed.
     }
 
     @Override
@@ -538,12 +588,30 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             container.consumeCannonBall();
         } else if (this.getDriver() instanceof Player player) {
             for (ItemStack itemstack : player.getInventory().items) {
-                if (itemstack.is((ModItems.CANNON_BALL))) {
+                if (itemstack.getItem() instanceof CannonBallItem) {
                     itemstack.shrink(1);
                     break;
                 }
             }
         }
+    }
+
+
+    /**
+     * Tries to consume one fine grain powder from the driver's inventory.
+     * @return true if consumed, the shot then gains 50% projectile speed.
+     */
+    public boolean consumeFineGrainPowder() {
+        if (this.getDriver() instanceof Player player) {
+            if (player.hasInfiniteMaterials()) return false;
+            for (ItemStack itemstack : player.getInventory().items) {
+                if (itemstack.is(ModItems.FINE_GRAIN_POWDER)) {
+                    itemstack.shrink(1);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -571,7 +639,10 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         if (this.getDriver() instanceof ICannonBallSource container) {
             return container.getCannonBallToShoot();
         } else if (this.getDriver() instanceof Player player) {
-            return player.getInventory().items.stream().anyMatch(itemStack -> itemStack.getItem().equals(ModItems.CANNON_BALL)) ? ModItems.CANNON_BALL : null;
+            for (ItemStack itemStack : player.getInventory().items) {
+                if (itemStack.getItem() instanceof CannonBallItem cannonBallItem) return cannonBallItem;
+            }
+            return null;
         } else {
             return null;
         }

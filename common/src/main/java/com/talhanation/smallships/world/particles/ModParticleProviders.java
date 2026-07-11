@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.particles;
 import com.talhanation.smallships.world.particles.cannon.CannonBallShootParticles;
 import com.talhanation.smallships.world.particles.cannon.CannonPoofParticles;
 import com.talhanation.smallships.world.particles.custom.CustomPoofParticle;
+import com.talhanation.smallships.world.particles.wind.WindLineParticle;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
@@ -18,6 +19,7 @@ public class ModParticleProviders {
         register(ModParticleTypes.DYED_CANNON_SHOOT.get(), CannonPoofParticles.DyedProvider::new);
         register(ModParticleTypes.COLORED_POOF.get(), CustomPoofParticle.Provider::new);
         register(ModParticleTypes.CANNON_BALL_SHOOT.get(), CannonBallShootParticles.Provider::new);
+        register(ModParticleTypes.WIND_LINE.get(), (java.util.function.Function<net.minecraft.client.particle.SpriteSet, net.minecraft.client.particle.ParticleProvider<net.minecraft.core.particles.SimpleParticleType>>) WindLineParticle.Provider::new);
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Supplier<ParticleProvider<T>> providerConstructor) {

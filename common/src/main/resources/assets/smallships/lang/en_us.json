@@ -1,21 +1,17 @@
 {
-  "category.smallships" : "Small Ships",
+  "category.smallships": "Small Ships",
   "smallships.creative_mode_tab": "Small Ships Mod",
-  "key.smallships.ship_sail" : "Toggle Sail",
-  "key.smallships.higher_ship_sail" : "Higher Sail",
-  "key.smallships.lower_ship_sail" : "Lower Sail",
-  "key.smallships.ship_inventory" : "Open Ship Inventory",
-
+  "key.smallships.ship_sail": "Toggle Sail",
+  "key.smallships.higher_ship_sail": "Higher Sail",
+  "key.smallships.lower_ship_sail": "Lower Sail",
+  "key.smallships.ship_inventory": "Open Ship Inventory",
   "death.attack.cannon_ball": "%s was shot with a cannon.",
   "death.attack.cannon_ball.player": "%s was shot with a cannon by %s.",
-
   "death.attack.ship_hit": "%s was hit by a ship.",
   "death.attack.ship_hit.player": "%s was hit by %s with a ship.",
-
   "item.smallships.sail": "Sail",
   "item.smallships.cannon": "Ship Cannon",
   "item.smallships.cannon_ball": "Cannon Ball",
-
   "entity.smallships.cog": "Cog",
   "item.smallships.acacia_cog": "Acacia Cog",
   "item.smallships.birch_cog": "Birch Cog",
@@ -26,7 +22,6 @@
   "item.smallships.mangrove_cog": "Mangrove Cog",
   "item.smallships.cherry_cog": "Cherry Cog",
   "item.smallships.bamboo_cog": "Bamboo Cog",
-
   "entity.smallships.galley": "Galley",
   "item.smallships.acacia_galley": "Acacia Galley",
   "item.smallships.birch_galley": "Birch Galley",
@@ -37,7 +32,6 @@
   "item.smallships.mangrove_galley": "Mangrove Galley",
   "item.smallships.cherry_galley": "Cherry Galley",
   "item.smallships.bamboo_galley": "Bamboo Galley",
-
   "entity.smallships.war_galley": "War Galley",
   "item.smallships.acacia_war_galley": "Acacia War Galley",
   "item.smallships.birch_war_galley": "Birch War Galley",
@@ -48,7 +42,6 @@
   "item.smallships.mangrove_war_galley": "Mangrove War Galley",
   "item.smallships.cherry_war_galley": "Cherry War Galley",
   "item.smallships.bamboo_war_galley": "Bamboo War Galley",
-
   "entity.smallships.rowboat": "Rowing Boat",
   "item.smallships.acacia_rowboat": "Acacia Rowing Boat",
   "item.smallships.birch_rowboat": "Birch Rowing Boat",
@@ -59,7 +52,6 @@
   "item.smallships.mangrove_rowboat": "Mangrove Rowing Boat",
   "item.smallships.cherry_rowboat": "Cherry Rowing Boat",
   "item.smallships.bamboo_rowboat": "Bamboo Rowing Boat",
-
   "entity.smallships.drakkar": "Drakkar",
   "item.smallships.acacia_drakkar": "Acacia Drakkar",
   "item.smallships.birch_drakkar": "Birch Drakkar",
@@ -70,7 +62,6 @@
   "item.smallships.mangrove_drakkar": "Mangrove Drakkar",
   "item.smallships.cherry_drakkar": "Cherry Drakkar",
   "item.smallships.bamboo_drakkar": "Bamboo Drakkar",
-
   "entity.smallships.dhow": "Dhow",
   "item.smallships.oak_dhow": "Oak Dhow",
   "item.smallships.spruce_dhow": "Spruce Dhow",
@@ -81,7 +72,6 @@
   "item.smallships.mangrove_dhow": "Mangrove Dhow",
   "item.smallships.cherry_dhow": "Cherry Dhow",
   "item.smallships.bamboo_dhow": "Bamboo Dhow",
-
   "entity.smallships.brigg": "Brigg",
   "item.smallships.oak_brigg": "Oak Brigg",
   "item.smallships.spruce_brigg": "Spruce Brigg",
@@ -92,7 +82,6 @@
   "item.smallships.mangrove_brigg": "Mangrove Brigg",
   "item.smallships.cherry_brigg": "Cherry Brigg",
   "item.smallships.bamboo_brigg": "Bamboo Brigg",
-
   "tooltip.plane.damage": "Damage: %s %%",
   "tooltip.plane.throttle": "Throttle: %s %%",
   "tooltip.plane.speed": "Speed: %s",
@@ -101,11 +90,37 @@
   "key.ship_left": "Steer left with ship",
   "key.ship_backward": "Steer backwards with ship",
   "key.ship_forward": "Steer forwards with ship",
-
   "subtitles.smallships.sail_move": "Sail moves",
   "subtitles.smallships.sail_pull": "Sail is pulled",
   "subtitles.smallships.cannon_shot": "Cannon shoots",
   "subtitles.smallships.ship_hit": "Ship gets hit",
-
-  "container.dockyard": "Dockyard"
+  "container.dockyard": "Dockyard",
+  "item.smallships.chained_shot": "Chained Shot",
+  "item.smallships.grape_shot": "Grape Shot",
+  "item.smallships.fine_grain_powder": "Fine-Grain Powder",
+  "block.smallships.dockyard": "Dockyard",
+  "item.smallships.chained_shot.tooltip": "25% less range and damage, heavily damages sails",
+  "item.smallships.grape_shot.tooltip": "Short range, devastating against crews",
+  "item.smallships.fine_grain_powder.tooltip": "Consumed on reload: +50% range",
+  "gui.smallships.cannon_aim": "Cannon aim: %s° / rotation: %s°",
+  "gui.smallships.dockyard.build": "Build ship",
+  "gui.smallships.dockyard.ship_type": "Ship: %s",
+  "gui.smallships.dockyard.wood_type": "Wood: %s",
+  "gui.smallships.dockyard.working": "Working...",
+  "gui.smallships.dockyard.missing_materials": "You are missing materials!",
+  "gui.smallships.dockyard.no_water_spot": "No suitable water spot (5x5) nearby!",
+  "gui.smallships.dockyard.no_ship": "No ship within 16 blocks!",
+  "gui.smallships.dockyard.modify_hint": "Nearest ship detected - manage upgrades below",
+  "gui.smallships.dockyard.cost": "Cost: %sx %s",
+  "gui.smallships.dockyard.click_install": "Click to install",
+  "gui.smallships.dockyard.click_remove": "Click to remove",
+  "gui.smallships.upgrade.iron_scantlings": "Iron Scantlings",
+  "gui.smallships.upgrade.iron_scantlings.description": "+100% durability",
+  "gui.smallships.upgrade.cotton_sails": "Cotton Sails",
+  "gui.smallships.upgrade.cotton_sails.description": "+25% ship speed",
+  "gui.smallships.upgrade.copper_plating": "Copper Plating",
+  "gui.smallships.upgrade.copper_plating.description": "+20% maneuverability",
+  "key.smallships.cannon_aim": "Aim Ship Cannons (hold)",
+  "key.smallships.cannon_barrel_up": "Raise Cannon Barrel",
+  "key.smallships.cannon_barrel_down": "Lower Cannon Barrel"
 }

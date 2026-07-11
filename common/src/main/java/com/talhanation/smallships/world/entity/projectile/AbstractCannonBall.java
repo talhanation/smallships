@@ -2,6 +2,11 @@ package com.talhanation.smallships.world.entity.projectile;
 
 
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.world.item.CannonBallItem;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
@@ -26,6 +31,7 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 public abstract class AbstractCannonBall extends AbstractHurtingProjectile implements ICannonProjectile {
+    private static final EntityDataAccessor<Byte> BALL_TYPE = SynchedEntityData.defineId(AbstractCannonBall.class, EntityDataSerializers.BYTE);
     public boolean inWater = false;
     public boolean wasShot = false;
     public int counter = 0;
@@ -40,6 +46,27 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
     }
 
     @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(BALL_TYPE, CannonBallItem.Type.BALL.id);
+    }
+
+    public CannonBallItem.Type getBallType() {
+        return CannonBallItem.Type.byId(this.entityData.get(BALL_TYPE));
+    }
+
+    public void setBallType(CannonBallItem.Type type) {
+        this.entityData.set(BALL_TYPE, type.id);
+    }
+
+    /**
+     * Creates a sibling projectile of the same class, used for grape shot pellets.
+     */
+    protected AbstractCannonBall createSibling() {
+        return new CannonBallEntity(this.level());
+    }
+
+    @Override
     public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, Entity shooter) {
         Vector3f deltaMovement = direction.normalize().mul((float) this.accelerationPower);
         this.setOwner(shooter);
@@ -50,6 +77,20 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
 
         this.shoot(direction.x(), direction.y(), direction.z(), cannonSpeedMultiplier, cannonAccuracy);
         this.level().addFreshEntity(this);
+
+        // grape shot: spawn additional pellets with spread
+        CannonBallItem.Type type = this.getBallType();
+        for (int i = 1; i < type.projectileCount; i++) {
+            AbstractCannonBall pellet = this.createSibling();
+            pellet.setBallType(type);
+            pellet.setOwner(shooter);
+            pellet.moveTo(startPos.x, startPos.y, startPos.z, pellet.getYRot(), pellet.getXRot());
+            pellet.reapplyPosition();
+            pellet.setDeltaMovement(deltaMovement.x, deltaMovement.y, deltaMovement.z);
+            pellet.hasImpulse = true;
+            pellet.shoot(direction.x(), direction.y(), direction.z(), cannonSpeedMultiplier, cannonAccuracy + 6.0F);
+            this.level().addFreshEntity(pellet);
+        }
     }
 
     @Override
@@ -100,6 +141,11 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
             this.discard();
         }
 
+        // grape shot pellets have a much shorter range
+        if (this.getBallType() == CannonBallItem.Type.GRAPE && counter > 40) {
+            this.discard();
+        }
+
         if (wasShot){
             counter++;
         }
@@ -129,7 +175,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
         if (!this.level().isClientSide()) {
             boolean doesSpreadFire = false;
 
-            if(!isInWater()) this.level().explode(this.getOwner(), getX(), getY(), getZ(), SmallShipsConfig.Common.shipGeneralCannonDestruction.get().floatValue(), doesSpreadFire, Level.ExplosionInteraction.MOB);
+            if(!isInWater()) this.level().explode(this.getOwner(), getX(), getY(), getZ(), SmallShipsConfig.Common.shipGeneralCannonDestruction.get().floatValue() * this.getBallType().damageMultiplier, doesSpreadFire, Level.ExplosionInteraction.MOB);
             this.remove(RemovalReason.KILLED);
         }
     }
@@ -147,17 +193,22 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
         if (!this.level().isClientSide()) {
             Entity hitEntity = hitResult.getEntity();
             Entity ownerEntity = this.getOwner();
-
+            if(ownerEntity == null) return;
             if (hitEntity instanceof Ship shipHitEntity) {
-                shipHitEntity.hurt(this.damageSources().thrown(this, ownerEntity), random.nextInt(7) + 7);
-                this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+                if(shipHitEntity.getControllingPassenger() != null &&  ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(shipHitEntity.getControllingPassenger()) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
+
+                float shipDamage = (random.nextInt(7) + 7) * this.getBallType().damageMultiplier;
+                shipHitEntity.hurt(this.damageSources().thrown(this, ownerEntity), shipDamage);
+                SailDamage.applyCannonHit(shipHitEntity, shipDamage, this.getBallType());
             }
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
-                if(ownerEntity.getTeam() != null && ownerEntity.getTeam().isAlliedTo(hitEntity.getTeam()) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
+                if(ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
+
                 this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE.value(), this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
 
-            hitEntity.hurt(this.damageSources().thrown(this, ownerEntity), SmallShipsConfig.Common.shipGeneralCannonDamage.get().floatValue());
+            float damageMultiplier = hitEntity instanceof LivingEntity ? this.getBallType().livingDamageMultiplier : this.getBallType().damageMultiplier;
+            hitEntity.hurt(this.damageSources().thrown(this, ownerEntity), SmallShipsConfig.Common.shipGeneralCannonDamage.get().floatValue() * damageMultiplier);
         }
     }
 

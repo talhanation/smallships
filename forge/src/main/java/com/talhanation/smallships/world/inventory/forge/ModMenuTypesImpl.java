@@ -1,7 +1,9 @@
 package com.talhanation.smallships.world.inventory.forge;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -29,6 +31,9 @@ public class ModMenuTypesImpl {
 
         entries.put("cannon_container", MENU_TYPES.register("cannon_container",
                 () -> IForgeMenuType.create((int syncId, Inventory inventory, FriendlyByteBuf shipUUID) -> ModMenuTypes.groundCannonContainerMenuTypeSupplier(syncId, inventory, shipUUID.readUUID()))));
+
+        entries.put("dockyard", MENU_TYPES.register("dockyard",
+                () -> new MenuType<>(DockyardMenu::new, FeatureFlags.VANILLA_SET)));
 
     }
 }

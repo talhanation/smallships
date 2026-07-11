@@ -14,6 +14,7 @@ import java.util.UUID;
 public class ModMenuTypes {
     public static final MenuType<ShipContainerMenu> SHIP_CONTAINER = getMenuType("ship_container");
     public static final MenuType<GroundCannonContainerMenu> CANNON_CONTAINER = getMenuType("cannon_container");
+    public static final MenuType<DockyardMenu> DOCKYARD = getMenuType("dockyard");
     @ExpectPlatform
     public static <T extends AbstractContainerMenu> MenuType<T> getMenuType(String id) {
         throw new AssertionError();
@@ -42,7 +43,7 @@ public class ModMenuTypes {
 
 
         //check if clientside container size is equal to serverside container size
-        if (groundCannon.getContainer() != containerShip.getItemStacks().size()) containerShip.resizeContainer(containerShip.getContainerSize());
+        //if (groundCannon.getContainer() != containerShip.getItemStacks().size()) containerShip.resizeContainer(containerShip.getContainerSize());
 
         return new GroundCannonContainerMenu(ModMenuTypes.CANNON_CONTAINER, syncId, groundCannon, inventory);
     }

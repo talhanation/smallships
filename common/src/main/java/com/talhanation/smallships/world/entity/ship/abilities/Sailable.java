@@ -2,6 +2,8 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -22,6 +24,7 @@ public interface Sailable extends Ability {
         CompoundTag compoundTag = tag.getCompound("Sail");
         self().setData(SAIL_STATE, compoundTag.getByte("State"));
         self().setData(Ship.SAIL_COLOR, compoundTag.getString("Color"));
+        SailDamage.readSaveData(self(), compoundTag);
 
     }
 
@@ -29,6 +32,7 @@ public interface Sailable extends Ability {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.putInt("State", self().getData(SAIL_STATE));
         compoundTag.putString("Color", self().getData(Ship.SAIL_COLOR));
+        SailDamage.addSaveData(self(), compoundTag);
         tag.put("Sail", compoundTag);
     }
 
@@ -64,6 +68,9 @@ public interface Sailable extends Ability {
     }
 
     default boolean interactSail(Player player, InteractionHand interactionHand) {
+        // sail repair with wool has priority over dyeing
+        if (SailDamage.interactRepair(self(), player, interactionHand)) return true;
+
         ItemStack item = player.getItemInHand(interactionHand);
         if (item.getItem() instanceof DyeItem dyeItem) {
             String color = dyeItem.getDyeColor().getName();

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "B B",
+    " C ",
+    "B B"
+  ],
+  "key": {
+    "B": {
+      "item": "smallships:cannon_ball"
+    },
+    "C": {
+      "item": "minecraft:chain"
+    }
+  },
+  "result": {
+    "id": "smallships:chained_shot",
+    "count": 2
+  }
+}

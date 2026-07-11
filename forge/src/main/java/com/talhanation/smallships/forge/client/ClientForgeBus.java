@@ -4,6 +4,7 @@ import com.talhanation.smallships.SmallShipsMod;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -14,5 +15,11 @@ public class ClientForgeBus {
     static void initRegisterInputEvents(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
         com.talhanation.smallships.client.option.KeyEvent.onKeyInput(client);
+    }
+
+    @SubscribeEvent
+    static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        com.talhanation.smallships.client.ClientTickHandler.onClientTick(Minecraft.getInstance());
     }
 }

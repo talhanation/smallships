@@ -1,10 +1,14 @@
 package com.talhanation.smallships.world.block.fabric;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.block.DockyardBlock;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +21,10 @@ public class ModBlocksImpl {
     }
 
     static {
-        //register("sail", new SailItem((new Item.Properties()).stacksTo(16)));
-
+        register(DockyardBlock.ID, new DockyardBlock(BlockBehaviour.Properties.of()
+                .mapColor(MapColor.WOOD)
+                .strength(2.5F)
+                .sound(SoundType.WOOD)));
     }
 
     private static void register(String id, Block block) {

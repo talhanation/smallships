@@ -49,7 +49,9 @@ public class Cannon {
     private Vector3d pos = new Vector3d();
     private final float barrelHeight = 0.3F;
     private final float speed = 2.6F;
-
+    private float speedMultiplier;
+    private float pitchBoundUp;
+    private float pitchBoundDown;
     public Cannon(ICannon owner) {
         this.owner = owner;
         this.level = owner.getLevel();
@@ -77,7 +79,7 @@ public class Cannon {
     }
 
     public void setPitch(float pitch) {
-        this.pitch = Math.clamp(pitch, -90, 20);;
+        this.pitch = Math.clamp(pitch, this.pitchBoundUp, this.pitchBoundDown);
     }
 
     public Vector3d getForward() {
@@ -161,7 +163,7 @@ public class Cannon {
         if (!(this.level instanceof ServerLevel serverLevel) || this.isCooldown() || this.isFuzing()) return;
         this.setCoolDown();
         Vector3d forward = this.getForward();
-        projectile.shootAndSpawn(this, this.getBarrelEndPoint(), VectorMath.castToVector3f(forward), this.speed, 1, shooter);
+        projectile.shootAndSpawn(this, this.getBarrelEndPoint(), VectorMath.castToVector3f(forward), this.speed * this.speedMultiplier, 1, shooter);
         this.playCannonShotSound();
 
         Vector3d particlePos = this.getBarrelEndPoint();
@@ -192,5 +194,14 @@ public class Cannon {
     private void playFuzeSound() {
         if (this.level.isClientSide()) return;
         this.owner.playSoundAt(SoundEvents.TNT_PRIMED, 1F, 1.5F);
+    }
+
+    public void setPitchBounds(float up, float down) {
+        this.pitchBoundUp = up;
+        this.pitchBoundDown = down;
+    }
+
+    public void setSpeedMultiplier(float multiplier) {
+        this.speedMultiplier = multiplier;
     }
 }

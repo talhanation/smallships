@@ -48,11 +48,13 @@ public interface Bannerable extends Ability {
     }
 
     default float getBannerWaveFactor() {
-        return self().level().isRaining() ? 4.5F : 3.0F;
+        float base = self().level().isRaining() ? 4.5F : 3.0F;
+        return base * (0.5F + self().getWind().strength());
     }
 
     default float getBannerWaveSpeed() {
-        return self().level().isRaining() ? 0.55F : 0.25F;
+        float base = self().level().isRaining() ? 0.55F : 0.25F;
+        return base * (0.5F + self().getWind().strength());
     }
 
     default float getBannerWaveAngle(float partialTicks) {

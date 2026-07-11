@@ -13,6 +13,7 @@
     "container.SimpleContainerAccessor",
     "controlling.BoatAccessor",
     "controlling.BoatMixin",
+    "vanillaboat.BoatSpeedMixin",
     "entity.EntityMixin",
     "entity.LivingEntityMixin",
     "entity.ServerEntityMixin"

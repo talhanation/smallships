@@ -40,6 +40,10 @@ public class ModItemsImpl {
 
         register("cannon", () -> new CannonItem((new Item.Properties()).stacksTo(1)));
         register("cannon_ball", () -> new CannonBallItem((new Item.Properties()).stacksTo(16)));
+        register("chained_shot", () -> new CannonBallItem(CannonBallItem.Type.CHAINED, (new Item.Properties()).stacksTo(16)));
+        register("grape_shot", () -> new CannonBallItem(CannonBallItem.Type.GRAPE, (new Item.Properties()).stacksTo(16)));
+        register("fine_grain_powder", () -> new Item(new Item.Properties()));
+        register("dockyard", () -> new net.minecraft.world.item.BlockItem(com.talhanation.smallships.world.block.ModBlocks.DOCKYARD, new Item.Properties()));
 
         for (Boat.Type type: Boat.Type.values()) {
             String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");

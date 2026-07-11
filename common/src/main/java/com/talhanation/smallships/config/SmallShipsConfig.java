@@ -20,8 +20,8 @@ public class SmallShipsConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final ForgeConfigSpec CLIENT_SPEC;
 
-    public static int CLIENT_SCHEMATIC_VERSION = 2;
-    public static int COMMON_SCHEMATIC_VERSION = 5;
+    public static int CLIENT_SCHEMATIC_VERSION = 3;
+    public static int COMMON_SCHEMATIC_VERSION = 6;
 
     static {
         ForgeConfigSpec.Builder commonConfigBuilder = new ForgeConfigSpec.Builder();
@@ -53,6 +53,28 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue shipGeneralDespawnTimeSunken;
         public static ForgeConfigSpec.DoubleValue shipGeneralCannonDamage;
         public static ForgeConfigSpec.DoubleValue shipGeneralCannonDestruction;
+
+        // Wind (Feature: Wind)
+        public static ForgeConfigSpec.BooleanValue windEnable;
+        public static ForgeConfigSpec.DoubleValue windMaxSpeedInfluence;
+        public static ForgeConfigSpec.ConfigValue<Integer> windChangeIntervalMin;
+        public static ForgeConfigSpec.ConfigValue<Integer> windChangeIntervalMax;
+        public static ForgeConfigSpec.ConfigValue<Integer> windTransitionTime;
+        public static ForgeConfigSpec.DoubleValue windRainMinStrength;
+        public static ForgeConfigSpec.DoubleValue windStormMinStrength;
+
+        // Sail damage (Feature: More Cannon Balls / Chained Shot)
+        public static ForgeConfigSpec.BooleanValue sailDamageEnable;
+        public static ForgeConfigSpec.DoubleValue sailDamageBaseTransfer;
+        public static ForgeConfigSpec.DoubleValue sailDamageChainedTransfer;
+        public static ForgeConfigSpec.ConfigValue<Integer> sailRepairWoolAmount;
+
+        // Camera (Feature: Better Ship Camera)
+        public static ForgeConfigSpec.BooleanValue shipGeneralCameraFreeLook;
+
+        // Vanilla boats (Feature: vanilla boats are slower)
+        public static ForgeConfigSpec.BooleanValue vanillaBoatSlowdownEnable;
+        public static ForgeConfigSpec.DoubleValue vanillaBoatSpeedFactor;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxReverseSpeed;
@@ -109,6 +131,10 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.BooleanValue shipGeneralCameraAutoThirdPerson;
         public static ForgeConfigSpec.DoubleValue shipGeneralCameraZoomMax;
         public static ForgeConfigSpec.DoubleValue shipGeneralCameraZoomMin;
+        public static ForgeConfigSpec.BooleanValue shipGeneralCameraShipCenterEnable;
+        public static ForgeConfigSpec.BooleanValue windParticlesEnable;
+        public static ForgeConfigSpec.ConfigValue<Integer> windParticlesAmount;
+        public static ForgeConfigSpec.BooleanValue windBannerEnable;
         public static ForgeConfigSpec.ConfigValue<Integer> shipModSpeedUnit;
     }
 
@@ -359,6 +385,82 @@ public class SmallShipsConfig {
         builder.pop();
         builder.pop();
 
+        builder.comment(" This category holds configs for the global wind.");
+        builder.push("Wind");
+
+        builder.comment("Enable the wind feature. Wind changes direction and strength at random intervals and affects sailing ships.");
+        Common.windEnable = builder
+                .define("windEnable", true);
+
+        builder.comment("Maximum speed influence of the wind: 0.2 = up to +20% with full tailwind and up to -20% with full headwind.");
+        Common.windMaxSpeedInfluence = builder
+                .defineInRange("windMaxSpeedInfluence", 0.2D, 0.0D, 1.0D);
+
+        builder.comment("Minimum time between wind changes in seconds.");
+        Common.windChangeIntervalMin = builder
+                .define("windChangeIntervalMin", 120);
+
+        builder.comment("Maximum time between wind changes in seconds.");
+        Common.windChangeIntervalMax = builder
+                .define("windChangeIntervalMax", 600);
+
+        builder.comment("Time in seconds the wind takes to smoothly transition to a new direction/strength.");
+        Common.windTransitionTime = builder
+                .define("windTransitionTime", 45);
+
+        builder.comment("Minimum wind strength while raining.");
+        Common.windRainMinStrength = builder
+                .defineInRange("windRainMinStrength", 0.4D, 0.0D, 1.0D);
+
+        builder.comment("Minimum wind strength while thundering.");
+        Common.windStormMinStrength = builder
+                .defineInRange("windStormMinStrength", 0.7D, 0.0D, 1.0D);
+
+        builder.pop();
+
+        builder.comment(" This category holds configs for the sail damage system.");
+        builder.push("SailDamage");
+
+        builder.comment("Enable the sail damage system. Sails have 100 hitpoints; cannon hits transfer a part of their damage to the sails.");
+        Common.sailDamageEnable = builder
+                .define("sailDamageEnable", true);
+
+        builder.comment("Fraction of a cannonball hit that is transferred to the sails (default 15%).");
+        Common.sailDamageBaseTransfer = builder
+                .defineInRange("sailDamageBaseTransfer", 0.15D, 0.0D, 1.0D);
+
+        builder.comment("Fraction of a chained shot hit that is transferred to the sails (default 50%).");
+        Common.sailDamageChainedTransfer = builder
+                .defineInRange("sailDamageChainedTransfer", 0.5D, 0.0D, 1.0D);
+
+        builder.comment("Amount of wool needed to repair the sails by hand.");
+        Common.sailRepairWoolAmount = builder
+                .define("sailRepairWoolAmount", 6);
+
+        builder.pop();
+
+        builder.comment(" This category holds configs for the ship camera behaviour that affect gameplay.");
+        builder.push("Camera");
+
+        builder.comment("Allow a full 360 degree view for ship passengers (disables the vanilla boat rotation clamp).");
+        Common.shipGeneralCameraFreeLook = builder
+                .define("shipGeneralCameraFreeLook", true);
+
+        builder.pop();
+
+        builder.comment(" This category holds configs for vanilla boats.");
+        builder.push("VanillaBoats");
+
+        builder.comment("Slow down vanilla boats (makes smallships ships more attractive).");
+        Common.vanillaBoatSlowdownEnable = builder
+                .define("vanillaBoatSlowdownEnable", true);
+
+        builder.comment("Speed factor for vanilla boats: 0.5 = 50% slower.");
+        Common.vanillaBoatSpeedFactor = builder
+                .defineInRange("vanillaBoatSpeedFactor", 0.5D, 0.05D, 1.0D);
+
+        builder.pop();
+
         builder.pop();
     }
 
@@ -401,9 +503,30 @@ public class SmallShipsConfig {
         Client.shipGeneralCameraAutoThirdPerson = builder
                 .define("shipGeneralCameraAutoThirdPerson", true);
 
+        builder.comment("Center the third person camera on the ship instead of the player, allowing a full 360 degree orbit.");
+        Client.shipGeneralCameraShipCenterEnable = builder
+                .define("shipGeneralCameraShipCenterEnable", true);
+
         builder.pop();
 
         builder.pop();
+
+        builder.pop();
+
+        builder.comment("Visual wind settings.");
+        builder.push("Wind");
+
+        builder.comment("Show the white wind lines on the water surface.");
+        Client.windParticlesEnable = builder
+                .define("windParticlesEnable", true);
+
+        builder.comment("Base amount of wind line particles spawned per tick (scaled with wind strength).");
+        Client.windParticlesAmount = builder
+                .define("windParticlesAmount", 3);
+
+        builder.comment("Let the ship banner follow the wind direction.");
+        Client.windBannerEnable = builder
+                .define("windBannerEnable", true);
 
         builder.pop();
 

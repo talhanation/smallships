@@ -8,6 +8,13 @@ import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundUpdateShipControlPacket;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.world.wind.Wind;
+import com.talhanation.smallships.world.wind.WindManager;
+import com.talhanation.smallships.client.wind.ClientWindManager;
+import com.talhanation.smallships.client.camera.ShipCameraHandler;
+import net.minecraft.server.level.ServerLevel;
+import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -62,6 +69,12 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+    /** Broadside aim data (Better Cannon Gameplay), see Cannonable. */
+    public static final EntityDataAccessor<CompoundTag> CANNON_AIM = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+    /** Sail health pool [0..100], see SailDamage. */
+    public static final EntityDataAccessor<Float> SAIL_HEALTH = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
+    /** Installed dockyard upgrades, see ShipUpgrade. */
+    public static final EntityDataAccessor<CompoundTag> UPGRADES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
 
     private boolean isLocked = false;
     private int sunkenTime = 0;
@@ -138,6 +151,15 @@ public abstract class Ship extends Boat {
 
         // Shieldable
         builder.define(Ship.SHIELD_DATA, new CompoundTag());
+
+        // Cannon aim (Better Cannon Gameplay)
+        builder.define(Ship.CANNON_AIM, new CompoundTag());
+
+        // Sail damage
+        builder.define(Ship.SAIL_HEALTH, SailDamage.MAX_HEALTH);
+
+        // Dockyard upgrades
+        builder.define(Ship.UPGRADES, new CompoundTag());
     }
 
     @Override
@@ -155,6 +177,7 @@ public abstract class Ship extends Boat {
 
         this.setSunken(tag.getBoolean("Sunken"));
         this.isLocked = (tag.getBoolean("locked"));
+        if (tag.contains("Upgrades")) this.setData(UPGRADES, tag.getCompound("Upgrades"));
     }
 
     @Override
@@ -172,6 +195,7 @@ public abstract class Ship extends Boat {
 
         tag.putBoolean("Sunken", isSunken());
         tag.putBoolean("locked", this.isLocked);
+        tag.put("Upgrades", this.getData(UPGRADES));
     }
 
     public void onAboveBubbleCol(boolean bl) {
@@ -230,7 +254,7 @@ public abstract class Ship extends Boat {
         if(this.isInWater() && !this.isShipLeashed() && !this.isSunken() && !isLocked()){
             if(this instanceof Paddleable && this instanceof Sailable sailShip){
                 if(isForward() && getDriver() != null){
-                    setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F);
+                    setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F * SailDamage.getSpeedFactor(this) * this.getWindModifier());
                 } else
                     switch (sailShip.getSailState()){ // Speed depending on sail state
                     case 0 -> setPoint =  0;
@@ -249,23 +273,26 @@ public abstract class Ship extends Boat {
                     case 4 -> setPoint = maxSpeed * 16/16F;
                 }
             }
+            // sail damage debuff and wind bonus/malus
+            if (this instanceof Sailable) {
+                setPoint *= SailDamage.getSpeedFactor(this) * this.getWindModifier();
+            }
             this.calculateSpeed(acceleration);
 
             //CALCULATE ROTATION SPEED//
             //((BoatAccessor) this).setDeltaRotation(0); // IDK WHAT THIS IS FOR BUT IT WORKS WITHOUT IT
             float rotationSpeed = Kalkuel.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
 
-            if(getDriver() != null) {
-                if (isRight()) {
-                    if (rotationSpeed < maxRotSp) {
-                        rotationSpeed = Math.min(rotationSpeed + rotAcceleration * 1 / 8, maxRotSp);
-                    }
-                }
 
-                if (isLeft()) {
-                    if (rotationSpeed > -maxRotSp) {
-                        rotationSpeed = Math.max(rotationSpeed - rotAcceleration * 1 / 8, -maxRotSp);
-                    }
+            if (isRight()) {
+                if (rotationSpeed < maxRotSp) {
+                    rotationSpeed = Math.min(rotationSpeed + rotAcceleration * 1 / 8, maxRotSp);
+                }
+            }
+
+            if (isLeft()) {
+                if (rotationSpeed > -maxRotSp) {
+                    rotationSpeed = Math.max(rotationSpeed - rotAcceleration * 1 / 8, -maxRotSp);
                 }
             }
             this.setRotSpeed(rotationSpeed);
@@ -287,6 +314,31 @@ public abstract class Ship extends Boat {
             setLeft(false);
             setRight(false);
         }
+    }
+
+    /**
+     * @return the current global wind, taken from the server WindManager or
+     * the client mirror depending on the side.
+     */
+    public Wind getWind() {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            return WindManager.get(serverLevel).getWind();
+        }
+        return ClientWindManager.getWind();
+    }
+
+    /**
+     * @return the wind speed modifier for this ship: 1.0 +- up to the configured
+     * influence (default 20%), depending on wind strength and how well the wind
+     * direction is aligned with the ship heading. Only applies with set sails.
+     */
+    public float getWindModifier() {
+        if (!SmallShipsConfig.Common.windEnable.get()) return 1.0F;
+        if (!(this instanceof Sailable sailable) || sailable.getSailState() == 0) return 1.0F;
+
+        Wind wind = this.getWind();
+        float influence = SmallShipsConfig.Common.windMaxSpeedInfluence.get().floatValue();
+        return 1.0F + influence * wind.strength() * wind.getAlignment(this.getYRot());
     }
 
     public boolean isLocked(){
@@ -465,6 +517,11 @@ public abstract class Ship extends Boat {
             this.previousCameraType = Minecraft.getInstance().options.getCameraType();
             Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
         }
+        // Better Ship Camera: smoothly move the camera anchor to the ship center,
+        // keeping the direction the player was facing when right-clicking (aim and align)
+        if (this.level().isClientSide() && Objects.equals(Minecraft.getInstance().player, entity)) {
+            ShipCameraHandler.startTransition();
+        }
         super.addPassenger(entity);
     }
 
@@ -504,6 +561,7 @@ public abstract class Ship extends Boat {
     public Attributes getAttributes() {
         Attributes attributes = new Attributes();
         attributes.loadSaveData(this.getData(ATTRIBUTES));
+        ShipUpgrade.applyAll(this, attributes);
         return attributes;
     }
     public void setCannonKeyPressed(boolean b){
@@ -582,6 +640,7 @@ public abstract class Ship extends Boat {
             this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip ? shieldShip.getDamageModifier() : 1));
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
+            if(f > 10)this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
 
             boolean bl = damageSource.getEntity() instanceof Player player && player.getAbilities().instabuild && player.isCrouching();
 

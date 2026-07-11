@@ -52,6 +52,10 @@ public class ClientModBus {
     @SubscribeEvent
     static void initRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(ModGameOptions.SAIL_KEY);
+        event.register(ModGameOptions.ENTER_CANNON_BARREL_KEY);
+        event.register(ModGameOptions.CANNON_AIM_KEY);
+        event.register(ModGameOptions.CANNON_BARREL_UP_KEY);
+        event.register(ModGameOptions.CANNON_BARREL_DOWN_KEY);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

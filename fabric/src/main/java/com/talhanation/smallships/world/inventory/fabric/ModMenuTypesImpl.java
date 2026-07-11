@@ -1,6 +1,8 @@
 package com.talhanation.smallships.world.inventory.fabric;
 
+import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
+import net.minecraft.world.flag.FeatureFlags;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,6 +31,9 @@ public class ModMenuTypesImpl {
 
         entries.put("cannon_container", register("cannon_container",
                 new ExtendedScreenHandlerType<>((syncId, inventory, data) -> ModMenuTypes.groundCannonContainerMenuTypeSupplier(syncId, inventory, data.ship()), ContainerUtilityImpl.ContainerMenuData.PACKET_CODEC)));
+
+        entries.put("dockyard", register("dockyard",
+                new MenuType<>(DockyardMenu::new, FeatureFlags.VANILLA_SET)));
 
     }
 }

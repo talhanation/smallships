@@ -138,19 +138,19 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         guiGraphics.pose().scale(0.7F, 0.7F, 1F);
         String attachment = this.containerShip instanceof Shieldable ? "Shields:" : "Cannons:";
 
-        guiGraphics.drawString(font, "Name:", leftPos, topPos + gap * 0, FONT_COLOR, false);
-        guiGraphics.drawString(font, "Type:", leftPos, topPos + gap * 1, FONT_COLOR, false);
-        guiGraphics.drawString(font, "Crew:", leftPos, topPos + gap * 2, FONT_COLOR, false);
-        guiGraphics.drawString(font, "Speed " + unit + ":", leftPos, topPos + gap * 3, FONT_COLOR, false);
-        guiGraphics.drawString(font, "Damage:", leftPos, topPos + gap * 4, FONT_COLOR, false);
-        guiGraphics.drawString(font, attachment, leftPos, topPos + gap * 5, FONT_COLOR, false);
+        //guiGraphics.drawString(font, "Name:", leftPos, topPos + gap * 0, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Type:", leftPos, topPos + gap * 0, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Crew:", leftPos, topPos + gap * 1, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Speed " + unit + ":", leftPos, topPos + gap * 2, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Damage:", leftPos, topPos + gap * 3, FONT_COLOR, false);
+        guiGraphics.drawString(font, attachment, leftPos, topPos + gap * 4, FONT_COLOR, false);
 
-        guiGraphics.drawString(font, name, leftPos2, topPos + gap * 0, FONT_COLOR, false);
-        guiGraphics.drawString(font, smallShipType, leftPos2, topPos + gap * 1, FONT_COLOR, false);
-        guiGraphics.drawString(font, currentPassengers + "/" + maxPassengers, leftPos2, topPos + gap * 2, FONT_COLOR, false);
-        guiGraphics.drawString(font, currentSpeed + "/" + maxSpeed, leftPos2, topPos + gap * 3, FONT_COLOR, false);
-        guiGraphics.drawString(font, dmg + "%", leftPos2, topPos + gap * 4, FONT_COLOR, false);
-        guiGraphics.drawString(font, currentAttachment + "/" + maxAttachment, leftPos2, topPos + gap * 5, FONT_COLOR, false);
+        //guiGraphics.drawString(font, name, leftPos2, topPos + gap * 0, FONT_COLOR, false);
+        guiGraphics.drawString(font, smallShipType, leftPos2, topPos + gap * 0, FONT_COLOR, false);
+        guiGraphics.drawString(font, currentPassengers + "/" + maxPassengers, leftPos2, topPos + gap * 1, FONT_COLOR, false);
+        guiGraphics.drawString(font, currentSpeed + "/" + maxSpeed, leftPos2, topPos + gap * 2, FONT_COLOR, false);
+        guiGraphics.drawString(font, dmg + "%", leftPos2, topPos + gap * 3, FONT_COLOR, false);
+        guiGraphics.drawString(font, currentAttachment + "/" + maxAttachment, leftPos2, topPos + gap * 4, FONT_COLOR, false);
 
         // render page number
         int xOffset = origLeftPos + (int) (133 - (float) (Mth.floor(Math.log10(this.pageCount))) * 6);
