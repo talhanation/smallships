@@ -60,6 +60,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> BARREL_UP = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> BARREL_DOWN = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> AIMING = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> HEALTH = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     @Nullable
@@ -121,6 +122,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         builder.define(RIGHT, false);
         builder.define(BARREL_UP, false);
         builder.define(BARREL_DOWN, false);
+        builder.define(AIMING, false);
         builder.define(SPEED, 0F);
         builder.define(HEALTH, 100F);
     }
@@ -300,9 +302,16 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
                     speed = Math.max(speed - 0.01F, -maxSpeed);
                 }
             }
-            // key-only aiming: A/D rotate the cannon around its own axis,
-            // the barrel up/down keys change the elevation. The driver's mouse
-            // view is completely decoupled and free.
+            // aim mode (right click held, SiegeWeapons ballista style): the cannon
+            // follows the driver's view, the camera sits behind the barrel.
+            if (this.isAiming()) {
+                this.setYRot(driver.getYRot());
+                this.setXRot(Math.clamp(driver.getXRot(), -60, 20));
+                return;
+            }
+
+            // otherwise key controls: A/D rotate the cannon around its own axis,
+            // the barrel up/down keys change the elevation.
             deltaRotation = 0;
             if(isLeft()){
                 --deltaRotation;
@@ -365,7 +374,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             needsUpdate = true;
         }
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && livingEntity instanceof Player) {
-            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(forward, backward, left, right, this.isBarrelUp(), this.isBarrelDown()));
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(forward, backward, left, right, this.isBarrelUp(), this.isBarrelDown(), this.isAimingRaw()));
         }
     }
 
@@ -388,6 +397,32 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         return entityData.get(BARREL_DOWN);
     }
 
+
+    public void setAiming(boolean aiming) {
+        entityData.set(AIMING, aiming);
+    }
+
+    public boolean isAiming() {
+        if (this.getDriver() == null) return false;
+        return entityData.get(AIMING);
+    }
+
+    /**
+     * Right click aim mode (SiegeWeapons ballista style): while held, the
+     * cannon follows the driver's view and the camera moves behind the barrel.
+     */
+    public void updateAimingControl(boolean aiming, @Nullable LivingEntity livingEntity) {
+        if (this.isAimingRaw() == aiming) return;
+        this.setAiming(aiming);
+        if (this.getCommandSenderWorld().isClientSide && livingEntity instanceof Player) {
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), this.isBarrelUp(), this.isBarrelDown(), aiming));
+        }
+    }
+
+    private boolean isAimingRaw() {
+        return entityData.get(AIMING);
+    }
+
     /**
      * Key-only barrel elevation. Kept separate from updateControls so the
      * reflection signature used by the Workers/Recruits mod stays stable.
@@ -406,7 +441,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         }
 
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && livingEntity instanceof Player) {
-            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), barrelUp, barrelDown));
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), barrelUp, barrelDown, this.isAimingRaw()));
         }
     }
 
@@ -704,7 +739,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     @Override
     public boolean hurt(DamageSource damageSource, float f) {
         if (this.isInvulnerableTo(damageSource)) {
-            return false; 
+            return false;
         }
         else if (!this.getCommandSenderWorld().isClientSide() && !this.isRemoved()) {
             this.setHealth(this.getHealth() - f);

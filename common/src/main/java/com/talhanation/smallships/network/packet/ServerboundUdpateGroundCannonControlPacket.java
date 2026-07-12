@@ -10,7 +10,13 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 
-public record ServerboundUdpateGroundCannonControlPacket(boolean forward, boolean backward, boolean left, boolean right, boolean barrelUp, boolean barrelDown) implements ModPacket {
+public record ServerboundUdpateGroundCannonControlPacket(boolean forward,
+                                                         boolean backward,
+                                                         boolean left,
+                                                         boolean right,
+                                                         boolean barrelUp,
+                                                         boolean barrelDown,
+                                                         boolean aiming) implements ModPacket {
     public static final Type<ServerboundUdpateGroundCannonControlPacket> TYPE = new Type<>(ModPackets.id("server_update_ground_cannon_control"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundUdpateGroundCannonControlPacket> CODEC = StreamCodec.composite(
@@ -20,6 +26,7 @@ public record ServerboundUdpateGroundCannonControlPacket(boolean forward, boolea
             ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::right,
             ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::barrelUp,
             ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::barrelDown,
+            ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::aiming,
             ServerboundUdpateGroundCannonControlPacket::new);
 
     @Override
@@ -27,6 +34,7 @@ public record ServerboundUdpateGroundCannonControlPacket(boolean forward, boolea
         if (player.getVehicle() != null && player.getVehicle() instanceof GroundCannonEntity cannon) {
             cannon.updateControls(forward, backward, left, right, player);
             cannon.updateBarrelControls(barrelUp, barrelDown, player);
+            cannon.updateAimingControl(aiming, player);
         }
     }
 

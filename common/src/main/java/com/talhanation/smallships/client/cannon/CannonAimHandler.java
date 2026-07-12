@@ -1,6 +1,5 @@
 package com.talhanation.smallships.client.cannon;
 
-import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundSetCannonAimPacket;
 import com.talhanation.smallships.world.entity.ship.Ship;
@@ -15,40 +14,89 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Client side handler for the "Better Cannon Gameplay" aiming:
- * While the driver of a cannon ship holds the cannon aim key (default:
- * Left Alt), mouse movement is captured (the camera does not turn) and
- * adjusts the broadside aim instead.
- * Up/Down = angle (-20..+60), Left/Right = rotation (-10..+10).
+ * "Better Cannon Gameplay" aiming, SiegeWeapons-ballista style:
+ * While the driver (broadside) or a gunner (his single cannon) HOLDS RIGHT
+ * CLICK, the aim mode is active:
+ * - mouse movement adjusts the aim (captured, the player view doesn't turn)
+ * - the camera looks into the shooting direction (see CameraMixin)
+ * - the trajectory is rendered as a white line per cannon (see ShipRenderer)
  *
- * The aim is synced to the server throttled (every 3 ticks while dragging
- * and once on release).
+ * The right click state is fed by the MouseHandler mixin; the aim is synced
+ * throttled (every 3 ticks while dragging and once on release).
  */
 public class CannonAimHandler {
     private static final float MOUSE_SENSITIVITY = 0.15F;
     private static final int SYNC_INTERVAL_TICKS = 3;
 
+    /** raw right mouse button state, set by the MouseHandler mixin */
+    private static boolean rightClickHeld = false;
+
     private static boolean aiming = false;
     private static boolean dirty = false;
-    private static boolean lastRightSide = false;
-    private static int lastSlot = -1;
+    /** the broadside being aimed, frozen when the aim mode starts */
+    private static boolean aimRightSide = false;
+    /** the gunner's cannon slot, -1 = driver broadside */
+    private static int aimSlot = -1;
     private static float angle;
     private static float rotation;
     private static int tickCounter = 0;
 
+    /** Called by the MouseHandler mixin on right click press/release. */
+    public static void setRightClickHeld(boolean held) {
+        rightClickHeld = held;
+    }
+
     /**
-     * @return true if the aiming mode is currently active, i.e. mouse movement
-     * should be captured instead of turning the camera.
+     * @return true if the local player could aim right now (driver or gunner
+     * of a cannon ship with mounted cannons). Used by the mixin to decide
+     * whether the right click should be captured.
      */
-    public static boolean isAiming() {
+    public static boolean canAim() {
         Minecraft minecraft = Minecraft.getInstance();
         Player player = minecraft.player;
         if (player == null || minecraft.screen != null) return false;
         if (!(player.getVehicle() instanceof Ship ship) || !(ship instanceof Cannonable cannonable)) return false;
         if (cannonable.getCannonCount() <= 0) return false;
-        // driver (broadside) or gunner on a CANNON seat (his single cannon)
-        if (!player.equals(ship.getDriver()) && getGunnerSlot(player, ship) < 0) return false;
-        return ModGameOptions.CANNON_AIM_KEY.isDown();
+        return player.equals(ship.getDriver()) || getGunnerSlot(player, ship) >= 0;
+    }
+
+    /**
+     * @return true if the aim mode is currently active (right click held).
+     */
+    public static boolean isAiming() {
+        return rightClickHeld && canAim();
+    }
+
+    /* ---------------- state for camera and trajectory ---------------- */
+
+    /** @return the broadside currently being aimed (frozen at activation). */
+    public static boolean getAimSide() {
+        return aiming ? aimRightSide : false;
+    }
+
+    /** @return the aimed cannon slot, -1 = broadside (driver). */
+    public static int getAimSlot() {
+        return aiming ? aimSlot : -1;
+    }
+
+    /**
+     * @return the world direction the aimed cannons are pointing at,
+     * for the camera and the trajectory preview.
+     */
+    public static Vec3 getAimDirection(Ship ship, float partialTicks) {
+        float shipYaw = Mth.rotLerp(partialTicks, ship.yRotO, ship.getYRot());
+        float yaw = shipYaw + (aimRightSide ? 90.0F : -90.0F) + (aimRightSide ? -rotation : rotation);
+        float pitch = -angle;
+        return Vec3.directionFromRotation(pitch, yaw);
+    }
+
+    public static float getAimYaw(Ship ship, float partialTicks) {
+        float shipYaw = Mth.rotLerp(partialTicks, ship.yRotO, ship.getYRot());
+        return shipYaw + (aimRightSide ? 90.0F : -90.0F) + (aimRightSide ? -rotation : rotation);
+    }
+
+    public static float getAimPitch() {
+        return -angle;
     }
 
     /**
@@ -60,31 +108,29 @@ public class CannonAimHandler {
         Player player = minecraft.player;
         if (player == null || !(player.getVehicle() instanceof Ship ship) || !(ship instanceof Cannonable cannonable)) return;
 
-        int slot = getGunnerSlot(player, ship);
-        boolean rightSide;
-        if (slot >= 0) {
-            // gunner: the side is fixed by the mounted cannon
-            rightSide = cannonable.getCannonPosition(slot) != null && cannonable.getCannonPosition(slot).isRightSided;
-        } else {
-            rightSide = isLookingAtStarboard(player, ship);
-        }
-        if (!aiming || rightSide != lastRightSide || slot != lastSlot) {
-            // start aiming from the stored values (per-cannon aim falls back to the broadside)
-            angle = cannonable.getCannonAngle(slot, rightSide);
-            rotation = cannonable.getCannonRotation(slot, rightSide);
+        if (!aiming) {
+            // aim mode starts: freeze the side (driver: side he was looking at;
+            // gunner: the fixed side of his cannon) and load the stored aim
+            aimSlot = getGunnerSlot(player, ship);
+            if (aimSlot >= 0) {
+                Cannonable.CannonPosition position = cannonable.getCannonPosition(aimSlot);
+                aimRightSide = position != null && position.isRightSided;
+            } else {
+                aimRightSide = isLookingAtStarboard(player, ship);
+            }
+            angle = cannonable.getCannonAngle(aimSlot, aimRightSide);
+            rotation = cannonable.getCannonRotation(aimSlot, aimRightSide);
             aiming = true;
-            lastRightSide = rightSide;
-            lastSlot = slot;
         }
 
-        // mouse up = angle up; mouse right = rotate towards the direction the mouse moves
+        // mouse up = angle up; mouse right = rotate towards where the mouse moves
         angle = Mth.clamp(angle - (float) deltaY * MOUSE_SENSITIVITY, Cannonable.CANNON_ANGLE_MIN, Cannonable.CANNON_ANGLE_MAX);
         float rotationDelta = (float) deltaX * MOUSE_SENSITIVITY;
         // on the port side the screen-x direction is mirrored relative to "towards bow"
-        rotation = Mth.clamp(rotation + (rightSide ? -rotationDelta : rotationDelta), -Cannonable.CANNON_ROTATION_MAX, Cannonable.CANNON_ROTATION_MAX);
+        rotation = Mth.clamp(rotation + (aimRightSide ? -rotationDelta : rotationDelta), -Cannonable.CANNON_ROTATION_MAX, Cannonable.CANNON_ROTATION_MAX);
 
-        // instant client side feedback
-        cannonable.setCannonAim(slot, rightSide, angle, rotation);
+        // instant client side feedback (camera + trajectory + cannon render)
+        cannonable.setCannonAim(aimSlot, aimRightSide, angle, rotation);
         dirty = true;
 
         minecraft.gui.setOverlayMessage(Component.translatable("gui.smallships.cannon_aim", String.format("%.0f", angle), String.format("%.0f", rotation)), false);
@@ -100,9 +146,15 @@ public class CannonAimHandler {
         boolean active = isAiming();
         tickCounter++;
 
+        if (active && !aiming) {
+            // activate even before the first mouse movement, so camera and
+            // trajectory react immediately on press
+            handleMouseDelta(0.0D, 0.0D);
+        }
+
         if (dirty && (!active || tickCounter % SYNC_INTERVAL_TICKS == 0)) {
             if (player.getVehicle() instanceof Ship ship) {
-                ModPackets.clientSendPacket(new ServerboundSetCannonAimPacket(ship.getId(), lastSlot, lastRightSide, angle, rotation));
+                ModPackets.clientSendPacket(new ServerboundSetCannonAimPacket(ship.getId(), aimSlot, aimRightSide, angle, rotation));
             }
             dirty = false;
         }
@@ -110,6 +162,12 @@ public class CannonAimHandler {
         if (!active) {
             aiming = false;
         }
+    }
+
+    /** @return true if the aim mode is active for exactly this ship. */
+    public static boolean isAimingShip(Ship ship) {
+        Minecraft minecraft = Minecraft.getInstance();
+        return aiming && isAiming() && minecraft.player != null && minecraft.player.getVehicle() == ship;
     }
 
     /** @return the cannon slot the player mans as a gunner, or -1. */

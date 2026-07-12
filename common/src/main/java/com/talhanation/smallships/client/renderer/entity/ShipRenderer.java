@@ -13,7 +13,10 @@ import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.client.cannon.CannonAimHandler;
+import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.client.wind.ClientWindManager;
+import net.minecraft.world.phys.Vec3;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
@@ -63,7 +66,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     protected abstract ShipModel<T> createBoatModel(EntityRendererProvider.Context context, Boat.Type type);
 
     protected ResourceLocation getTextureLocation(Boat.Type type) {
-        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/uuid/" + ShipRenderer.getNameFromType(type) + ".png");
+        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
     }
 
     @Override
@@ -73,6 +76,11 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @Override
     public void render(T shipEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        // right click aim mode: white trajectory preview per cannon (before any
+        // hull transforms, the pose stack is still world aligned at the entity origin)
+        if (shipEntity instanceof Cannonable cannonShip && CannonAimHandler.isAimingShip(shipEntity)) {
+            this.renderCannonTrajectories(cannonShip, shipEntity, partialTicks, poseStack, multiBufferSource);
+        }
         Attributes shipAttributes = shipEntity.getAttributes();
         float h = ((float) shipEntity.getHurtTime() - partialTicks) / ((shipAttributes.maxHealth * shipEntity.getBbWidth()) / 40.0F);
         float j = shipEntity.getDamage() - partialTicks;
@@ -127,6 +135,42 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         poseStack.popPose();
 
         super.render(shipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+    }
+
+    /**
+     * Renders the white trajectory line per cannon while the local player is
+     * aiming: driver = every cannon of the aimed broadside, gunner = only his
+     * mapped cannon. Uses the exact cannonball physics (see CannonTrajectory).
+     */
+    private void renderCannonTrajectories(Cannonable cannonShipEntity, T shipEntity, float partialTicks, PoseStack poseStack, MultiBufferSource multiBufferSource) {
+        boolean rightSide = CannonAimHandler.getAimSide();
+        int aimSlot = CannonAimHandler.getAimSlot();
+        Vec3 renderOrigin = shipEntity.getPosition(partialTicks);
+
+        poseStack.pushPose();
+        VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
+
+        for (int slot = 0; slot < cannonShipEntity.getTotalCannonSlots(); slot++) {
+            if (!cannonShipEntity.isCannonInSlot(slot)) continue;
+            Cannonable.CannonPosition position = cannonShipEntity.getCannonPosition(slot);
+            if (position == null) continue;
+            // gunner: only his cannon; driver: all cannons of the aimed broadside
+            if (aimSlot >= 0 ? slot != aimSlot : position.isRightSided != rightSide) continue;
+
+            ShipCannon cannon = new ShipCannon(shipEntity, position, slot);
+
+            float angle = cannonShipEntity.getCannonAngle(slot, cannon.isRightSided());
+            float rotation = cannonShipEntity.getCannonRotation(slot, cannon.isRightSided());
+            float yaw = shipEntity.getYRot() + (cannon.isRightSided() ? 90.0F : -90.0F) + (cannon.isRightSided() ? -rotation : rotation);
+            Vec3 direction = Vec3.directionFromRotation(-angle, yaw);
+
+            // start at the barrel end, relative to the render origin
+            Vec3 start = cannon.getGlobalPosition().add(direction.scale(1.1D)).add(0.0D, 0.35D, 0.0D).subtract(renderOrigin);
+
+            CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculate(start, direction, CannonTrajectory.CANNON_SPEED));
+        }
+
+        poseStack.popPose();
     }
 
     private static final CannonModel cannonModel = new CannonModel();
@@ -203,11 +247,11 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             poseStack.scale(0.5F, 0.5F, 0.5F);
 
             float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);
-			
+
             if (!Mth.equal(bannerWaveAngle, 0F)){
-				poseStack.mulPose(Axis.ZP.rotationDegrees(bannerWaveAngle * 0.5F));
-				poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
-			}
+                poseStack.mulPose(Axis.ZP.rotationDegrees(bannerWaveAngle * 0.5F));
+                poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
+            }
 
             BannerPatternLayers bannerPatternLayers = bannerItemStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
             DyeColor dyeColor = ((BannerItem)bannerItemStack.getItem()).getColor();
