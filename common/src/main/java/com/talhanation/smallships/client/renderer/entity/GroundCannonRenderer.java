@@ -5,7 +5,11 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.CannonModel;
+import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -40,6 +44,22 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
         renderCannonModel(cannon, partialTicks, resourceLocation, poseStack, multiBufferSource, packedLight);
 
         poseStack.popPose();
+
+        // right click aim mode: white trajectory line along the barrel
+        // (drawn OUTSIDE the scaled/rotated model pose, world aligned at the entity origin)
+        if (entity.isAiming()) {
+            float yaw = Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot());
+            float pitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
+            Vec3 direction = Vec3.directionFromRotation(pitch, yaw);
+
+            // barrel end relative to the entity origin
+            Vec3 start = direction.scale(1.4D).add(0.0D, 1.1D, 0.0D);
+
+            poseStack.pushPose();
+            VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
+            CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculate(start, direction, CannonTrajectory.CANNON_SPEED));
+            poseStack.popPose();
+        }
 
         super.render(entity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }

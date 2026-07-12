@@ -5,6 +5,10 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.client.camera.ShipCameraHandler;
+import com.talhanation.smallships.client.cannon.CannonAimHandler;
+import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
@@ -16,10 +20,64 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin implements CameraZoomAccess {
     @Shadow public abstract Entity getEntity();
+
+    @Shadow protected abstract void setPosition(double x, double y, double z);
+    @Shadow protected abstract void setRotation(float yRot, float xRot);
+
+    /**
+     * Right click aim mode, SiegeWeapons ballista style:
+     * - Ground cannon: the camera sits behind and above the barrel and looks
+     *   along it, so the player sees the barrel while aiming.
+     * - Cannon ship: the camera looks into the direction the aimed broadside /
+     *   gunner cannon is about to shoot.
+     */
+    @Inject(method = "setup", at = @At("HEAD"), cancellable = true)
+    private void smallships$aimCamera(BlockGetter blockGetter, Entity cameraEntity, boolean detached, boolean mirrored, float partialTick, CallbackInfo ci) {
+        if (!(cameraEntity instanceof Player player)) return;
+
+        // ground cannon: barrel camera while aiming
+        if (player.getVehicle() instanceof GroundCannonEntity cannon && cannon.isAiming()) {
+            double x = Mth.lerp(partialTick, cannon.xo, cannon.getX());
+            double y = Mth.lerp(partialTick, cannon.yo, cannon.getY());
+            double z = Mth.lerp(partialTick, cannon.zo, cannon.getZ());
+
+            float yaw = Mth.rotLerp(partialTick, cannon.yRotO, cannon.getYRot());
+            float pitch = Mth.lerp(partialTick, cannon.xRotO, cannon.getXRot());
+
+            double yawRad = Math.toRadians(yaw);
+            // slightly behind and above the cannon, looking along the barrel
+            Vec3 offset = new Vec3(Math.sin(yawRad) * 0.9D, 1.7D, -Math.cos(yawRad) * 0.9D);
+
+            this.setPosition(x + offset.x, y + offset.y, z + offset.z);
+            this.setRotation(yaw, pitch);
+            ci.cancel();
+            return;
+        }
+
+        // cannon ship: look into the shooting direction while aiming
+        if (player.getVehicle() instanceof Ship ship && CannonAimHandler.isAimingShip(ship)) {
+            double x = Mth.lerp(partialTick, ship.xo, ship.getX());
+            double y = Mth.lerp(partialTick, ship.yo, ship.getY());
+            double z = Mth.lerp(partialTick, ship.zo, ship.getZ());
+
+            float aimYaw = CannonAimHandler.getAimYaw(ship, partialTick);
+            float aimPitch = CannonAimHandler.getAimPitch();
+            Vec3 aimDirection = CannonAimHandler.getAimDirection(ship, partialTick);
+
+            // over the deck, pulled back against the shooting direction
+            Vec3 cameraPos = new Vec3(x, y + 3.5D, z).subtract(aimDirection.scale(3.5D));
+
+            this.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
+            this.setRotation(aimYaw, aimPitch);
+            ci.cancel();
+        }
+    }
 
     /**
      * Better Ship Camera: in third person the camera anchor is moved from the
