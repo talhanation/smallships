@@ -12,7 +12,14 @@ import org.jetbrains.annotations.NotNull;
 public record ServerboundUpdateShipControlPacket(boolean forward, boolean backward, boolean left, boolean right) implements ModPacket {
     public static final Type<ServerboundUpdateShipControlPacket> TYPE = new Type<>(ModPackets.id("server_update_ship_control"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundUpdateShipControlPacket> CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, ServerboundUpdateShipControlPacket::forward, ByteBufCodecs.BOOL, ServerboundUpdateShipControlPacket::backward, ByteBufCodecs.BOOL, ServerboundUpdateShipControlPacket::left, ByteBufCodecs.BOOL, ServerboundUpdateShipControlPacket::right, ServerboundUpdateShipControlPacket::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundUpdateShipControlPacket>
+            CODEC = StreamCodec.composite(ByteBufCodecs.BOOL,
+            ServerboundUpdateShipControlPacket::forward,
+            ByteBufCodecs.BOOL,
+            ServerboundUpdateShipControlPacket::backward, ByteBufCodecs.BOOL,
+            ServerboundUpdateShipControlPacket::left, ByteBufCodecs.BOOL,
+            ServerboundUpdateShipControlPacket::right,
+            ServerboundUpdateShipControlPacket::new);
 
     @Override
     public @NotNull Type<ServerboundUpdateShipControlPacket> type() {

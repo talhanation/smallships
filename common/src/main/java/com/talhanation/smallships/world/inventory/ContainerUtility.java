@@ -12,12 +12,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class ContainerUtility {
     public static void openShipMenu(Player player, ContainerShip containerShip) {
-        throw new AssertionError();
+        //throw new AssertionError();
     }
 
     @ExpectPlatform
     public static void openCannonMenu(Player player, GroundCannonEntity groundCannonEntity) {
-        throw new AssertionError();
+        //throw new AssertionError();
     }
 
     public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> itemStacks, HolderLookup.Provider levelRegistry) {

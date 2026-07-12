@@ -374,7 +374,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             needsUpdate = true;
         }
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && livingEntity instanceof Player) {
-            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(forward, backward, left, right, this.isBarrelUp(), this.isBarrelDown(), this.isAimingRaw()));
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(forward, backward, left, right, this.isAimingRaw()));
         }
     }
 
@@ -415,7 +415,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         if (this.isAimingRaw() == aiming) return;
         this.setAiming(aiming);
         if (this.getCommandSenderWorld().isClientSide && livingEntity instanceof Player) {
-            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), this.isBarrelUp(), this.isBarrelDown(), aiming));
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), aiming));
         }
     }
 
@@ -441,7 +441,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         }
 
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && livingEntity instanceof Player) {
-            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), barrelUp, barrelDown, this.isAimingRaw()));
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), this.isAimingRaw()));
         }
     }
 
