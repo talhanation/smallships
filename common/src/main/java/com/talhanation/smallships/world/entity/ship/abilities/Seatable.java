@@ -121,7 +121,15 @@ public interface Seatable extends Ability {
         ShipSeat best = null;
         double bestDist = Double.MAX_VALUE;
         for (ShipSeat seat : this.getSeats()) {
+            if (forPlayer && this.self().getDriver() == null){
+                if(seat.type() != SeatType.DRIVER) continue;
+                else{
+                    return seat;
+                }
+                
+            }
             if (!this.isSeatFree(seat.id())) continue;
+
             if (!forPlayer && seat.type() != SeatType.PASSENGER) continue;
             double dist = seat.getWorldPosition(self()).distanceToSqr(worldPos);
             if (dist < bestDist) {
