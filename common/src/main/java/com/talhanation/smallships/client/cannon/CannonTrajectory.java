@@ -41,6 +41,36 @@ public class CannonTrajectory {
         return points;
     }
 
+
+    /**
+     * SiegeWeapons ballista style: the trajectory is calculated in the LOCAL
+     * frame of the rendered cannon (inside its pose stack) - it therefore
+     * automatically rotates with the ship and the cannon aim. The surrounding
+     * hull pose mirrors x and y (scale -1,-1,1 after normalizing the 1.3
+     * hull scale away), which is why the direction is flipped and the gravity
+     * is POSITIVE, exactly like in the ballista renderer.
+     *
+     * @param aimAngle barrel elevation in degrees (positive = up)
+     * @param speed    initial projectile speed
+     */
+    public static List<Vec3> calculateLocal(float aimAngle, float speed) {
+        List<Vec3> points = new ArrayList<>();
+
+        double yShootVec = Math.toRadians(aimAngle);
+        Vec3 direction = new Vec3(0.0D, yShootVec, 1.0D).normalize().scale(-1.0D);
+        Vec3 velocity = direction.scale(speed);
+        Vec3 pos = Vec3.ZERO;
+
+        for (int i = 0; i < MAX_STEPS; i++) {
+            points.add(pos);
+            // cannonball physics in the mirrored frame: drag 0.99, gravity +0.06
+            pos = pos.add(velocity);
+            velocity = velocity.scale(0.99D).add(0.0D, 0.06D, 0.0D);
+            if (pos.y > MAX_DROP) break;
+        }
+        return points;
+    }
+
     /**
      * Renders the path as a white line (RenderType.lines()).
      * The pose stack must be at the render origin the points are relative to.

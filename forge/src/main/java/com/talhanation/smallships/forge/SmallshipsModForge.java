@@ -39,5 +39,6 @@ public class SmallshipsModForge {
 
         MinecraftForge.EVENT_BUS.register(new PassengerEvents());
         MinecraftForge.EVENT_BUS.register(new com.talhanation.smallships.forge.events.WindEvents());
+        MinecraftForge.EVENT_BUS.register(new com.talhanation.smallships.forge.events.CommandEvents());
     }
 }

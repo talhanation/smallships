@@ -67,7 +67,7 @@ public class MouseHandlerMixin {
      */
     @Inject(method = "handleAccumulatedMovement", at = @At("HEAD"), cancellable = true)
     private void smallships$captureAimMovement(CallbackInfo ci) {
-        if (CannonAimHandler.isAiming()) {
+        if (CannonAimHandler.shouldCaptureMouse()) {
             CannonAimHandler.handleMouseDelta(this.accumulatedDX, this.accumulatedDY);
             this.accumulatedDX = 0.0D;
             this.accumulatedDY = 0.0D;

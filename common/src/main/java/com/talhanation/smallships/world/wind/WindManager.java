@@ -65,6 +65,13 @@ public class WindManager extends SavedData {
      * Called once per server level tick (see platform event hooks).
      */
     public void tick(ServerLevel level) {
+        // safety net: rebroadcast the wind state every 10 seconds so clients
+        // that missed the join sync (or joined mid-transition) are guaranteed
+        // to receive it - without this the client strength could stay at 0
+        // and the wind particles would never appear
+        if (level.getGameTime() % 200L == 0L) {
+            this.broadcast(level);
+        }
         if (!SmallShipsConfig.Common.windEnable.get()) return;
 
         if (this.transitionTicks > 0) {
@@ -135,6 +142,23 @@ public class WindManager extends SavedData {
     public Wind getWind() {
         if (!SmallShipsConfig.Common.windEnable.get()) return Wind.CALM;
         return new Wind(this.currentDirection, this.currentStrength);
+    }
+
+
+    /**
+     * Command helper: sets only the wind strength (0..1), keeps the current
+     * target direction and transitions within 2 seconds.
+     */
+    public void setWindStrength(ServerLevel level, float strength) {
+        this.setWind(level, this.targetDirection, strength, 2);
+    }
+
+    /**
+     * Command helper: sets only the wind direction (mc yaw convention), keeps
+     * the current target strength and transitions within 2 seconds.
+     */
+    public void setWindDirection(ServerLevel level, float direction) {
+        this.setWind(level, direction, this.targetStrength, 2);
     }
 
     /** For a future /smallships wind command. */

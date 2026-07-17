@@ -1,5 +1,6 @@
 package com.talhanation.smallships.fabric.client;
 
+import com.talhanation.smallships.client.ClientTickHandler;
 import com.talhanation.smallships.client.model.*;
 import com.talhanation.smallships.client.option.KeyEvent;
 import com.talhanation.smallships.client.option.ModGameOptions;
@@ -54,13 +55,11 @@ public class ClientInitializer implements ClientModInitializer {
     private void initRegisterKeyMappings() {
         KeyBindingHelper.registerKeyBinding(ModGameOptions.SAIL_KEY);
         KeyBindingHelper.registerKeyBinding(ModGameOptions.ENTER_CANNON_BARREL_KEY);
-        KeyBindingHelper.registerKeyBinding(ModGameOptions.CANNON_BARREL_UP_KEY);
-        KeyBindingHelper.registerKeyBinding(ModGameOptions.CANNON_BARREL_DOWN_KEY);
     }
 
     private void initRegisterTickEvents() {
         ClientTickEvents.END_CLIENT_TICK.register(KeyEvent::onKeyInput);
-        ClientTickEvents.END_CLIENT_TICK.register(com.talhanation.smallships.client.ClientTickHandler::onClientTick);
+        ClientTickEvents.END_CLIENT_TICK.register(ClientTickHandler::onClientTick);
     }
 
     private void initRegisterPacketReceivers() {

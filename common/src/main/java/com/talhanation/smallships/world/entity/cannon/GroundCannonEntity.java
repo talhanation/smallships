@@ -427,18 +427,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
      * Key-only barrel elevation. Kept separate from updateControls so the
      * reflection signature used by the Workers/Recruits mod stays stable.
      */
-    public void updateBarrelControls(boolean barrelUp, boolean barrelDown, @Nullable LivingEntity livingEntity) {
+    public void updateBarrelControls(@Nullable LivingEntity livingEntity) {
         boolean needsUpdate = false;
-
-        if (this.isBarrelUp() != barrelUp) {
-            this.setBarrelUp(barrelUp);
-            needsUpdate = true;
-        }
-
-        if (this.isBarrelDown() != barrelDown) {
-            this.setBarrelDown(barrelDown);
-            needsUpdate = true;
-        }
 
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && livingEntity instanceof Player) {
             ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), this.isAimingRaw()));

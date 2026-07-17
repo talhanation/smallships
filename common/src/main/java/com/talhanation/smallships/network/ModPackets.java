@@ -24,6 +24,8 @@ public class ModPackets {
         registerNonPacket(ServerboundDockyardBuildPacket.TYPE, ServerboundDockyardBuildPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundDockyardUpgradePacket.TYPE, ServerboundDockyardUpgradePacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundDockyardCannonPacket.TYPE, ServerboundDockyardCannonPacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundDockyardStylePacket.TYPE, ServerboundDockyardStylePacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundDockyardRepairPacket.TYPE, ServerboundDockyardRepairPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ClientboundWindPacket.TYPE, ClientboundWindPacket.CODEC, ModPacket.Side.CLIENTBOUND);
 
     }
@@ -32,7 +34,7 @@ public class ModPackets {
     private static <T extends ModPacket> void registerNonPacket(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, ModPacket.Side side) {
         registerPacket((CustomPacketPayload.Type<ModPacket>)type, (StreamCodec<RegistryFriendlyByteBuf, ModPacket>)codec, side);
     }
-    
+
     @ExpectPlatform
     public static void registerPacket(CustomPacketPayload.Type<ModPacket> type, StreamCodec<RegistryFriendlyByteBuf, ModPacket> codec, ModPacket.Side side) {
         throw new AssertionError();

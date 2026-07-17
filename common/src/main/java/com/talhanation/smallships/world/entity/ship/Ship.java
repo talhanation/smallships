@@ -361,6 +361,37 @@ public abstract class Ship extends Boat {
         return 1.0F + influence * wind.strength() * wind.getAlignment(this.getYRot());
     }
 
+
+    /* ---------------- dockyard claim: only ONE dockyard may service a ship ---------------- */
+
+    /** transient, server side: the dockyard currently working on this ship */
+    @Nullable
+    private BlockPos servicingDockyardPos;
+    private long servicingDockyardTime;
+
+    /** Called by the working dockyard on task start and refreshed every second. */
+    public void setServicingDockyard(BlockPos pos) {
+        this.servicingDockyardPos = pos;
+        this.servicingDockyardTime = this.level().getGameTime();
+    }
+
+    /** Called by the dockyard when its task on this ship finishes or aborts. */
+    public void clearServicingDockyard(BlockPos pos) {
+        if (pos.equals(this.servicingDockyardPos)) {
+            this.servicingDockyardPos = null;
+        }
+    }
+
+    /**
+     * @return true if ANOTHER dockyard is currently working on this ship.
+     * The claim expires 2 seconds after the last refresh, so it survives no
+     * restarts stale (the working dockyard re-claims every second).
+     */
+    public boolean isServicedByOtherDockyard(BlockPos requester) {
+        if (this.servicingDockyardPos == null || this.servicingDockyardPos.equals(requester)) return false;
+        return this.level().getGameTime() - this.servicingDockyardTime < 40L;
+    }
+
     public boolean isLocked(){
         return isLocked;
     }

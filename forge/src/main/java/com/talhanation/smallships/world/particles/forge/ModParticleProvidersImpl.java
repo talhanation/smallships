@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.particles.forge;
 
+import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.ParticleOptions;
@@ -19,6 +20,10 @@ public class ModParticleProvidersImpl {
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Function<SpriteSet, ParticleProvider<T>> provider) {
-        PARTICLE_PROVIDERS.add(new Pair<>(type, provider));
+        // must be stored as SpriteParticleRegistration - the ClientModBus event
+        // handler casts to it (a plain Function caused a ClassCastException,
+        // which is why the wind particles never registered on forge)
+        ParticleEngine.SpriteParticleRegistration<T> registration = provider::apply;
+        PARTICLE_PROVIDERS.add(new Pair<>(type, registration));
     }
 }

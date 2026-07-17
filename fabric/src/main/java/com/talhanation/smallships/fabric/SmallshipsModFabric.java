@@ -8,7 +8,9 @@ import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.block.ModBlockEntityTypes;
 import com.talhanation.smallships.world.block.ModBlocks;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.commands.SmallshipsCommand;
 import com.talhanation.smallships.world.wind.WindManager;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.level.ServerLevel;
@@ -37,6 +39,8 @@ public class SmallshipsModFabric implements ModInitializer {
         ModPacketsImpl.registerServerReceivers();
 
         UseEntityCallback.EVENT.register(new PassengerEvents());
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> SmallshipsCommand.register(dispatcher));
 
         // wind system: tick per server level, sync to joining players
         ServerTickEvents.END_WORLD_TICK.register(level -> WindManager.get(level).tick(level));

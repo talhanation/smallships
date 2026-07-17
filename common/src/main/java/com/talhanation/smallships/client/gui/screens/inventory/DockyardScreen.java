@@ -3,11 +3,19 @@ package com.talhanation.smallships.client.gui.screens.inventory;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundDockyardBuildPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardCannonPacket;
+import com.talhanation.smallships.network.packet.ServerboundDockyardRepairPacket;
+import com.talhanation.smallships.network.packet.ServerboundDockyardStylePacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardUpgradePacket;
 import com.talhanation.smallships.world.dockyard.DockyardRecipe;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
+import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.world.block.DockyardBlockEntity;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.DyeItem;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.world.item.ItemStack;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
@@ -21,7 +29,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import com.mojang.blaze3d.platform.Lighting;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -48,10 +55,16 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private int woodTypeIndex = 0;
 
     private Button buildButton;
+    private Button repairButton;
     private Button shipTypeButton;
     private Button woodTypeButton;
     private final List<UpgradeButton> upgradeButtons = new ArrayList<>();
     private final List<CannonSlotButton> cannonSlotButtons = new ArrayList<>();
+    private final List<StyleButton> styleButtons = new ArrayList<>();
+    /** build mode: cached dummy ship for the preview (never added to the world) */
+    private Ship previewShip;
+    private int previewShipTypeId = -1;
+    private int previewWoodIndex = -1;
 
     public DockyardScreen(DockyardMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -81,6 +94,10 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 ModPackets.clientSendPacket(new ServerboundDockyardBuildPacket(this.menu.getDockyardPos(), this.selectedShipType.id, this.woodTypeIndex))
         ).bounds(left + 8, top + this.imageHeight - 30, 90, 20).build());
 
+        this.repairButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.smallships.dockyard.repair"), button ->
+                ModPackets.clientSendPacket(new ServerboundDockyardRepairPacket(this.menu.getDockyardPos()))
+        ).bounds(left + 8, top + this.imageHeight - 30, 120, 20).build());
+
         // upgrade buttons (modify mode)
         ShipUpgrade[] upgrades = ShipUpgrade.values();
         for (int i = 0; i < upgrades.length; i++) {
@@ -97,6 +114,18 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             CannonSlotButton slotButton = new CannonSlotButton(left + 8 + slot * 24, top + 100, slot, button ->
                     this.onCannonSlotClicked(s));
             this.cannonSlotButtons.add(this.addRenderableWidget(slotButton));
+        }
+
+        // style bar: dyes and banners detected in the player inventory
+        this.styleButtons.clear();
+        for (int i = 0; i < 8; i++) {
+            StyleButton styleButton = new StyleButton(left + 8 + i * 24, top + 124, button -> {
+                StyleButton sb = (StyleButton) button;
+                if (sb.inventorySlot >= 0) {
+                    ModPackets.clientSendPacket(new ServerboundDockyardStylePacket(this.menu.getDockyardPos(), sb.inventorySlot));
+                }
+            });
+            this.styleButtons.add(this.addRenderableWidget(styleButton));
         }
     }
 
@@ -144,6 +173,26 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.woodTypeButton.visible = !modify;
         this.buildButton.visible = !modify;
         this.buildButton.active = !busy && this.canAffordSelection();
+        Ship repairShip = this.getShip();
+        boolean damaged = repairShip != null && (repairShip.getDamage() > 0.0F || SailDamage.getHealth(repairShip) < SailDamage.MAX_HEALTH);
+        this.repairButton.visible = modify && damaged;
+        if (this.repairButton.visible) {
+            // dynamic costs: heavier damage costs more; wool only for torn sails
+            var costs = DockyardBlockEntity.getRepairCosts(repairShip);
+            boolean afford = true;
+            net.minecraft.network.chat.MutableComponent costLine = Component.translatable("gui.smallships.dockyard.repair_cost");
+            for (var cost : costs) {
+                ItemStack display = cost.getDisplayStack(net.minecraft.world.entity.vehicle.Boat.Type.OAK);
+                costLine.append(Component.literal(" " + cost.amount() + "x ")).append(display.getHoverName());
+                if (this.menu.getPlayer() != null && !this.menu.getPlayer().hasInfiniteMaterials() && cost.countIn(this.menu.getPlayer()) < cost.amount()) {
+                    afford = false;
+                }
+            }
+            this.repairButton.setTooltip(net.minecraft.client.gui.components.Tooltip.create(costLine));
+            this.repairButton.active = !busy && afford;
+        } else {
+            this.repairButton.active = false;
+        }
         Ship ship = this.getShip();
         for (UpgradeButton button : this.upgradeButtons) {
             button.visible = modify;
@@ -156,6 +205,39 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             button.visible = modify && cannonShip && button.slot < totalSlots;
             button.active = button.visible && !busy;
             button.ship = ship;
+        }
+
+        // scan the player inventory for dyes (sailable ships) and banners
+        // (bannerable ships): one button per distinct dye color / banner stack
+        List<int[]> styleSlots = new ArrayList<>(); // [inventorySlot]
+        java.util.Set<String> seenColors = new java.util.HashSet<>();
+        Player stylePlayer = this.menu.getPlayer();
+        if (modify && ship != null && stylePlayer != null) {
+            var items = stylePlayer.getInventory().items;
+            for (int slot = 0; slot < items.size() && styleSlots.size() < this.styleButtons.size(); slot++) {
+                ItemStack stack = items.get(slot);
+                if (stack.getItem() instanceof DyeItem dyeItem && ship instanceof Sailable) {
+                    if (dyeItem.getDyeColor().getName().equals(ship.getData(com.talhanation.smallships.world.entity.ship.Ship.SAIL_COLOR))) continue;
+                    if (!seenColors.add(dyeItem.getDyeColor().getName())) continue;
+                    styleSlots.add(new int[]{slot});
+                } else if (stack.getItem() instanceof BannerItem && ship instanceof Bannerable) {
+                    styleSlots.add(new int[]{slot});
+                }
+            }
+        }
+        for (int i = 0; i < this.styleButtons.size(); i++) {
+            StyleButton button = this.styleButtons.get(i);
+            if (modify && i < styleSlots.size() && stylePlayer != null) {
+                button.inventorySlot = styleSlots.get(i)[0];
+                button.displayStack = stylePlayer.getInventory().items.get(button.inventorySlot);
+                button.visible = true;
+                button.active = !busy;
+            } else {
+                button.inventorySlot = -1;
+                button.displayStack = ItemStack.EMPTY;
+                button.visible = false;
+                button.active = false;
+            }
         }
     }
 
@@ -170,12 +252,17 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.renderTooltip(guiGraphics, mouseX, mouseY);
 
         for (UpgradeButton button : this.upgradeButtons) {
-            if (button.visible && button.isHoveredOrFocused()) {
+            if (button.visible && button.active && button.isHoveredOrFocused()) {
                 guiGraphics.renderComponentTooltip(this.font, button.getTooltipLines(), mouseX, mouseY);
             }
         }
         for (CannonSlotButton button : this.cannonSlotButtons) {
-            if (button.visible && button.isHoveredOrFocused()) {
+            if (button.visible && button.active && button.isHoveredOrFocused()) {
+                guiGraphics.renderComponentTooltip(this.font, button.getTooltipLines(), mouseX, mouseY);
+            }
+        }
+        for (StyleButton button : this.styleButtons) {
+            if (button.visible && button.active && button.isHoveredOrFocused()) {
                 guiGraphics.renderComponentTooltip(this.font, button.getTooltipLines(), mouseX, mouseY);
             }
         }
@@ -198,6 +285,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             guiGraphics.drawString(this.font, ship.getDisplayName(), left + 8, top + 22, 0xFFFF88, false);
             guiGraphics.drawString(this.font, Component.translatable("gui.smallships.dockyard.modify_hint"), left + 8, top + 36, 0xAAAAAA, false);
         } else {
+            // build mode: render a dummy ship of the selected type and wood
+            this.renderBuildPreview(guiGraphics, left + this.imageWidth - 66, top + 92, mouseX, mouseY);
             // material list (build mode)
             List<ItemStack> materials = DockyardRecipe.getDisplayStacks(this.selectedShipType, Boat.Type.values()[this.woodTypeIndex]);
             List<DockyardRecipe.Ingredient> ingredients = DockyardRecipe.getIngredients(this.selectedShipType);
@@ -234,7 +323,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private void renderShipPreview(GuiGraphics guiGraphics, Ship ship, int x, int y, int mouseX, int mouseY) {
         if (this.minecraft == null) return;
         float scale = 8.0F;
-        float rotation = (System.currentTimeMillis() % 7200L) / 20.0F;
+        float rotation = (System.currentTimeMillis() % 25200L) / 70.0F;
         Quaternionf pose = new Quaternionf().rotationXYZ(0.20F, (float) Math.toRadians(rotation), (float) Math.PI);
 
         guiGraphics.pose().pushPose();
@@ -252,6 +341,58 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         Lighting.setupFor3DItems();
 
         guiGraphics.pose().popPose();
+    }
+
+    /**
+     * Build mode: renders a client-only dummy ship of the selected type/wood
+     * (created via the ships' summon factories, never added to the world).
+     */
+    private void renderBuildPreview(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY) {
+        if (this.minecraft == null || this.minecraft.level == null) return;
+        if (this.previewShip == null || this.previewShipTypeId != this.selectedShipType.id || this.previewWoodIndex != this.woodTypeIndex) {
+            this.previewShip = this.selectedShipType.summon(this.minecraft.level, 0.0D, -100.0D, 0.0D);
+            if (this.previewShip != null) {
+                this.previewShip.setVariant(Boat.Type.values()[this.woodTypeIndex]);
+            }
+            this.previewShipTypeId = this.selectedShipType.id;
+            this.previewWoodIndex = this.woodTypeIndex;
+        }
+        if (this.previewShip != null) {
+            this.renderShipPreview(guiGraphics, this.previewShip, x, y, mouseX, mouseY);
+        }
+    }
+
+    /**
+     * A style button: shows a dye or banner detected in the player inventory.
+     * Clicking applies it to the ship after a short dockyard work time.
+     */
+    private class StyleButton extends Button {
+        private int inventorySlot = -1;
+        private ItemStack displayStack = ItemStack.EMPTY;
+
+        protected StyleButton(int x, int y, OnPress onPress) {
+            super(x, y, 22, 22, Component.empty(), onPress, DEFAULT_NARRATION);
+            this.visible = false;
+        }
+
+        @Override
+        protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            int frame = this.isHoveredOrFocused() ? 0xFFFFFFFF : 0xFF777777;
+            guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, frame);
+            guiGraphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, 0xFF2B2B2B);
+            if (!this.displayStack.isEmpty()) {
+                guiGraphics.renderItem(this.displayStack, this.getX() + 3, this.getY() + 3);
+            }
+        }
+
+        public List<Component> getTooltipLines() {
+            List<Component> lines = new ArrayList<>();
+            lines.add(this.displayStack.getHoverName().copy().withStyle(ChatFormatting.GOLD));
+            lines.add((this.displayStack.getItem() instanceof DyeItem
+                    ? Component.translatable("gui.smallships.dockyard.click_dye")
+                    : Component.translatable("gui.smallships.dockyard.click_banner")).withStyle(ChatFormatting.GREEN));
+            return lines;
+        }
     }
 
     /**

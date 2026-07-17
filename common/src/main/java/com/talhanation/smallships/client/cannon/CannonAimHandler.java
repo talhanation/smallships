@@ -67,6 +67,20 @@ public class CannonAimHandler {
         return rightClickHeld && canAim();
     }
 
+
+    /**
+     * Only the DRIVER's aim mode captures the mouse (broadside delta aiming).
+     * A GUNNER aims like the ground cannon: his view stays free and the cannon
+     * follows the view - so the mouse must NOT be captured for him.
+     */
+    public static boolean shouldCaptureMouse() {
+        if (!isAiming()) return false;
+        Minecraft minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
+        if (player == null || !(player.getVehicle() instanceof Ship ship)) return false;
+        return getGunnerSlot(player, ship) < 0;
+    }
+
     /* ---------------- state for camera and trajectory ---------------- */
 
     /** @return the broadside currently being aimed (frozen at activation). */
@@ -85,14 +99,14 @@ public class CannonAimHandler {
      */
     public static Vec3 getAimDirection(Ship ship, float partialTicks) {
         float shipYaw = Mth.rotLerp(partialTicks, ship.yRotO, ship.getYRot());
-        float yaw = shipYaw + (aimRightSide ? 90.0F : -90.0F) + (aimRightSide ? -rotation : rotation);
+        float yaw = shipYaw + (aimRightSide ? 90.0F : -90.0F) + (aimRightSide ? rotation : -rotation);
         float pitch = -angle;
         return Vec3.directionFromRotation(pitch, yaw);
     }
 
     public static float getAimYaw(Ship ship, float partialTicks) {
         float shipYaw = Mth.rotLerp(partialTicks, ship.yRotO, ship.getYRot());
-        return shipYaw + (aimRightSide ? 90.0F : -90.0F) + (aimRightSide ? -rotation : rotation);
+        return shipYaw + (aimRightSide ? 90.0F : -90.0F) + (aimRightSide ? rotation : -rotation);
     }
 
     public static float getAimPitch() {
@@ -123,11 +137,13 @@ public class CannonAimHandler {
             aiming = true;
         }
 
-        // mouse up = angle up; mouse right = rotate towards where the mouse moves
+        // GUNNER: no delta aiming - the cannon follows the view (see tick())
+        if (aimSlot >= 0) return;
+
+        // mouse up = angle up; mouse right = rotate right - applied DIRECTLY
         angle = Mth.clamp(angle - (float) deltaY * MOUSE_SENSITIVITY, Cannonable.CANNON_ANGLE_MIN, Cannonable.CANNON_ANGLE_MAX);
         float rotationDelta = (float) deltaX * MOUSE_SENSITIVITY;
-        // on the port side the screen-x direction is mirrored relative to "towards bow"
-        rotation = Mth.clamp(rotation + (aimRightSide ? -rotationDelta : rotationDelta), -Cannonable.CANNON_ROTATION_MAX, Cannonable.CANNON_ROTATION_MAX);
+        rotation = Mth.clamp(rotation + (aimRightSide ? rotationDelta : -rotationDelta), -Cannonable.CANNON_ROTATION_MAX, Cannonable.CANNON_ROTATION_MAX);
 
         // instant client side feedback (camera + trajectory + cannon render)
         cannonable.setCannonAim(aimSlot, aimRightSide, angle, rotation);
@@ -150,6 +166,21 @@ public class CannonAimHandler {
             // activate even before the first mouse movement, so camera and
             // trajectory react immediately on press
             handleMouseDelta(0.0D, 0.0D);
+        }
+
+        // GUNNER mode (like the ground cannon): the cannon follows the free
+        // view of the gunner instead of captured mouse deltas
+        if (active && aiming && aimSlot >= 0 && player.getVehicle() instanceof Ship gunnerShip && gunnerShip instanceof Cannonable gunnerCannonable) {
+            float sideYaw = gunnerShip.getYRot() + (aimRightSide ? 90.0F : -90.0F);
+            float viewDelta = Mth.wrapDegrees(player.getYRot() - sideYaw);
+            float newRotation = Mth.clamp(aimRightSide ? viewDelta : -viewDelta, -Cannonable.CANNON_ROTATION_MAX, Cannonable.CANNON_ROTATION_MAX);
+            float newAngle = Mth.clamp(-player.getXRot(), Cannonable.CANNON_ANGLE_MIN, Cannonable.CANNON_ANGLE_MAX);
+            if (newAngle != angle || newRotation != rotation) {
+                angle = newAngle;
+                rotation = newRotation;
+                gunnerCannonable.setCannonAim(aimSlot, aimRightSide, angle, rotation);
+                dirty = true;
+            }
         }
 
         if (dirty && (!active || tickCounter % SYNC_INTERVAL_TICKS == 0)) {

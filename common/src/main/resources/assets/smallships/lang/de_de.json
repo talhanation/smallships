@@ -111,5 +111,15 @@
   "gui.smallships.dockyard.cannon_slot": "Kanonen-Slot %s (%s)",
   "gui.smallships.dockyard.starboard": "Steuerbord",
   "gui.smallships.dockyard.port": "Backbord",
-  "gui.smallships.dockyard.click_mount": "Klicken zum Montieren (kostet 1 Kanone)"
+  "gui.smallships.dockyard.click_mount": "Klicken zum Montieren (kostet 1 Kanone)",
+  "gui.smallships.dockyard.ship_busy": "Eine andere Werft arbeitet bereits an diesem Schiff!",
+  "commands.smallships.wind.set_direction": "Windrichtung auf %s° gesetzt (Norden = 0°, im Uhrzeigersinn)",
+  "gui.smallships.dockyard.click_dye": "Klicken zum Färben der Segel (8s Arbeitszeit)",
+  "gui.smallships.dockyard.click_banner": "Klicken zum Anbringen dieses Banners (8s Arbeitszeit)",
+  "gui.smallships.upgrade.installed": "Eingebaut",
+  "gui.smallships.upgrade.not_installed": "Nicht eingebaut",
+  "gui.smallships.dockyard.repair": "Schiff reparieren",
+  "gui.smallships.dockyard.repair_cost": "Kosten:",
+  "commands.smallships.wind.set_strength": "Windstärke auf %s gesetzt",
+  "commands.smallships.wind.info": "Wind: Richtung %s° (Norden = 0°, im Uhrzeigersinn), Stärke %s"
 }

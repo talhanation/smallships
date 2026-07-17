@@ -76,11 +76,6 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @Override
     public void render(T shipEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        // right click aim mode: white trajectory preview per cannon (before any
-        // hull transforms, the pose stack is still world aligned at the entity origin)
-        if (shipEntity instanceof Cannonable cannonShip && CannonAimHandler.isAimingShip(shipEntity)) {
-            this.renderCannonTrajectories(cannonShip, shipEntity, partialTicks, poseStack, multiBufferSource);
-        }
         Attributes shipAttributes = shipEntity.getAttributes();
         float h = ((float) shipEntity.getHurtTime() - partialTicks) / ((shipAttributes.maxHealth * shipEntity.getBbWidth()) / 40.0F);
         float j = shipEntity.getDamage() - partialTicks;
@@ -137,42 +132,6 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         super.render(shipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 
-    /**
-     * Renders the white trajectory line per cannon while the local player is
-     * aiming: driver = every cannon of the aimed broadside, gunner = only his
-     * mapped cannon. Uses the exact cannonball physics (see CannonTrajectory).
-     */
-    private void renderCannonTrajectories(Cannonable cannonShipEntity, T shipEntity, float partialTicks, PoseStack poseStack, MultiBufferSource multiBufferSource) {
-        boolean rightSide = CannonAimHandler.getAimSide();
-        int aimSlot = CannonAimHandler.getAimSlot();
-        Vec3 renderOrigin = shipEntity.getPosition(partialTicks);
-
-        poseStack.pushPose();
-        VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
-
-        for (int slot = 0; slot < cannonShipEntity.getTotalCannonSlots(); slot++) {
-            if (!cannonShipEntity.isCannonInSlot(slot)) continue;
-            Cannonable.CannonPosition position = cannonShipEntity.getCannonPosition(slot);
-            if (position == null) continue;
-            // gunner: only his cannon; driver: all cannons of the aimed broadside
-            if (aimSlot >= 0 ? slot != aimSlot : position.isRightSided != rightSide) continue;
-
-            ShipCannon cannon = new ShipCannon(shipEntity, position, slot);
-
-            float angle = cannonShipEntity.getCannonAngle(slot, cannon.isRightSided());
-            float rotation = cannonShipEntity.getCannonRotation(slot, cannon.isRightSided());
-            float yaw = shipEntity.getYRot() + (cannon.isRightSided() ? 90.0F : -90.0F) + (cannon.isRightSided() ? -rotation : rotation);
-            Vec3 direction = Vec3.directionFromRotation(-angle, yaw);
-
-            // start at the barrel end, relative to the render origin
-            Vec3 start = cannon.getGlobalPosition().add(direction.scale(1.1D)).add(0.0D, 0.35D, 0.0D).subtract(renderOrigin);
-
-            CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculate(start, direction, CannonTrajectory.CANNON_SPEED));
-        }
-
-        poseStack.popPose();
-    }
-
     private static final CannonModel cannonModel = new CannonModel();
     @SuppressWarnings({"unused"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
@@ -189,7 +148,22 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             poseStack.translate(cannon.isRightSided() ? -cannon.getOffsetX() : cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), -cannon.getOffsetZ());
 
             // aim rotation around the cannon's OWN vertical axis (after the translate!)
-            poseStack.mulPose(Axis.YN.rotationDegrees(cannon.isRightSided() ? -aimRotation : aimRotation));
+            poseStack.mulPose(Axis.YN.rotationDegrees(cannon.isRightSided() ? aimRotation : -aimRotation));
+
+            // right click aim mode: white trajectory line, rendered INSIDE the
+            // cannon pose like the SiegeWeapons ballista - it follows every ship
+            // rotation and the cannon aim automatically. The hull scale (-1.3)
+            // is normalized away so the ballista math applies 1:1.
+            if (CannonAimHandler.isAimingShip(cannonShipEntity.self())
+                    && (CannonAimHandler.getAimSlot() >= 0
+                    ? slot == CannonAimHandler.getAimSlot()
+                    : cannon.isRightSided() == CannonAimHandler.getAimSide())) {
+                poseStack.pushPose();
+                poseStack.scale(1.0F / 1.3F, 1.0F / 1.3F, 1.0F / 1.3F);
+                VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
+                CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculateLocal(aimAngle, CannonTrajectory.CANNON_SPEED));
+                poseStack.popPose();
+            }
 
             poseStack.scale(0.6F, 0.6F, 0.6F);
 
@@ -234,16 +208,19 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         if (bannerItemStack.getItem() instanceof BannerItem bannerItem) {
             poseStack.pushPose();
             Bannerable.BannerPosition pos = bannerShipEntity.getBannerPosition();
-            float bannerYaw = pos.yp;
-            if (SmallShipsConfig.Common.windEnable.get() && SmallShipsConfig.Client.windBannerEnable.get()) {
-                // rotate the banner so it streams in the direction the wind blows to;
-                // the default pos.yp corresponds to the banner streaming backwards (headwind)
-                float windOffset = net.minecraft.util.Mth.wrapDegrees(ClientWindManager.getDirection(partialTicks) - entityYaw - 180.0F);
-                bannerYaw += windOffset * Math.min(1.0F, ClientWindManager.getStrength(partialTicks) * 2.0F);
-            }
-            poseStack.mulPose(Axis.YP.rotationDegrees(bannerYaw));
+            // IMPORTANT: position with the UNCHANGED pos.yp so the banner pivot
+            // stays fixed regardless of the wind rotation
+            poseStack.mulPose(Axis.YP.rotationDegrees(pos.yp));
             poseStack.mulPose(Axis.ZP.rotationDegrees(pos.zp));
             poseStack.translate(pos.x, pos.y, pos.z);
+            if (SmallShipsConfig.Common.windEnable.get() && SmallShipsConfig.Client.windBannerEnable.get()) {
+                // rotate the banner AROUND ITS OWN POLE (after the translate) so it
+                // streams in the direction the wind blows to. Applied unscaled:
+                // a full mod-360 rotation never causes a visible flip, unlike the
+                // old strength-scaled wrapDegrees offset.
+                float windOffset = net.minecraft.util.Mth.wrapDegrees(ClientWindManager.getDirection(partialTicks) - entityYaw - 180.0F);
+                poseStack.mulPose(Axis.XP.rotationDegrees(windOffset));
+            }
             poseStack.scale(0.5F, 0.5F, 0.5F);
 
             float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);

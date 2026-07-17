@@ -55,11 +55,12 @@ public class ModItemsImpl {
             });
 
             ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT).register(entries -> {
-                entries.addAfter(Items.CROSSBOW, ModItems.CANNON, ModItems.CANNON_BALL);
+                entries.addAfter(Items.CROSSBOW, ModItems.CANNON, ModItems.CANNON_BALL, ModItems.CHAINED_SHOT, ModItems.GRAPE_SHOT, ModItems.FINE_GRAIN_POWDER);
             });
 
             ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
                 List<Item> shipItems = new ArrayList<>();
+                shipItems.add(ModItems.DOCKYARD);
                 for (Boat.Type type : Boat.Type.values()) {
                     shipItems.add(ModItems.COG_ITEMS.get(type));
                     shipItems.add(ModItems.BRIGG_ITEMS.get(type));

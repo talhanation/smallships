@@ -67,7 +67,7 @@ public class ShipCannon implements ICannon {
         float aimRotation = cannonable.getCannonRotation(this.slotIndex, this.isRightSided); // -10..10, positive = towards bow
 
         float sideYaw = this.ship.getYRot() + (this.isRightSided ? 90.0F : -90.0F);
-        float entityYaw = sideYaw + (this.isRightSided ? -aimRotation : aimRotation);
+        float entityYaw = sideYaw + (this.isRightSided ? aimRotation : -aimRotation);
         float entityPitch = -aimAngle;
 
         Vec3 pos = this.getGlobalPosition();
@@ -102,6 +102,9 @@ public class ShipCannon implements ICannon {
         Entity driverEntity = shooterEntity;
         if (driverEntity == null || this.level.isClientSide()) return;
         if (!(this.ship instanceof Cannonable cannonable)) return;
+        // the trigger fires every tick while the key is held - only consume the
+        // cannonball when this cannon can actually start a new shot (reload)
+        if (this.cannon.isCooldown() || this.cannon.isFuzing()) return;
 
         CannonBallItem ammo = cannonable.getCannonBallToShoot();
         if (ammo == null) return;

@@ -126,5 +126,15 @@
   "gui.smallships.dockyard.cannon_slot": "Cannon Slot %s (%s)",
   "gui.smallships.dockyard.starboard": "Starboard",
   "gui.smallships.dockyard.port": "Port",
-  "gui.smallships.dockyard.click_mount": "Click to mount (costs 1 cannon)"
+  "gui.smallships.dockyard.click_mount": "Click to mount (costs 1 cannon)",
+  "gui.smallships.dockyard.ship_busy": "Another dockyard is already working on this ship!",
+  "commands.smallships.wind.set_direction": "Wind direction set to %s° (north = 0°, clockwise)",
+  "gui.smallships.dockyard.click_dye": "Click to dye the sails (8s work time)",
+  "gui.smallships.dockyard.click_banner": "Click to apply this banner (8s work time)",
+  "gui.smallships.upgrade.installed": "Installed",
+  "gui.smallships.upgrade.not_installed": "Not installed",
+  "gui.smallships.dockyard.repair": "Repair ship",
+  "gui.smallships.dockyard.repair_cost": "Costs:",
+  "commands.smallships.wind.set_strength": "Wind strength set to %s",
+  "commands.smallships.wind.info": "Wind: direction %s° (north = 0°, clockwise), strength %s"
 }

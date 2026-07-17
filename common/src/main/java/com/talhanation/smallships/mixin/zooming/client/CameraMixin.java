@@ -7,6 +7,8 @@ import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
+import com.talhanation.smallships.world.entity.cannon.ShipCannon;
+import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.Camera;
@@ -60,17 +62,29 @@ public abstract class CameraMixin implements CameraZoomAccess {
             return;
         }
 
-        // cannon ship: look into the shooting direction while aiming
+        // cannon ship: aim camera while the right click is held
         if (player.getVehicle() instanceof Ship ship && CannonAimHandler.isAimingShip(ship)) {
-            double x = Mth.lerp(partialTick, ship.xo, ship.getX());
-            double y = Mth.lerp(partialTick, ship.yo, ship.getY());
-            double z = Mth.lerp(partialTick, ship.zo, ship.getZ());
-
             float aimYaw = CannonAimHandler.getAimYaw(ship, partialTick);
             float aimPitch = CannonAimHandler.getAimPitch();
             Vec3 aimDirection = CannonAimHandler.getAimDirection(ship, partialTick);
 
-            // over the deck, pulled back against the shooting direction
+            int gunnerSlot = CannonAimHandler.getAimSlot();
+            if (gunnerSlot >= 0 && ship instanceof Cannonable cannonable && cannonable.getCannonPosition(gunnerSlot) != null) {
+                // GUNNER: barrel camera at HIS cannon, like the ground cannon /
+                // ballista - behind and above the barrel, looking along it
+                Vec3 cannonPos = new ShipCannon(ship, cannonable.getCannonPosition(gunnerSlot), gunnerSlot).getGlobalPosition();
+                Vec3 cameraPos = cannonPos.add(0.0D, 1.35D, 0.0D).subtract(aimDirection.scale(1.0D));
+
+                this.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
+                this.setRotation(aimYaw, aimPitch);
+                ci.cancel();
+                return;
+            }
+
+            // DRIVER: over the deck, pulled back against the shooting direction
+            double x = Mth.lerp(partialTick, ship.xo, ship.getX());
+            double y = Mth.lerp(partialTick, ship.yo, ship.getY());
+            double z = Mth.lerp(partialTick, ship.zo, ship.getZ());
             Vec3 cameraPos = new Vec3(x, y + 3.5D, z).subtract(aimDirection.scale(3.5D));
 
             this.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);

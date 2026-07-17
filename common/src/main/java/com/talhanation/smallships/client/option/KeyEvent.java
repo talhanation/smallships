@@ -75,7 +75,7 @@ public class KeyEvent {
         else if (player.getVehicle() instanceof GroundCannonEntity cannon){
             cannon.updateControls(forwardKey, backwardKey, leftKey, rightKey, player);
             // key-only barrel elevation
-            cannon.updateBarrelControls(ModGameOptions.CANNON_BARREL_UP_KEY.isDown(), ModGameOptions.CANNON_BARREL_DOWN_KEY.isDown(), player);
+            cannon.updateBarrelControls(player);
         }
     }
 }

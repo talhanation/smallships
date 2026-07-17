@@ -4,9 +4,13 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
+import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -42,6 +46,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderUpgradePanel(guiGraphics, mouseX, mouseY);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -80,6 +85,40 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
                 .build());
         forward.active = this.pageCount > 1 && this.pageIndex + 1 < this.pageCount;
     }
+
+    /**
+     * Upgrade panel right next to the ship info: one icon field per dockyard
+     * upgrade. Installed upgrades show a green frame, missing ones are
+     * darkened; the tooltip lists the name and the benefit.
+     */
+    private void renderUpgradePanel(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        ShipUpgrade[] upgrades = ShipUpgrade.values();
+        int x = this.leftPos + this.imageWidth + 4;
+        int y = this.topPos + 20;
+
+        List<Component> tooltip = null;
+        int shown = 0;
+        for (ShipUpgrade upgrade : upgrades) {
+            // only INSTALLED upgrades are shown
+            if (!upgrade.isInstalled(this.containerShip)) continue;
+            int boxY = y + shown * 24;
+            shown++;
+
+            guiGraphics.fill(x, boxY, x + 22, boxY + 22, 0xFF55B14C);
+            guiGraphics.fill(x + 1, boxY + 1, x + 21, boxY + 21, 0xFF2B2B2B);
+            guiGraphics.renderItem(upgrade.getCost(), x + 3, boxY + 3);
+
+            if (mouseX >= x && mouseX < x + 22 && mouseY >= boxY && mouseY < boxY + 22) {
+                tooltip = new ArrayList<>();
+                tooltip.add(Component.translatable(upgrade.getTranslationKey()).withStyle(ChatFormatting.GOLD));
+                tooltip.add(Component.translatable(upgrade.getDescriptionTranslationKey()).withStyle(ChatFormatting.GRAY));
+            }
+        }
+        if (tooltip != null) {
+            guiGraphics.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
+        }
+    }
+
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int i, int j) {
         super.renderLabels(guiGraphics, i, j);

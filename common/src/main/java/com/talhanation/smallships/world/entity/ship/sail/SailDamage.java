@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Central handler for the sail damage system.
  *
- * Sails have a single health pool of {@link #MAX_HEALTH} points per ship,
+ * Sails have a single health pool of {@link #MAX_HEALTH} (30) points per ship,
  * stored in the ship's synched entity data ({@link Ship#SAIL_HEALTH}).
  *
  * - When a cannonball hits a ship, a percentage of the damage is transferred
@@ -28,8 +28,9 @@ import net.minecraft.world.item.ItemStack;
  * - Repaired by hand with 6x wool (any color), or completely at the dockyard.
  */
 public final class SailDamage {
-    public static final float MAX_HEALTH = 100.0F;
-    public static final float TORN_THRESHOLD = 50.0F;
+    /** reduced from 100: with 15%/50% damage transfer the states are actually reachable now */
+    public static final float MAX_HEALTH = 30.0F;
+    public static final float TORN_THRESHOLD = 15.0F;
 
     private SailDamage() {}
 

@@ -53,7 +53,11 @@ public class CommonModBus {
             } else if (getCreativeModeTab.apply(CreativeModeTabs.COMBAT).equals(event.getTab())) {
                 event.getEntries().putAfter(new ItemStack(Items.CROSSBOW), new ItemStack(ModItems.CANNON_BALL), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 event.getEntries().putAfter(new ItemStack(Items.CROSSBOW), new ItemStack(ModItems.CANNON), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.getEntries().putAfter(new ItemStack(ModItems.CANNON_BALL), new ItemStack(ModItems.CHAINED_SHOT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.getEntries().putAfter(new ItemStack(ModItems.CHAINED_SHOT), new ItemStack(ModItems.GRAPE_SHOT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.getEntries().putAfter(new ItemStack(ModItems.GRAPE_SHOT), new ItemStack(ModItems.FINE_GRAIN_POWDER), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             } else if (getCreativeModeTab.apply(CreativeModeTabs.TOOLS_AND_UTILITIES).equals(event.getTab())) {
+                event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DOCKYARD), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 for (Boat.Type type: Boat.Type.values()) {
                     event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.BRIGG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);

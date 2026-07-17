@@ -19,7 +19,7 @@ public class ModParticleProviders {
         register(ModParticleTypes.DYED_CANNON_SHOOT.get(), CannonPoofParticles.DyedProvider::new);
         register(ModParticleTypes.COLORED_POOF.get(), CustomPoofParticle.Provider::new);
         register(ModParticleTypes.CANNON_BALL_SHOOT.get(), CannonBallShootParticles.Provider::new);
-        register(ModParticleTypes.WIND_LINE.get(), (java.util.function.Function<net.minecraft.client.particle.SpriteSet, net.minecraft.client.particle.ParticleProvider<net.minecraft.core.particles.SimpleParticleType>>) WindLineParticle.Provider::new);
+        register(ModParticleTypes.WIND_LINE.get(), WindLineParticle.Provider::new);
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Supplier<ParticleProvider<T>> providerConstructor) {
