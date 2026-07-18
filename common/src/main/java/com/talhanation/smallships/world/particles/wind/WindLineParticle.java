@@ -63,6 +63,13 @@ public class WindLineParticle extends TextureSheetParticle {
         else this.alpha = maxAlpha;
     }
 
+    @Override
+    public void render(VertexConsumer buffer, Camera camera, float partialTicks) {
+        Vec3 camPos = camera.getPosition();
+        float px = (float) (Mth.lerp(partialTicks, this.xo, this.x) - camPos.x());
+        float py = (float) (Mth.lerp(partialTicks, this.yo, this.y) - camPos.y());
+        float pz = (float) (Mth.lerp(partialTicks, this.zo, this.z) - camPos.z());
+
         // the quad lies flat on the water: "along" runs with the wind, "across"
         // is perpendicular to it, both on the XZ plane so it never faces the camera
         float halfLength = this.quadSize;
