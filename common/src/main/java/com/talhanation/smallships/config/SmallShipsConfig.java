@@ -394,7 +394,7 @@ public class SmallShipsConfig {
 
         builder.comment("Maximum speed influence of the wind: 0.2 = up to +20% with full tailwind and up to -20% with full headwind.");
         Common.windMaxSpeedInfluence = builder
-                .defineInRange("windMaxSpeedInfluence", 0.2D, 0.0D, 1.0D);
+                .defineInRange("windMaxSpeedInfluence", 0.33D, 0.0D, 1.0D);
 
         builder.comment("Minimum time between wind changes in seconds.");
         Common.windChangeIntervalMin = builder

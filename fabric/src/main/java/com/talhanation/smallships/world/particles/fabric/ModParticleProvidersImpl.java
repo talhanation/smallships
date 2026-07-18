@@ -16,6 +16,12 @@ public class ModParticleProvidersImpl extends ModParticleProviders {
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Function<SpriteSet, ParticleProvider<T>> provider) {
-        ParticleFactoryRegistry.getInstance().register(type, provider::apply);
+        // use the PendingParticleFactory overload explicitly: it hands us the
+        // sprite set loaded from assets/<modid>/particles/<name>.json once the
+        // atlas is ready. Passing "provider::apply" directly is ambiguous between
+        // the ParticleFactory and PendingParticleFactory overloads, which on
+        // Fabric silently binds the sprite-less path and leaves the particle
+        // invisible - the FabricSpriteProvider given here IS a SpriteSet.
+        ParticleFactoryRegistry.getInstance().register(type, spriteProvider -> provider.apply(spriteProvider));
     }
 }

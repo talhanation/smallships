@@ -87,7 +87,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     public GroundCannonEntity(Level level, Vec3 pos) {
         super(ModEntityTypes.GROUND_CANNON, level);
-        this.cannon.setPitchBounds(-60.0F, 20.0F);
+        this.cannon.setPitchBounds(-30.0F, 10.0F);
         this.setPos(pos);
         recalculateBoundingBox();
         this.inventory = new SimpleContainer(1);
@@ -95,7 +95,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     public GroundCannonEntity(EntityType<? extends Entity> entityType, Level level) {
         super(entityType, level);
-        this.cannon.setPitchBounds(-60.0F, 20.0F);
+        this.cannon.setPitchBounds(-30.0F, 10.0F);
     }
 
     public Item getDropItem() {
@@ -306,7 +306,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             // follows the driver's view, the camera sits behind the barrel.
             if (this.isAiming()) {
                 this.setYRot(driver.getYRot());
-                this.setXRot(Math.clamp(driver.getXRot(), -60, 20));
+                this.setXRot(Math.clamp(driver.getXRot(), -30, 10));
                 return;
             }
 
@@ -327,7 +327,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             if (isBarrelDown()) {
                 xRot += BARREL_PITCH_SPEED;
             }
-            xRot = Math.clamp(xRot, -60, 20);
+            xRot = Math.clamp(xRot, -30, 10);
 
             this.setXRot(xRot);
             this.setYRot(newYRot);

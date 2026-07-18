@@ -24,9 +24,9 @@ import java.util.List;
 
 public interface Cannonable extends Ability {
     /** Minimum aim angle in degrees (down). */
-    float CANNON_ANGLE_MIN = -20.0F;
+    float CANNON_ANGLE_MIN = -10.0F;
     /** Maximum aim angle in degrees (up). */
-    float CANNON_ANGLE_MAX = 60.0F;
+    float CANNON_ANGLE_MAX = 30.0F;
     /** Maximum aim rotation in degrees to each side. */
     float CANNON_ROTATION_MAX = 10.0F;
 
@@ -249,6 +249,45 @@ public interface Cannonable extends Ability {
             }
         }
         return null;
+    }
+
+    /**
+     * Peeks whether a fine grain powder is available WITHOUT consuming it.
+     * Used client side for the trajectory preview - the actual shot uses
+     * consumeFineGrainPowder(), which shrinks the stack.
+     *
+     * @return true if a fine grain powder is in the ship container or the
+     * driver's inventory
+     */
+    default boolean hasFineGrainPowder() {
+        if (self() instanceof ContainerEntity containerEntity){
+            for (ItemStack itemStack : containerEntity.getItemStacks()) {
+                if (itemStack.is(ModItems.FINE_GRAIN_POWDER)) return true;
+            }
+        }
+        if(self().getControllingPassenger() instanceof Player player) {
+            for (ItemStack itemStack : player.getInventory().items) {
+                if (itemStack.is(ModItems.FINE_GRAIN_POWDER)) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The projectile speed multiplier of the NEXT shot: the loaded ball type's
+     * own multiplier, times 1.5 if a fine grain powder is available. Single
+     * source of truth so the trajectory preview matches the real shot (see
+     * ShipCannon.trigger). Returns the BALL default when nothing is loaded.
+     *
+     * @param peekFineGrain true = only check for fine grain (preview), false =
+     *                      caller consumes it separately (real shot uses
+     *                      consumeFineGrainPowder instead)
+     */
+    default float getShotSpeedMultiplier(boolean peekFineGrain) {
+        CannonBallItem ammo = this.getCannonBallToShoot();
+        float multiplier = ammo != null ? ammo.getType().speedMultiplier : CannonBallItem.Type.BALL.speedMultiplier;
+        if (peekFineGrain && this.hasFineGrainPowder()) multiplier *= 1.5F;
+        return multiplier;
     }
 
     default void consumeCannonBall() {

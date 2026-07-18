@@ -148,7 +148,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             poseStack.translate(cannon.isRightSided() ? -cannon.getOffsetX() : cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), -cannon.getOffsetZ());
 
             // aim rotation around the cannon's OWN vertical axis (after the translate!)
-            poseStack.mulPose(Axis.YN.rotationDegrees(cannon.isRightSided() ? aimRotation : -aimRotation));
+            poseStack.mulPose(Axis.YN.rotationDegrees(cannon.isRightSided() ? -aimRotation : aimRotation));
 
             // right click aim mode: white trajectory line, rendered INSIDE the
             // cannon pose like the SiegeWeapons ballista - it follows every ship
@@ -161,7 +161,8 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 poseStack.pushPose();
                 poseStack.scale(1.0F / 1.3F, 1.0F / 1.3F, 1.0F / 1.3F);
                 VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
-                CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculateLocal(aimAngle, CannonTrajectory.CANNON_SPEED));
+                float previewSpeed = CannonTrajectory.CANNON_SPEED * cannonShipEntity.getShotSpeedMultiplier(true);
+                CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculateLocal(aimAngle, previewSpeed));
                 poseStack.popPose();
             }
 

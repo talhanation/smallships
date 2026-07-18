@@ -7,6 +7,7 @@ import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.particles.ModParticleProviders;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -30,6 +31,8 @@ public class ClientInitializer implements ClientModInitializer {
         initRegisterTickEvents();
 
         initRegisterPacketReceivers();
+
+        initRegisterParticleProviders();
     }
 
     private void initRendererRegisterRenderers() {
@@ -64,5 +67,13 @@ public class ClientInitializer implements ClientModInitializer {
 
     private void initRegisterPacketReceivers() {
         ModPacketsImpl.registerClientReceivers();
+    }
+
+    private void initRegisterParticleProviders() {
+        // binds every ParticleProvider to its type in the client ParticleEngine.
+        // without this the particle types are registered but have no provider, so
+        // ParticleEngine#createParticle silently returns null and the particle
+        // constructor is never called - no particle ever spawns
+        new ModParticleProviders();
     }
 }

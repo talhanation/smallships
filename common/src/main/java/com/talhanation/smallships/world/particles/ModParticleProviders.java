@@ -19,11 +19,19 @@ public class ModParticleProviders {
         register(ModParticleTypes.DYED_CANNON_SHOOT.get(), CannonPoofParticles.DyedProvider::new);
         register(ModParticleTypes.COLORED_POOF.get(), CustomPoofParticle.Provider::new);
         register(ModParticleTypes.CANNON_BALL_SHOOT.get(), CannonBallShootParticles.Provider::new);
-        register(ModParticleTypes.WIND_LINE.get(), WindLineParticle.Provider::new);
+        // wind_line is a sprite based TextureSheetParticle: it MUST go through the
+        // Function<SpriteSet, ...> overload so the provider actually receives a
+        // SpriteSet - the Supplier overload would build it without sprites and the
+        // particle would stay invisible
+        registerSprite(ModParticleTypes.WIND_LINE.get(), WindLineParticle.Provider::new);
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Supplier<ParticleProvider<T>> providerConstructor) {
         register(type, providerConstructor.get());
+    }
+
+    public static <T extends ParticleOptions> void registerSprite(ParticleType<T> type, Function<SpriteSet, ParticleProvider<T>> providerConstructor) {
+        register(type, providerConstructor);
     }
 
     @ExpectPlatform

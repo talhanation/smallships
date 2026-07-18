@@ -27,6 +27,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin implements CameraZoomAccess {
+    // fixed downward pitch of the driver's aim camera (positive = looking down).
+    // keeps the broadside view steady while the mouse only moves the cannons
+    @Unique private static final float DRIVER_AIM_CAMERA_PITCH = 15.0F;
+
     @Shadow public abstract Entity getEntity();
 
     @Shadow protected abstract void setPosition(double x, double y, double z);
@@ -81,14 +85,18 @@ public abstract class CameraMixin implements CameraZoomAccess {
                 return;
             }
 
-            // DRIVER: over the deck, pulled back against the shooting direction
+            // DRIVER: over the deck, pulled back against the shooting direction.
+            // The camera yaw follows the broadside, but the PITCH stays fixed - the
+            // mouse only elevates the cannons, it must not tilt the driver's view
+            // up/down (the gunner keeps the barrel cam with aimPitch above).
             double x = Mth.lerp(partialTick, ship.xo, ship.getX());
             double y = Mth.lerp(partialTick, ship.yo, ship.getY());
             double z = Mth.lerp(partialTick, ship.zo, ship.getZ());
-            Vec3 cameraPos = new Vec3(x, y + 3.5D, z).subtract(aimDirection.scale(3.5D));
+            Vec3 flatDirection = Vec3.directionFromRotation(0.0F, aimYaw);
+            Vec3 cameraPos = new Vec3(x, y + 2.5D, z).subtract(flatDirection.scale(-0.75D));
 
             this.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
-            this.setRotation(aimYaw, aimPitch);
+            this.setRotation(aimYaw, DRIVER_AIM_CAMERA_PITCH);
             ci.cancel();
         }
     }

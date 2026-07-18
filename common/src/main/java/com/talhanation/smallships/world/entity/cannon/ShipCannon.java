@@ -52,8 +52,8 @@ public class ShipCannon implements ICannon {
         else this.setLeftSided();
 
         this.cannon = new Cannon(this);
-        // ship cannons: down -20°, up +60° (minecraft xRot: negative = up)
-        this.cannon.setPitchBounds(-60.0F, 20.0F);
+
+        this.cannon.setPitchBounds(-30.0F, 10.0F);
     }
 
     /**
@@ -110,7 +110,10 @@ public class ShipCannon implements ICannon {
         if (ammo == null) return;
         CannonBallItem.Type type = ammo.getType();
 
-        float speedMultiplier = type.speedMultiplier;
+        // ball type multiplier, +50% if a fine grain powder is actually consumed.
+        // getShotSpeedMultiplier(false) gives the type part; the fine grain part
+        // is applied here because it must CONSUME the powder, not just peek it
+        float speedMultiplier = cannonable.getShotSpeedMultiplier(false);
         if (cannonable.consumeFineGrainPowder()) {
             speedMultiplier *= 1.5F;
         }

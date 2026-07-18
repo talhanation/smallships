@@ -13,7 +13,13 @@ import java.util.List;
  * physics of AbstractCannonBall: pos += vel; vel = vel * 0.99 - 0.06y).
  */
 public class CannonTrajectory {
-    /** base projectile speed of the Cannon core class */
+    /**
+     * Base projectile speed of the Cannon core class (Cannon.speed). The real
+     * shot speed is this times the ammo speed multiplier (grape/chained shot,
+     * fine grain powder), so callers pass CANNON_SPEED * speedMultiplier for an
+     * accurate preview. Gravity is the same for every ammo type, so a slower
+     * ball simply produces a shorter, steeper arc.
+     */
     public static final float CANNON_SPEED = 2.6F;
     private static final int MAX_STEPS = 200;
     private static final double MAX_DROP = 96.0D;
