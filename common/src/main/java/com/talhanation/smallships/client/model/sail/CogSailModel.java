@@ -31,9 +31,9 @@ public class CogSailModel extends SailModel {
 
 		PartDefinition CogSail = partdefinition.addOrReplaceChild("CogSail", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-		PartDefinition Sail_4 = CogSail.addOrReplaceChild("Sail_4", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition sail_4 = CogSail.addOrReplaceChild("sail_4", CubeListBuilder.create(), PartPose.offset(-1.0F, 0.0F, 0.0F));
 
-		PartDefinition segel_1_12 = Sail_4.addOrReplaceChild("segel_1_12", CubeListBuilder.create(), PartPose.offsetAndRotation(8.5F, -11.0F, 20.5F, 0.0F, 1.5708F, 0.0F));
+		PartDefinition segel_1_12 = sail_4.addOrReplaceChild("segel_1_12", CubeListBuilder.create(), PartPose.offsetAndRotation(8.5F, -11.0F, 20.5F, 0.0F, 1.5708F, 0.0F));
 
 		PartDefinition cube_r87 = segel_1_12.addOrReplaceChild("cube_r87", CubeListBuilder.create().texOffs(88, 0).addBox(-60.0F, -39.0F, 16.6905F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(96, 46).addBox(-49.0F, -39.0F, 16.6905F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
@@ -46,42 +46,6 @@ public class CogSailModel extends SailModel {
 				.texOffs(93, 47).addBox(-38.0F, -40.25F, 11.2888F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(85, 3).addBox(-49.0F, -40.25F, 11.2888F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(91, 21).addBox(-60.0F, -40.25F, 11.2888F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -28.4794F, 33.5112F, 1.8762F, 0.0F, 0.0F));
-
-		PartDefinition cube_r89 = segel_1_12.addOrReplaceChild("cube_r89", CubeListBuilder.create().texOffs(81, 5).addBox(-16.0F, -43.5F, 4.75F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(81, 6).addBox(-60.0F, -43.5F, 4.75F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(81, 6).addBox(-49.0F, -43.5F, 4.75F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(89, 47).addBox(-38.0F, -43.5F, 4.75F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(89, 47).addBox(-27.0F, -43.5F, 4.75F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -34.7644F, 33.9338F, 1.7453F, 0.0F, 0.0F));
-
-		PartDefinition cube_r90 = segel_1_12.addOrReplaceChild("cube_r90", CubeListBuilder.create().texOffs(90, 2).addBox(-16.0F, -44.0887F, -4.8822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(90, 1).addBox(-60.0F, -44.0887F, -4.8822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(89, 7).addBox(-49.0F, -44.0887F, -4.8822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(90, 1).addBox(-38.0F, -44.0887F, -4.8822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(85, 6).addBox(-27.0F, -44.0887F, -4.8822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -39.6813F, 33.5822F, 1.5272F, 0.0F, 0.0F));
-
-		PartDefinition cube_r91 = segel_1_12.addOrReplaceChild("cube_r91", CubeListBuilder.create().texOffs(87, 0).addBox(-60.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 12).addBox(-49.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 6).addBox(-27.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(87, 1).addBox(-16.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(66, 28).addBox(-38.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -44.7113F, 34.1289F, 1.2217F, 0.0F, 0.0F));
-
-		PartDefinition cube_r92 = segel_1_12.addOrReplaceChild("cube_r92", CubeListBuilder.create().texOffs(65, 7).addBox(-60.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 21).addBox(-49.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(90, 2).addBox(-38.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 0).addBox(-27.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 20).addBox(-16.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -47.7441F, 35.6572F, 1.0908F, 0.0F, 0.0F));
-
-		PartDefinition cube_r93 = segel_1_12.addOrReplaceChild("cube_r93", CubeListBuilder.create().texOffs(70, 40).addBox(-60.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 41).addBox(-49.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(81, 32).addBox(-38.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(80, 44).addBox(-16.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(81, 13).addBox(-27.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -55.4356F, -0.4095F, 0.6545F, 0.0F, 0.0F));
-
-		PartDefinition cube_r94 = segel_1_12.addOrReplaceChild("cube_r94", CubeListBuilder.create().texOffs(89, 13).addBox(-60.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(67, 32).addBox(-49.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 20).addBox(-38.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 32).addBox(-27.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(65, 26).addBox(-16.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -52.4943F, 39.4993F, 0.829F, 0.0F, 0.0F));
 
 		PartDefinition cube_r95 = segel_1_12.addOrReplaceChild("cube_r95", CubeListBuilder.create().texOffs(65, 33).addBox(-60.0F, -34.7019F, 23.9822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 20).addBox(-49.0F, -34.7019F, 23.9822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
@@ -113,11 +77,9 @@ public class CogSailModel extends SailModel {
 
 		PartDefinition cube_r101 = rope_16.addOrReplaceChild("cube_r101", CubeListBuilder.create().texOffs(15, 4).addBox(1.5F, 1.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -0.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
-		PartDefinition Sail_3 = CogSail.addOrReplaceChild("Sail_3", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition sail_3 = CogSail.addOrReplaceChild("sail_3", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition segel_1_9 = Sail_3.addOrReplaceChild("segel_1_9", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
-
-		PartDefinition segel_1_10 = segel_1_9.addOrReplaceChild("segel_1_10", CubeListBuilder.create(), PartPose.offset(-8.0F, 0.0F, 0.0F));
+		PartDefinition segel_1_9 = sail_3.addOrReplaceChild("segel_1_9", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
 
 		PartDefinition segel_1_11 = segel_1_9.addOrReplaceChild("segel_1_11", CubeListBuilder.create(), PartPose.offset(-26.5F, -24.0F, -21.5F));
 
@@ -133,33 +95,9 @@ public class CogSailModel extends SailModel {
 				.texOffs(66, 42).addBox(-38.0F, -44.0887F, -4.8822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(74, 31).addBox(-27.0F, -44.0887F, -4.8822F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -39.6813F, 33.5822F, 1.5272F, 0.0F, 0.0F));
 
-		PartDefinition cube_r66 = segel_1_11.addOrReplaceChild("cube_r66", CubeListBuilder.create().texOffs(96, 27).addBox(-60.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(65, 9).addBox(-49.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(92, 46).addBox(-27.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(64, 2).addBox(-16.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(64, 14).addBox(-38.0F, -40.9587F, -18.0289F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -44.7113F, 34.1289F, 1.2217F, 0.0F, 0.0F));
-
-		PartDefinition cube_r67 = segel_1_11.addOrReplaceChild("cube_r67", CubeListBuilder.create().texOffs(96, 57).addBox(-60.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(94, 55).addBox(-49.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(64, 0).addBox(-38.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(64, 1).addBox(-27.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(66, 18).addBox(-16.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -47.7441F, 35.6572F, 1.0908F, 0.0F, 0.0F));
-
-		PartDefinition cube_r68 = segel_1_11.addOrReplaceChild("cube_r68", CubeListBuilder.create().texOffs(78, 34).addBox(-60.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(68, 22).addBox(-49.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(89, 53).addBox(-38.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 56).addBox(-16.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(80, 20).addBox(-27.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -55.4356F, -0.4095F, 0.6545F, 0.0F, 0.0F));
-
-		PartDefinition cube_r69 = segel_1_11.addOrReplaceChild("cube_r69", CubeListBuilder.create().texOffs(96, 28).addBox(-60.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 20).addBox(-49.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 36).addBox(-38.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(65, 14).addBox(-27.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 28).addBox(-16.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -52.4943F, 39.4993F, 0.829F, 0.0F, 0.0F));
-
 		PartDefinition rope_19 = segel_1_11.addOrReplaceChild("rope_19", CubeListBuilder.create(), PartPose.offsetAndRotation(38.0F, 0.0F, 18.0F, 1.5097F, 0.8552F, 1.7628F));
 
-		PartDefinition cube_r70 = rope_19.addOrReplaceChild("cube_r70", CubeListBuilder.create().texOffs(85, 17).addBox(44.5F, -0.5F, -17.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r70 = rope_19.addOrReplaceChild("cube_r70", CubeListBuilder.create().texOffs(8, 26).addBox(44.5F, -0.5F, -17.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(3, 22).addBox(20.5F, -0.5F, -17.5F, 5.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(14, 23).addBox(25.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 16.5F, 17.0F, 0.0F, 0.0F, -1.5708F));
 
@@ -187,19 +125,17 @@ public class CogSailModel extends SailModel {
 
 		PartDefinition cube_r79 = rope_20.addOrReplaceChild("cube_r79", CubeListBuilder.create().texOffs(15, 22).addBox(21.5F, -1.0F, -17.5F, 4.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 21.5F, 17.0F, 0.0F, 0.0F, -1.5708F));
 
-		PartDefinition sail_end4 = segel_1_11.addOrReplaceChild("sail_end4", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.5F, -31.0F, -9.0F, 0.7854F, 0.0F, 0.0F));
+		PartDefinition sail_3_bottom = segel_1_11.addOrReplaceChild("sail_3_bottom", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.5F, -31.0F, -9.0F, 0.7854F, 0.0F, 0.0F));
 
-		PartDefinition cube_r80 = sail_end4.addOrReplaceChild("cube_r80", CubeListBuilder.create().texOffs(96, 55).addBox(-37.0F, -41.6933F, 18.2105F, 13.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r80 = sail_3_bottom.addOrReplaceChild("cube_r80", CubeListBuilder.create().texOffs(96, 55).addBox(-37.0F, -41.6933F, 18.2105F, 13.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(81, 17).addBox(-50.0F, -41.6933F, 18.2105F, 13.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(96, 23).addBox(-63.0F, -41.6933F, 18.2105F, 13.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(90, 20).addBox(-24.0F, -41.6933F, 18.2105F, 13.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(101, 13).addBox(-11.0F, -41.6933F, 18.2105F, 9.0F, 3.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(55.5F, -1.8067F, 44.7895F, 2.0595F, 0.0F, 0.0F));
 
-		PartDefinition Sail_2 = CogSail.addOrReplaceChild("Sail_2", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition sail_2 = CogSail.addOrReplaceChild("sail_2", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition segel_1_6 = Sail_2.addOrReplaceChild("segel_1_6", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
-
-		PartDefinition segel_1_7 = segel_1_6.addOrReplaceChild("segel_1_7", CubeListBuilder.create(), PartPose.offset(-8.0F, 0.0F, 0.0F));
+		PartDefinition segel_1_6 = sail_2.addOrReplaceChild("segel_1_6", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
 
 		PartDefinition segel_1_8 = segel_1_6.addOrReplaceChild("segel_1_8", CubeListBuilder.create(), PartPose.offset(-26.5F, -24.0F, -21.5F));
 
@@ -214,18 +150,6 @@ public class CogSailModel extends SailModel {
 				.texOffs(95, 36).addBox(-38.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(96, 38).addBox(-27.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(65, 47).addBox(-16.0F, -38.7859F, -21.6372F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -47.7441F, 35.6572F, 1.0908F, 0.0F, 0.0F));
-
-		PartDefinition cube_r45 = segel_1_8.addOrReplaceChild("cube_r45", CubeListBuilder.create().texOffs(94, 37).addBox(-60.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(64, 40).addBox(-49.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(93, 34).addBox(-38.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(94, 27).addBox(-16.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 18).addBox(-27.0F, -1.0F, -2.5F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -55.4356F, -0.4095F, 0.6545F, 0.0F, 0.0F));
-
-		PartDefinition cube_r46 = segel_1_8.addOrReplaceChild("cube_r46", CubeListBuilder.create().texOffs(66, 32).addBox(-60.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(68, 23).addBox(-49.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 56).addBox(-38.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(79, 18).addBox(-27.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
-				.texOffs(66, 15).addBox(-16.0F, -32.7857F, -32.1293F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(53.0F, -52.4943F, 39.4993F, 0.829F, 0.0F, 0.0F));
 
 		PartDefinition rope_11 = segel_1_8.addOrReplaceChild("rope_11", CubeListBuilder.create(), PartPose.offsetAndRotation(38.0F, 0.0F, 18.0F, 1.5001F, 0.9684F, 1.7506F));
 
@@ -257,19 +181,17 @@ public class CogSailModel extends SailModel {
 
 		PartDefinition cube_r56 = rope_12.addOrReplaceChild("cube_r56", CubeListBuilder.create().texOffs(15, 22).addBox(21.5F, -0.875F, -17.5F, 4.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 21.5F, 17.0F, 0.0F, 0.0F, -1.5708F));
 
-		PartDefinition sail_end3 = segel_1_8.addOrReplaceChild("sail_end3", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.5F, -31.0F, -9.0F, 0.7854F, 0.0F, 0.0F));
+		PartDefinition sail_2_bottom = segel_1_8.addOrReplaceChild("sail_2_bottom", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.5F, -31.0F, -9.0F, 0.7854F, 0.0F, 0.0F));
 
-		PartDefinition cube_r57 = sail_end3.addOrReplaceChild("cube_r57", CubeListBuilder.create().texOffs(94, 33).addBox(-6.1F, -2.25F, -2.0F, 13.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r57 = sail_2_bottom.addOrReplaceChild("cube_r57", CubeListBuilder.create().texOffs(94, 33).addBox(-6.1F, -2.25F, -2.0F, 13.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(94, 35).addBox(-19.1F, -2.25F, -2.0F, 13.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(94, 17).addBox(-32.1F, -2.25F, -2.0F, 13.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(93, 37).addBox(6.9F, -2.25F, -2.0F, 13.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(102, 25).addBox(19.9F, -2.25F, -2.0F, 9.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(24.6F, -7.5398F, 5.0626F, -2.2166F, 0.0F, 0.0F));
 
-		PartDefinition Sail_1 = CogSail.addOrReplaceChild("Sail_1", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition sail_1 = CogSail.addOrReplaceChild("sail_1", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition segel_1_2 = Sail_1.addOrReplaceChild("segel_1_2", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
-
-		PartDefinition segel_1_1 = segel_1_2.addOrReplaceChild("segel_1_1", CubeListBuilder.create(), PartPose.offset(-8.0F, 0.0F, 0.0F));
+		PartDefinition segel_1_2 = sail_1.addOrReplaceChild("segel_1_2", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
 
 		PartDefinition segel_1_5 = segel_1_2.addOrReplaceChild("segel_1_5", CubeListBuilder.create(), PartPose.offset(-26.5F, -24.0F, -21.5F));
 
@@ -315,17 +237,17 @@ public class CogSailModel extends SailModel {
 
 		PartDefinition cube_r36 = rope_8.addOrReplaceChild("cube_r36", CubeListBuilder.create().texOffs(1, 22).addBox(21.5F, -0.875F, -17.5F, 6.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 21.5F, 17.0F, 0.0F, 0.0F, -1.5708F));
 
-		PartDefinition sail_end2 = segel_1_5.addOrReplaceChild("sail_end2", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.5F, -41.0F, -1.5F, 1.0472F, 0.0F, 0.0F));
+		PartDefinition sail_1_bottom = segel_1_5.addOrReplaceChild("sail_1_bottom", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.5F, -41.0F, -1.5F, 1.0472F, 0.0F, 0.0F));
 
-		PartDefinition cube_r102 = sail_end2.addOrReplaceChild("cube_r102", CubeListBuilder.create().texOffs(64, 32).addBox(-6.1F, -2.25F, -2.0F, 13.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r102 = sail_1_bottom.addOrReplaceChild("cube_r102", CubeListBuilder.create().texOffs(64, 32).addBox(-6.1F, -2.25F, -2.0F, 13.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 42).addBox(-19.1F, -2.25F, -2.0F, 13.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 54).addBox(-32.1F, -2.25F, -2.0F, 13.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 48).addBox(6.9F, -2.25F, -2.0F, 13.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 11).addBox(19.9F, -2.25F, -2.0F, 9.0F, 5.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(24.6F, -7.5398F, 5.0626F, -2.2166F, 0.0F, 0.0F));
 
-		PartDefinition Sail_0 = CogSail.addOrReplaceChild("Sail_0", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition sail_0 = CogSail.addOrReplaceChild("sail_0", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition segel_1_3 = Sail_0.addOrReplaceChild("segel_1_3", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
+		PartDefinition segel_1_3 = sail_0.addOrReplaceChild("segel_1_3", CubeListBuilder.create(), PartPose.offsetAndRotation(29.0F, 13.0F, -6.0F, 0.0F, 1.5708F, 0.0F));
 
 		PartDefinition segel_1_4 = segel_1_3.addOrReplaceChild("segel_1_4", CubeListBuilder.create(), PartPose.offset(-26.5F, -24.0F, -21.5F));
 
@@ -369,9 +291,9 @@ public class CogSailModel extends SailModel {
 				.texOffs(67, 28).addBox(6.9F, -3.25F, -3.0F, 13.0F, 6.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 12).addBox(19.9F, -3.25F, -3.0F, 9.0F, 6.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.25F, 0.0F, -2.2166F, 0.0F, 0.0F));
 
-		PartDefinition sail_ropes = CogSail.addOrReplaceChild("sail_ropes", CubeListBuilder.create(), PartPose.offset(43.5F, -16.0F, 0.0F));
+		PartDefinition ropes = CogSail.addOrReplaceChild("ropes", CubeListBuilder.create(), PartPose.offset(43.5F, -16.0F, 0.0F));
 
-		PartDefinition rope_1 = sail_ropes.addOrReplaceChild("rope_1", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, -0.5236F));
+		PartDefinition rope_1 = ropes.addOrReplaceChild("rope_1", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, -0.5236F));
 
 		PartDefinition cube_r114 = rope_1.addOrReplaceChild("cube_r114", CubeListBuilder.create().texOffs(11, 23).addBox(34.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(20, 24).addBox(64.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
@@ -384,9 +306,9 @@ public class CogSailModel extends SailModel {
 
 		PartDefinition cube_r116 = rope_1.addOrReplaceChild("cube_r116", CubeListBuilder.create().texOffs(4, 3).addBox(-1.5F, -1.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -10.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
-		PartDefinition rope_3 = sail_ropes.addOrReplaceChild("rope_3", CubeListBuilder.create(), PartPose.offsetAndRotation(-84.0F, -5.0F, 0.0F, 0.733F, -1.5708F, 0.0F));
+		PartDefinition rope_2 = ropes.addOrReplaceChild("rope_2", CubeListBuilder.create(), PartPose.offsetAndRotation(-84.0F, -5.0F, 0.0F, 0.733F, -1.5708F, 0.0F));
 
-		PartDefinition cube_r117 = rope_3.addOrReplaceChild("cube_r117", CubeListBuilder.create().texOffs(16, 28).addBox(34.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r117 = rope_2.addOrReplaceChild("cube_r117", CubeListBuilder.create().texOffs(16, 28).addBox(34.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 26).addBox(79.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(16, 26).addBox(64.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(16, 24).addBox(49.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
@@ -394,13 +316,12 @@ public class CogSailModel extends SailModel {
 				.texOffs(21, 22).addBox(22.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 22).addBox(11.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 11.5F, 17.0F, 0.0F, 0.0F, -1.5708F));
 
-		PartDefinition cube_r118 = rope_3.addOrReplaceChild("cube_r118", CubeListBuilder.create().texOffs(14, 6).addBox(-1.75F, -1.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -22.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
+		PartDefinition cube_r118 = rope_2.addOrReplaceChild("cube_r118", CubeListBuilder.create().texOffs(14, 6).addBox(-1.75F, -1.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -22.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
-		PartDefinition cube_r119 = rope_3.addOrReplaceChild("cube_r119", CubeListBuilder.create().texOffs(4, 3).addBox(-1.5F, -1.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -10.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
+		PartDefinition cube_r119 = rope_2.addOrReplaceChild("cube_r119", CubeListBuilder.create().texOffs(4, 3).addBox(-1.5F, -1.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -10.5F, 0.0F, 0.0F, 0.0F, -2.3562F));
 
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
-
 	@Override
 	public void setupAnim(@NotNull Ship cog, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		switch (cog.getData(Ship.SAIL_STATE)) {
