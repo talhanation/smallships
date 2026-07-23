@@ -1,6 +1,8 @@
 package com.talhanation.smallships.world.entity.cannon;
 
+import com.talhanation.smallships.world.entity.projectile.AbstractCannonBall;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
+import com.talhanation.smallships.world.entity.projectile.ChainShotEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.item.CannonBallItem;
@@ -131,9 +133,17 @@ public class ShipCannon implements ICannon {
         // see CannonBallEntity/AbstractCannonBall handling of projectileCount
     }
 
-    private CannonBallEntity createProjectile(CannonBallItem.Type type) {
-        CannonBallEntity ball = new CannonBallEntity(this.level);
+    private AbstractCannonBall createProjectile(CannonBallItem.Type type) {
+        AbstractCannonBall ball;
+
+        if(type == CannonBallItem.Type.CHAINED){
+            ball = new ChainShotEntity(this.level);
+        }
+        else{
+            ball = new CannonBallEntity(this.level);
+        }
         ball.setBallType(type);
+
         return ball;
     }
 

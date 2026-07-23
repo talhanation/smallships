@@ -12,21 +12,53 @@ import org.jetbrains.annotations.NotNull;
 
 public class DhowModel extends ShipModel<DhowEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DhowEntity.ID + "_model"), "main");
-	private final ModelPart root;
-	private final ModelPart chest1;
-	private final ModelPart chest2;
-	private final ModelPart chest3;
-	private final ModelPart chest4;
+	private final ModelPart ModelDhow;
+	private final ModelPart bottom;
+	private final ModelPart bone3;
+	private final ModelPart bone4;
+	private final ModelPart chest_1;
+	private final ModelPart chest_2;
+	private final ModelPart chest_3;
+	private final ModelPart chest_4;
 	private final ModelPart steer;
+	private final ModelPart sides;
+	private final ModelPart bone;
+	private final ModelPart bone2;
+	private final ModelPart Mast_1;
+	private final ModelPart mast;
+	private final ModelPart mast_1_2;
+	private final ModelPart BannerStick;
+	private final ModelPart cube_r6;
+	private final ModelPart Mast_2;
+	private final ModelPart mast2;
+	private final ModelPart mast_1_3;
+	private final ModelPart BannerStick2;
+	private final ModelPart cube_r2;
 
-	public DhowModel(ModelPart modelPart) {
-		this.root = modelPart;
-		ModelPart cog = this.root.getChild("Dhow");
-		this.chest1 = cog.getChild("chest_1");
-		this.chest2 = cog.getChild("chest_2");
-		this.chest3 = cog.getChild("chest_3");
-		this.chest4 = cog.getChild("chest_4");
-		this.steer = cog.getChild("steer");
+	public DhowModel() {
+		ModelPart root = createBodyLayer().bakeRoot();
+		this.ModelDhow = root.getChild("ModelDhow");
+		this.bottom = this.ModelDhow.getChild("bottom");
+		this.bone3 = this.bottom.getChild("bone3");
+		this.bone4 = this.bone3.getChild("bone4");
+		this.chest_1 = this.ModelDhow.getChild("chest_1");
+		this.chest_2 = this.ModelDhow.getChild("chest_2");
+		this.chest_3 = this.ModelDhow.getChild("chest_3");
+		this.chest_4 = this.ModelDhow.getChild("chest_4");
+		this.steer = this.ModelDhow.getChild("steer");
+		this.sides = this.ModelDhow.getChild("sides");
+		this.bone = this.sides.getChild("bone");
+		this.bone2 = this.bone.getChild("bone2");
+		this.Mast_1 = this.ModelDhow.getChild("Mast_1");
+		this.mast = this.Mast_1.getChild("mast");
+		this.mast_1_2 = this.mast.getChild("mast_1_2");
+		this.BannerStick = this.mast.getChild("BannerStick");
+		this.cube_r6 = this.mast.getChild("cube_r6");
+		this.Mast_2 = this.ModelDhow.getChild("Mast_2");
+		this.mast2 = this.Mast_2.getChild("mast2");
+		this.mast_1_3 = this.mast2.getChild("mast_1_3");
+		this.BannerStick2 = this.mast2.getChild("BannerStick2");
+		this.cube_r2 = this.mast2.getChild("cube_r2");
 	}
 
 	@SuppressWarnings("unused")
@@ -34,7 +66,7 @@ public class DhowModel extends ShipModel<DhowEntity> {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition Cog = partdefinition.addOrReplaceChild("Dhow", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
+		PartDefinition Cog = partdefinition.addOrReplaceChild("ModelDhow", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
 
 		PartDefinition deck = Cog.addOrReplaceChild("deck", CubeListBuilder.create(), PartPose.offset(14.0F, 0.0F, 0.0F));
 
@@ -158,17 +190,17 @@ public class DhowModel extends ShipModel<DhowEntity> {
 	}
 
 	@Override
-	public void setupAnim(@NotNull DhowEntity cogEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.chest1.visible = cogEntity.getInvFillState() >= 15;
-		this.chest2.visible = cogEntity.getInvFillState() >= 30;
-		this.chest3.visible = cogEntity.getInvFillState() >= 60;
-		this.chest4.visible = cogEntity.getInvFillState() >= 90;
+	public void setupAnim(@NotNull DhowEntity dhowEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+		this.chest_1.visible = dhowEntity.getInvFillState() >= 15;
+		this.chest_2.visible = dhowEntity.getInvFillState() >= 30;
+		this.chest_3.visible = dhowEntity.getInvFillState() >= 60;
+		this.chest_4.visible = dhowEntity.getInvFillState() >= 90;
 
-		this.steer.yRot = -cogEntity.getRotSpeed() * 0.25F;
+		this.steer.yRot = -dhowEntity.getRotSpeed() * 0.25F;
 	}
 
 	@Override
 	public @NotNull ModelPart root() {
-		return this.root;
+		return this.ModelDhow;
 	}
 }

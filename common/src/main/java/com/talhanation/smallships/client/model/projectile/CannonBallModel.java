@@ -1,4 +1,4 @@
-package com.talhanation.smallships.client.model;
+package com.talhanation.smallships.client.model.projectile;
 
 // Made with Blockbench 4.2.5
 // Exported for Minecraft version 1.17 - 1.18 with Mojang mappings

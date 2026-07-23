@@ -2,6 +2,8 @@ package com.talhanation.smallships.fabric.client;
 
 import com.talhanation.smallships.client.ClientTickHandler;
 import com.talhanation.smallships.client.model.*;
+import com.talhanation.smallships.client.model.projectile.CannonBallModel;
+import com.talhanation.smallships.client.model.projectile.ChainShotModel;
 import com.talhanation.smallships.client.option.KeyEvent;
 import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.*;
@@ -37,6 +39,7 @@ public class ClientInitializer implements ClientModInitializer {
 
     private void initRendererRegisterRenderers() {
         EntityRendererRegistry.register(ModEntityTypes.CANNON_BALL, CannonBallRenderer::new);
+        EntityRendererRegistry.register(ModEntityTypes.CHAIN_SHOT, ChainShotRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.GROUND_CANNON, GroundCannonRenderer::new);
 
         EntityRendererRegistry.register(ModEntityTypes.COG, CogRenderer::new);
@@ -47,6 +50,7 @@ public class ClientInitializer implements ClientModInitializer {
 
     private void initRendererRegisterLayerDefinitions() {
         EntityModelLayerRegistry.registerModelLayer(CannonBallModel.LAYER_LOCATION, CannonBallModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(ChainShotModel.LAYER_LOCATION, ChainShotModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(CannonModel.LAYER_LOCATION, CannonModel::createBodyLayer);
 
         EntityModelLayerRegistry.registerModelLayer(CogModel.LAYER_LOCATION, CogModel::createBodyLayer);

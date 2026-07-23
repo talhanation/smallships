@@ -18,12 +18,203 @@ public class CogSailModel extends SailModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, CogEntity.ID + "_sail_model"), "main");
 
 	private final ModelPart CogSail;
+	private final ModelPart sail_4;
+	private final ModelPart segel_1_12;
+	private final ModelPart cube_r87;
+	private final ModelPart cube_r88;
+	private final ModelPart cube_r95;
+	private final ModelPart rope_15;
+	private final ModelPart cube_r96;
+	private final ModelPart cube_r97;
+	private final ModelPart cube_r98;
+	private final ModelPart rope_16;
+	private final ModelPart cube_r99;
+	private final ModelPart cube_r100;
+	private final ModelPart cube_r101;
+	private final ModelPart sail_3;
+	private final ModelPart segel_1_9;
+	private final ModelPart segel_1_11;
+	private final ModelPart cube_r64;
+	private final ModelPart cube_r65;
+	private final ModelPart rope_19;
+	private final ModelPart cube_r70;
+	private final ModelPart cube_r71;
+	private final ModelPart cube_r72;
+	private final ModelPart cube_r73;
+	private final ModelPart cube_r74;
+	private final ModelPart rope_20;
+	private final ModelPart cube_r75;
+	private final ModelPart cube_r76;
+	private final ModelPart cube_r77;
+	private final ModelPart cube_r78;
+	private final ModelPart cube_r79;
+	private final ModelPart sail_3_bottom;
+	private final ModelPart cube_r80;
+	private final ModelPart sail_2;
+	private final ModelPart segel_1_6;
+	private final ModelPart segel_1_8;
+	private final ModelPart cube_r43;
+	private final ModelPart cube_r44;
+	private final ModelPart rope_11;
+	private final ModelPart cube_r47;
+	private final ModelPart cube_r48;
+	private final ModelPart cube_r49;
+	private final ModelPart cube_r50;
+	private final ModelPart cube_r51;
+	private final ModelPart rope_12;
+	private final ModelPart cube_r52;
+	private final ModelPart cube_r53;
+	private final ModelPart cube_r54;
+	private final ModelPart cube_r55;
+	private final ModelPart cube_r56;
+	private final ModelPart sail_2_bottom;
+	private final ModelPart cube_r57;
+	private final ModelPart sail_1;
+	private final ModelPart segel_1_2;
+	private final ModelPart segel_1_5;
+	private final ModelPart cube_r25;
+	private final ModelPart cube_r26;
+	private final ModelPart rope_7;
+	private final ModelPart cube_r27;
+	private final ModelPart cube_r28;
+	private final ModelPart cube_r29;
+	private final ModelPart cube_r30;
+	private final ModelPart cube_r31;
+	private final ModelPart rope_8;
+	private final ModelPart cube_r32;
+	private final ModelPart cube_r33;
+	private final ModelPart cube_r34;
+	private final ModelPart cube_r35;
+	private final ModelPart cube_r36;
+	private final ModelPart sail_1_bottom;
+	private final ModelPart cube_r102;
+	private final ModelPart sail_0;
+	private final ModelPart segel_1_3;
+	private final ModelPart segel_1_4;
+	private final ModelPart rope_4;
+	private final ModelPart cube_r103;
+	private final ModelPart cube_r104;
+	private final ModelPart cube_r105;
+	private final ModelPart cube_r106;
+	private final ModelPart cube_r107;
+	private final ModelPart rope_5;
+	private final ModelPart cube_r108;
+	private final ModelPart cube_r109;
+	private final ModelPart cube_r110;
+	private final ModelPart cube_r111;
+	private final ModelPart cube_r112;
+	private final ModelPart sail_end;
+	private final ModelPart cube_r113;
+	private final ModelPart ropes;
+	private final ModelPart rope_1;
+	private final ModelPart cube_r114;
+	private final ModelPart cube_r115;
+	private final ModelPart cube_r116;
+	private final ModelPart rope_2;
+	private final ModelPart cube_r117;
+	private final ModelPart cube_r118;
+	private final ModelPart cube_r119;
 
 	public CogSailModel() {
 		ModelPart root = createBodyLayer().bakeRoot();
 		this.CogSail = root.getChild("CogSail");
+		this.sail_4 = this.CogSail.getChild("sail_4");
+		this.segel_1_12 = this.sail_4.getChild("segel_1_12");
+		this.cube_r87 = this.segel_1_12.getChild("cube_r87");
+		this.cube_r88 = this.segel_1_12.getChild("cube_r88");
+		this.cube_r95 = this.segel_1_12.getChild("cube_r95");
+		this.rope_15 = this.segel_1_12.getChild("rope_15");
+		this.cube_r96 = this.rope_15.getChild("cube_r96");
+		this.cube_r97 = this.rope_15.getChild("cube_r97");
+		this.cube_r98 = this.rope_15.getChild("cube_r98");
+		this.rope_16 = this.segel_1_12.getChild("rope_16");
+		this.cube_r99 = this.rope_16.getChild("cube_r99");
+		this.cube_r100 = this.rope_16.getChild("cube_r100");
+		this.cube_r101 = this.rope_16.getChild("cube_r101");
+		this.sail_3 = this.CogSail.getChild("sail_3");
+		this.segel_1_9 = this.sail_3.getChild("segel_1_9");
+		this.segel_1_11 = this.segel_1_9.getChild("segel_1_11");
+		this.cube_r64 = this.segel_1_11.getChild("cube_r64");
+		this.cube_r65 = this.segel_1_11.getChild("cube_r65");
+		this.rope_19 = this.segel_1_11.getChild("rope_19");
+		this.cube_r70 = this.rope_19.getChild("cube_r70");
+		this.cube_r71 = this.rope_19.getChild("cube_r71");
+		this.cube_r72 = this.rope_19.getChild("cube_r72");
+		this.cube_r73 = this.rope_19.getChild("cube_r73");
+		this.cube_r74 = this.rope_19.getChild("cube_r74");
+		this.rope_20 = this.segel_1_11.getChild("rope_20");
+		this.cube_r75 = this.rope_20.getChild("cube_r75");
+		this.cube_r76 = this.rope_20.getChild("cube_r76");
+		this.cube_r77 = this.rope_20.getChild("cube_r77");
+		this.cube_r78 = this.rope_20.getChild("cube_r78");
+		this.cube_r79 = this.rope_20.getChild("cube_r79");
+		this.sail_3_bottom = this.segel_1_11.getChild("sail_3_bottom");
+		this.cube_r80 = this.sail_3_bottom.getChild("cube_r80");
+		this.sail_2 = this.CogSail.getChild("sail_2");
+		this.segel_1_6 = this.sail_2.getChild("segel_1_6");
+		this.segel_1_8 = this.segel_1_6.getChild("segel_1_8");
+		this.cube_r43 = this.segel_1_8.getChild("cube_r43");
+		this.cube_r44 = this.segel_1_8.getChild("cube_r44");
+		this.rope_11 = this.segel_1_8.getChild("rope_11");
+		this.cube_r47 = this.rope_11.getChild("cube_r47");
+		this.cube_r48 = this.rope_11.getChild("cube_r48");
+		this.cube_r49 = this.rope_11.getChild("cube_r49");
+		this.cube_r50 = this.rope_11.getChild("cube_r50");
+		this.cube_r51 = this.rope_11.getChild("cube_r51");
+		this.rope_12 = this.segel_1_8.getChild("rope_12");
+		this.cube_r52 = this.rope_12.getChild("cube_r52");
+		this.cube_r53 = this.rope_12.getChild("cube_r53");
+		this.cube_r54 = this.rope_12.getChild("cube_r54");
+		this.cube_r55 = this.rope_12.getChild("cube_r55");
+		this.cube_r56 = this.rope_12.getChild("cube_r56");
+		this.sail_2_bottom = this.segel_1_8.getChild("sail_2_bottom");
+		this.cube_r57 = this.sail_2_bottom.getChild("cube_r57");
+		this.sail_1 = this.CogSail.getChild("sail_1");
+		this.segel_1_2 = this.sail_1.getChild("segel_1_2");
+		this.segel_1_5 = this.segel_1_2.getChild("segel_1_5");
+		this.cube_r25 = this.segel_1_5.getChild("cube_r25");
+		this.cube_r26 = this.segel_1_5.getChild("cube_r26");
+		this.rope_7 = this.segel_1_5.getChild("rope_7");
+		this.cube_r27 = this.rope_7.getChild("cube_r27");
+		this.cube_r28 = this.rope_7.getChild("cube_r28");
+		this.cube_r29 = this.rope_7.getChild("cube_r29");
+		this.cube_r30 = this.rope_7.getChild("cube_r30");
+		this.cube_r31 = this.rope_7.getChild("cube_r31");
+		this.rope_8 = this.segel_1_5.getChild("rope_8");
+		this.cube_r32 = this.rope_8.getChild("cube_r32");
+		this.cube_r33 = this.rope_8.getChild("cube_r33");
+		this.cube_r34 = this.rope_8.getChild("cube_r34");
+		this.cube_r35 = this.rope_8.getChild("cube_r35");
+		this.cube_r36 = this.rope_8.getChild("cube_r36");
+		this.sail_1_bottom = this.segel_1_5.getChild("sail_1_bottom");
+		this.cube_r102 = this.sail_1_bottom.getChild("cube_r102");
+		this.sail_0 = this.CogSail.getChild("sail_0");
+		this.segel_1_3 = this.sail_0.getChild("segel_1_3");
+		this.segel_1_4 = this.segel_1_3.getChild("segel_1_4");
+		this.rope_4 = this.segel_1_4.getChild("rope_4");
+		this.cube_r103 = this.rope_4.getChild("cube_r103");
+		this.cube_r104 = this.rope_4.getChild("cube_r104");
+		this.cube_r105 = this.rope_4.getChild("cube_r105");
+		this.cube_r106 = this.rope_4.getChild("cube_r106");
+		this.cube_r107 = this.rope_4.getChild("cube_r107");
+		this.rope_5 = this.segel_1_4.getChild("rope_5");
+		this.cube_r108 = this.rope_5.getChild("cube_r108");
+		this.cube_r109 = this.rope_5.getChild("cube_r109");
+		this.cube_r110 = this.rope_5.getChild("cube_r110");
+		this.cube_r111 = this.rope_5.getChild("cube_r111");
+		this.cube_r112 = this.rope_5.getChild("cube_r112");
+		this.sail_end = this.segel_1_4.getChild("sail_end");
+		this.cube_r113 = this.sail_end.getChild("cube_r113");
+		this.ropes = this.CogSail.getChild("ropes");
+		this.rope_1 = this.ropes.getChild("rope_1");
+		this.cube_r114 = this.rope_1.getChild("cube_r114");
+		this.cube_r115 = this.rope_1.getChild("cube_r115");
+		this.cube_r116 = this.rope_1.getChild("cube_r116");
+		this.rope_2 = this.ropes.getChild("rope_2");
+		this.cube_r117 = this.rope_2.getChild("cube_r117");
+		this.cube_r118 = this.rope_2.getChild("cube_r118");
+		this.cube_r119 = this.rope_2.getChild("cube_r119");
 	}
-
 
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
@@ -326,41 +517,76 @@ public class CogSailModel extends SailModel {
 	public void setupAnim(@NotNull Ship cog, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		switch (cog.getData(Ship.SAIL_STATE)) {
 			case 0 -> {
-				this.CogSail.getChild("Sail_0").visible = true;
-				this.CogSail.getChild("Sail_1").visible = false;
-				this.CogSail.getChild("Sail_2").visible = false;
-				this.CogSail.getChild("Sail_3").visible = false;
-				this.CogSail.getChild("Sail_4").visible = false;
+				this.sail_0.visible = true;
+				this.sail_1.visible = false;
+				this.sail_2.visible = false;
+				this.sail_3.visible = false;
+				this.sail_4.visible = false;
+
+				this.sail_1_bottom.visible = false;
+				this.sail_2_bottom.visible = false;
+				this.sail_3_bottom.visible = false;
 			}
 			case 1 -> {
-				this.CogSail.getChild("Sail_0").visible = false;
-				this.CogSail.getChild("Sail_1").visible = true;
-				this.CogSail.getChild("Sail_2").visible = false;
-				this.CogSail.getChild("Sail_3").visible = false;
-				this.CogSail.getChild("Sail_4").visible = false;
+				this.sail_0.visible = false;
+				this.sail_1.visible = true;
+				this.sail_2.visible = false;
+				this.sail_3.visible = false;
+				this.sail_4.visible = false;
+
+				this.sail_1_bottom.visible = true;
+				this.sail_2_bottom.visible = false;
+				this.sail_3_bottom.visible = false;
 			}
 			case 2 -> {
-				this.CogSail.getChild("Sail_0").visible = false;
-				this.CogSail.getChild("Sail_1").visible = false;
-				this.CogSail.getChild("Sail_2").visible = true;
-				this.CogSail.getChild("Sail_3").visible = false;
-				this.CogSail.getChild("Sail_4").visible = false;
+				this.sail_0.visible = false;
+				this.sail_1.visible = true;
+				this.sail_2.visible = true;
+				this.sail_3.visible = false;
+				this.sail_4.visible = false;
+				this.sail_1_bottom.visible = false;
+				this.sail_2_bottom.visible = true;
+				this.sail_3_bottom.visible = false;
 			}
 			case 3 -> {
-				this.CogSail.getChild("Sail_0").visible = false;
-				this.CogSail.getChild("Sail_1").visible = false;
-				this.CogSail.getChild("Sail_2").visible = false;
-				this.CogSail.getChild("Sail_3").visible = true;
-				this.CogSail.getChild("Sail_4").visible = false;
+				this.sail_0.visible = false;
+				this.sail_1.visible = true;
+				this.sail_2.visible = true;
+				this.sail_3.visible = true;
+				this.sail_4.visible = false;
+				this.sail_1_bottom.visible = false;
+				this.sail_2_bottom.visible = false;
+				this.sail_3_bottom.visible = true;
 			}
 			case 4 -> {
-				this.CogSail.getChild("Sail_0").visible = false;
-				this.CogSail.getChild("Sail_1").visible = false;
-				this.CogSail.getChild("Sail_2").visible = false;
-				this.CogSail.getChild("Sail_3").visible = false;
-				this.CogSail.getChild("Sail_4").visible = true;
+				this.sail_0.visible = false;
+				this.sail_1.visible = true;
+				this.sail_2.visible = true;
+				this.sail_3.visible = true;
+				this.sail_4.visible = true;
+
+
+				this.sail_1_bottom.visible = false;
+				this.sail_2_bottom.visible = false;
+				this.sail_3_bottom.visible = false;
 			}
 		}
+
+
+		this.rope_4.visible = sail_0.visible;
+		this.rope_5.visible = sail_0.visible;
+
+		this.rope_7.visible = sail_1_bottom.visible;
+		this.rope_8.visible = sail_1_bottom.visible;
+
+		this.rope_11.visible = sail_2_bottom.visible;
+		this.rope_12.visible = sail_2_bottom.visible;
+
+		this.rope_19.visible = sail_3_bottom.visible;
+		this.rope_20.visible = sail_3_bottom.visible;
+
+		this.rope_16.visible = sail_4.visible;
+		this.rope_15.visible = sail_4.visible;
 	}
 
 	@Override

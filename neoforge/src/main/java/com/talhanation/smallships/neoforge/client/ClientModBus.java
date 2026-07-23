@@ -3,6 +3,7 @@ package com.talhanation.smallships.neoforge.client;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.ClientInitializer;
 import com.talhanation.smallships.client.model.*;
+import com.talhanation.smallships.client.model.projectile.CannonBallModel;
 import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
