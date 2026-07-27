@@ -10,7 +10,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
-import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
@@ -25,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
@@ -32,17 +32,30 @@ import org.joml.Vector3f;
 
 public abstract class AbstractCannonBall extends AbstractHurtingProjectile implements ICannonProjectile {
     private static final EntityDataAccessor<Byte> BALL_TYPE = SynchedEntityData.defineId(AbstractCannonBall.class, EntityDataSerializers.BYTE);
+    /**
+     * The muzzle trail is only a shot effect, not a permanent tracer: after this
+     * many ticks (~1.5s) the projectile stops emitting particles entirely, so
+     * long shots do not drag a smoke line across the whole map.
+     */
+    public static final int TAIL_PARTICLE_TICKS = 7;
+    /**
+     * Projectiles must stay visible far beyond the vanilla tracking range,
+     * otherwise a broadside vanishes mid flight. Used by the renderers.
+     */
+    public static final double RENDER_RANGE = 200.0D;
     public boolean inWater = false;
     public boolean wasShot = false;
     public int counter = 0;
 
     public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, Level world) {
         super(type, world);
+        this.noCulling = true;
     }
 
     public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, LivingEntity owner, double d1, double d2, double d3, Level world) {
         super(type, owner, new Vec3(d1, d2, d3), world);
         this.moveTo(d1, d2, d3, this.getYRot(), this.getXRot());
+        this.noCulling = true;
     }
 
     @Override
@@ -133,7 +146,8 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
             this.setInWater(true);
         }
 
-        if (this.level().isClientSide()) {
+        // muzzle trail only, not a permanent tracer
+        if (this.level().isClientSide() && this.counter <= TAIL_PARTICLE_TICKS) {
             this.tailParticles();
         }
 
@@ -314,6 +328,23 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
             this.level().addParticle(ParticleTypes.POOF, lerp.x, lerp.y, lerp.z, 0, 0, 0);
         }
     }
+
+    /**
+     * Frustum culling is disabled for projectiles: the hitbox is tiny compared
+     * to the rendered model and the ball travels fast enough that the vanilla
+     * culling check drops it for a frame at a time (flickering).
+     */
+
+    @Override
+    public boolean shouldRenderAtSqrDistance(double distanceSqr) {
+        return distanceSqr < RENDER_RANGE * RENDER_RANGE;
+    }
+
+    @Override
+    public @NotNull AABB getBoundingBoxForCulling() {
+        return super.getBoundingBoxForCulling().inflate(100.0D);
+    }
+
 
     @Override
     public boolean isPickable() {

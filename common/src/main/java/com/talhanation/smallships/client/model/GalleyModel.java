@@ -13,38 +13,84 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("FieldCanBeLocal")
 public class GalleyModel extends ShipModel<GalleyEntity> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_model"), "main");
-    private final ModelPart root;
-    private final ModelPart galley;
-    private final ModelPart chest1;
-    private final ModelPart chest2;
-    private final ModelPart chest3;
-    private final ModelPart chest4;
+    private final ModelPart Galley;
+    private final ModelPart deck;
+    private final ModelPart cube_r1;
+    private final ModelPart bottom;
+    private final ModelPart cube_r2;
+    private final ModelPart cube_r3;
+    private final ModelPart sides;
+    private final ModelPart cube_r4;
+    private final ModelPart cube_r5;
+    private final ModelPart mast_1;
+    private final ModelPart mast_2;
+    private final ModelPart BannerStick;
+    private final ModelPart cube_r6;
+    private final ModelPart chest_1;
+    private final ModelPart cube_r7;
+    private final ModelPart cube_r8;
+    private final ModelPart cube_r9;
+    private final ModelPart cube_r10;
+    private final ModelPart chest_4;
+    private final ModelPart cube_r11;
+    private final ModelPart cube_r12;
+    private final ModelPart cube_r13;
+    private final ModelPart chest_2;
+    private final ModelPart cube_r14;
+    private final ModelPart cube_r15;
+    private final ModelPart cube_r16;
+    private final ModelPart chest_3;
+    private final ModelPart cube_r17;
+    private final ModelPart cube_r18;
     private final ModelPart steer;
-    private final ModelPart row_L_1;
-    private final ModelPart row_L_2;
-    private final ModelPart row_L_3;
     private final ModelPart row_L_4;
+    private final ModelPart row_L_3;
+    private final ModelPart row_L_2;
+    private final ModelPart row_L_1;
     private final ModelPart row_R_1;
     private final ModelPart row_R_2;
     private final ModelPart row_R_3;
     private final ModelPart row_R_4;
 
     public GalleyModel(ModelPart modelPart) {
-        this.root = modelPart;
-        this.galley = this.root.getChild("Galley");
-        this.chest1 = galley.getChild("chest_1");
-        this.chest2 = galley.getChild("chest_2");
-        this.chest3 = galley.getChild("chest_3");
-        this.chest4 = galley.getChild("chest_4");
-        this.steer = galley.getChild("steer");
-        this.row_L_1 = galley.getChild("row_L_1");
-        this.row_L_2 = galley.getChild("row_L_2");
-        this.row_L_3 = galley.getChild("row_L_3");
-        this.row_L_4 = galley.getChild("row_L_4");
-        this.row_R_1 = galley.getChild("row_R_1");
-        this.row_R_2 = galley.getChild("row_R_2");
-        this.row_R_3 = galley.getChild("row_R_3");
-        this.row_R_4 = galley.getChild("row_R_4");
+        this.Galley = modelPart.getChild("Galley");
+        this.deck = this.Galley.getChild("deck");
+        this.cube_r1 = this.deck.getChild("cube_r1");
+        this.bottom = this.Galley.getChild("bottom");
+        this.cube_r2 = this.bottom.getChild("cube_r2");
+        this.cube_r3 = this.bottom.getChild("cube_r3");
+        this.sides = this.Galley.getChild("sides");
+        this.cube_r4 = this.sides.getChild("cube_r4");
+        this.cube_r5 = this.sides.getChild("cube_r5");
+        this.mast_1 = this.Galley.getChild("mast_1");
+        this.mast_2 = this.mast_1.getChild("mast_2");
+        this.BannerStick = this.mast_1.getChild("BannerStick");
+        this.cube_r6 = this.mast_1.getChild("cube_r6");
+        this.chest_1 = this.Galley.getChild("chest_1");
+        this.cube_r7 = this.chest_1.getChild("cube_r7");
+        this.cube_r8 = this.chest_1.getChild("cube_r8");
+        this.cube_r9 = this.chest_1.getChild("cube_r9");
+        this.cube_r10 = this.chest_1.getChild("cube_r10");
+        this.chest_4 = this.Galley.getChild("chest_4");
+        this.cube_r11 = this.chest_4.getChild("cube_r11");
+        this.cube_r12 = this.chest_4.getChild("cube_r12");
+        this.cube_r13 = this.chest_4.getChild("cube_r13");
+        this.chest_2 = this.Galley.getChild("chest_2");
+        this.cube_r14 = this.chest_2.getChild("cube_r14");
+        this.cube_r15 = this.chest_2.getChild("cube_r15");
+        this.cube_r16 = this.chest_2.getChild("cube_r16");
+        this.chest_3 = this.Galley.getChild("chest_3");
+        this.cube_r17 = this.chest_3.getChild("cube_r17");
+        this.cube_r18 = this.chest_3.getChild("cube_r18");
+        this.steer = this.Galley.getChild("steer");
+        this.row_L_4 = this.Galley.getChild("row_L_4");
+        this.row_L_3 = this.Galley.getChild("row_L_3");
+        this.row_L_2 = this.Galley.getChild("row_L_2");
+        this.row_L_1 = this.Galley.getChild("row_L_1");
+        this.row_R_1 = this.Galley.getChild("row_R_1");
+        this.row_R_2 = this.Galley.getChild("row_R_2");
+        this.row_R_3 = this.Galley.getChild("row_R_3");
+        this.row_R_4 = this.Galley.getChild("row_R_4");
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -221,12 +267,13 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
         return LayerDefinition.create(meshdefinition, 128, 64);
     }
 
+
     @Override
     public void setupAnim(GalleyEntity galleyEntity, float f, float g, float h, float i, float j) {
-        this.chest1.visible = galleyEntity.getInvFillState() >= 15;
-        this.chest2.visible = galleyEntity.getInvFillState() >= 30;
-        this.chest3.visible = galleyEntity.getInvFillState() >= 60;
-        this.chest4.visible = galleyEntity.getInvFillState() >= 90;
+        this.chest_1.visible = galleyEntity.getInvFillState() >= 15;
+        this.chest_2.visible = galleyEntity.getInvFillState() >= 30;
+        this.chest_3.visible = galleyEntity.getInvFillState() >= 60;
+        this.chest_4.visible = galleyEntity.getInvFillState() >= 90;
 
         this.steer.yRot = -galleyEntity.getRotSpeed() * 0.25F;
 
@@ -243,6 +290,6 @@ public class GalleyModel extends ShipModel<GalleyEntity> {
 
     @Override
     public @NotNull ModelPart root() {
-        return this.root;
+        return this.Galley;
     }
 }

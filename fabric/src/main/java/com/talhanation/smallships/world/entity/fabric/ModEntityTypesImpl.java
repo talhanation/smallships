@@ -4,10 +4,7 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ChainShotEntity;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.entity.ship.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -61,6 +58,12 @@ public class ModEntityTypesImpl {
                 .build()));
 
         entries.put(GalleyEntity.class, register(GalleyEntity.ID, EntityType.Builder.of(GalleyEntity::new, MobCategory.MISC)
+                .sized(3.5F, 1.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)
+                .build()));
+
+        entries.put(DhowEntity.class, register(DhowEntity.ID, EntityType.Builder.of(DhowEntity::new, MobCategory.MISC)
                 .sized(3.5F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)

@@ -241,7 +241,7 @@ public abstract class Ship extends Boat {
 
     @Override
     public boolean canAddPassenger(Entity entity) {
-       return super.canAddPassenger(entity) && !(entity instanceof Ship) && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && !this.isLocked() && this.getPassengers().size() < this.getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal);
+        return super.canAddPassenger(entity) && !(entity instanceof Ship) && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && !this.isLocked() && this.getPassengers().size() < this.getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal);
     }
 
     public <T> void setData(EntityDataAccessor<T> accessor, T value) {
@@ -251,13 +251,15 @@ public abstract class Ship extends Boat {
     @Override
     protected void controlBoat() {
         Attributes attributes = this.getAttributes();
-        float speedModifier =
+        // PENALTIES only: biome, cargo and cannons can never push a ship above
+        // its configured max speed, they only cut into it. This product is the
+        // hard ceiling for everything below.
+        float speedPenalty =
                 (1 + (this.getBiomeModifier()/100)) *
-                (1 - (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0.0F)) *
-                (1 - (this instanceof ContainerShip containerShip? containerShip.getContainerModifier()/100 : 0.0F)) *
-                (1 + (this instanceof Paddleable paddleShip? paddleShip.getPaddlingModifier()/100 : 0.0F));
+                        (1 - (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0.0F)) *
+                        (1 - (this instanceof ContainerShip containerShip? containerShip.getContainerModifier()/100 : 0.0F));
 
-        this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * speedModifier;
+        this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * speedPenalty;
         float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
@@ -272,31 +274,23 @@ public abstract class Ship extends Boat {
         }
 
         if(this.isInWater() && !this.isShipLeashed() && !this.isSunken() && !isLocked()){
-            if(this instanceof Paddleable && this instanceof Sailable sailShip){
-                if(isForward() && getDriver() != null){
-                    setPoint = (maxSpeed * 12/16F) * (1 + (1 + sailShip.getSailState()) * 0.1F * SailDamage.getSpeedFactor(this) * this.getWindModifier());
-                } else
-                    switch (sailShip.getSailState()){ // Speed depending on sail state
-                    case 0 -> setPoint =  0;
-                    case 1 -> setPoint = maxSpeed * 4/16F;
-                    case 2 -> setPoint = maxSpeed * 8/16F;
-                    case 3 -> setPoint = maxSpeed * 12/16F;
-                    case 4 -> setPoint = maxSpeed * 16/16F;
-                }
+            // propulsion from canvas: linear in the sail state, scaled by sail
+            // damage and by the wind zone the ship is currently in
+            float sailDrive = 0.0F;
+            if (this instanceof Sailable sailShip) {
+                sailDrive = this.maxSpeed * (sailShip.getSailState() / 4.0F)
+                        * SailDamage.getSpeedFactor(this) * this.getWindModifier();
             }
-            else if (this instanceof Sailable sailShip) {
-                switch (sailShip.getSailState()){ // Speed depending on sail state
-                    case 0 -> setPoint =  0;
-                    case 1 -> setPoint = maxSpeed * 4/16F;
-                    case 2 -> setPoint = maxSpeed * 8/16F;
-                    case 3 -> setPoint = maxSpeed * 12/16F;
-                    case 4 -> setPoint = maxSpeed * 16/16F;
-                }
+
+            // oars are a wind independent floor, not a bonus: they carry the
+            // ship when the sails cannot, but never beyond the ceiling
+            float oarDrive = 0.0F;
+            if (this instanceof Paddleable && this.isForward() && this.getDriver() != null) {
+                oarDrive = this.maxSpeed * this.getOarFactor();
             }
-            // sail damage debuff and wind bonus/malus
-            if (this instanceof Sailable) {
-                setPoint *= SailDamage.getSpeedFactor(this) * this.getWindModifier();
-            }
+
+            setPoint = Math.min(Math.max(sailDrive, oarDrive), this.maxSpeed);
+
             this.calculateSpeed(acceleration);
 
             //CALCULATE ROTATION SPEED//
@@ -347,18 +341,68 @@ public abstract class Ship extends Boat {
         return ClientWindManager.getWind();
     }
 
+    /* ---------------- wind profile ---------------- */
+
     /**
-     * @return the wind speed modifier for this ship: 1.0 +- up to the configured
-     * influence (default 20%), depending on wind strength and how well the wind
-     * direction is aligned with the ship heading. Only applies with set sails.
+     * Wind multiplier when the wind comes from ahead. The three zone
+     * multipliers of a ship always sum to 3.0, so wind redistributes a ship's
+     * strength instead of adding a hidden power axis. Override per ship class.
+     */
+    public float getHeadWindMultiplier() {
+        return 1.0F;
+    }
+
+    /** Wind multiplier when the wind comes from the side. See getHeadWindMultiplier. */
+    public float getSideWindMultiplier() {
+        return 1.0F;
+    }
+
+    /** Wind multiplier when the wind comes from astern. See getHeadWindMultiplier. */
+    public float getTailWindMultiplier() {
+        return 1.0F;
+    }
+
+    /**
+     * The fraction of max speed this ship reaches under oars alone. Oars are a
+     * wind INDEPENDENT emergency drive: they let a ship make way with furled
+     * sails, but they can never push it past its max speed. 0 = no oars.
+     * Override in oar driven ship classes.
+     */
+    public float getOarFactor() {
+        return 0.0F;
+    }
+
+    /** @return the raw wind multiplier of the zone the ship is currently in. */
+    public float getWindMultiplier() {
+        return switch (this.getWind().getZone(this.getYRot())) {
+            case HEAD_WIND -> this.getHeadWindMultiplier();
+            case SIDE_WIND -> this.getSideWindMultiplier();
+            case TAIL_WIND -> this.getTailWindMultiplier();
+        };
+    }
+
+    /**
+     * @return the effective wind speed modifier for this ship. The raw zone
+     * multiplier is faded towards the neutral 1.0 by both the wind strength and
+     * the open sail area, because wind can only act on canvas that is actually
+     * set:
+     *
+     *   effective = 1 + (zoneMultiplier - 1) * strength * (sailState / 4)
+     *
+     * With furled sails (state 0) the result is always 1.0 - the ship takes no
+     * head wind penalty and gets no tail wind bonus, and can reach its full max
+     * speed under oars. Reefing step by step reduces a head wind penalty
+     * proportionally, because the ship offers the wind less area to grab.
      */
     public float getWindModifier() {
         if (!SmallShipsConfig.Common.windEnable.get()) return 1.0F;
-        if (!(this instanceof Sailable sailable) || sailable.getSailState() == 0) return 1.0F;
+        if (!(this instanceof Sailable sailable)) return 1.0F;
+
+        float sailFactor = sailable.getSailState() / 4.0F;
+        if (sailFactor <= 0.0F) return 1.0F;
 
         Wind wind = this.getWind();
-        float influence = SmallShipsConfig.Common.windMaxSpeedInfluence.get().floatValue();
-        return 1.0F + influence * wind.strength() * wind.getAlignment(this.getYRot());
+        return 1.0F + (this.getWindMultiplier() - 1.0F) * wind.strength() * sailFactor;
     }
 
 

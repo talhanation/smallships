@@ -148,4 +148,37 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     public byte getMaxShieldsPerSide(){
         return 5;
     }
+
+    /* ---------------- wind profile ---------------- */
+
+    /**
+     * Square sail like the cog, but with oars. Slightly more tail wind biased
+     * than the cog because it bridges a head wind under oars anyway.
+     * The three zone multipliers always sum to 3.0.
+     */
+    @Override
+    public float getHeadWindMultiplier() {
+        return 0.30F;
+    }
+
+
+    @Override
+    public float getSideWindMultiplier() {
+        return 1.10F;
+    }
+
+    @Override
+    public float getTailWindMultiplier() {
+        return 1.40F;
+    }
+
+    /**
+     * Oars are a wind independent floor, never a bonus: with furled sails the
+     * ship still makes this fraction of its max speed, and it can never be
+     * pushed past the ceiling by rowing.
+     */
+    @Override
+    public float getOarFactor() {
+        return 0.75F;
+    }
 }

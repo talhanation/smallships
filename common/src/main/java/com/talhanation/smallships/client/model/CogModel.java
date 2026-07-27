@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CogModel extends ShipModel<CogEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, CogEntity.ID + "_model"), "main");
-	private final ModelPart root;
+	private final ModelPart cog;
 	private final ModelPart chest1;
 	private final ModelPart chest2;
 	private final ModelPart chest3;
@@ -19,8 +19,8 @@ public class CogModel extends ShipModel<CogEntity> {
 	private final ModelPart steer;
 
 	public CogModel(ModelPart modelPart) {
-		this.root = modelPart;
-		ModelPart cog = this.root.getChild("Cog");
+		this.cog = modelPart;
+		ModelPart cog = this.cog.getChild("Cog");
 		this.chest1 = cog.getChild("chest_1");
 		this.chest2 = cog.getChild("chest_2");
 		this.chest3 = cog.getChild("chest_3");
@@ -168,6 +168,6 @@ public class CogModel extends ShipModel<CogEntity> {
 
 	@Override
 	public @NotNull ModelPart root() {
-		return this.root;
+		return this.cog;
 	}
 }

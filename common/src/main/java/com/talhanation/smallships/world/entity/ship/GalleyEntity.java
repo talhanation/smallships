@@ -138,4 +138,37 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     public byte getMaxCannonPerSide(){
         return 1;
     }
+
+    /* ---------------- wind profile ---------------- */
+
+    /**
+     * Lateen rig plus a full oar bank. The oars are its real protection from
+     * the wind, so the sail values stay moderate. Side wind focus fits the
+     * Mediterranean coastal trade it was built for.
+     * The three zone multipliers always sum to 3.0.
+     */
+    @Override
+    public float getHeadWindMultiplier() {
+        return 0.70F;
+    }
+
+    @Override
+    public float getSideWindMultiplier() {
+        return 1.40F;
+    }
+
+    @Override
+    public float getTailWindMultiplier() {
+        return 1.00F;
+    }
+
+    /**
+     * Oars are a wind independent floor, never a bonus: with furled sails the
+     * ship still makes this fraction of its max speed, and it can never be
+     * pushed past the ceiling by rowing.
+     */
+    @Override
+    public float getOarFactor() {
+        return 0.85F;
+    }
 }

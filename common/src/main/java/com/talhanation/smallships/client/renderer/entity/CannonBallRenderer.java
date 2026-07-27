@@ -4,8 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.model.projectile.CannonBallModel;
+import com.talhanation.smallships.world.entity.projectile.AbstractCannonBall;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -31,6 +33,13 @@ public class CannonBallRenderer extends EntityRenderer<CannonBallEntity>{
         this.model.renderToBuffer(poseStack, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 0xFFFFFF);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn);
+    }
+
+    @Override
+    public boolean shouldRender(@NotNull CannonBallEntity entity, @NotNull Frustum frustum, double camX, double camY, double camZ) {
+        // projectiles are never frustum culled and stay visible up to RENDER_RANGE
+        double distanceSqr = entity.distanceToSqr(camX, camY, camZ);
+        return distanceSqr < AbstractCannonBall.RENDER_RANGE * AbstractCannonBall.RENDER_RANGE;
     }
 
     @Override

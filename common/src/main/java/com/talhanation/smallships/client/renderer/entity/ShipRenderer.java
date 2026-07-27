@@ -165,6 +165,8 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 poseStack.scale(1.0F / 1.3F, 1.0F / 1.3F, 1.0F / 1.3F);
                 VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
                 float previewSpeed = CannonTrajectory.CANNON_SPEED * cannonShipEntity.getShotSpeedMultiplier(true);
+                // the line fades out towards its far end instead of being cut at
+                // the water surface, so no fluid lookup is needed here
                 CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculateLocal(aimAngle, previewSpeed));
                 poseStack.popPose();
             }
@@ -212,11 +214,11 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         if (bannerItemStack.getItem() instanceof BannerItem bannerItem) {
             poseStack.pushPose();
             Bannerable.BannerPosition pos = bannerShipEntity.getBannerPosition();
-            // IMPORTANT: position with the UNCHANGED pos.yp so the banner pivot
-            // stays fixed regardless of the wind rotation
             poseStack.mulPose(Axis.YP.rotationDegrees(pos.yp));
             poseStack.mulPose(Axis.ZP.rotationDegrees(pos.zp));
             poseStack.translate(pos.x, pos.y, pos.z);
+            poseStack.scale(0.5F, 0.5F, 0.5F);
+
             if (SmallShipsConfig.Common.windEnable.get() && SmallShipsConfig.Client.windBannerEnable.get()) {
                 // rotate the banner AROUND ITS OWN POLE (after the translate) so it
                 // streams in the direction the wind blows to. Applied unscaled:
@@ -225,7 +227,6 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 float windOffset = net.minecraft.util.Mth.wrapDegrees(ClientWindManager.getDirection(partialTicks) - entityYaw - 180.0F);
                 poseStack.mulPose(Axis.XP.rotationDegrees(windOffset));
             }
-            poseStack.scale(0.5F, 0.5F, 0.5F);
 
             float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);
 
@@ -288,6 +289,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         sailModels.put(CogEntity.class, new CogSailModel());
         sailModels.put(BriggEntity.class, new BriggSailModel());
         sailModels.put(GalleyEntity.class, new GalleySailModel());
+        sailModels.put(DhowEntity.class, new DhowSailModel());
         sailModels.put(DrakkarEntity.class, new DrakkarSailModel());
     }
 

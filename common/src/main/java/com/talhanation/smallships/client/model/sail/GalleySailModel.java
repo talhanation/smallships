@@ -15,10 +15,126 @@ public class GalleySailModel extends SailModel {
     @SuppressWarnings("unused")
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_sail_model"), "main");
     private final ModelPart GalleySail;
+    private final ModelPart sail_4;
+    private final ModelPart sail_4_sail;
+    private final ModelPart Base77;
+    private final ModelPart Base78;
+    private final ModelPart sail_3;
+    private final ModelPart sail_3_sail;
+    private final ModelPart Base79;
+    private final ModelPart Base80;
+    private final ModelPart Base81;
+    private final ModelPart Base82;
+    private final ModelPart Base83;
+    private final ModelPart Base84;
+    private final ModelPart sail_3_bottom;
+    private final ModelPart sail_2;
+    private final ModelPart sail_2_sail;
+    private final ModelPart Base85;
+    private final ModelPart Base86;
+    private final ModelPart Base87;
+    private final ModelPart Base88;
+    private final ModelPart Base89;
+    private final ModelPart Base90;
+    private final ModelPart Base91;
+    private final ModelPart Base92;
+    private final ModelPart Base93;
+    private final ModelPart Base94;
+    private final ModelPart sail_2_bottom;
+    private final ModelPart sail_1;
+    private final ModelPart sail_1_sail;
+    private final ModelPart Base95;
+    private final ModelPart Base96;
+    private final ModelPart Base97;
+    private final ModelPart Base98;
+    private final ModelPart Base99;
+    private final ModelPart Base100;
+    private final ModelPart Base101;
+    private final ModelPart Base102;
+    private final ModelPart Base103;
+    private final ModelPart Base104;
+    private final ModelPart Base105;
+    private final ModelPart Base106;
+    private final ModelPart Base107;
+    private final ModelPart Base108;
+    private final ModelPart Base109;
+    private final ModelPart Base110;
+    private final ModelPart Base111;
+    private final ModelPart Base112;
+    private final ModelPart sail_1_bottom;
+    private final ModelPart sail_0;
+    private final ModelPart sail_0_sail;
+    private final ModelPart ropes;
+    private final ModelPart rope_1;
+    private final ModelPart cube_r81;
+    private final ModelPart cube_r82;
+    private final ModelPart cube_r83;
+    private final ModelPart rope_2;
+    private final ModelPart cube_r19;
+    private final ModelPart cube_r20;
+    private final ModelPart cube_r21;
 
     public GalleySailModel() {
         ModelPart root = createBodyLayer().bakeRoot();
         this.GalleySail = root.getChild("GalleySail");
+        this.sail_4 = this.GalleySail.getChild("sail_4");
+        this.sail_4_sail = this.sail_4.getChild("sail_4_sail");
+        this.Base77 = this.sail_4_sail.getChild("Base77");
+        this.Base78 = this.Base77.getChild("Base78");
+        this.sail_3 = this.GalleySail.getChild("sail_3");
+        this.sail_3_sail = this.sail_3.getChild("sail_3_sail");
+        this.Base79 = this.sail_3_sail.getChild("Base79");
+        this.Base80 = this.Base79.getChild("Base80");
+        this.Base81 = this.Base80.getChild("Base81");
+        this.Base82 = this.Base81.getChild("Base82");
+        this.Base83 = this.Base82.getChild("Base83");
+        this.Base84 = this.Base83.getChild("Base84");
+        this.sail_3_bottom = this.sail_3.getChild("sail_3_bottom");
+        this.sail_2 = this.GalleySail.getChild("sail_2");
+        this.sail_2_sail = this.sail_2.getChild("sail_2_sail");
+        this.Base85 = this.sail_2_sail.getChild("Base85");
+        this.Base86 = this.Base85.getChild("Base86");
+        this.Base87 = this.Base86.getChild("Base87");
+        this.Base88 = this.Base87.getChild("Base88");
+        this.Base89 = this.Base88.getChild("Base89");
+        this.Base90 = this.Base89.getChild("Base90");
+        this.Base91 = this.Base90.getChild("Base91");
+        this.Base92 = this.Base91.getChild("Base92");
+        this.Base93 = this.Base92.getChild("Base93");
+        this.Base94 = this.Base93.getChild("Base94");
+        this.sail_2_bottom = this.sail_2.getChild("sail_2_bottom");
+        this.sail_1 = this.GalleySail.getChild("sail_1");
+        this.sail_1_sail = this.sail_1.getChild("sail_1_sail");
+        this.Base95 = this.sail_1_sail.getChild("Base95");
+        this.Base96 = this.Base95.getChild("Base96");
+        this.Base97 = this.Base96.getChild("Base97");
+        this.Base98 = this.Base97.getChild("Base98");
+        this.Base99 = this.Base98.getChild("Base99");
+        this.Base100 = this.Base99.getChild("Base100");
+        this.Base101 = this.Base100.getChild("Base101");
+        this.Base102 = this.Base101.getChild("Base102");
+        this.Base103 = this.Base102.getChild("Base103");
+        this.Base104 = this.Base103.getChild("Base104");
+        this.Base105 = this.Base104.getChild("Base105");
+        this.Base106 = this.Base105.getChild("Base106");
+        this.Base107 = this.Base106.getChild("Base107");
+        this.Base108 = this.Base107.getChild("Base108");
+        this.Base109 = this.Base108.getChild("Base109");
+        this.Base110 = this.Base109.getChild("Base110");
+        this.Base111 = this.Base110.getChild("Base111");
+        this.Base112 = this.Base111.getChild("Base112");
+        this.sail_1_bottom = this.sail_1.getChild("sail_1_bottom");
+        this.sail_0 = this.GalleySail.getChild("sail_0");
+        this.sail_0_sail = this.sail_0.getChild("sail_0_sail");
+        this.ropes = this.GalleySail.getChild("ropes");
+        this.rope_1 = this.ropes.getChild("rope_1");
+        this.cube_r81 = this.rope_1.getChild("cube_r81");
+        this.cube_r82 = this.rope_1.getChild("cube_r82");
+        this.cube_r83 = this.rope_1.getChild("cube_r83");
+        this.rope_2 = this.ropes.getChild("rope_2");
+        this.cube_r19 = this.rope_2.getChild("cube_r19");
+        this.cube_r20 = this.rope_2.getChild("cube_r20");
+        this.cube_r21 = this.rope_2.getChild("cube_r21");
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -299,43 +415,63 @@ public class GalleySailModel extends SailModel {
         return LayerDefinition.create(meshdefinition, 128, 64);
     }
 
+
     @Override
-    public void setupAnim(Ship briggEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        switch (briggEntity.getData(Ship.SAIL_STATE)) {
+    public void setupAnim(Ship galley, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        switch (galley.getData(Ship.SAIL_STATE)) {
             case 0 -> {
-                this.GalleySail.getChild("Sail_0").visible = true;
-                this.GalleySail.getChild("Sail_1").visible = false;
-                this.GalleySail.getChild("Sail_2").visible = false;
-                this.GalleySail.getChild("Sail_3").visible = false;
-                this.GalleySail.getChild("Sail_4").visible = false;
+                this.sail_0.visible = true;
+                this.sail_1.visible = false;
+                this.sail_2.visible = false;
+                this.sail_3.visible = false;
+                this.sail_4.visible = false;
+
+                this.sail_1_bottom.visible = false;
+                this.sail_2_bottom.visible = false;
+                this.sail_3_bottom.visible = false;
             }
             case 1 -> {
-                this.GalleySail.getChild("Sail_0").visible = false;
-                this.GalleySail.getChild("Sail_1").visible = true;
-                this.GalleySail.getChild("Sail_2").visible = false;
-                this.GalleySail.getChild("Sail_3").visible = false;
-                this.GalleySail.getChild("Sail_4").visible = false;
+                this.sail_0.visible = false;
+                this.sail_1.visible = true;
+                this.sail_2.visible = false;
+                this.sail_3.visible = false;
+                this.sail_4.visible = false;
+
+                this.sail_1_bottom.visible = true;
+                this.sail_2_bottom.visible = false;
+                this.sail_3_bottom.visible = false;
             }
             case 2 -> {
-                this.GalleySail.getChild("Sail_0").visible = false;
-                this.GalleySail.getChild("Sail_1").visible = false;
-                this.GalleySail.getChild("Sail_2").visible = true;
-                this.GalleySail.getChild("Sail_3").visible = false;
-                this.GalleySail.getChild("Sail_4").visible = false;
+                this.sail_0.visible = false;
+                this.sail_1.visible = true;
+                this.sail_2.visible = true;
+                this.sail_3.visible = false;
+                this.sail_4.visible = false;
+                this.sail_1_bottom.visible = false;
+                this.sail_2_bottom.visible = true;
+                this.sail_3_bottom.visible = false;
             }
             case 3 -> {
-                this.GalleySail.getChild("Sail_0").visible = false;
-                this.GalleySail.getChild("Sail_1").visible = false;
-                this.GalleySail.getChild("Sail_2").visible = false;
-                this.GalleySail.getChild("Sail_3").visible = true;
-                this.GalleySail.getChild("Sail_4").visible = false;
+                this.sail_0.visible = false;
+                this.sail_1.visible = true;
+                this.sail_2.visible = true;
+                this.sail_3.visible = true;
+                this.sail_4.visible = false;
+                this.sail_1_bottom.visible = false;
+                this.sail_2_bottom.visible = false;
+                this.sail_3_bottom.visible = true;
             }
             case 4 -> {
-                this.GalleySail.getChild("Sail_0").visible = false;
-                this.GalleySail.getChild("Sail_1").visible = false;
-                this.GalleySail.getChild("Sail_2").visible = false;
-                this.GalleySail.getChild("Sail_3").visible = false;
-                this.GalleySail.getChild("Sail_4").visible = true;
+                this.sail_0.visible = false;
+                this.sail_1.visible = true;
+                this.sail_2.visible = true;
+                this.sail_3.visible = true;
+                this.sail_4.visible = true;
+
+
+                this.sail_1_bottom.visible = false;
+                this.sail_2_bottom.visible = false;
+                this.sail_3_bottom.visible = false;
             }
         }
     }

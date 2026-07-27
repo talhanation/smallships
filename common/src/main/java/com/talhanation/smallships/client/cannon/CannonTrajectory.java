@@ -11,6 +11,10 @@ import java.util.List;
  * Shared trajectory preview for ship cannons and the ground cannon
  * (SiegeWeapons-ballista style, but white and with the exact cannonball
  * physics of AbstractCannonBall: pos += vel; vel = vel * 0.99 - 0.06y).
+ *
+ * The far end of the arc - the part that would dip below the water - is faded
+ * out to transparent by the renderer instead of being cut at the water surface,
+ * because reliable per-pose water detection turned out to be too fragile.
  */
 public class CannonTrajectory {
     /**
@@ -23,6 +27,17 @@ public class CannonTrajectory {
     public static final float CANNON_SPEED = 2.6F;
     private static final int MAX_STEPS = 200;
     private static final double MAX_DROP = 96.0D;
+
+    /** alpha of the very first segment, right at the muzzle */
+    private static final int START_ALPHA = 235;
+    /** alpha at the end of the fade */
+    private static final int END_ALPHA = 0;
+    /**
+     * Over how many simulation steps the line fades from START_ALPHA to zero.
+     * The arc reaches full transparency well before its simulated end, so the
+     * tip never draws a hard point on or under the water - it just dissolves.
+     */
+    private static final float FADE_OVER_STEPS = 100.0F;
 
     /**
      * Simulates the cannonball flight tick by tick.
@@ -46,7 +61,6 @@ public class CannonTrajectory {
         }
         return points;
     }
-
 
     /**
      * SiegeWeapons ballista style: the trajectory is calculated in the LOCAL
@@ -78,23 +92,40 @@ public class CannonTrajectory {
     }
 
     /**
-     * Renders the path as a white line (RenderType.lines()).
+     * Renders the path as a white line that fades from opaque at the muzzle to
+     * fully transparent further out (see FADE_OVER_STEPS). This replaces the
+     * former water cut: the far part of the arc, which is where it would dip
+     * below the surface, simply dissolves instead of drawing a hard line on the
+     * water.
+     *
      * The pose stack must be at the render origin the points are relative to.
      */
     public static void render(PoseStack poseStack, VertexConsumer vertexConsumer, List<Vec3> points) {
         PoseStack.Pose pose = poseStack.last();
 
         for (int i = 0; i < points.size() - 1; i++) {
+            int alpha1 = alphaAt(i);
+            int alpha2 = alphaAt(i + 1);
+            // once a segment is fully transparent every later one is too - stop
+            if (alpha1 <= 0 && alpha2 <= 0) break;
+
             Vec3 p1 = points.get(i);
             Vec3 p2 = points.get(i + 1);
             Vec3 normal = p2.subtract(p1).normalize();
 
             vertexConsumer.addVertex(pose, (float) p1.x, (float) p1.y, (float) p1.z)
-                    .setColor(255, 255, 255, 220)
+                    .setColor(255, 255, 255, alpha1)
                     .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
             vertexConsumer.addVertex(pose, (float) p2.x, (float) p2.y, (float) p2.z)
-                    .setColor(255, 255, 255, 220)
+                    .setColor(255, 255, 255, alpha2)
                     .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
         }
+    }
+
+    /** Linear alpha fade from START_ALPHA down to zero over FADE_OVER_STEPS. */
+    private static int alphaAt(int stepIndex) {
+        float t = stepIndex / FADE_OVER_STEPS;
+        if (t >= 1.0F) return 0;
+        return (int) (START_ALPHA + (END_ALPHA - START_ALPHA) * t);
     }
 }

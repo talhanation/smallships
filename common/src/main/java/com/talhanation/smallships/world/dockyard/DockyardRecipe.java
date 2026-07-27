@@ -1,10 +1,6 @@
 package com.talhanation.smallships.world.dockyard;
 
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
-import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.*;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
@@ -31,6 +27,7 @@ public class DockyardRecipe {
         COG(0, 90 * 20),
         BRIGG(1, 150 * 20),
         GALLEY(2, 120 * 20),
+        DHOW(3, 120 * 20),
         DRAKKAR(3, 100 * 20);
 
         public final int id;
@@ -56,6 +53,7 @@ public class DockyardRecipe {
                 case COG -> CogEntity.summon(level, x, y, z);
                 case BRIGG -> BriggEntity.summon(level, x, y, z);
                 case GALLEY -> GalleyEntity.summon(level, x, y, z);
+                case DHOW -> DhowEntity.summon(level, x, y, z);
                 case DRAKKAR -> DrakkarEntity.summon(level, x, y, z);
             };
         }
@@ -121,12 +119,17 @@ public class DockyardRecipe {
                 Ingredient.of(Items.IRON_NUGGET, 12)));
         RECIPES.put(ShipType.BRIGG, List.of(
                 Ingredient.of(ItemTags.PLANKS, 160),
-                Ingredient.of(Items.WHITE_WOOL, 32),
+                Ingredient.of(Items.WHITE_WOOL, 64),
                 Ingredient.of(Items.STRING, 16),
                 Ingredient.of(Items.IRON_INGOT, 8)));
         RECIPES.put(ShipType.GALLEY, List.of(
                 Ingredient.of(ItemTags.PLANKS, 128),
                 Ingredient.of(Items.WHITE_WOOL, 24),
+                Ingredient.of(Items.STRING, 12),
+                Ingredient.of(Items.IRON_NUGGET, 24)));
+        RECIPES.put(ShipType.DHOW, List.of(
+                Ingredient.of(ItemTags.PLANKS, 96),
+                Ingredient.of(Items.WHITE_WOOL, 48),
                 Ingredient.of(Items.STRING, 12),
                 Ingredient.of(Items.IRON_NUGGET, 24)));
         RECIPES.put(ShipType.DRAKKAR, List.of(

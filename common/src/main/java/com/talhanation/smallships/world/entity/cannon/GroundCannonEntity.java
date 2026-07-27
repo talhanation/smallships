@@ -61,6 +61,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     private static final EntityDataAccessor<Boolean> BARREL_UP = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> BARREL_DOWN = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> AIMING = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> RECENTERING = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> CARRIAGE_YAW = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> HEALTH = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     @Nullable
@@ -68,6 +70,20 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     private long lootTableSeed;
     private final Cannon cannon = new Cannon(this);
     public float maxSpeedInKmH = 7F;// 7km/h
+    /** barrel elevation limits, single source of truth for the entity and the Cannon core */
+    public static final float PITCH_MIN = -30.0F;
+    public static final float PITCH_MAX = 10.0F;
+    /**
+     * Aim mode tracking speed. The carriage is heavy: it follows the driver's
+     * view instead of snapping to it, so a flick of the mouse does not teleport
+     * a multi ton gun. Yaw traverses faster than the barrel elevates.
+     */
+    private static final float AIM_YAW_SPEED = 3.0F;
+    private static final float AIM_PITCH_SPEED = 1.5F;
+    /** snap-to-center traverse speed, deliberately faster than manual tracking */
+    private static final float RECENTER_YAW_SPEED = 6.0F;
+    /** the recenter is done once the barrel is within this many degrees of the carriage */
+    private static final float RECENTER_EPSILON = 0.5F;
     /** barrel elevation speed in degrees per tick (key-only aiming) */
     private static final float BARREL_PITCH_SPEED = 0.75F;
     private float maxSpeed = maxSpeedInKmH / (60F * 1.15F);
@@ -87,7 +103,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     public GroundCannonEntity(Level level, Vec3 pos) {
         super(ModEntityTypes.GROUND_CANNON, level);
-        this.cannon.setPitchBounds(-30.0F, 10.0F);
+        this.cannon.setPitchBounds(PITCH_MIN, PITCH_MAX);
         this.setPos(pos);
         recalculateBoundingBox();
         this.inventory = new SimpleContainer(1);
@@ -95,7 +111,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     public GroundCannonEntity(EntityType<? extends Entity> entityType, Level level) {
         super(entityType, level);
-        this.cannon.setPitchBounds(-30.0F, 10.0F);
+        this.cannon.setPitchBounds(PITCH_MIN, PITCH_MAX);
     }
 
     public Item getDropItem() {
@@ -123,6 +139,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         builder.define(BARREL_UP, false);
         builder.define(BARREL_DOWN, false);
         builder.define(AIMING, false);
+        builder.define(RECENTERING, false);
+        builder.define(CARRIAGE_YAW, 0.0F);
         builder.define(SPEED, 0F);
         builder.define(HEALTH, 100F);
     }
@@ -209,6 +227,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         if (enteredCannon) {
             this.getDriver().setYRot(this.getYRot());
             this.getDriver().setXRot(this.getXRot());
+            // the orientation at mount time is the neutral forward the recenter returns to
+            this.setCarriageYaw(this.getYRot());
         }
         this.drivenPrevTick = isDriven;
 
@@ -291,52 +311,90 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         float speed = Kalkuel.subtractToZero(getSpeed(), getRollResistance());
         if(driver != null) {
 
-            if (isForward()) {
+            // aiming locks the carriage in place: a loaded gun is not aimed while
+            // rolling. Driving inputs are ignored and the cannon brakes to a stop.
+            boolean movementLocked = this.isAiming() || this.isRecentering();
+
+            if (isForward() && !movementLocked) {
                 if (speed <= maxSpeed) {
                     speed = Math.min(speed + 0.01F, maxSpeed);
                 }
             }
 
-            if (isBackward()) {
+            if (isBackward() && !movementLocked) {
                 if (speed >= -maxSpeed) {
                     speed = Math.max(speed - 0.01F, -maxSpeed);
                 }
             }
+
+            if (movementLocked) {
+                speed = 0.0F;
+            }
+            // double right click: traverse back to the carriage forward on its own.
+            // Runs before the aim tracking and swallows driver input until it is done,
+            // so a held right click does not fight the recenter.
+            if (this.isRecentering()) {
+                float carriageYaw = this.getCarriageYaw();
+                float recentered = Mth.approachDegrees(this.getYRot(), carriageYaw, RECENTER_YAW_SPEED);
+                this.setYRot(Mth.wrapDegrees(recentered));
+                this.setXRot(Math.clamp(Mth.approachDegrees(this.getXRot(), 0.0F, AIM_PITCH_SPEED), PITCH_MIN, PITCH_MAX));
+
+                if (Math.abs(Mth.degreesDifference(this.getYRot(), carriageYaw)) <= RECENTER_EPSILON) {
+                    this.setYRot(Mth.wrapDegrees(carriageYaw));
+                    this.setRecentering(false);
+                    // hand the view back to the driver at the neutral angle so the
+                    // camera does not jump when the aim tracking takes over again
+                    driver.setYRot(this.getYRot());
+                    driver.setXRot(this.getXRot());
+                }
+            }
             // aim mode (right click held, SiegeWeapons ballista style): the cannon
             // follows the driver's view, the camera sits behind the barrel.
-            if (this.isAiming()) {
-                this.setYRot(driver.getYRot());
-                this.setXRot(Math.clamp(driver.getXRot(), -30, 10));
-                return;
-            }
+            // NOTE: no early return here - the movement block below must still run,
+            // otherwise the cannon keeps its old delta movement and coasts while aiming.
+            else if (this.isAiming()) {
+                // rate limited: the gun approaches the target angle instead of
+                // snapping to it, which gives the carriage weight
+                float targetYaw = Mth.wrapDegrees(driver.getYRot());
+                float targetPitch = Math.clamp(driver.getXRot(), PITCH_MIN, PITCH_MAX);
 
-            // otherwise key controls: A/D rotate the cannon around its own axis,
-            // the barrel up/down keys change the elevation.
-            deltaRotation = 0;
-            if(isLeft()){
-                --deltaRotation;
+                this.setYRot(Mth.wrapDegrees(Mth.approachDegrees(this.getYRot(), targetYaw, AIM_YAW_SPEED)));
+                this.setXRot(Math.clamp(Mth.approachDegrees(this.getXRot(), targetPitch, AIM_PITCH_SPEED), PITCH_MIN, PITCH_MAX));
             }
-            if(isRight()){
-                ++deltaRotation;
-            }
-            float newYRot = yRot + this.deltaRotation;
+            else {
 
-            if (isBarrelUp()) {
-                xRot -= BARREL_PITCH_SPEED;
-            }
-            if (isBarrelDown()) {
-                xRot += BARREL_PITCH_SPEED;
-            }
-            xRot = Math.clamp(xRot, -30, 10);
+                // otherwise key controls: A/D rotate the cannon around its own axis,
+                // the barrel up/down keys change the elevation.
+                deltaRotation = 0;
+                if(isLeft()){
+                    --deltaRotation;
+                }
+                if(isRight()){
+                    ++deltaRotation;
+                }
+                // wrap so the yaw never accumulates unbounded over long sessions
+                float newYRot = Mth.wrapDegrees(yRot + this.deltaRotation);
 
-            this.setXRot(xRot);
-            this.setYRot(newYRot);
+                if (isBarrelUp()) {
+                    xRot -= BARREL_PITCH_SPEED;
+                }
+                if (isBarrelDown()) {
+                    xRot += BARREL_PITCH_SPEED;
+                }
+                xRot = Math.clamp(xRot, PITCH_MIN, PITCH_MAX);
+
+                this.setXRot(xRot);
+                this.setYRot(newYRot);
+                // driving the carriage redefines what forward means
+                this.setCarriageYaw(newYRot);
+            }
         }
         else {
             setForward(false);
             setBackward(false);
             setLeft(false);
             setRight(false);
+            setRecentering(false);
         }
 
         this.setSpeed(speed);
@@ -423,16 +481,68 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         return entityData.get(AIMING);
     }
 
+    public void setRecentering(boolean recentering) {
+        entityData.set(RECENTERING, recentering);
+    }
+
+    public boolean isRecentering() {
+        if (this.getDriver() == null) return false;
+        return entityData.get(RECENTERING);
+    }
+
+    private boolean isRecenteringRaw() {
+        return entityData.get(RECENTERING);
+    }
+
+    public void setCarriageYaw(float yaw) {
+        entityData.set(CARRIAGE_YAW, Mth.wrapDegrees(yaw));
+    }
+
+    /** @return the neutral forward angle of the carriage, the recenter target. */
+    public float getCarriageYaw() {
+        return entityData.get(CARRIAGE_YAW);
+    }
+
+    /**
+     * Double right click: traverse the barrel back to the carriage forward.
+     * Ignored while a recenter is already running so a triple click is harmless.
+     */
+    public void triggerRecenter(@Nullable LivingEntity livingEntity) {
+        if (this.isRecenteringRaw()) return;
+        this.setRecentering(true);
+        if (this.getCommandSenderWorld().isClientSide && livingEntity instanceof Player) {
+            ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), this.isAimingRaw()));
+        }
+    }
+
     /**
      * Key-only barrel elevation. Kept separate from updateControls so the
      * reflection signature used by the Workers/Recruits mod stays stable.
      */
-    public void updateBarrelControls(@Nullable LivingEntity livingEntity) {
+    public void updateBarrelControls(boolean up, boolean down, @Nullable LivingEntity livingEntity) {
         boolean needsUpdate = false;
+
+        if (this.isBarrelUpRaw() != up) {
+            this.setBarrelUp(up);
+            needsUpdate = true;
+        }
+
+        if (this.isBarrelDownRaw() != down) {
+            this.setBarrelDown(down);
+            needsUpdate = true;
+        }
 
         if (this.getCommandSenderWorld().isClientSide && needsUpdate && livingEntity instanceof Player) {
             ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), this.isAimingRaw()));
         }
+    }
+
+    private boolean isBarrelUpRaw() {
+        return entityData.get(BARREL_UP);
+    }
+
+    private boolean isBarrelDownRaw() {
+        return entityData.get(BARREL_DOWN);
     }
 
     protected boolean tryRiding(Entity entity) {
@@ -637,6 +747,45 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             }
         }
         return false;
+    }
+
+    /**
+     * Peeks whether a fine grain powder is available WITHOUT consuming it.
+     * Used client side for the trajectory preview - the actual shot uses
+     * consumeFineGrainPowder(), which shrinks the stack.
+     *
+     * Mirrors consumeFineGrainPowder: only the driver's inventory is checked,
+     * and creative drivers never consume powder, so they never get the bonus.
+     *
+     * @return true if a fine grain powder is in the driver's inventory
+     */
+    public boolean hasFineGrainPowder() {
+        if (this.getDriver() instanceof Player player) {
+            if (player.hasInfiniteMaterials()) return false;
+            for (ItemStack itemStack : player.getInventory().items) {
+                if (itemStack.is(ModItems.FINE_GRAIN_POWDER)) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The projectile speed multiplier of the NEXT shot: the loaded ball type's
+     * own multiplier, times 1.5 if a fine grain powder is available. Single
+     * source of truth so the trajectory preview matches the real shot (see
+     * trigger). Returns the BALL default when nothing is loaded, which also
+     * covers the entity-in-barrel case.
+     *
+     * @param peekFineGrain true = only check for fine grain (preview), false =
+     *                      caller consumes it separately (real shot uses
+     *                      consumeFineGrainPowder instead)
+     */
+    public float getShotSpeedMultiplier(boolean peekFineGrain) {
+        // an entity in the barrel is always shot at base speed, no ammo is loaded
+        CannonBallItem ammo = this.getPassengerInBarrel() == null ? this.getCannonBallToShoot() : null;
+        float multiplier = ammo != null ? ammo.getType().speedMultiplier : CannonBallItem.Type.BALL.speedMultiplier;
+        if (peekFineGrain && this.hasFineGrainPowder()) multiplier *= 1.5F;
+        return multiplier;
     }
 
     @Override

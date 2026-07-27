@@ -457,7 +457,7 @@ public class SmallShipsConfig {
 
         builder.comment("Speed factor for vanilla boats: 0.5 = 50% slower.");
         Common.vanillaBoatSpeedFactor = builder
-                .defineInRange("vanillaBoatSpeedFactor", 0.5D, 0.05D, 1.0D);
+                .defineInRange("vanillaBoatSpeedFactor", 0.7D, 0.05D, 1.0D);
 
         builder.pop();
 

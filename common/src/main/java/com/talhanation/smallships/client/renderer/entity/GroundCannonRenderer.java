@@ -12,7 +12,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -55,9 +54,14 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
             // barrel end relative to the entity origin
             Vec3 start = direction.scale(1.4D).add(0.0D, 1.1D, 0.0D);
 
+            // match the real shot: grape/chained shot fly slower, fine grain
+            // powder makes them faster (peek only, the preview must not consume it)
+            float previewSpeed = CannonTrajectory.CANNON_SPEED * entity.getShotSpeedMultiplier(true);
+            // the line fades out towards its far end instead of being cut at the
+            // water surface, so no fluid lookup is needed here
             poseStack.pushPose();
             VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
-            CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculate(start, direction, CannonTrajectory.CANNON_SPEED));
+            CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculate(start, direction, previewSpeed));
             poseStack.popPose();
         }
 

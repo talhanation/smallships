@@ -136,5 +136,24 @@
   "gui.smallships.dockyard.repair": "Repair ship",
   "gui.smallships.dockyard.repair_cost": "Costs:",
   "commands.smallships.wind.set_strength": "Wind strength set to %s",
-  "commands.smallships.wind.info": "Wind: direction %s° (north = 0°, clockwise), strength %s"
+  "commands.smallships.wind.info": "Wind: direction %s° (north = 0°, clockwise), strength %s",
+
+  "gui.smallships.dockyard.stat.wind": "Wind Profile",
+  "gui.smallships.dockyard.stat.head_wind": "Head Wind",
+  "gui.smallships.dockyard.stat.side_wind": "Side Wind",
+  "gui.smallships.dockyard.stat.tail_wind": "Tail Wind",
+  "gui.smallships.dockyard.stat.oars": "Oars (of max)",
+  "gui.smallships.dockyard.stat.penalties": "Current Penalties",
+  "gui.smallships.dockyard.stat.cargo": "Cargo",
+  "gui.smallships.dockyard.stat.cannons": "Cannons",
+  "gui.smallships.dockyard.stat.biome": "Biome",
+  "gui.smallships.dockyard.stat.max_speed": "Max Speed",
+  "gui.smallships.dockyard.tab.build": "Build",
+  "gui.smallships.dockyard.tab.modify": "Modify",
+  "gui.smallships.dockyard.tab.no_ship": "No ship detected within 16 blocks",
+  "gui.smallships.dockyard.section.upgrades": "Upgrades",
+  "gui.smallships.dockyard.section.cannons": "Cannons",
+  "gui.smallships.dockyard.section.style": "Style",
+  "gui.smallships.dockyard.section.materials": "Materials",
+  "gui.smallships.dockyard.more_materials": "+%s more…"
 }

@@ -156,4 +156,27 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     public byte getMaxCannonPerSide(){
         return 3;
     }
+
+    /* ---------------- wind profile ---------------- */
+
+    /**
+     * Two masts with a mixed rig, historically described as both fast and
+     * handy. Flattest profile in the mod: never strong, never weak - that is
+     * the all rounder identity and keeps it from dominating through wind too.
+     * The three zone multipliers always sum to 3.0.
+     */
+    @Override
+    public float getHeadWindMultiplier() {
+        return 0.25F;
+    }
+
+    @Override
+    public float getSideWindMultiplier() {
+        return 1.20F;
+    }
+
+    @Override
+    public float getTailWindMultiplier() {
+        return 1.40F;
+    }
 }

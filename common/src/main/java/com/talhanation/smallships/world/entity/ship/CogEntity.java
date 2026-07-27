@@ -151,4 +151,26 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
 
         }
     }
+
+    /* ---------------- wind profile ---------------- */
+
+    /**
+     * Single square sail, the classic North Sea trader: it waits for a fair wind
+     * and runs before it. Readable reference profile for new players.
+     * The three zone multipliers always sum to 3.0.
+     */
+    @Override
+    public float getHeadWindMultiplier() {
+        return 0.30F;
+    }
+
+    @Override
+    public float getSideWindMultiplier() {
+        return 1.10F;
+    }
+
+    @Override
+    public float getTailWindMultiplier() {
+        return 1.50F;
+    }
 }

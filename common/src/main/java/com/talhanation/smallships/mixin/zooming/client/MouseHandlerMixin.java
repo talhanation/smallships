@@ -23,6 +23,10 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public class MouseHandlerMixin {
     @Shadow @Final private Minecraft minecraft;
 
+    /** a second right click within this many ms triggers the barrel recenter */
+    @Unique private static final long SMALLSHIPS_DOUBLE_CLICK_MS = 400L;
+    @Unique private long smallships$lastCannonRightClick = 0L;
+
 
     /**
      * SiegeWeapons-ballista style: right click HOLD activates the aim mode
@@ -39,6 +43,16 @@ public class MouseHandlerMixin {
 
         // ground cannon: aim mode = camera behind the barrel + view aiming
         if (this.minecraft.player.getVehicle() instanceof GroundCannonEntity cannon) {
+            if (press) {
+                long now = net.minecraft.Util.getMillis();
+                if (now - this.smallships$lastCannonRightClick <= SMALLSHIPS_DOUBLE_CLICK_MS) {
+                    // second click inside the window: snap back to neutral
+                    cannon.triggerRecenter(this.minecraft.player);
+                    this.smallships$lastCannonRightClick = 0L;
+                } else {
+                    this.smallships$lastCannonRightClick = now;
+                }
+            }
             cannon.updateAimingControl(press, this.minecraft.player);
             if (press) ci.cancel();
             return;
@@ -72,8 +86,22 @@ public class MouseHandlerMixin {
             this.accumulatedDX = 0.0D;
             this.accumulatedDY = 0.0D;
             ci.cancel();
+            return;
+        }
+        // ground cannon aiming: slow the raw mouse movement globally so the gun
+        // tracks like a heavy carriage. The view still moves freely, it is just
+        // damped, which is simpler and feels better than the old per-tick
+        // approach limit on the entity.
+        if (this.minecraft.player != null
+                && this.minecraft.player.getVehicle() instanceof GroundCannonEntity cannon
+                && cannon.isAiming()) {
+            this.accumulatedDX *= SMALLSHIPS_AIM_SENSITIVITY;
+            this.accumulatedDY *= SMALLSHIPS_AIM_SENSITIVITY;
         }
     }
+
+    /** mouse sensitivity multiplier while aiming a ground cannon (heavy carriage feel) */
+    @Unique private static final double SMALLSHIPS_AIM_SENSITIVITY = 0.35D;
 
     @Unique private boolean smallships$shouldCancel;
 

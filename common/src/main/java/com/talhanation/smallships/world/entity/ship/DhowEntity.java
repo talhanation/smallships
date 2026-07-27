@@ -27,7 +27,7 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     }
 
     private DhowEntity(Level level, double d, double e, double f) {
-        this(ModEntityTypes.COG, level);
+        this(ModEntityTypes.DHOW, level);
         this.setPos(d, e, f);
         this.xo = d;
         this.yo = e;
@@ -59,12 +59,12 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     @Override
     public @NotNull Item getDropItem() {
         if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
-        return ModItems.COG_ITEMS.get(this.getVariant());
+        return ModItems.DHOW_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierCogBiome.get();
+        return SmallShipsConfig.Common.shipModifierGalleyBiome.get();
     }
 
     private static final List<ShipSeat> SEATS = java.util.List.of(
@@ -91,11 +91,11 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
      **/
     public CannonPosition getCannonPosition(int index){
         List<CannonPosition> positionList = new ArrayList<>();
-        CannonPosition pos1 = new CannonPosition(1.4, 0.2, 0.6, true);
+        CannonPosition pos1 = new CannonPosition(1.4, 0.3, 0.6, true);
         CannonPosition pos2 = new CannonPosition(1.4, 0.2, 0.6, false);
 
-        CannonPosition pos3 = new CannonPosition(-0.6, 0.2, 0.6, true);
-        CannonPosition pos4 = new CannonPosition(-0.6, 0.2, 0.6, false);
+        CannonPosition pos3 = new CannonPosition(-0.6, 0.3, 0.6, true);
+        CannonPosition pos4 = new CannonPosition(-0.6, 0.3, 0.6, false);
 
         positionList.add(pos1);
         positionList.add(pos2);
@@ -107,13 +107,15 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
 
     @Override
     public byte getMaxCannonPerSide(){
-        return 3;
+        return 2;
     }
+    double bannerY = -5.4D;
+    double bannerX = 1.75D;
+    double bannerZ = 0.00D;
 
-    // Implement Able-Interfaces
     @Override
     public BannerPosition getBannerPosition() {
-        return new BannerPosition(-180.0F, 90.0F, -4.0D, 0.78D, 0.05D);
+        return new BannerPosition(-180.0F, 90.0F, bannerY, bannerX , bannerZ);
     }
 
     @Override
@@ -148,5 +150,28 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
             this.level().addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
 
         }
+    }
+
+    /* ---------------- wind profile ---------------- */
+
+    /**
+     * Most extreme side wind profile in the mod. Monsoon sailing was crosswind
+     * sailing. Briefly the fastest thing on the water, which is harmless at
+     * 150 HP and no cannons - it is exactly the escape ability it needs.
+     * The three zone multipliers always sum to 3.0.
+     */
+    @Override
+    public float getHeadWindMultiplier() {
+        return 0.60F;
+    }
+
+    @Override
+    public float getSideWindMultiplier() {
+        return 1.20F;
+    }
+
+    @Override
+    public float getTailWindMultiplier() {
+        return 1.00F;
     }
 }

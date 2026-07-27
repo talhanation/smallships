@@ -2,10 +2,7 @@ package com.talhanation.smallships.world.item.fabric;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.item.*;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -50,10 +47,6 @@ public class ModItemsImpl {
             Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, creativeModeTab, customCreativeModeTab);
         } else {
             //VANILLA CREATIVE MENU TAB
-            ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COLORED_BLOCKS).register(entries -> {
-                entries.addBefore(Items.WHITE_BANNER, ModItems.SAIL);
-            });
-
             ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT).register(entries -> {
                 entries.addAfter(Items.CROSSBOW, ModItems.CANNON, ModItems.CANNON_BALL, ModItems.CHAINED_SHOT, ModItems.GRAPE_SHOT, ModItems.FINE_GRAIN_POWDER);
             });
@@ -65,13 +58,12 @@ public class ModItemsImpl {
                     shipItems.add(ModItems.COG_ITEMS.get(type));
                     shipItems.add(ModItems.BRIGG_ITEMS.get(type));
                     shipItems.add(ModItems.GALLEY_ITEMS.get(type));
+                    shipItems.add(ModItems.DHOW_ITEMS.get(type));
                     shipItems.add(ModItems.DRAKKAR_ITEMS.get(type));
                 }
                 entries.addBefore(Items.RAIL, shipItems.toArray(Item[]::new));
             });
         }
-
-        register("sail", new SailItem((new Item.Properties()).stacksTo(16)));
 
         register("cannon", new CannonItem((new Item.Properties()).stacksTo(1)));
         register("cannon_ball", new CannonBallItem((new Item.Properties()).stacksTo(16)));
@@ -85,6 +77,7 @@ public class ModItemsImpl {
             register(name + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + DhowEntity.ID,  new DhowItem(type, new Item.Properties().stacksTo(1)));
 			register(name + "_" + DrakkarEntity.ID,  new DrakkarItem(type, new Item.Properties().stacksTo(1)));
 
         }

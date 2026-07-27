@@ -51,6 +51,16 @@ import java.util.List;
  */
 public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
+    /**
+     * The tab the player selected. Null means "follow the dockyard": modify a
+     * detected ship, otherwise build. As soon as the player clicks a tab this
+     * holds his explicit choice, so he can build a new ship even while another
+     * one is moored next to the dockyard.
+     */
+    private Boolean modifyTabSelected = null;
+    private TabButton buildTab;
+    private TabButton modifyTab;
+
     private DockyardRecipe.ShipType selectedShipType = DockyardRecipe.ShipType.COG;
     private int woodTypeIndex = 0;
 
@@ -66,10 +76,73 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private int previewShipTypeId = -1;
     private int previewWoodIndex = -1;
 
+    /* ---------------- layout ---------------- */
+
+    /** outer padding of the window */
+    private static final int PAD = 8;
+    /** header strip height (title bar) */
+    private static final int HEADER_H = 22;
+    /** height of the tab strip sitting directly below the header */
+    private static final int TAB_H = 20;
+    /** width of a single tab */
+    private static final int TAB_W = 74;
+    /** width of the left column (controls, stats, materials) */
+    private static final int COL_L_W = 150;
+    /** width of the right column: fits exactly 5 icon buttons at 24px pitch */
+    private static final int COL_R_W = 118;
+    /** icon button pitch and per-row capacity of the right column grids */
+    private static final int ICON_PITCH = 24;
+    private static final int ICONS_PER_ROW = 5;
+    /** height reserved for the rotating ship preview at the top right */
+    private static final int PREVIEW_H = 60;
+    /** y offsets (from contentTop) of the three equipment sections */
+    private static final int SEC_UPGRADES = 64;
+    private static final int SEC_CANNONS = 105;
+    private static final int SEC_STYLE = 170;
+    /** a section's buttons start this far below its caption */
+    private static final int SEC_LABEL_H = 11;
+    /** gap between the two columns */
+    private static final int COL_GAP = 6;
+    /** height of the footer strip holding the action button / progress bar */
+    private static final int FOOTER_H = 34;
+
     public DockyardScreen(DockyardMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.imageWidth = 236;
-        this.imageHeight = 200;
+        // wider and taller than the vanilla container default: the screen holds
+        // two columns (controls + stats on the left, preview and equipment on
+        // the right) and must not overlap them at any ship type
+        this.imageWidth = 290;
+        this.imageHeight = 309;
+    }
+
+    /** x of the left column content */
+    private int colLeftX() {
+        return this.leftPos + PAD;
+    }
+
+    /** x of the right column content */
+    private int colRightX() {
+        return this.leftPos + PAD + COL_L_W + COL_GAP;
+    }
+
+    /** width of the right column */
+    private int colRightW() {
+        return COL_R_W;
+    }
+
+    /** y of the tab strip */
+    private int tabTop() {
+        return this.topPos + HEADER_H;
+    }
+
+    /** y of the first content row below the header and the tab strip */
+    private int contentTop() {
+        return this.topPos + HEADER_H + TAB_H;
+    }
+
+    /** y of the footer strip */
+    private int footerTop() {
+        return this.topPos + this.imageHeight - FOOTER_H;
     }
 
     @Override
@@ -80,29 +153,47 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         int left = this.leftPos;
         int top = this.topPos;
 
+        int colL = this.colLeftX();
+        int colR = this.colRightX();
+        int cTop = this.contentTop();
+
+        // tab strip: explicit mode switch. The modify tab stays disabled while
+        // no ship is detected, so the player can always see that the dockyard
+        // has nothing to work on.
+        this.buildTab = this.addRenderableWidget(new TabButton(this.leftPos + PAD, this.tabTop(),
+                Component.translatable("gui.smallships.dockyard.tab.build"), button -> this.modifyTabSelected = false));
+        this.modifyTab = this.addRenderableWidget(new TabButton(this.leftPos + PAD + TAB_W + 2, this.tabTop(),
+                Component.translatable("gui.smallships.dockyard.tab.modify"), button -> this.modifyTabSelected = true));
+        // seed the visual state so the very first frame is correct: containerTick
+        // only runs after the screen has already been rendered once
+        boolean modifyNow = this.isModifyMode();
+        this.modifyTab.active = this.getShip() != null;
+        this.modifyTab.selected = modifyNow;
+        this.buildTab.selected = !modifyNow;
+
         this.shipTypeButton = this.addRenderableWidget(Button.builder(this.getShipTypeText(), button -> {
             this.selectedShipType = DockyardRecipe.ShipType.byId((this.selectedShipType.id + 1) % DockyardRecipe.ShipType.values().length);
             button.setMessage(this.getShipTypeText());
-        }).bounds(left + 8, top + 18, 90, 20).build());
+        }).bounds(colL, cTop, COL_L_W, 20).build());
 
         this.woodTypeButton = this.addRenderableWidget(Button.builder(this.getWoodTypeText(), button -> {
             this.woodTypeIndex = (this.woodTypeIndex + 1) % Boat.Type.values().length;
             button.setMessage(this.getWoodTypeText());
-        }).bounds(left + 8, top + 42, 90, 20).build());
+        }).bounds(colL, cTop + 24, COL_L_W, 20).build());
 
         this.buildButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.smallships.dockyard.build"), button ->
                 ModPackets.clientSendPacket(new ServerboundDockyardBuildPacket(this.menu.getDockyardPos(), this.selectedShipType.id, this.woodTypeIndex))
-        ).bounds(left + 8, top + this.imageHeight - 30, 90, 20).build());
+        ).bounds(colL, this.footerTop() + 7, COL_L_W, 20).build());
 
         this.repairButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.smallships.dockyard.repair"), button ->
                 ModPackets.clientSendPacket(new ServerboundDockyardRepairPacket(this.menu.getDockyardPos()))
-        ).bounds(left + 8, top + this.imageHeight - 30, 120, 20).build());
+        ).bounds(colL, this.footerTop() + 7, COL_L_W, 20).build());
 
         // upgrade buttons (modify mode)
         ShipUpgrade[] upgrades = ShipUpgrade.values();
         for (int i = 0; i < upgrades.length; i++) {
             ShipUpgrade upgrade = upgrades[i];
-            UpgradeButton upgradeButton = new UpgradeButton(left + 8 + i * 26, top + 70, upgrade, button ->
+            UpgradeButton upgradeButton = new UpgradeButton(colR + (i % ICONS_PER_ROW) * ICON_PITCH, cTop + SEC_UPGRADES + SEC_LABEL_H + (i / ICONS_PER_ROW) * ICON_PITCH, upgrade, button ->
                     this.onUpgradeClicked(upgrade));
             this.upgradeButtons.add(this.addRenderableWidget(upgradeButton));
         }
@@ -111,7 +202,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.cannonSlotButtons.clear();
         for (int slot = 0; slot < 6; slot++) {
             final int s = slot;
-            CannonSlotButton slotButton = new CannonSlotButton(left + 8 + slot * 24, top + 100, slot, button ->
+            CannonSlotButton slotButton = new CannonSlotButton(colR + (slot % ICONS_PER_ROW) * ICON_PITCH, cTop + SEC_CANNONS + SEC_LABEL_H + (slot / ICONS_PER_ROW) * ICON_PITCH, slot, button ->
                     this.onCannonSlotClicked(s));
             this.cannonSlotButtons.add(this.addRenderableWidget(slotButton));
         }
@@ -119,7 +210,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         // style bar: dyes and banners detected in the player inventory
         this.styleButtons.clear();
         for (int i = 0; i < 8; i++) {
-            StyleButton styleButton = new StyleButton(left + 8 + i * 24, top + 124, button -> {
+            StyleButton styleButton = new StyleButton(colR + (i % ICONS_PER_ROW) * ICON_PITCH, cTop + SEC_STYLE + SEC_LABEL_H + (i / ICONS_PER_ROW) * ICON_PITCH, button -> {
                 StyleButton sb = (StyleButton) button;
                 if (sb.inventorySlot >= 0) {
                     ModPackets.clientSendPacket(new ServerboundDockyardStylePacket(this.menu.getDockyardPos(), sb.inventorySlot));
@@ -159,8 +250,15 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         return entity instanceof Ship ship ? ship : null;
     }
 
+    /**
+     * @return true if the screen is currently in modify mode. Without an
+     * explicit tab choice this follows ship detection; modify is never possible
+     * without a ship, so the flag is ignored in that case.
+     */
     private boolean isModifyMode() {
-        return this.getShip() != null;
+        boolean shipPresent = this.getShip() != null;
+        if (!shipPresent) return false;
+        return this.modifyTabSelected == null || this.modifyTabSelected;
     }
 
     @Override
@@ -168,6 +266,13 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         super.containerTick();
         boolean modify = this.isModifyMode();
         boolean busy = this.menu.isBusy();
+
+        boolean shipPresent = this.getShip() != null;
+        this.modifyTab.active = shipPresent;
+        this.modifyTab.selected = modify;
+        this.buildTab.selected = !modify;
+        this.modifyTab.setTooltip(shipPresent ? null
+                : net.minecraft.client.gui.components.Tooltip.create(Component.translatable("gui.smallships.dockyard.tab.no_ship")));
 
         this.shipTypeButton.visible = !modify;
         this.woodTypeButton.visible = !modify;
@@ -268,51 +373,126 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
     }
 
+    /**
+     * The screen draws its own header, and there is no player inventory grid
+     * in this container - so the vanilla title and "Inventory" labels would
+     * just print on top of the custom background.
+     */
+    @Override
+    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    }
+
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int left = this.leftPos;
         int top = this.topPos;
+        int right = left + this.imageWidth;
+        int bottom = top + this.imageHeight;
 
-        // simple drawn background (no texture dependency)
-        guiGraphics.fill(left, top, left + this.imageWidth, top + this.imageHeight, 0xEE2B2B2B);
-        guiGraphics.fill(left + 1, top + 1, left + this.imageWidth - 1, top + this.imageHeight - 1, 0xEE3F3F3F);
-        guiGraphics.drawString(this.font, this.title, left + 8, top + 6, 0xFFFFFF, false);
+        // window: outer border, body, and a slightly lighter header strip so the
+        // title reads as a bar instead of floating text
+        guiGraphics.fill(left - 1, top - 1, right + 1, bottom + 1, 0xFF15151A);
+        guiGraphics.fill(left, top, right, bottom, 0xFF31313A);
+        guiGraphics.fill(left, top, right, top + HEADER_H, 0xFF25252C);
+        guiGraphics.fill(left, top + HEADER_H - 1, right, top + HEADER_H, 0xFF15151A);
+        guiGraphics.drawString(this.font, this.title, left + PAD, top + 7, 0xFFFFFFFF, false);
+
+        // tab strip background: the tabs themselves are widgets drawn on top,
+        // this is the recessed lane they sit in. The closing line is drawn in
+        // two spans so it does not cross under the SELECTED tab - that tab has
+        // to merge seamlessly into the content panel below it.
+        guiGraphics.fill(left, top + HEADER_H, right, this.contentTop(), 0xFF25252C);
+        int selX = (this.isModifyMode() ? this.modifyTab : this.buildTab).getX();
+        guiGraphics.fill(left, this.contentTop() - 1, selX, this.contentTop(), 0xFF15151A);
+        guiGraphics.fill(selX + TAB_W, this.contentTop() - 1, right, this.contentTop(), 0xFF15151A);
+
+        int colL = this.colLeftX();
+        int colR = this.colRightX();
+        int cTop = this.contentTop();
+        int colRW = this.colRightW();
 
         Ship ship = this.getShip();
-        if (ship != null) {
-            // ship preview (modify mode)
-            this.renderShipPreview(guiGraphics, ship, left + this.imageWidth - 66, top + 92, mouseX, mouseY);
-            guiGraphics.drawString(this.font, ship.getDisplayName(), left + 8, top + 22, 0xFFFF88, false);
-            guiGraphics.drawString(this.font, Component.translatable("gui.smallships.dockyard.modify_hint"), left + 8, top + 36, 0xAAAAAA, false);
+        if (this.isModifyMode() && ship != null) {
+            // ---------- modify mode ----------
+            // left column: name, stats
+            guiGraphics.drawString(this.font, ship.getDisplayName().copy().withStyle(ChatFormatting.YELLOW), colL, cTop + 2, 0xFFFFFF, false);
+            guiGraphics.drawString(this.font, Component.translatable("gui.smallships.dockyard.modify_hint"), colL, cTop + 14, 0xFF9A9AA5, false);
+
+            int statTop = cTop + 28;
+            panel(guiGraphics, colL - 3, statTop - 3, COL_L_W + 6, this.footerTop() - statTop - 2);
+            ShipStatPanel.render(guiGraphics, this.font, colL, statTop, ship, ship);
+
+            // right column: preview above the equipment sections
+            panel(guiGraphics, colR - 3, cTop - 3, colRW + 6, PREVIEW_H);
+            this.renderShipPreview(guiGraphics, ship, colR + colRW / 2, cTop + PREVIEW_H - 12, mouseX, mouseY);
+
+            sectionLabel(guiGraphics, this.font, colR, cTop + SEC_UPGRADES, "gui.smallships.dockyard.section.upgrades");
+            sectionLabel(guiGraphics, this.font, colR, cTop + SEC_CANNONS, "gui.smallships.dockyard.section.cannons");
+            sectionLabel(guiGraphics, this.font, colR, cTop + SEC_STYLE, "gui.smallships.dockyard.section.style");
         } else {
-            // build mode: render a dummy ship of the selected type and wood
-            this.renderBuildPreview(guiGraphics, left + this.imageWidth - 66, top + 92, mouseX, mouseY);
-            // material list (build mode)
+            // ---------- build mode ----------
+            // right column: preview of the selected type
+            panel(guiGraphics, colR - 3, cTop - 3, colRW + 6, PREVIEW_H);
+            this.renderBuildPreview(guiGraphics, colR + colRW / 2, cTop + PREVIEW_H - 12, mouseX, mouseY);
+
+            // right column below the preview: wind profile of the selection
+            int statTop = cTop + PREVIEW_H + 4;
+            panel(guiGraphics, colR - 3, statTop - 3, colRW + 6, this.footerTop() - statTop - 2);
+            ShipStatPanel.render(guiGraphics, this.font, colR, statTop, null, this.previewShip);
+
+            // left column below the two selector buttons: material list
+            int matTop = cTop + 52;
+            panel(guiGraphics, colL - 3, matTop - 3, COL_L_W + 6, this.footerTop() - matTop - 2);
+            sectionLabel(guiGraphics, this.font, colL, matTop, "gui.smallships.dockyard.section.materials");
+
             List<ItemStack> materials = DockyardRecipe.getDisplayStacks(this.selectedShipType, Boat.Type.values()[this.woodTypeIndex]);
             List<DockyardRecipe.Ingredient> ingredients = DockyardRecipe.getIngredients(this.selectedShipType);
-            int y = top + 70;
+            int y = matTop + 12;
+            int limit = this.footerTop() - 22;
             for (int i = 0; i < materials.size(); i++) {
+                // never draw into the footer: long recipes are cut off with a
+                // "+N more" line instead of overlapping the build button
+                if (y > limit && i < materials.size() - 1) {
+                    guiGraphics.drawString(this.font,
+                            Component.translatable("gui.smallships.dockyard.more_materials", materials.size() - i).withStyle(ChatFormatting.DARK_GRAY),
+                            colL + 2, y + 4, 0xFFFFFF, false);
+                    break;
+                }
                 ItemStack stack = materials.get(i);
                 DockyardRecipe.Ingredient ingredient = ingredients.get(i);
                 boolean has = this.menu.getPlayer() == null || ingredient.countIn(this.menu.getPlayer()) >= ingredient.amount() || this.menu.getPlayer().hasInfiniteMaterials();
-                guiGraphics.renderItem(stack, left + 10, y);
+                guiGraphics.renderItem(stack, colL + 2, y);
                 guiGraphics.drawString(this.font,
-                        Component.literal(ingredient.amount() + "x ").append(stack.getHoverName()).withStyle(has ? ChatFormatting.GREEN : ChatFormatting.RED),
-                        left + 30, y + 4, 0xFFFFFF, false);
-                y += 20;
+                        Component.literal(ingredient.amount() + "x ").append(stack.getHoverName()),
+                        colL + 22, y + 4, has ? 0xFF8CD97A : 0xFFD9453D, false);
+                y += 19;
             }
         }
 
-        // progress bar
+        // footer: separator plus progress bar while the dockyard works
+        guiGraphics.fill(left, this.footerTop(), right, this.footerTop() + 1, 0xFF15151A);
         if (this.menu.isBusy() && this.menu.getTotalTime() > 0) {
-            int barX = left + 8;
-            int barY = top + this.imageHeight - 46;
-            int barWidth = this.imageWidth - 16;
+            int barX = colR;
+            int barY = this.footerTop() + 13;
+            int barWidth = colRW;
             float progress = (float) this.menu.getProgress() / (float) this.menu.getTotalTime();
+            guiGraphics.fill(barX - 1, barY - 1, barX + barWidth + 1, barY + 9, 0xFF15151A);
             guiGraphics.fill(barX, barY, barX + barWidth, barY + 8, 0xFF1B1B1B);
             guiGraphics.fill(barX, barY, barX + (int) (barWidth * Math.min(1.0F, progress)), barY + 8, 0xFF55B14C);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.smallships.dockyard.working"), left + this.imageWidth / 2, barY - 10, 0xFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("gui.smallships.dockyard.working"), barX, barY - 11, 0xFFDDDDDD, false);
         }
+    }
+
+    /** Inset panel background: a subtle sunken box grouping one section. */
+    private static void panel(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+        if (height <= 0) return;
+        guiGraphics.fill(x, y, x + width, y + height, 0xFF15151A);
+        guiGraphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, 0xFF282830);
+    }
+
+    /** Small orange caption above a section. */
+    private static void sectionLabel(GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, int x, int y, String translationKey) {
+        guiGraphics.drawString(font, Component.translatable(translationKey), x, y, 0xFFFFAA33, false);
     }
 
     /**
@@ -359,6 +539,42 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
         if (this.previewShip != null) {
             this.renderShipPreview(guiGraphics, this.previewShip, x, y, mouseX, mouseY);
+        }
+    }
+
+    /**
+     * A header tab. The selected tab is drawn flush with the content below it
+     * (no bottom border) so it reads as part of the panel, the unselected one
+     * sits recessed and darker.
+     */
+    private static class TabButton extends Button {
+        private boolean selected;
+
+        protected TabButton(int x, int y, Component label, OnPress onPress) {
+            super(x, y, TAB_W, TAB_H, label, onPress, DEFAULT_NARRATION);
+        }
+
+        @Override
+        protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            int x = this.getX();
+            int y = this.getY();
+            int right = x + this.width;
+            int bottom = y + this.height;
+
+            int body = this.selected ? 0xFF31313A : (this.isHoveredOrFocused() && this.active ? 0xFF2A2A32 : 0xFF212128);
+            guiGraphics.fill(x, y, right, bottom, 0xFF15151A);
+            guiGraphics.fill(x + 1, y + 1, right - 1, bottom, body);
+            if (this.selected) {
+                // accent line on top, and no separator at the bottom so the tab
+                // merges into the content panel
+                guiGraphics.fill(x + 1, y + 1, right - 1, y + 2, 0xFFFFAA33);
+            } else {
+                guiGraphics.fill(x + 1, bottom - 1, right - 1, bottom, 0xFF15151A);
+            }
+
+            int textColor = !this.active ? 0xFF5A5A63 : (this.selected ? 0xFFFFFFFF : 0xFFAAAAB4);
+            guiGraphics.drawCenteredString(net.minecraft.client.Minecraft.getInstance().font,
+                    this.getMessage(), x + this.width / 2, y + (this.height - 8) / 2 + 1, textColor);
         }
     }
 
