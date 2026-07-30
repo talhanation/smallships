@@ -2,6 +2,7 @@ package com.talhanation.smallships.forge;
 
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.forge.events.DataPackEvents;
 import com.talhanation.smallships.forge.events.PassengerEvents;
 import com.talhanation.smallships.world.block.forge.ModBlockEntityTypesImpl;
 import com.talhanation.smallships.world.block.forge.ModBlocksImpl;
@@ -38,6 +39,7 @@ public class SmallshipsModForge {
         ModParticleTypesImpl.PARTICLE_TYPES.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(new PassengerEvents());
+        MinecraftForge.EVENT_BUS.register(new DataPackEvents());
         MinecraftForge.EVENT_BUS.register(new com.talhanation.smallships.forge.events.WindEvents());
         MinecraftForge.EVENT_BUS.register(new com.talhanation.smallships.forge.events.CommandEvents());
     }

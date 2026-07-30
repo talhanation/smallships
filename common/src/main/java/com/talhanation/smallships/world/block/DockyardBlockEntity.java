@@ -1,6 +1,9 @@
 package com.talhanation.smallships.world.block;
 
+import com.talhanation.smallships.api.ShipRegistry;
+import com.talhanation.smallships.api.ShipType;
 import com.talhanation.smallships.world.dockyard.DockyardRecipe;
+import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
 import com.talhanation.smallships.world.dockyard.WaterSpawnFinder;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
@@ -11,6 +14,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -65,7 +69,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     private int progress;
     private int totalTime;
     /** BUILD_SHIP task data */
-    private int shipTypeId;
+    @Nullable private ResourceLocation shipTypeId;
     private int woodTypeOrdinal;
     @Nullable private BlockPos spawnSpot;
     /** UPGRADE task data */
@@ -150,10 +154,18 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
      * valid 5x5 water spawn spot; consumes the materials immediately.
      * Server side only.
      */
-    public void startBuildShip(ServerPlayer player, DockyardRecipe.ShipType shipType, Boat.Type woodType) {
+    public void startBuildShip(ServerPlayer player, ShipType shipType, Boat.Type woodType) {
         if (this.level == null || this.level.isClientSide() || this.isBusy()) return;
 
-        if (!DockyardRecipe.canAfford(shipType, player)) {
+        // the whitelist is server authoritative: the common config is not
+        // synced, so a client may well offer a ship this server does not allow
+        if (!ShipRegistry.isBuildable(shipType)) {
+            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_not_allowed"), true);
+            return;
+        }
+        // read the recipe fresh: a data pack reload takes effect immediately
+        DockyardRecipe recipe = DockyardRecipeManager.get(shipType);
+        if (!recipe.canAfford(player)) {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
             return;
         }
@@ -163,12 +175,12 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
 
-        DockyardRecipe.consume(shipType, player);
+        recipe.consume(player);
         this.task = Task.BUILD_SHIP;
-        this.shipTypeId = shipType.id;
+        this.shipTypeId = shipType.getId();
         this.woodTypeOrdinal = woodType.ordinal();
         this.spawnSpot = spot;
-        this.totalTime = shipType.buildTime;
+        this.totalTime = recipe.buildTime();
         this.progress = 0;
         this.setChanged();
     }
@@ -391,25 +403,11 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         if (hullFraction <= 0.0F && sailFraction <= 0.0F) return;
 
         java.util.List<com.talhanation.smallships.world.dockyard.DockyardRecipe.Ingredient> costs = getRepairCosts(ship);
-        if (!player.hasInfiniteMaterials()) {
-            for (var cost : costs) {
-                if (cost.countIn(player) < cost.amount()) {
-                    player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
-                    return;
-                }
-            }
-            for (var cost : costs) {
-                int remaining = cost.amount();
-                for (var stack : player.getInventory().items) {
-                    if (remaining <= 0) break;
-                    if (cost.matches(stack)) {
-                        int take = Math.min(remaining, stack.getCount());
-                        stack.shrink(take);
-                        remaining -= take;
-                    }
-                }
-            }
+        if (!DockyardRecipe.canAfford(costs, player)) {
+            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
+            return;
         }
+        DockyardRecipe.consume(costs, player);
 
         this.task = Task.REPAIR;
         this.targetShipUUID = ship.getUUID();
@@ -484,7 +482,10 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private void finishBuildShip(Level level, BlockPos pos) {
-        DockyardRecipe.ShipType shipType = DockyardRecipe.ShipType.byId(this.shipTypeId);
+        // the ship type can be gone if the addon providing it was removed
+        // while a build was still running - drop the task instead of crashing
+        ShipType shipType = ShipRegistry.get(this.shipTypeId);
+        if (shipType == null) return;
         Boat.Type woodType = Boat.Type.values()[Math.floorMod(this.woodTypeOrdinal, Boat.Type.values().length)];
 
         BlockPos spot = this.spawnSpot;
@@ -535,7 +536,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("Task", this.task.id);
         tag.putInt("Progress", this.progress);
         tag.putInt("TotalTime", this.totalTime);
-        tag.putInt("ShipType", this.shipTypeId);
+        if (this.shipTypeId != null) tag.putString("ShipType", this.shipTypeId.toString());
         tag.putInt("WoodType", this.woodTypeOrdinal);
         tag.putInt("Upgrade", this.upgradeOrdinal);
         tag.putInt("CannonSlot", this.cannonSlot);
@@ -551,7 +552,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.task = Task.byId(tag.getInt("Task"));
         this.progress = tag.getInt("Progress");
         this.totalTime = tag.getInt("TotalTime");
-        this.shipTypeId = tag.getInt("ShipType");
+        this.shipTypeId = tag.contains("ShipType") ? ResourceLocation.tryParse(tag.getString("ShipType")) : null;
         this.woodTypeOrdinal = tag.getInt("WoodType");
         this.upgradeOrdinal = tag.getInt("Upgrade");
         this.cannonSlot = tag.getInt("CannonSlot");

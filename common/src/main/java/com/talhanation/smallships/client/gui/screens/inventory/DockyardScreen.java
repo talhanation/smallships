@@ -1,5 +1,7 @@
 package com.talhanation.smallships.client.gui.screens.inventory;
 
+import com.talhanation.smallships.api.ShipRegistry;
+import com.talhanation.smallships.api.ShipType;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundDockyardBuildPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardCannonPacket;
@@ -7,6 +9,7 @@ import com.talhanation.smallships.network.packet.ServerboundDockyardRepairPacket
 import com.talhanation.smallships.network.packet.ServerboundDockyardStylePacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardUpgradePacket;
 import com.talhanation.smallships.world.dockyard.DockyardRecipe;
+import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
@@ -61,7 +64,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private TabButton buildTab;
     private TabButton modifyTab;
 
-    private DockyardRecipe.ShipType selectedShipType = DockyardRecipe.ShipType.COG;
+    /** the ship selected in the build tab, null while no ship type is buildable */
+    private ShipType selectedShipType;
     private int woodTypeIndex = 0;
 
     private Button buildButton;
@@ -73,7 +77,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private final List<StyleButton> styleButtons = new ArrayList<>();
     /** build mode: cached dummy ship for the preview (never added to the world) */
     private Ship previewShip;
-    private int previewShipTypeId = -1;
+    private ShipType previewShipType;
     private int previewWoodIndex = -1;
 
     /* ---------------- layout ---------------- */
@@ -171,8 +175,15 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.modifyTab.selected = modifyNow;
         this.buildTab.selected = !modifyNow;
 
+        // the build tab only ever offers what the registry holds and the
+        // config allows, so ships coming from addons show up here on their own
+        List<ShipType> buildable = ShipRegistry.getBuildable();
+        if (this.selectedShipType == null || !buildable.contains(this.selectedShipType)) {
+            this.selectedShipType = buildable.isEmpty() ? null : buildable.get(0);
+        }
+
         this.shipTypeButton = this.addRenderableWidget(Button.builder(this.getShipTypeText(), button -> {
-            this.selectedShipType = DockyardRecipe.ShipType.byId((this.selectedShipType.id + 1) % DockyardRecipe.ShipType.values().length);
+            this.cycleShipType();
             button.setMessage(this.getShipTypeText());
         }).bounds(colL, cTop, COL_L_W, 20).build());
 
@@ -182,7 +193,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }).bounds(colL, cTop + 24, COL_L_W, 20).build());
 
         this.buildButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.smallships.dockyard.build"), button ->
-                ModPackets.clientSendPacket(new ServerboundDockyardBuildPacket(this.menu.getDockyardPos(), this.selectedShipType.id, this.woodTypeIndex))
+                this.sendBuildPacket()
         ).bounds(colL, this.footerTop() + 7, COL_L_W, 20).build());
 
         this.repairButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.smallships.dockyard.repair"), button ->
@@ -220,6 +231,11 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
     }
 
+    private void sendBuildPacket() {
+        if (this.selectedShipType == null) return;
+        ModPackets.clientSendPacket(new ServerboundDockyardBuildPacket(this.menu.getDockyardPos(), this.selectedShipType.getId(), this.woodTypeIndex));
+    }
+
     private void onCannonSlotClicked(int slot) {
         Ship ship = this.getShip();
         if (!(ship instanceof Cannonable cannonable)) return;
@@ -234,8 +250,20 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         ModPackets.clientSendPacket(new ServerboundDockyardUpgradePacket(this.menu.getDockyardPos(), upgrade.ordinal(), install));
     }
 
+    /** Steps to the next buildable ship type, wrapping around. */
+    private void cycleShipType() {
+        List<ShipType> buildable = ShipRegistry.getBuildable();
+        if (buildable.isEmpty()) {
+            this.selectedShipType = null;
+            return;
+        }
+        int index = buildable.indexOf(this.selectedShipType);
+        this.selectedShipType = buildable.get((index + 1) % buildable.size());
+    }
+
     private Component getShipTypeText() {
-        return Component.translatable("gui.smallships.dockyard.ship_type", this.selectedShipType.name());
+        if (this.selectedShipType == null) return Component.translatable("gui.smallships.dockyard.no_ship_type");
+        return Component.translatable("gui.smallships.dockyard.ship_type", this.selectedShipType.getDisplayName());
     }
 
     private Component getWoodTypeText() {
@@ -275,6 +303,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 : net.minecraft.client.gui.components.Tooltip.create(Component.translatable("gui.smallships.dockyard.tab.no_ship")));
 
         this.shipTypeButton.visible = !modify;
+        this.shipTypeButton.active = ShipRegistry.getBuildable().size() > 1;
         this.woodTypeButton.visible = !modify;
         this.buildButton.visible = !modify;
         this.buildButton.active = !busy && this.canAffordSelection();
@@ -348,7 +377,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
     private boolean canAffordSelection() {
         Player player = this.menu.getPlayer();
-        return player != null && DockyardRecipe.canAfford(this.selectedShipType, player);
+        return player != null && this.selectedShipType != null && DockyardRecipeManager.get(this.selectedShipType).canAfford(player);
     }
 
     @Override
@@ -445,27 +474,35 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             panel(guiGraphics, colL - 3, matTop - 3, COL_L_W + 6, this.footerTop() - matTop - 2);
             sectionLabel(guiGraphics, this.font, colL, matTop, "gui.smallships.dockyard.section.materials");
 
-            List<ItemStack> materials = DockyardRecipe.getDisplayStacks(this.selectedShipType, Boat.Type.values()[this.woodTypeIndex]);
-            List<DockyardRecipe.Ingredient> ingredients = DockyardRecipe.getIngredients(this.selectedShipType);
-            int y = matTop + 12;
-            int limit = this.footerTop() - 22;
-            for (int i = 0; i < materials.size(); i++) {
-                // never draw into the footer: long recipes are cut off with a
-                // "+N more" line instead of overlapping the build button
-                if (y > limit && i < materials.size() - 1) {
-                    guiGraphics.drawString(this.font,
-                            Component.translatable("gui.smallships.dockyard.more_materials", materials.size() - i).withStyle(ChatFormatting.DARK_GRAY),
-                            colL + 2, y + 4, 0xFFFFFF, false);
-                    break;
-                }
-                ItemStack stack = materials.get(i);
-                DockyardRecipe.Ingredient ingredient = ingredients.get(i);
-                boolean has = this.menu.getPlayer() == null || ingredient.countIn(this.menu.getPlayer()) >= ingredient.amount() || this.menu.getPlayer().hasInfiniteMaterials();
-                guiGraphics.renderItem(stack, colL + 2, y);
+            if (this.selectedShipType == null) {
+                // no registered ship passes the dockyardBuildableShips config
                 guiGraphics.drawString(this.font,
-                        Component.literal(ingredient.amount() + "x ").append(stack.getHoverName()),
-                        colL + 22, y + 4, has ? 0xFF8CD97A : 0xFFD9453D, false);
-                y += 19;
+                        Component.translatable("gui.smallships.dockyard.no_ship_type").withStyle(ChatFormatting.DARK_GRAY),
+                        colL + 2, matTop + 16, 0xFFFFFF, false);
+            } else {
+                DockyardRecipe recipe = DockyardRecipeManager.get(this.selectedShipType);
+                List<ItemStack> materials = recipe.getDisplayStacks(Boat.Type.values()[this.woodTypeIndex]);
+                List<DockyardRecipe.Ingredient> ingredients = recipe.ingredients();
+                int y = matTop + 12;
+                int limit = this.footerTop() - 22;
+                for (int i = 0; i < materials.size(); i++) {
+                    // never draw into the footer: long recipes are cut off with a
+                    // "+N more" line instead of overlapping the build button
+                    if (y > limit && i < materials.size() - 1) {
+                        guiGraphics.drawString(this.font,
+                                Component.translatable("gui.smallships.dockyard.more_materials", materials.size() - i).withStyle(ChatFormatting.DARK_GRAY),
+                                colL + 2, y + 4, 0xFFFFFF, false);
+                        break;
+                    }
+                    ItemStack stack = materials.get(i);
+                    DockyardRecipe.Ingredient ingredient = ingredients.get(i);
+                    boolean has = this.menu.getPlayer() == null || ingredient.countIn(this.menu.getPlayer()) >= ingredient.amount() || this.menu.getPlayer().hasInfiniteMaterials();
+                    guiGraphics.renderItem(stack, colL + 2, y);
+                    guiGraphics.drawString(this.font,
+                            Component.literal(ingredient.amount() + "x ").append(stack.getHoverName()),
+                            colL + 22, y + 4, has ? 0xFF8CD97A : 0xFFD9453D, false);
+                    y += 19;
+                }
             }
         }
 
@@ -529,12 +566,17 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
      */
     private void renderBuildPreview(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY) {
         if (this.minecraft == null || this.minecraft.level == null) return;
-        if (this.previewShip == null || this.previewShipTypeId != this.selectedShipType.id || this.previewWoodIndex != this.woodTypeIndex) {
+        if (this.selectedShipType == null) {
+            this.previewShip = null;
+            this.previewShipType = null;
+            return;
+        }
+        if (this.previewShip == null || !this.selectedShipType.equals(this.previewShipType) || this.previewWoodIndex != this.woodTypeIndex) {
             this.previewShip = this.selectedShipType.summon(this.minecraft.level, 0.0D, -100.0D, 0.0D);
             if (this.previewShip != null) {
                 this.previewShip.setVariant(Boat.Type.values()[this.woodTypeIndex]);
             }
-            this.previewShipTypeId = this.selectedShipType.id;
+            this.previewShipType = this.selectedShipType;
             this.previewWoodIndex = this.woodTypeIndex;
         }
         if (this.previewShip != null) {

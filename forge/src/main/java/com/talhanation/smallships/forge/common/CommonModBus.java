@@ -5,6 +5,7 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.forge.SmallshipsModForge;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.forge.ModPacketsImpl;
+import com.talhanation.smallships.world.entity.ship.ModShipTypes;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.item.forge.ModItemsImpl;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,6 +31,8 @@ public class CommonModBus {
     static void init(FMLCommonSetupEvent event) {
         event.enqueueWork(ModPackets::registerPackets);
         event.enqueueWork(ModPacketsImpl::buildChannel);
+        // ship types need the configs, which Forge loads after mod construction
+        event.enqueueWork(ModShipTypes::init);
     }
 
     @SubscribeEvent

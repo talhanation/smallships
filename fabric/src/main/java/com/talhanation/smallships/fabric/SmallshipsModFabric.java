@@ -2,12 +2,14 @@ package com.talhanation.smallships.fabric;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.fabric.SmallShipsConfigImpl;
+import com.talhanation.smallships.fabric.dockyard.DockyardRecipeManagerFabric;
 import com.talhanation.smallships.fabric.events.PassengerEvents;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.block.ModBlockEntityTypes;
 import com.talhanation.smallships.world.block.ModBlocks;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.entity.ship.ModShipTypes;
 import com.talhanation.smallships.commands.SmallshipsCommand;
 import com.talhanation.smallships.world.wind.WindManager;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -20,6 +22,8 @@ import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.server.packs.PackType;
 
 public class SmallshipsModFabric implements ModInitializer {
     @SuppressWarnings("InstantiationOfUtilityClass")
@@ -34,11 +38,15 @@ public class SmallshipsModFabric implements ModInitializer {
         new ModItems();
         new ModSoundTypes();
         new ModParticleTypes();
+        ModShipTypes.init();
 
         ModPackets.registerPackets();
         ModPacketsImpl.registerServerReceivers();
 
         UseEntityCallback.EVENT.register(new PassengerEvents());
+
+        // dockyard recipes come from data packs, one json file per ship
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new DockyardRecipeManagerFabric());
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> SmallshipsCommand.register(dispatcher));
 

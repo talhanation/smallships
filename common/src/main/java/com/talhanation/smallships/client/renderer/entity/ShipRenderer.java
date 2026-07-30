@@ -6,10 +6,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.api.client.ShipRenderRegistry;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
-import com.talhanation.smallships.client.model.sail.*;
-import com.talhanation.smallships.client.model.sail.banner.CogSailBannerModel;
+import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.client.model.sail.banner.SailBannerModel;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
@@ -46,7 +46,6 @@ import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -284,26 +283,15 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     }
 
-    private static final Map<Class<? extends Ship>, SailModel> sailModels = new HashMap<>();
-    static {
-        sailModels.put(CogEntity.class, new CogSailModel());
-        sailModels.put(BriggEntity.class, new BriggSailModel());
-        sailModels.put(GalleyEntity.class, new GalleySailModel());
-        sailModels.put(DhowEntity.class, new DhowSailModel());
-        sailModels.put(DrakkarEntity.class, new DrakkarSailModel());
-    }
-
-    private static final Map<Class<? extends Ship>, SailBannerModel> sailBannerModels = new HashMap<>();
-    static {
-        sailBannerModels.put(CogEntity.class, new CogSailBannerModel());
-    }
     @SuppressWarnings({"unused", "unchecked"})
     private void renderSail(Sailable sailShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         // sail damage system: destroyed sails are not rendered at all,
         // torn sails (50 HP or below) use the damaged texture variant
         SailDamage.State sailState = SailDamage.getState(sailShipEntity.self());
         if (sailState == SailDamage.State.DESTROYED) return;
-        SailModel sailModel = sailModels.get(sailShipEntity.getClass());
+        // a ship without a registered sail model just gets no sail layer
+        SailModel sailModel = ShipRenderRegistry.getSail(sailShipEntity.self().getClass());
+        if (sailModel == null) return;
         sailModel.setupAnim(((T)sailShipEntity), partialTicks, 0.0F, -0.1F, 0.0F, 0.0F);
         SailModel.Color sailColor = SailModel.getSailColor(sailShipEntity.self().getData(Ship.SAIL_COLOR));
         ResourceLocation sailTexture = sailState == SailDamage.State.TORN ? sailColor.damagedLocation : sailColor.location;
@@ -316,7 +304,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         SailDamage.State sailState = SailDamage.getState(bannerShipEntity.self());
         if (sailState == SailDamage.State.DESTROYED) return;
 
-        SailBannerModel sailModel = sailBannerModels.get(bannerShipEntity.getClass());
+        SailBannerModel sailModel = ShipRenderRegistry.getSailBanner(bannerShipEntity.self().getClass());
 
         if(sailModel == null) return;
 

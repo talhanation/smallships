@@ -1,7 +1,10 @@
 package com.talhanation.smallships.world.block;
 
 import com.mojang.serialization.MapCodec;
+import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -63,6 +66,11 @@ public class DockyardBlock extends BaseEntityBlock {
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof DockyardBlockEntity dockyard) {
             player.openMenu(dockyard);
+            // the material list is drawn client side, so the screen gets the
+            // current data pack recipes handed over on every single opening
+            if (player instanceof ServerPlayer serverPlayer) {
+                ModPackets.serverSendPacket(serverPlayer, DockyardRecipeManager.createSyncPacket());
+            }
         }
         return InteractionResult.sidedSuccess(level.isClientSide());
     }
