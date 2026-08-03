@@ -9,6 +9,7 @@ import com.talhanation.smallships.client.option.ModGameOptions;
 import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.entity.ship.GalleonEntity;
 import com.talhanation.smallships.world.particles.ModParticleProviders;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -47,6 +48,9 @@ public class ClientInitializer implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntityTypes.GALLEY, GalleyRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.DHOW, DhowRenderer::new);
         EntityRendererRegistry.register(ModEntityTypes.DRAKKAR, DrakkarRenderer::new);
+        EntityRendererRegistry.register(ModEntityTypes.GALLEON, GalleonRenderer::new);
+        EntityRendererRegistry.register(ModEntityTypes.CARAVEL, CaravelRenderer::new);
+
     }
 
     private void initRendererRegisterLayerDefinitions() {
@@ -59,6 +63,8 @@ public class ClientInitializer implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(GalleyModel.LAYER_LOCATION, GalleyModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(DhowModel.LAYER_LOCATION, DhowModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(DrakkarModel.LAYER_LOCATION, DrakkarModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(GalleonModel.LAYER_LOCATION, GalleonModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(CaravelModel.LAYER_LOCATION, CaravelModel::createBodyLayer);
     }
 
     private void initRegisterKeyMappings() {

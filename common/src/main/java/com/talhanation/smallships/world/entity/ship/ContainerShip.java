@@ -69,6 +69,10 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         }
     };
 
+    public boolean isEffectedByCargoPenalty(){
+        return true;
+    }
+
     public ContainerShip(EntityType<? extends Boat> entityType, Level level, int containerSize) {
         super(entityType, level);
         this.originalContainerSize = containerSize;

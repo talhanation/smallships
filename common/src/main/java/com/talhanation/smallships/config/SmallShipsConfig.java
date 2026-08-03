@@ -69,46 +69,41 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue sailDamageBaseTransfer;
         public static ForgeConfigSpec.DoubleValue sailDamageChainedTransfer;
         public static ForgeConfigSpec.ConfigValue<Integer> sailRepairWoolAmount;
-
-        // Camera (Feature: Better Ship Camera)
         public static ForgeConfigSpec.BooleanValue shipGeneralCameraFreeLook;
-
-        // Vanilla boats (Feature: vanilla boats are slower)
         public static ForgeConfigSpec.BooleanValue vanillaBoatSlowdownEnable;
         public static ForgeConfigSpec.DoubleValue vanillaBoatSpeedFactor;
+
+        //////////////////////////////////////COG///////////////////////////////////////////
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxReverseSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogMaxRotationSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogAcceleration;
         public static ForgeConfigSpec.DoubleValue shipAttributeCogRotationAcceleration;
-
         public static ForgeConfigSpec.ConfigValue<Integer> shipContainerCogContainerSize;
-
         public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierCogBiome;
 
+        //////////////////////////////////////BRIGG///////////////////////////////////////////
         public static ForgeConfigSpec.DoubleValue shipAttributeBriggMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeBriggMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeBriggMaxReverseSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeBriggMaxRotationSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeBriggAcceleration;
         public static ForgeConfigSpec.DoubleValue shipAttributeBriggRotationAcceleration;
-
         public static ForgeConfigSpec.ConfigValue<Integer> shipContainerBriggContainerSize;
-
         public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierBriggBiome;
 
+        //////////////////////////////////////GALLEY///////////////////////////////////////////
         public static ForgeConfigSpec.DoubleValue shipAttributeGalleyMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeGalleyMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeGalleyMaxReverseSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeGalleyMaxRotationSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeGalleyAcceleration;
         public static ForgeConfigSpec.DoubleValue shipAttributeGalleyRotationAcceleration;
-
         public static ForgeConfigSpec.ConfigValue<Integer> shipContainerGalleyContainerSize;
-
         public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierGalleyBiome;
 
+        //////////////////////////////////////DRAKKAR///////////////////////////////////////////
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxHealth;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxSpeed;
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarMaxReverseSpeed;
@@ -117,8 +112,37 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue shipAttributeDrakkarRotationAcceleration;
 
         public static ForgeConfigSpec.ConfigValue<Integer> shipContainerDrakkarContainerSize;
-
         public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierDrakkarBiome;
+        //////////////////////////////////////DHOW///////////////////////////////////////////
+        public static ForgeConfigSpec.DoubleValue shipAttributeDhowMaxHealth;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDhowMaxSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDhowMaxReverseSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDhowMaxRotationSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDhowAcceleration;
+        public static ForgeConfigSpec.DoubleValue shipAttributeDhowRotationAcceleration;
+        public static ForgeConfigSpec.ConfigValue<Integer> shipContainerDhowContainerSize;
+        public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierDhowBiome;
+
+        //////////////////////////////////////GALLEON///////////////////////////////////////////
+        public static ForgeConfigSpec.DoubleValue shipAttributeGalleonMaxHealth;
+        public static ForgeConfigSpec.DoubleValue shipAttributeGalleonMaxSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeGalleonMaxReverseSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeGalleonMaxRotationSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeGalleonAcceleration;
+        public static ForgeConfigSpec.DoubleValue shipAttributeGalleonRotationAcceleration;
+        public static ForgeConfigSpec.ConfigValue<Integer> shipContainerGalleonContainerSize;
+        public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierGalleonBiome;
+
+        //////////////////////////////////////CARAVEL///////////////////////////////////////////
+        public static ForgeConfigSpec.DoubleValue shipAttributeCaravelMaxHealth;
+        public static ForgeConfigSpec.DoubleValue shipAttributeCaravelMaxSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeCaravelMaxReverseSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeCaravelMaxRotationSpeed;
+        public static ForgeConfigSpec.DoubleValue shipAttributeCaravelAcceleration;
+        public static ForgeConfigSpec.DoubleValue shipAttributeCaravelRotationAcceleration;
+        public static ForgeConfigSpec.ConfigValue<Integer> shipContainerCaravelContainerSize;
+        public static ForgeConfigSpec.EnumValue<Ship.BiomeModifierType> shipModifierCaravelBiome;
+
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeRadius;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeSpeed;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeDistance;
@@ -229,6 +253,7 @@ public class SmallShipsConfig {
 
         builder.pop();
 
+        //////////////////////////////////////COG///////////////////////////////////////////
         builder.push("Cog");
 
         builder.comment("Default attributes for the Cog. Speed in km/h, Health in default mc health points");
@@ -237,7 +262,7 @@ public class SmallShipsConfig {
         Common.shipAttributeCogMaxHealth = builder
                 .defineInRange("shipAttributeCogMaxHealth", 300.0D, 1.0D, 10000.0D);
         Common.shipAttributeCogMaxSpeed = builder
-                .defineInRange("shipAttributeCogMaxSpeed", 30.0D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeCogMaxSpeed", 40.0D, 0.0D, 100.0D);
         Common.shipAttributeCogMaxReverseSpeed = builder
                 .defineInRange("shipAttributeCogMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeCogMaxRotationSpeed = builder
@@ -269,7 +294,7 @@ public class SmallShipsConfig {
 
         builder.pop();
 
-
+        //////////////////////////////////////BRIGG///////////////////////////////////////////
         builder.push("Brigg");
 
         builder.comment("Default attributes for the Brigg. Speed in km/h, Health in default mc health points");
@@ -309,7 +334,7 @@ public class SmallShipsConfig {
         builder.pop();
 
         builder.pop();
-
+        //////////////////////////////////////GALLEY///////////////////////////////////////////
 
         builder.push("Galley");
 
@@ -319,7 +344,7 @@ public class SmallShipsConfig {
         Common.shipAttributeGalleyMaxHealth = builder
                 .defineInRange("shipAttributeGalleyMaxHealth", 200.0D, 0.0D, 10000.0D);
         Common.shipAttributeGalleyMaxSpeed = builder
-                .defineInRange("shipAttributeGalleyMaxSpeed", 30.0D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeGalleyMaxSpeed", 35.0D, 0.0D, 100.0D);
         Common.shipAttributeGalleyMaxReverseSpeed = builder
                 .defineInRange("shipAttributeGalleyMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeGalleyMaxRotationSpeed = builder
@@ -350,7 +375,7 @@ public class SmallShipsConfig {
 
         builder.pop();
         builder.pop();
-
+        //////////////////////////////////////DRAKKAR///////////////////////////////////////////
         builder.push("Drakkar");
 
         builder.comment("Default attributes for the Drakkar. Speed in km/h, Health in default mc health points");
@@ -371,7 +396,6 @@ public class SmallShipsConfig {
 
         builder.pop();
 
-
         builder.comment("Default configs for the container of the Drakkar.");
         builder.push("Container");
 
@@ -390,6 +414,134 @@ public class SmallShipsConfig {
 
         builder.pop();
         builder.pop();
+
+        //////////////////////////////////////GALLEON///////////////////////////////////////////
+
+        builder.push("Galleon");
+
+        builder.comment("Default attributes for the Galleon. Speed in km/h, Health in default mc health points");
+        builder.push("Attributes");
+
+        Common.shipAttributeGalleonMaxHealth = builder
+                .defineInRange("shipAttributeGalleonMaxHealth", 700.0D, 0.0D, 10000.0D);
+        Common.shipAttributeGalleonMaxSpeed = builder
+                .defineInRange("shipAttributeGalleonMaxSpeed", 30.0D, 0.0D, 100.0D);
+        Common.shipAttributeGalleonMaxReverseSpeed = builder
+                .defineInRange("shipAttributeGalleonMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
+        Common.shipAttributeGalleonMaxRotationSpeed = builder
+                .defineInRange("shipAttributeGalleonMaxRotationSpeed", 2.5D, 0.0D, 100.0D);
+        Common.shipAttributeGalleonAcceleration = builder
+                .defineInRange("shipAttributeGalleonAcceleration", 0.015D, 0.0D, 100.0D);
+        Common.shipAttributeGalleonRotationAcceleration = builder
+                .defineInRange("shipAttributeGalleonRotationAcceleration", 0.20D, 0.0D, 100.0D);
+
+        builder.pop();
+
+
+        builder.comment("Default configs for the container of the Galleon.");
+        builder.push("Container");
+
+        builder.comment("Set container size for the Galleon (value must be divisible by 9 and bigger than 0).");
+        Common.shipContainerGalleonContainerSize = builder
+                .define("shipContainerGalleyContainerSize", 216, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
+
+        builder.pop();
+
+        builder.comment("Galley specific speed modifiers.");
+        builder.push("Modifier");
+
+        builder.comment("Specify biome type for the Galley. Can be NONE, COLD, NEUTRAL, or WARM");
+        Common.shipModifierGalleonBiome = builder
+                .defineEnum("shipModifierGalleonBiome", Ship.BiomeModifierType.NEUTRAL);
+
+        builder.pop();
+        builder.pop();
+
+        //////////////////////////////////////DHOW///////////////////////////////////////////
+
+        builder.push("Dhow");
+
+        builder.comment("Default attributes for the Galleon. Speed in km/h, Health in default mc health points");
+        builder.push("Attributes");
+
+        Common.shipAttributeDhowMaxHealth = builder
+                .defineInRange("shipAttributeDhowMaxHealth", 200.0D, 0.0D, 10000.0D);
+        Common.shipAttributeDhowMaxSpeed = builder
+                .defineInRange("shipAttributeDhowMaxSpeed", 45.0D, 0.0D, 100.0D);
+        Common.shipAttributeDhowMaxReverseSpeed = builder
+                .defineInRange("shipAttributeDhowMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
+        Common.shipAttributeDhowMaxRotationSpeed = builder
+                .defineInRange("shipAttributeDhowMaxRotationSpeed", 2.5D, 0.0D, 100.0D);
+        Common.shipAttributeDhowAcceleration = builder
+                .defineInRange("shipAttributeDhowAcceleration", 0.015D, 0.0D, 100.0D);
+        Common.shipAttributeDhowRotationAcceleration = builder
+                .defineInRange("shipAttributeDhowRotationAcceleration", 0.20D, 0.0D, 100.0D);
+
+        builder.pop();
+
+
+        builder.comment("Default configs for the container of the Galleon.");
+        builder.push("Container");
+
+        builder.comment("Set container size for the Galleon (value must be divisible by 9 and bigger than 0).");
+        Common.shipContainerDhowContainerSize = builder
+                .define("shipContainerDhowContainerSize", 135, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
+
+        builder.pop();
+
+        builder.comment("Galley specific speed modifiers.");
+        builder.push("Modifier");
+
+        builder.comment("Specify biome type for the Galley. Can be NONE, COLD, NEUTRAL, or WARM");
+        Common.shipModifierDhowBiome = builder
+                .defineEnum("shipModifierDhowBiome", Ship.BiomeModifierType.WARM);
+
+        builder.pop();
+        builder.pop();
+
+        //////////////////////////////////////CARAVEL///////////////////////////////////////////
+
+        builder.push("Caravel");
+
+        builder.comment("Default attributes for the Caravel. Speed in km/h, Health in default mc health points");
+        builder.push("Attributes");
+
+        Common.shipAttributeDhowMaxHealth = builder
+                .defineInRange("shipAttributeCaravelMaxHealth", 200.0D, 0.0D, 10000.0D);
+        Common.shipAttributeDhowMaxSpeed = builder
+                .defineInRange("shipAttributeCaravelMaxSpeed", 45.0D, 0.0D, 100.0D);
+        Common.shipAttributeDhowMaxReverseSpeed = builder
+                .defineInRange("shipAttributeCaravelMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
+        Common.shipAttributeDhowMaxRotationSpeed = builder
+                .defineInRange("shipAttributeCaravelMaxRotationSpeed", 2.5D, 0.0D, 100.0D);
+        Common.shipAttributeDhowAcceleration = builder
+                .defineInRange("shipAttributeCaravelAcceleration", 0.015D, 0.0D, 100.0D);
+        Common.shipAttributeDhowRotationAcceleration = builder
+                .defineInRange("shipAttributeCaravelRotationAcceleration", 0.20D, 0.0D, 100.0D);
+
+        builder.pop();
+
+
+        builder.comment("Default configs for the container of the Galleon.");
+        builder.push("Container");
+
+        builder.comment("Set container size for the Galleon (value must be divisible by 9 and bigger than 0).");
+        Common.shipContainerDhowContainerSize = builder
+                .define("shipContainerDhowContainerSize", 135, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
+
+        builder.pop();
+
+        builder.comment("Galley specific speed modifiers.");
+        builder.push("Modifier");
+
+        builder.comment("Specify biome type for the Galley. Can be NONE, COLD, NEUTRAL, or WARM");
+        Common.shipModifierDhowBiome = builder
+                .defineEnum("shipModifierDhowBiome", Ship.BiomeModifierType.WARM);
+
+        builder.pop();
+        builder.pop();
+
+        ////////////////////////////////////WIND//////////////////////////////////////////////////////////
 
         builder.comment(" This category holds configs for the global wind.");
         builder.push("Wind");
@@ -463,7 +615,7 @@ public class SmallShipsConfig {
 
         builder.comment("Speed factor for vanilla boats: 0.5 = 50% slower.");
         Common.vanillaBoatSpeedFactor = builder
-                .defineInRange("vanillaBoatSpeedFactor", 0.7D, 0.05D, 1.0D);
+                .defineInRange("vanillaBoatSpeedFactor", 0.75D, 0.05D, 1.0D);
 
         builder.pop();
 
@@ -541,7 +693,7 @@ public class SmallShipsConfig {
 
         builder.comment("Enable smallships creative tab in the creative inventory (only takes effect after restart).");
         Common.smallshipsItemGroupEnable = builder
-                .define("smallshipsItemGroupEnable", false);
+                .define("smallshipsItemGroupEnable", true);
 
         builder.pop();
     }

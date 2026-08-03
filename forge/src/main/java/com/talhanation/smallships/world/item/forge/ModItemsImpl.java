@@ -36,8 +36,6 @@ public class ModItemsImpl {
             .build());
 
     static {
-        register("sail", () -> new SailItem((new Item.Properties()).stacksTo(16)));
-
         register("cannon", () -> new CannonItem((new Item.Properties()).stacksTo(1)));
         register("cannon_ball", () -> new CannonBallItem((new Item.Properties()).stacksTo(16)));
         register("chained_shot", () -> new CannonBallItem(CannonBallItem.Type.CHAINED, (new Item.Properties()).stacksTo(16)));

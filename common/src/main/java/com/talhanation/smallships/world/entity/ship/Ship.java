@@ -257,7 +257,7 @@ public abstract class Ship extends Boat {
         float speedPenalty =
                 (1 + (this.getBiomeModifier()/100)) *
                         (1 - (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0.0F)) *
-                        (1 - (this instanceof ContainerShip containerShip? containerShip.getContainerModifier()/100 : 0.0F));
+                        (1 - (this instanceof ContainerShip containerShip && containerShip.isEffectedByCargoPenalty() ? containerShip.getContainerModifier()/100 : 0.0F));
 
         this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * speedPenalty;
         float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);

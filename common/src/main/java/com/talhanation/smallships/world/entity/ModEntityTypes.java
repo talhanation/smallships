@@ -16,6 +16,8 @@ public class ModEntityTypes {
     public static final EntityType<GalleyEntity> GALLEY = getEntityType(GalleyEntity.class);
     public static final EntityType<DhowEntity> DHOW = getEntityType(DhowEntity.class);
     public static final EntityType<DrakkarEntity> DRAKKAR = getEntityType(DrakkarEntity.class);
+    public static final EntityType<GalleonEntity> GALLEON = getEntityType(GalleonEntity.class);
+    public static final EntityType<CaravelEntity> CARAVEL = getEntityType(CaravelEntity.class);
     public static final EntityType<GroundCannonEntity> GROUND_CANNON = getEntityType(GroundCannonEntity.class);
 
     @ExpectPlatform

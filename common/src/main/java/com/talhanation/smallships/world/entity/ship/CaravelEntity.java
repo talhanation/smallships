@@ -2,8 +2,8 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
-import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
+import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -19,38 +19,34 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DhowEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
-    public static final String ID = "dhow";
+public class CaravelEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
+    public static final String ID = "caravel";
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCogContainerSize.get();
-    public DhowEntity(EntityType<? extends Boat> entityType, Level level) {
+    public CaravelEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
 
-    private DhowEntity(Level level, double d, double e, double f) {
-        this(ModEntityTypes.DHOW, level);
+    private CaravelEntity(Level level, double d, double e, double f) {
+        this(ModEntityTypes.CARAVEL, level);
         this.setPos(d, e, f);
         this.xo = d;
         this.yo = e;
         this.zo = f;
     }
 
-    public static DhowEntity summon(Level level, double d, double e, double f) {
-        return new DhowEntity(level, d, e, f);
-    }
-
-    public boolean isEffectedByCargoPenalty(){
-        return false;
+    public static CaravelEntity summon(Level level, double d, double e, double f) {
+        return new CaravelEntity(level, d, e, f);
     }
 
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeDhowMaxHealth.get().floatValue();
-        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeDhowMaxSpeed.get().floatValue();
-        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeDhowMaxReverseSpeed.get().floatValue();
-        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeDhowMaxRotationSpeed.get().floatValue();
-        attributes.acceleration = SmallShipsConfig.Common.shipAttributeDhowAcceleration.get().floatValue();
-        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeDhowRotationAcceleration.get().floatValue();
+        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeCogMaxHealth.get().floatValue();
+        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeCogMaxSpeed.get().floatValue();
+        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeCogMaxReverseSpeed.get().floatValue();
+        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeCogMaxRotationSpeed.get().floatValue();
+        attributes.acceleration = SmallShipsConfig.Common.shipAttributeCogAcceleration.get().floatValue();
+        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeCogRotationAcceleration.get().floatValue();
         CompoundTag tag = new CompoundTag();
         attributes.addSaveData(tag);
         return tag;
@@ -63,15 +59,15 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     @Override
     public @NotNull Item getDropItem() {
         if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
-        return ModItems.DHOW_ITEMS.get(this.getVariant());
+        return ModItems.COG_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierDhowBiome.get();
+        return SmallShipsConfig.Common.shipModifierCogBiome.get();
     }
 
-    private static final List<ShipSeat> SEATS = java.util.List.of(
+    private static final List<ShipSeat> SEATS = List.of(
             ShipSeat.driver(0, -2.25F, 0.0F),
             ShipSeat.passenger(1, -0.9F, 0.9F),
             ShipSeat.passenger(2, -0.9F, -0.9F),
@@ -95,11 +91,11 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
      **/
     public CannonPosition getCannonPosition(int index){
         List<CannonPosition> positionList = new ArrayList<>();
-        CannonPosition pos1 = new CannonPosition(1.4, 0.3, 0.6, true);
+        CannonPosition pos1 = new CannonPosition(1.4, 0.2, 0.6, true);
         CannonPosition pos2 = new CannonPosition(1.4, 0.2, 0.6, false);
 
-        CannonPosition pos3 = new CannonPosition(-0.6, 0.3, 0.6, true);
-        CannonPosition pos4 = new CannonPosition(-0.6, 0.3, 0.6, false);
+        CannonPosition pos3 = new CannonPosition(-0.6, 0.2, 0.6, true);
+        CannonPosition pos4 = new CannonPosition(-0.6, 0.2, 0.6, false);
 
         positionList.add(pos1);
         positionList.add(pos2);
@@ -113,13 +109,11 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     public byte getMaxCannonPerSide(){
         return 2;
     }
-    double bannerY = -5.4D;
-    double bannerX = 1.75D;
-    double bannerZ = 0.00D;
 
+    // Implement Able-Interfaces
     @Override
     public BannerPosition getBannerPosition() {
-        return new BannerPosition(-180.0F, 90.0F, bannerY, bannerX , bannerZ);
+        return new BannerPosition(-180.0F, 90.0F, -4.0D, 0.78D, 0.05D);
     }
 
     @Override
@@ -159,23 +153,22 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     /* ---------------- wind profile ---------------- */
 
     /**
-     * Most extreme side wind profile in the mod. Monsoon sailing was crosswind
-     * sailing. Briefly the fastest thing on the water, which is harmless at
-     * 150 HP and no cannons - it is exactly the escape ability it needs.
+     * Single square sail, the classic North Sea trader: it waits for a fair wind
+     * and runs before it. Readable reference profile for new players.
      * The three zone multipliers always sum to 3.0.
      */
     @Override
     public float getHeadWindMultiplier() {
-        return 0.60F;
+        return 1.10F;
     }
 
     @Override
     public float getSideWindMultiplier() {
-        return 1.20F;
+        return 1.15F;
     }
 
     @Override
     public float getTailWindMultiplier() {
-        return 1.00F;
+        return 0.80F;
     }
 }

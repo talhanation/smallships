@@ -23,7 +23,8 @@ public class ModItems {
     public static final Map<Boat.Type, Item> GALLEY_ITEMS = new HashMap<>(Boat.Type.values().length);
     public static final Map<Boat.Type, Item> DHOW_ITEMS = new HashMap<>(Boat.Type.values().length);
     public static final Map<Boat.Type, Item> DRAKKAR_ITEMS = new HashMap<>(Boat.Type.values().length);
-
+    public static final Map<Boat.Type, Item> GALLEON_ITEMS = new HashMap<>(Boat.Type.values().length);
+    public static final Map<Boat.Type, Item> CARAVEL_ITEMS = new HashMap<>(Boat.Type.values().length);
     static {
         Boat.Type[] boatTypes = Boat.Type.values();
         for (Boat.Type type : boatTypes) {
@@ -33,6 +34,8 @@ public class ModItems {
             GALLEY_ITEMS.put(type, getItem(name + "_" + GalleyEntity.ID));
             DHOW_ITEMS.put(type, getItem(name + "_" + DhowEntity.ID));
             DRAKKAR_ITEMS.put(type, getItem(name + "_" + DrakkarEntity.ID));
+            GALLEON_ITEMS.put(type, getItem(name + "_" + GalleonEntity.ID));
+            CARAVEL_ITEMS.put(type, getItem(name + "_" + CaravelEntity.ID));
         }
     }
 

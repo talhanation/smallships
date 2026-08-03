@@ -60,6 +60,8 @@ public class ModItemsImpl {
                     shipItems.add(ModItems.GALLEY_ITEMS.get(type));
                     shipItems.add(ModItems.DHOW_ITEMS.get(type));
                     shipItems.add(ModItems.DRAKKAR_ITEMS.get(type));
+                    shipItems.add(ModItems.GALLEON_ITEMS.get(type));
+                    shipItems.add(ModItems.CARAVEL_ITEMS.get(type));
                 }
                 entries.addBefore(Items.RAIL, shipItems.toArray(Item[]::new));
             });
@@ -79,7 +81,8 @@ public class ModItemsImpl {
             register(name + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + DhowEntity.ID,  new DhowItem(type, new Item.Properties().stacksTo(1)));
 			register(name + "_" + DrakkarEntity.ID,  new DrakkarItem(type, new Item.Properties().stacksTo(1)));
-
+            register(name + "_" + GalleonEntity.ID,  new GalleonItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + CaravelEntity.ID,  new CaravelItem(type, new Item.Properties().stacksTo(1)));
         }
     }
 

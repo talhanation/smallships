@@ -4,17 +4,9 @@ import com.talhanation.smallships.api.client.ShipRenderRegistry;
 import com.talhanation.smallships.client.gui.screens.inventory.DockyardScreen;
 import com.talhanation.smallships.client.gui.screens.inventory.GroundCannonContainerScreen;
 import com.talhanation.smallships.client.gui.screens.inventory.ShipContainerScreen;
-import com.talhanation.smallships.client.model.sail.BriggSailModel;
-import com.talhanation.smallships.client.model.sail.CogSailModel;
-import com.talhanation.smallships.client.model.sail.DhowSailModel;
-import com.talhanation.smallships.client.model.sail.DrakkarSailModel;
-import com.talhanation.smallships.client.model.sail.GalleySailModel;
+import com.talhanation.smallships.client.model.sail.*;
 import com.talhanation.smallships.client.model.sail.banner.CogSailBannerModel;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DhowEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 
@@ -39,6 +31,8 @@ public class ClientInitializer {
         ShipRenderRegistry.registerSail(GalleyEntity.class, new GalleySailModel());
         ShipRenderRegistry.registerSail(DhowEntity.class, new DhowSailModel());
         ShipRenderRegistry.registerSail(DrakkarEntity.class, new DrakkarSailModel());
+        ShipRenderRegistry.registerSail(GalleonEntity.class, new GalleonSailModel());
+        ShipRenderRegistry.registerSail(CaravelEntity.class, new CaravelSailModel());
 
         ShipRenderRegistry.registerSailBanner(CogEntity.class, new CogSailBannerModel());
     }

@@ -37,6 +37,8 @@ public class ClientModBus {
         event.registerEntityRenderer(ModEntityTypes.BRIGG, BriggRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.GALLEY, GalleyRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.DRAKKAR, DrakkarRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.GALLEON, GalleonRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.CARAVEL, CaravelRenderer::new);
     }
 
     @SubscribeEvent
