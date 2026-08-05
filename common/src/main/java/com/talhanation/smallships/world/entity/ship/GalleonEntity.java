@@ -28,7 +28,7 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     private GalleonEntity(Level level, double d, double e, double f) {
-        this(ModEntityTypes.BRIGG, level);
+        this(ModEntityTypes.GALLEON, level);
         this.setPos(d, e, f);
         this.xo = d;
         this.yo = e;

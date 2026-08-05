@@ -74,5 +74,17 @@ public class ModEntityTypesImpl {
                 .clientTrackingRange(20)
                 .updateInterval(10)
                 .build()));
+
+        entries.put(GalleonEntity.class, register(GalleonEntity.ID, EntityType.Builder.of(GalleonEntity::new, MobCategory.MISC)
+                .sized(3.5F, 1.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)
+                .build()));
+
+        entries.put(CaravelEntity.class, register(CaravelEntity.ID, EntityType.Builder.of(CaravelEntity::new, MobCategory.MISC)
+                .sized(3.5F, 1.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)
+                .build()));
     }
 }

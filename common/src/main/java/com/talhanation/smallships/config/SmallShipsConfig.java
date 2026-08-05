@@ -429,11 +429,11 @@ public class SmallShipsConfig {
         Common.shipAttributeGalleonMaxReverseSpeed = builder
                 .defineInRange("shipAttributeGalleonMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeGalleonMaxRotationSpeed = builder
-                .defineInRange("shipAttributeGalleonMaxRotationSpeed", 2.5D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeGalleonMaxRotationSpeed", 2.3D, 0.0D, 100.0D);
         Common.shipAttributeGalleonAcceleration = builder
-                .defineInRange("shipAttributeGalleonAcceleration", 0.015D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeGalleonAcceleration", 0.013D, 0.0D, 100.0D);
         Common.shipAttributeGalleonRotationAcceleration = builder
-                .defineInRange("shipAttributeGalleonRotationAcceleration", 0.20D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeGalleonRotationAcceleration", 0.10D, 0.0D, 100.0D);
 
         builder.pop();
 
@@ -447,10 +447,10 @@ public class SmallShipsConfig {
 
         builder.pop();
 
-        builder.comment("Galley specific speed modifiers.");
+        builder.comment("Galleon specific speed modifiers.");
         builder.push("Modifier");
 
-        builder.comment("Specify biome type for the Galley. Can be NONE, COLD, NEUTRAL, or WARM");
+        builder.comment("Specify biome type for the Galleon. Can be NONE, COLD, NEUTRAL, or WARM");
         Common.shipModifierGalleonBiome = builder
                 .defineEnum("shipModifierGalleonBiome", Ship.BiomeModifierType.NEUTRAL);
 
@@ -461,7 +461,7 @@ public class SmallShipsConfig {
 
         builder.push("Dhow");
 
-        builder.comment("Default attributes for the Galleon. Speed in km/h, Health in default mc health points");
+        builder.comment("Default attributes for the Dhow. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
         Common.shipAttributeDhowMaxHealth = builder
@@ -480,7 +480,7 @@ public class SmallShipsConfig {
         builder.pop();
 
 
-        builder.comment("Default configs for the container of the Galleon.");
+        builder.comment("Default configs for the container of the Dhow.");
         builder.push("Container");
 
         builder.comment("Set container size for the Galleon (value must be divisible by 9 and bigger than 0).");
@@ -489,10 +489,10 @@ public class SmallShipsConfig {
 
         builder.pop();
 
-        builder.comment("Galley specific speed modifiers.");
+        builder.comment("Dhow specific speed modifiers.");
         builder.push("Modifier");
 
-        builder.comment("Specify biome type for the Galley. Can be NONE, COLD, NEUTRAL, or WARM");
+        builder.comment("Specify biome type for the Dhow. Can be NONE, COLD, NEUTRAL, or WARM");
         Common.shipModifierDhowBiome = builder
                 .defineEnum("shipModifierDhowBiome", Ship.BiomeModifierType.WARM);
 
@@ -506,37 +506,37 @@ public class SmallShipsConfig {
         builder.comment("Default attributes for the Caravel. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
-        Common.shipAttributeDhowMaxHealth = builder
-                .defineInRange("shipAttributeCaravelMaxHealth", 200.0D, 0.0D, 10000.0D);
-        Common.shipAttributeDhowMaxSpeed = builder
-                .defineInRange("shipAttributeCaravelMaxSpeed", 45.0D, 0.0D, 100.0D);
-        Common.shipAttributeDhowMaxReverseSpeed = builder
+        Common.shipAttributeCaravelMaxHealth = builder
+                .defineInRange("shipAttributeCaravelMaxHealth", 250.0D, 0.0D, 10000.0D);
+        Common.shipAttributeCaravelMaxSpeed = builder
+                .defineInRange("shipAttributeCaravelMaxSpeed", 42.0D, 0.0D, 100.0D);
+        Common.shipAttributeCaravelMaxReverseSpeed = builder
                 .defineInRange("shipAttributeCaravelMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
-        Common.shipAttributeDhowMaxRotationSpeed = builder
-                .defineInRange("shipAttributeCaravelMaxRotationSpeed", 2.5D, 0.0D, 100.0D);
-        Common.shipAttributeDhowAcceleration = builder
+        Common.shipAttributeCaravelMaxRotationSpeed = builder
+                .defineInRange("shipAttributeCaravelMaxRotationSpeed", 2.4D, 0.0D, 100.0D);
+        Common.shipAttributeCaravelAcceleration = builder
                 .defineInRange("shipAttributeCaravelAcceleration", 0.015D, 0.0D, 100.0D);
-        Common.shipAttributeDhowRotationAcceleration = builder
+        Common.shipAttributeCaravelRotationAcceleration = builder
                 .defineInRange("shipAttributeCaravelRotationAcceleration", 0.20D, 0.0D, 100.0D);
 
         builder.pop();
 
 
-        builder.comment("Default configs for the container of the Galleon.");
+        builder.comment("Default configs for the container of the Caravel.");
         builder.push("Container");
 
         builder.comment("Set container size for the Galleon (value must be divisible by 9 and bigger than 0).");
-        Common.shipContainerDhowContainerSize = builder
-                .define("shipContainerDhowContainerSize", 135, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
+        Common.shipContainerCaravelContainerSize = builder
+                .define("shipContainerCaravelContainerSize", 81, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
 
-        builder.comment("Galley specific speed modifiers.");
+        builder.comment("Caravel specific speed modifiers.");
         builder.push("Modifier");
 
-        builder.comment("Specify biome type for the Galley. Can be NONE, COLD, NEUTRAL, or WARM");
-        Common.shipModifierDhowBiome = builder
-                .defineEnum("shipModifierDhowBiome", Ship.BiomeModifierType.WARM);
+        builder.comment("Specify biome type for the Caravel. Can be NONE, COLD, NEUTRAL, or WARM");
+        Common.shipModifierCaravelBiome = builder
+                .defineEnum("shipModifierCaravelBiome", Ship.BiomeModifierType.NEUTRAL);
 
         builder.pop();
         builder.pop();

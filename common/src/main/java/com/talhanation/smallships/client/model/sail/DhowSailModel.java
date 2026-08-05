@@ -753,8 +753,8 @@ public class DhowSailModel extends SailModel {
         return LayerDefinition.create(meshdefinition, 128, 64);
     }
     @Override
-    public void setupAnim(@NotNull Ship cog, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        switch (cog.getData(Ship.SAIL_STATE)) {
+    public void setupAnim(@NotNull Ship dhow, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        switch (dhow.getData(Ship.SAIL_STATE)) {
             case 0 -> {
                 this.sail_1_0.visible = true;
                 this.sail_1_1.visible = false;
@@ -856,7 +856,7 @@ public class DhowSailModel extends SailModel {
             }
         }
 
-/*
+    /*
         this.rope_4.visible = sail_0.visible;
         this.rope_5.visible = sail_0.visible;
 
@@ -871,8 +871,7 @@ public class DhowSailModel extends SailModel {
 
         this.rope_16.visible = sail_4.visible;
         this.rope_15.visible = sail_4.visible;
-
- */
+      */
 
     }
 

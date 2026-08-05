@@ -21,7 +21,7 @@ import java.util.List;
 
 public class CaravelEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
     public static final String ID = "caravel";
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCogContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCaravelContainerSize.get();
     public CaravelEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
@@ -41,12 +41,12 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();
-        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeCogMaxHealth.get().floatValue();
-        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeCogMaxSpeed.get().floatValue();
-        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeCogMaxReverseSpeed.get().floatValue();
-        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeCogMaxRotationSpeed.get().floatValue();
-        attributes.acceleration = SmallShipsConfig.Common.shipAttributeCogAcceleration.get().floatValue();
-        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeCogRotationAcceleration.get().floatValue();
+        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeCaravelMaxHealth.get().floatValue();
+        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeCaravelMaxSpeed.get().floatValue();
+        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeCaravelMaxReverseSpeed.get().floatValue();
+        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeCaravelMaxRotationSpeed.get().floatValue();
+        attributes.acceleration = SmallShipsConfig.Common.shipAttributeCaravelAcceleration.get().floatValue();
+        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeCaravelRotationAcceleration.get().floatValue();
         CompoundTag tag = new CompoundTag();
         attributes.addSaveData(tag);
         return tag;
@@ -59,12 +59,12 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
     @Override
     public @NotNull Item getDropItem() {
         if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
-        return ModItems.COG_ITEMS.get(this.getVariant());
+        return ModItems.CARAVEL_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierCogBiome.get();
+        return SmallShipsConfig.Common.shipModifierCaravelBiome.get();
     }
 
     private static final List<ShipSeat> SEATS = List.of(
@@ -72,11 +72,17 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
             ShipSeat.passenger(1, -0.9F, 0.9F),
             ShipSeat.passenger(2, -0.9F, -0.9F),
             ShipSeat.passenger(3, 1.5F, 0.0F),
+
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
             ShipSeat.cannon(4, -1.4F, 0.35F, 0),
             ShipSeat.cannon(5, -1.4F, -0.35F, 1),
             ShipSeat.cannon(6, 0.6F, 0.35F, 2),
-            ShipSeat.cannon(7, 0.6F, -0.35F, 3));
+            ShipSeat.cannon(7, 0.6F, -0.35F, 3),
+
+            ShipSeat.passenger(8, 0.8F, 0.35F),
+            ShipSeat.passenger(9, 0.8F, -0.35F)
+    );
+
 
     @Override
     public List<ShipSeat> getSeats() {
