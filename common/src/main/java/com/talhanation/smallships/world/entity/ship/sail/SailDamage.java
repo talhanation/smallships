@@ -3,7 +3,6 @@ package com.talhanation.smallships.world.entity.ship.sail;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
-import com.talhanation.smallships.world.item.CannonBallItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -19,8 +18,9 @@ import net.minecraft.world.item.ItemStack;
  * Sails have a single health pool of {@link #MAX_HEALTH} (30) points per ship,
  * stored in the ship's synched entity data ({@link Ship#SAIL_HEALTH}).
  *
- * - When a cannonball hits a ship, a percentage of the damage is transferred
- *   to the sails (default 15%, chained shot 50%, see config).
+ * - The masts are the sails' hit box: a shot through the rigging damages the
+ *   sails and leaves the timbers alone, a shot into the hull does the reverse.
+ *   How much of a shot lands where is CannonBallItem.Type#sailFactor.
  * - At or below {@link #TORN_THRESHOLD} the sail is rendered with the torn texture.
  * - At 0 the sail is not rendered at all.
  * - Speed: above 50 HP no debuff, at 50 HP or below the sail output is reduced
@@ -60,19 +60,16 @@ public final class SailDamage {
     /* ---------------- damage ---------------- */
 
     /**
-     * Transfers a percentage of a cannonball hit to the sails.
-     * Must be called server side when a cannon projectile damages a ship.
+     * Applies damage to the sails. Must be called server side.
+     *
+     * The caller decides how much arrives here - since the masts became the
+     * sails' own hit box, this is no longer a percentage bled off a hull hit but
+     * the damage of a shot that actually went through the rigging.
      */
-    public static void applyCannonHit(Ship ship, float damage, CannonBallItem.Type ballType) {
+    public static void applyCannonHit(Ship ship, float sailDamage) {
         if (!(ship instanceof Sailable)) return;
         if (!SmallShipsConfig.Common.sailDamageEnable.get()) return;
         if (ship.level().isClientSide()) return;
-
-        double transfer = ballType == CannonBallItem.Type.CHAINED
-                ? SmallShipsConfig.Common.sailDamageChainedTransfer.get()
-                : SmallShipsConfig.Common.sailDamageBaseTransfer.get();
-
-        float sailDamage = (float) (damage * transfer);
         if (sailDamage <= 0.0F) return;
 
         float before = getHealth(ship);

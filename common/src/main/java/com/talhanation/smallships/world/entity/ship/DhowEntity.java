@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
@@ -71,16 +72,31 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
         return SmallShipsConfig.Common.shipModifierDhowBiome.get();
     }
 
+    private static final List<ShipPartEntity.Definition> PARTS = List.of(
+            ShipPartEntity.Definition.hull(-4.0F, 0.0F, 0.0F, 2.0F, 1.25F),//back
+            ShipPartEntity.Definition.hull(-2.5F, 0.0F, 0.0F, 2.5F, 1.25F),//middle back
+            ShipPartEntity.Definition.hull(2.5F, 0.0F, 0.0F, 2.5F, 1.25F),//middle front
+            ShipPartEntity.Definition.hull(3.5F, 0.0F, 0.0F, 2.0F, 1.25F),//front
+            ShipPartEntity.Definition.mast(2.2F, 0.0F, 0.30F, 8.5F),//front mast
+            ShipPartEntity.Definition.mast(-2.3F, 0.0F, 0.30F, 9.5F));//back mast
+    @Override
+    public List<ShipPartEntity.Definition> getParts() {
+        return PARTS;
+    }
+
     private static final List<ShipSeat> SEATS = java.util.List.of(
-            ShipSeat.driver(0, -2.25F, 0.0F),
-            ShipSeat.passenger(1, -0.9F, 0.9F),
-            ShipSeat.passenger(2, -0.9F, -0.9F),
-            ShipSeat.passenger(3, 1.5F, 0.0F),
-            // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.cannon(4, -1.4F, 0.35F, 0),
-            ShipSeat.cannon(5, -1.4F, -0.35F, 1),
-            ShipSeat.cannon(6, 0.6F, 0.35F, 2),
-            ShipSeat.cannon(7, 0.6F, -0.35F, 3));
+            ShipSeat.driver(0, -3.0F, 0.75F),
+            ShipSeat.passenger(1, -3.0F, -0.75F),
+
+            ShipSeat.cannon(1, -1.0F, 0.8F, 0),
+            ShipSeat.cannon(2, -1.0F, -0.8F, 1),
+
+            ShipSeat.passenger(3, 0.5F, 0.8F),
+            ShipSeat.passenger(4, 0.5F, -0.8F),
+
+            ShipSeat.cannon(5, 2.0F, 0.8F, 2),
+            ShipSeat.cannon(6, 2.0F, -0.8F, 3)
+    );
 
     @Override
     public List<ShipSeat> getSeats() {
@@ -95,11 +111,11 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
      **/
     public CannonPosition getCannonPosition(int index){
         List<CannonPosition> positionList = new ArrayList<>();
-        CannonPosition pos1 = new CannonPosition(1.4, 0.3, 0.6, true);
-        CannonPosition pos2 = new CannonPosition(1.4, 0.2, 0.6, false);
+        CannonPosition pos1 = new CannonPosition(2.5, 0.4, 0.6, true);
+        CannonPosition pos2 = new CannonPosition(2.5, 0.4, 0.6, false);
 
-        CannonPosition pos3 = new CannonPosition(-0.6, 0.3, 0.6, true);
-        CannonPosition pos4 = new CannonPosition(-0.6, 0.3, 0.6, false);
+        CannonPosition pos3 = new CannonPosition(-0.55, 0.4, 0.6, true);
+        CannonPosition pos4 = new CannonPosition(-0.55, 0.4, 0.6, false);
 
         positionList.add(pos1);
         positionList.add(pos2);

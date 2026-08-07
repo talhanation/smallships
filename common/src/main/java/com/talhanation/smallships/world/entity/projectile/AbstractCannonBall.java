@@ -19,6 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -201,25 +202,51 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
         this.hitParticles();
     }
 
+    /**
+     * The muzzle sits INSIDE the own ships' parts, unlike the small vanilla boat
+     * box before them - without this every broadside would detonate on the own
+     * hull the moment it leaves the barrel.
+     */
+    @Override
+    protected boolean canHitEntity(@NotNull Entity entity) {
+        Entity owner = this.getOwner();
+        if (owner != null && entity instanceof ShipPartEntity part && part.getParent() == owner.getVehicle()) return false;
+        return super.canHitEntity(entity);
+    }
+
     @Override
     protected void onHitEntity(EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
         if (!this.level().isClientSide()) {
-            Entity hitEntity = hitResult.getEntity();
+            // a hit on a part is a hit on the ship, never on the box itself -
+            // but WHICH part was hit decides where the damage lands
+            Entity hitPart = hitResult.getEntity();
+            boolean hitMast = hitPart instanceof ShipPartEntity part && part.isMast();
+            Entity hitEntity = ShipPartEntity.resolve(hitPart);
             Entity ownerEntity = this.getOwner();
             if(ownerEntity == null) return;
             if (hitEntity instanceof Ship shipHitEntity) {
                 if(shipHitEntity.getControllingPassenger() != null &&  ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(shipHitEntity.getControllingPassenger()) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
 
-                float shipDamage = (random.nextInt(7) + 7) * this.getBallType().damageMultiplier;
-                shipHitEntity.hurt(this.damageSources().thrown(this, ownerEntity), shipDamage);
-                SailDamage.applyCannonHit(shipHitEntity, shipDamage, this.getBallType());
+                CannonBallItem.Type ballType = this.getBallType();
+                float shipDamage = (random.nextInt(7) + 7) * ballType.damageMultiplier;
+                // the masts ARE the sails' hit box: what goes through the rigging
+                // never reaches the timbers, and a ball in the side never reaches
+                // the canvas. Which one you hit is now the players' decision.
+                if (hitMast) {
+                    SailDamage.applyCannonHit(shipHitEntity, shipDamage * ballType.sailFactor);
+                } else {
+                    shipHitEntity.hurt(this.damageSources().thrown(this, ownerEntity), shipDamage * ballType.hullFactor);
+                }
             }
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
                 if(ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
 
                 this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE.value(), this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
+
+            // ships were already dealt with above, by hull or by rigging
+            if (hitEntity instanceof Ship) return;
 
             float damageMultiplier = hitEntity instanceof LivingEntity ? this.getBallType().livingDamageMultiplier : this.getBallType().damageMultiplier;
             hitEntity.hurt(this.damageSources().thrown(this, ownerEntity), SmallShipsConfig.Common.shipGeneralCannonDamage.get().floatValue() * damageMultiplier);

@@ -4,7 +4,9 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ChainShotEntity;
+import com.talhanation.smallships.world.entity.projectile.GrapeShotEntity;
 import com.talhanation.smallships.world.entity.ship.*;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +30,19 @@ public class ModEntityTypesImpl {
     }
 
     static {
+        // The size here is only the placeholder until the synched data arrives -
+        // every part overrides getDimensions from its own width and height.
+        // updateInterval is deliberately high: a part recomputes its position
+        // from its ship on both sides every tick, so position packets are pure
+        // overhead, and a Brigg alone carries five of these.
+        // noSummon keeps players from spawning a parentless part by command.
+        entries.put(ShipPartEntity.class, register(ShipPartEntity.ID, EntityType.Builder.of(ShipPartEntity::factory, MobCategory.MISC)
+                .sized(1.0F, 1.0F)
+                .noSummon()
+                .clientTrackingRange(20)
+                .updateInterval(Integer.MAX_VALUE)
+                .build()));
+
         entries.put(CannonBallEntity.class, register(CannonBallEntity.ID, EntityType.Builder.of(CannonBallEntity::factory, MobCategory.MISC)
                 .sized(0.25F, 0.25F)
                 .clientTrackingRange(20)
@@ -35,6 +50,12 @@ public class ModEntityTypesImpl {
                 .build()));
 
         entries.put(ChainShotEntity.class, register(ChainShotEntity.ID, EntityType.Builder.of(ChainShotEntity::factory, MobCategory.MISC)
+                .sized(0.25F, 0.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)
+                .build()));
+
+        entries.put(GrapeShotEntity.class, register(GrapeShotEntity.ID, EntityType.Builder.of(GrapeShotEntity::factory, MobCategory.MISC)
                 .sized(0.25F, 0.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)

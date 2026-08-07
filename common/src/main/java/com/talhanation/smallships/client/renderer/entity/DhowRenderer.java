@@ -28,7 +28,7 @@ public class DhowRenderer extends ShipRenderer<DhowEntity> {
     public void render(@NotNull DhowEntity dhowEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
-        poseStack.translate(0.0D, 2.0D,0.0D);
+        poseStack.translate(0.0D, 2.15D,0.0D);
         super.render(dhowEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 }

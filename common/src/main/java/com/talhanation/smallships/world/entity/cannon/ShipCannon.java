@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.entity.cannon;
 import com.talhanation.smallships.world.entity.projectile.AbstractCannonBall;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ChainShotEntity;
+import com.talhanation.smallships.world.entity.projectile.GrapeShotEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.item.CannonBallItem;
@@ -138,6 +139,9 @@ public class ShipCannon implements ICannon {
 
         if(type == CannonBallItem.Type.CHAINED){
             ball = new ChainShotEntity(this.level);
+        }
+        else if(type == CannonBallItem.Type.GRAPE){
+            ball = new GrapeShotEntity(this.level);
         }
         else{
             ball = new CannonBallEntity(this.level);

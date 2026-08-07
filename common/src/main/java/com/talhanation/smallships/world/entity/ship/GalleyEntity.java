@@ -2,14 +2,13 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
@@ -71,7 +70,23 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
         return SmallShipsConfig.Common.shipModifierGalleyBiome.get();
     }
 
-    private static final java.util.List<ShipSeat> SEATS = java.util.List.of(
+    /**
+     * Three hull boxes along the keel plus the single mast. Vanilla entity
+     * boxes have a SQUARE footprint, so the length of a ship is never one long
+     * part but several short ones.
+     */
+    private static final List<ShipPartEntity.Definition> PARTS = List.of(
+            ShipPartEntity.Definition.hull(-2.65F, 0.0F, 0.0F, 2.8F, 1.25F),//back
+            ShipPartEntity.Definition.hull(2.65F, 0.0F, 0.0F, 2.5F, 1.25F),//front
+            ShipPartEntity.Definition.mast(-0.275F, 0.0F, 0.3F, 8.5F)//mast
+    );
+
+    @Override
+    public List<ShipPartEntity.Definition> getParts() {
+        return PARTS;
+    }
+
+    private static final List<ShipSeat> SEATS = List.of(
             ShipSeat.driver(0, -3.0F, 0.0F),
             ShipSeat.passenger(1, -1.5F, 0.75F),
             ShipSeat.passenger(2, -1.5F, -0.75F),
@@ -83,7 +98,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
             ShipSeat.cannon(7, 1.2F, -0.4F, 1));
 
     @Override
-    public java.util.List<ShipSeat> getSeats() {
+    public List<ShipSeat> getSeats() {
         return SEATS;
     }
 

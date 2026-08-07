@@ -8,6 +8,7 @@ import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundUpdateShipControlPacket;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.entity.ship.seat.SeatType;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
@@ -47,6 +48,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.world.entity.LivingEntity;
@@ -72,6 +74,10 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    /** external push from a ramming, see ramShip. Synched because the ships' own
+     *  drive is a scalar along the bow and cannot express a sideways shove. */
+    private static final EntityDataAccessor<Float> IMPULSE_X = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> IMPULSE_Z = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     /** Broadside aim data (Better Cannon Gameplay), see Cannonable. */
     public static final EntityDataAccessor<CompoundTag> CANNON_AIM = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
@@ -84,6 +90,40 @@ public abstract class Ship extends Boat {
     /** Fixed seat assignments: Seat<id> -> passenger UUID, see Seatable. */
     public static final EntityDataAccessor<CompoundTag> SEAT_ASSIGNMENTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
 
+    /** live collision parts, server side only, see updateParts */
+    private final List<ShipPartEntity> parts = new ArrayList<>();
+
+    /** 1 + coefficient of restitution, wooden hulls barely bounce */
+    private static final double RAM_ELASTICITY = 1.1D;
+    /**
+     * Gain on the physical impulse. Ship speeds in this game are around a
+     * tenth of a block per tick, so a textbook impulse comes out below half
+     * a block of travel and reads as nothing happening at all.
+     */
+    private static final double RAM_PUSH = 5.0D;
+    /** hard ceiling per ship per hit, in blocks per tick */
+    private static final double RAM_MAX_PUSH = 1.0D;
+    /** total hull damage per unit of impulse, shared between the two ships */
+    private static final double RAM_DAMAGE = 3.0D;
+    /** how lopsided the split may get - 0 shares evenly, 1 spares the rammer entirely */
+    private static final double RAM_DAMAGE_BIAS = 0.85D;
+    /** share of the drive lost when it pointed straight into the hit */
+    private static final double RAM_DRIVE_LOSS = 0.8D;
+    private static final float RAM_DECAY = 0.88F;
+    private static final int RAM_COOLDOWN = 10;
+
+    /** share of the top speed available astern */
+    private static final float REVERSE_FACTOR = 0.125F;
+
+    /** below this a ram is not worth looking for */
+    private static final float RAM_MIN_SPEED = 0.06F;
+
+    /** ticks until this ship can be rammed again, server side */
+    private int ramCooldown;
+
+    private int blockerTick = -1;
+    private AABB blockerArea;
+    private List<VoxelShape> blockerCache;
     private boolean isLocked = false;
     private int sunkenTime = 0;
     private float prevWaveAngle;
@@ -110,6 +150,13 @@ public abstract class Ship extends Boat {
             seatable.validateSeatAssignments();
         }
         super.tick();
+
+        if (!this.level().isClientSide() && (this.parts.isEmpty() || this.tickCount % 20 == 0)) this.updateParts();
+
+        if (!this.level().isClientSide()) {
+            this.tickRam();
+            this.decayRamImpulse();
+        }
 
         if (this.getDamage() > 0.0F) {
             this.setDamage(this.getDamage() + 1.0F);
@@ -149,6 +196,8 @@ public abstract class Ship extends Boat {
         builder.define(LEFT, false);
         builder.define(RIGHT, false);
         builder.define(SUNKEN, false);
+        builder.define(IMPULSE_X, 0.0F);
+        builder.define(IMPULSE_Z, 0.0F);
 
         // Sailable
         builder.define(SAIL_STATE, (byte) 0);
@@ -291,6 +340,13 @@ public abstract class Ship extends Boat {
 
             setPoint = Math.min(Math.max(sailDrive, oarDrive), this.maxSpeed);
 
+            // a light reverse gear. Canvas cannot back a ship, so this is
+            // oars, poles and patience - it exists so a hull that wedged
+            // itself into terrain can work its way out, not as a second gear
+            if (this.isBackward() && this.getDriver() != null) {
+                setPoint = -this.maxSpeed * REVERSE_FACTOR;
+            }
+
             this.calculateSpeed(acceleration);
 
             //CALCULATE ROTATION SPEED//
@@ -312,7 +368,15 @@ public abstract class Ship extends Boat {
             this.setRotSpeed(rotationSpeed);
 
             ((BoatAccessor) this).setDeltaRotation(rotationSpeed);
-            setYRot(getYRot() + ((BoatAccessor) this).getDeltaRotation());
+            // turning collides too: vanilla never tests a rotation against
+            // anything, so a hull would swing its bow straight through a cliff
+            float wantedYaw = getYRot() + ((BoatAccessor) this).getDeltaRotation();
+            float allowedYaw = ShipPartEntity.collideTurn(this, getYRot(), wantedYaw);
+            if (allowedYaw != wantedYaw) {
+                this.setRotSpeed(0.0F);
+                ((BoatAccessor) this).setDeltaRotation(0.0F);
+            }
+            setYRot(allowedYaw);
 
 
             if(getDriver() != null) {
@@ -328,6 +392,11 @@ public abstract class Ship extends Boat {
             setLeft(false);
             setRight(false);
         }
+
+        // the ram push is added on top of the drive, never folded into
+        // getSpeed(): that one is a scalar along the bow and would turn a
+        // sideways shove into forward motion
+        setDeltaMovement(getDeltaMovement().add(this.getData(IMPULSE_X), 0.0D, this.getData(IMPULSE_Z)));
     }
 
     /**
@@ -447,6 +516,11 @@ public abstract class Ship extends Boat {
         float speed = this.getSpeed();
         if(speed < setPoint){
             speed = Kalkuel.addToSetPoint(speed, acceleration, setPoint); //getVelocityResistance() * 0.5F
+        }
+        else if (setPoint < 0.0F) {
+            // reverse needs its own ramp: subtractToZero only ever pulls
+            // towards zero and can never push a ship backwards
+            speed = Math.max(speed - acceleration, setPoint);
         }
         else
             speed = Kalkuel.subtractToZero(speed, getVelocityResistance() * 0.8F);
@@ -735,6 +809,238 @@ public abstract class Ship extends Boat {
     }
     public boolean isCannonKeyPressed() {
         return cannonKeyPressed;
+    }
+
+    /**
+     * The collision and hit bodies of this ship, in the same local (v, h) frame
+     * the seats and the cannons use. A ship without parts behaves exactly as
+     * before, so ships can be converted one at a time.
+     */
+    public List<ShipPartEntity.Definition> getParts() {
+        return List.of();
+    }
+
+    /**
+     * Keeps the collision parts alive. They are never saved, so this also covers
+     * world load and ships that existed before they had parts. On any mismatch
+     * the whole set is rebuilt instead of patched - a part that lost its ship is
+     * far worse than one respawn.
+     */
+    private void updateParts() {
+        // tall parts are cut up here, not in getParts: vanilla cannot find an
+        // entity taller than four blocks from above, see ShipPartEntity.MAX_HEIGHT
+        List<ShipPartEntity.Definition> definitions = ShipPartEntity.split(this.getParts());
+        this.parts.removeIf(Entity::isRemoved);
+        if (this.parts.size() == definitions.size()) return;
+
+        for (ShipPartEntity part : this.parts) part.discard();
+        this.parts.clear();
+        for (ShipPartEntity.Definition definition : definitions) {
+            ShipPartEntity part = new ShipPartEntity(this, definition);
+            this.parts.add(part);
+            this.level().addFreshEntity(part);
+        }
+    }
+
+    @Override
+    public void remove(@NotNull RemovalReason removalReason) {
+        // parts must never outlive their ship, not even for a tick
+        for (ShipPartEntity part : this.parts) part.discard();
+        this.parts.clear();
+        super.remove(removalReason);
+    }
+
+    /**
+     * The solid shapes around this ship, scanned at most once per tick.
+     *
+     * The turn gate runs in controlBoat and the movement sweep runs in move,
+     * both in the same tick and over almost the same volume - and that volume is
+     * large, because the masts drag the search box twelve blocks into the air.
+     * The cache remembers what it covered and rescans as soon as a request
+     * reaches past it, so it can never hand back too little.
+     */
+    public List<VoxelShape> getBlockers(AABB area) {
+        if (this.blockerTick != this.tickCount || this.blockerArea == null || !covers(this.blockerArea, area)) {
+            this.blockerArea = area.inflate(1.0D);
+            this.blockerTick = this.tickCount;
+            this.blockerCache = ShipPartEntity.scanBlockers(this, this.blockerArea);
+        }
+        return this.blockerCache;
+    }
+
+    private static boolean covers(AABB outer, AABB inner) {
+        return outer.minX <= inner.minX && outer.minY <= inner.minY && outer.minZ <= inner.minZ
+                && outer.maxX >= inner.maxX && outer.maxY >= inner.maxY && outer.maxZ >= inner.maxZ;
+    }
+
+    /**
+     * A ship must not collide with its own parts. They sit inside its own hull
+     * by definition, so without this it would wedge itself in place the moment
+     * it comes to a stop and the parts turn solid.
+     */
+    @Override
+    public boolean canCollideWith(@NotNull Entity entity) {
+        if (entity instanceof ShipPartEntity part && part.getParent() == this) return false;
+        return super.canCollideWith(entity);
+    }
+
+    /**
+     * Only the horizontal part of the movement is ours. The vertical axis stays
+     * with vanilla on purpose: buoyancy, beaching, the ground flags and portals
+     * all hang off Entity#move and keep working untouched that way.
+     */
+    @Override
+    public void move(@NotNull MoverType moverType, @NotNull Vec3 delta) {
+        if (this.noPhysics || this.getParts().isEmpty()) {
+            super.move(moverType, delta);
+            return;
+        }
+
+        Vec3 allowed = ShipPartEntity.collide(this, delta);
+        super.move(moverType, allowed);
+
+        if (allowed.x == delta.x && allowed.z == delta.z) return;
+        // vanilla only ever saw its own small box, so it would miss what we cut
+        this.horizontalCollision = true;
+
+        double wanted = delta.x * delta.x + delta.z * delta.z;
+        double reached = allowed.x * allowed.x + allowed.z * allowed.z;
+        // running into a cliff stops a ship dead, brushing along a quay does not
+        if (reached < wanted * 0.0625D) this.ram();
+    }
+
+    /**
+     * The displacement of this ship, taken straight from its hull boxes instead
+     * of from yet another config value: an addon ship gets a sensible mass the
+     * moment its parts are defined. Masts do not count, they carry no water.
+     */
+    public float getMass() {
+        float mass = 0.0F;
+        for (ShipPartEntity.Definition definition : this.getParts()) {
+            if (definition.mast()) continue;
+            mass += definition.width() * definition.width() * definition.height();
+        }
+        return Math.max(mass, 1.0F);
+    }
+
+    /**
+     * Ram detection lives here and not in move() on purpose: a ship with a
+     * player at the helm is driven by that players' client, the server sets its
+     * delta movement to zero and never calls move() for it at all. From tick it
+     * runs for crewed and drifting ships alike.
+     */
+    private void tickRam() {
+        if (Math.abs(this.getSpeed()) <= RAM_MIN_SPEED) return;
+        Ship rammed = ShipPartEntity.findRammedShip(this, this.getRamVelocity());
+        if (rammed != null) this.ramShip(rammed);
+    }
+
+    /**
+     * The drive rebuilt from the synched speed plus whatever push is still
+     * running. getDeltaMovement is zero on the server for a crewed ship, so it
+     * cannot be used for this.
+     */
+    private Vec3 getRamVelocity() {
+        return new Vec3(
+                Kalkuel.calculateMotionX(this.getSpeed(), this.getYRot()) + this.getData(IMPULSE_X),
+                0.0D,
+                Kalkuel.calculateMotionZ(this.getSpeed(), this.getYRot()) + this.getData(IMPULSE_Z));
+    }
+
+    /**
+     * Elastic impulse along the line between the two hulls. Only the closing
+     * component counts, so a parallel scrape does almost nothing while a bow-on
+     * hit throws the lighter ship clear.
+     */
+    private void ramShip(Ship other) {
+        if (this.level().isClientSide() || this.ramCooldown > 0) return;
+
+        Vec3 line = new Vec3(other.getX() - this.getX(), 0.0D, other.getZ() - this.getZ());
+        if (line.lengthSqr() < 1.0E-4D) return;
+        Vec3 normal = line.normalize();
+
+        double closing = this.getRamVelocity().subtract(other.getRamVelocity()).dot(normal);
+        if (closing <= 0.0D) return;
+
+        float mass = this.getMass();
+        float otherMass = other.getMass();
+        double impulse = RAM_ELASTICITY * closing / (1.0D / mass + 1.0D / otherMass);
+        double push = impulse * RAM_PUSH;
+
+        this.addRamImpulse(normal.scale(-Math.min(push / mass, RAM_MAX_PUSH)));
+        other.addRamImpulse(normal.scale(Math.min(push / otherMass, RAM_MAX_PUSH)));
+        // both drives are damped, not just the one that happened to tick
+        // first - otherwise a head-on would leave one ship pushing on
+        this.dampDrive(normal);
+        other.dampDrive(normal.reverse());
+
+        this.ramCooldown = RAM_COOLDOWN;
+        other.ramCooldown = RAM_COOLDOWN;
+
+        this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), SoundEvents.WOOD_BREAK, this.getSoundSource(), 2.0F, 0.5F + 0.2F * this.random.nextFloat());
+
+        // the pot comes off the physical impulse, never off the boosted push
+        double pot = impulse * RAM_DAMAGE;
+
+        // split by who carried the momentum into the hit. A hull driven bow
+        // first meets the blow with its stem and its own way behind it, while a
+        // ship lying still simply absorbs everything - so the slower one pays.
+        double ownClosing = Math.max(0.0D, this.getRamVelocity().dot(normal));
+        double otherClosing = Math.max(0.0D, other.getRamVelocity().dot(normal.reverse()));
+        double closingSum = ownClosing + otherClosing;
+        double share = closingSum <= 1.0E-6D ? 0.5D : otherClosing / closingSum;
+        share = 0.5D + (share - 0.5D) * RAM_DAMAGE_BIAS;
+
+        float ownDamage = (float) (pot * share);
+        float otherDamage = (float) (pot * (1.0D - share));
+        if (ownDamage >= 1.0F) this.hurt(this.damageSources().generic(), ownDamage);
+        if (otherDamage >= 1.0F) other.hurt(other.damageSources().generic(), otherDamage);
+    }
+
+    /**
+     * Takes away the part of the drive that was pushing into the hit. A head-on
+     * costs both ships their way, a rear-end only the one that did the ramming,
+     * and a parallel scrape almost nothing - the bow stands across the impact
+     * line there.
+     */
+    private void dampDrive(Vec3 into) {
+        Vec3 heading = new Vec3(Kalkuel.calculateMotionX(1.0F, this.getYRot()), 0.0D, Kalkuel.calculateMotionZ(1.0F, this.getYRot()))
+                .scale(Math.signum(this.getSpeed()));
+        double along = heading.dot(into);
+        if (along <= 0.0D) return;
+        this.setSpeed((float) (this.getSpeed() * (1.0D - RAM_DRIVE_LOSS * along)));
+    }
+
+    public void addRamImpulse(Vec3 impulse) {
+        this.setData(IMPULSE_X, (float) (this.getData(IMPULSE_X) + impulse.x));
+        this.setData(IMPULSE_Z, (float) (this.getData(IMPULSE_Z) + impulse.z));
+    }
+
+    /** Water swallows a shove quickly - roughly two seconds until it is gone. */
+    private void decayRamImpulse() {
+        if (this.ramCooldown > 0) this.ramCooldown--;
+
+        float x = this.getData(IMPULSE_X);
+        float z = this.getData(IMPULSE_Z);
+        if (x == 0.0F && z == 0.0F) return;
+
+        x *= RAM_DECAY;
+        z *= RAM_DECAY;
+        if (Math.abs(x) < 0.001F && Math.abs(z) < 0.001F) {
+            x = 0.0F;
+            z = 0.0F;
+        }
+        this.setData(IMPULSE_X, x);
+        this.setData(IMPULSE_Z, z);
+    }
+
+    /** Full stop against something solid, with the timber to go with it. */
+    private void ram() {
+        if (this.level().isClientSide()) return;
+        if (Math.abs(this.getSpeed()) > 0.05F && this.tickCount % 10 == 0) {
+            this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), SoundEvents.WOOD_HIT, this.getSoundSource(), 1.6F, 0.6F + 0.2F * this.random.nextFloat());
+        }
+        this.setSpeed(0.0F);
     }
 
     @Override
