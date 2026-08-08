@@ -86,17 +86,17 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     private static final java.util.List<ShipSeat> SEATS = java.util.List.of(
-            ShipSeat.driver(0, -3.0F, 0.0F),
-            ShipSeat.passenger(1, -1.5F, 0.75F),
-            ShipSeat.passenger(2, -1.5F, -0.75F),
-            ShipSeat.passenger(3, -0.5F, 0.75F),
-            ShipSeat.passenger(4, -0.5F, -0.75F),
-            ShipSeat.passenger(5, 0.5F, 0.75F),
-            ShipSeat.passenger(6, 0.5F, -0.75F),
-            ShipSeat.passenger(7, 1.5F, 0.75F),
-            ShipSeat.passenger(8, 1.5F, -0.75F),
-            ShipSeat.passenger(9, 2.5F, 0.5F),
-            ShipSeat.passenger(10, 2.5F, -0.5F));
+            ShipSeat.driver(0, -3.0F, 0.0F,0.0F),
+            ShipSeat.passenger(1, -1.5F,0.0F, 0.75F),
+            ShipSeat.passenger(2, -1.5F,0.0F, -0.75F),
+            ShipSeat.passenger(3, -0.5F,0.0F, 0.75F),
+            ShipSeat.passenger(4, -0.5F,0.0F, -0.75F),
+            ShipSeat.passenger(5, 0.5F, 0.0F,0.75F),
+            ShipSeat.passenger(6, 0.5F,0.0F, -0.75F),
+            ShipSeat.passenger(7, 1.5F,0.0F, 0.75F),
+            ShipSeat.passenger(8, 1.5F,0.0F, -0.75F),
+            ShipSeat.passenger(9, 2.5F,0.0F, 0.5F),
+            ShipSeat.passenger(10, 2.5F,0.0F, -0.5F));
 
     @Override
     public java.util.List<ShipSeat> getSeats() {

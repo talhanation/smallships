@@ -85,17 +85,17 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -3.0F, 0.0F),
-            ShipSeat.passenger(1, -1.5F, 0.75F),
-            ShipSeat.passenger(2, -1.5F, -0.75F),
-            ShipSeat.passenger(3, 2.5F, 0.0F),
+            ShipSeat.driver(0, -3.0F, 0.0F,0.0F),
+            ShipSeat.passenger(1, -1.5F,0.0F, 0.75F),
+            ShipSeat.passenger(2, -1.5F,0.0F, -0.75F),
+            ShipSeat.passenger(3, 2.5F,0.0F, 0.0F),
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.cannon(4, -1.4F, 0.45F, 0),
-            ShipSeat.cannon(5, -1.4F, -0.45F, 1),
-            ShipSeat.cannon(6, 0.1F, 0.5F, 2),
-            ShipSeat.cannon(7, 0.1F, -0.5F, 3),
-            ShipSeat.cannon(8, 1.2F, 0.45F, 4),
-            ShipSeat.cannon(9, 1.2F, -0.45F, 5));
+            ShipSeat.cannon(4, -1.4F, 0.0F,0.45F, 0),
+            ShipSeat.cannon(5, -1.4F, 0.0F,-0.45F, 1),
+            ShipSeat.cannon(6, 0.1F, 0.0F,0.5F, 2),
+            ShipSeat.cannon(7, 0.1F, 0.0F,-0.5F, 3),
+            ShipSeat.cannon(8, 1.2F,0.0F, 0.45F, 4),
+            ShipSeat.cannon(9, 1.2F, 0.0F,-0.45F, 5));
 
     @Override
     public List<ShipSeat> getSeats() {
@@ -163,6 +163,10 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
         positionList.add(pos6);
 
         return positionList.get(index);
+    }
+
+    public double getCannonAimY(){
+        return 1.35D;
     }
 
     @Override

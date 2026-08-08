@@ -87,15 +87,15 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -3.0F, 0.0F),
-            ShipSeat.passenger(1, -1.5F, 0.75F),
-            ShipSeat.passenger(2, -1.5F, -0.75F),
-            ShipSeat.passenger(3, -0.5F, 0.75F),
-            ShipSeat.passenger(4, -0.5F, -0.75F),
-            ShipSeat.passenger(5, 2.5F, 0.0F),
+            ShipSeat.driver(0, -3.0F, 0.0F,0.0F),
+            ShipSeat.passenger(1, -1.5F,0.0F, 0.75F),
+            ShipSeat.passenger(2, -1.5F,0.0F, -0.75F),
+            ShipSeat.passenger(3, -0.5F,0.0F, 0.75F),
+            ShipSeat.passenger(4, -0.5F,0.0F, -0.75F),
+            ShipSeat.passenger(5, 2.5F, 0.0F,0.0F),
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.cannon(6, 1.2F, 0.4F, 0),
-            ShipSeat.cannon(7, 1.2F, -0.4F, 1));
+            ShipSeat.cannon(6, 1.2F,0.0F,0.4F, 0),
+            ShipSeat.cannon(7, 1.2F,0.0F, -0.4F, 1));
 
     @Override
     public List<ShipSeat> getSeats() {
@@ -147,6 +147,10 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
         positionList.add(pos2);
 
         return positionList.get(index);
+    }
+
+    public double getCannonAimY(){
+        return 1.35D;
     }
 
     @Override

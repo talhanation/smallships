@@ -70,23 +70,23 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -3.0F, 0.0F),
-            ShipSeat.passenger(1, -1.5F, 0.75F),
-            ShipSeat.passenger(2, -1.5F, -0.75F),
-            ShipSeat.passenger(3, 2.5F, 0.0F),
-            ShipSeat.passenger(4, -1.5F, 0.75F),
-            ShipSeat.passenger(5, -1.5F, -0.75F),
-            ShipSeat.passenger(6, 2.5F, 0.0F),
-            ShipSeat.passenger(7, -1.5F, 0.75F),
-            ShipSeat.passenger(8, -1.5F, -0.75F),
-            ShipSeat.passenger(9, 2.5F, 0.0F),
-            ShipSeat.passenger(8, -1.5F, -0.75F),
-            ShipSeat.passenger(9, 2.5F, 0.0F),
-            // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.cannon(4, -1.4F, 0.45F, 6),
-            ShipSeat.cannon(5, -1.4F, -0.45F, 7),
-            ShipSeat.cannon(6, 0.1F, 0.5F, 8),
-            ShipSeat.cannon(7, 0.1F, -0.5F, 9)
+            ShipSeat.driver(0, -3.0F, 0.0F,0.0F),
+            ShipSeat.passenger(1, -1.5F,0.0F, 0.75F),
+            ShipSeat.passenger(2, -1.5F,0.0F, -0.75F),
+            ShipSeat.passenger(3, 2.5F,0.0F, 0.0F),
+            ShipSeat.passenger(4, -1.5F,0.0F, 0.75F),
+            ShipSeat.passenger(5, -1.5F,0.0F, -0.75F),
+            ShipSeat.passenger(6, 2.5F, 0.0F,0.0F),
+            ShipSeat.passenger(7, -1.5F, 0.0F,0.75F),
+            ShipSeat.passenger(8, -1.5F,0.0F, -0.75F),
+            ShipSeat.passenger(9, 2.5F, 0.0F,0.0F),
+            ShipSeat.passenger(8, -1.5F, 0.0F,-0.75F),
+            ShipSeat.passenger(9, 2.5F,0.0F, 0.0F),
+
+            ShipSeat.cannon(4, -1.4F, 0.0F,0.45F, 6),
+            ShipSeat.cannon(5, -1.4F, 0.0F,-0.45F, 7),
+            ShipSeat.cannon(6, 0.1F, 0.0F,0.5F, 8),
+            ShipSeat.cannon(7, 0.1F, 0.0F,-0.5F, 9)
     );
 
 
@@ -167,6 +167,10 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
         positionList.add(pos10);
 
         return positionList.get(index);
+    }
+
+    public double getCannonAimY(){
+        return 1.35D;
     }
 
     @Override

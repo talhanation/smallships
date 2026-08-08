@@ -294,6 +294,13 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     protected void updateContainerFillState(){
+        // server only. The client holds item stacks for the OPEN PAGE alone -
+        // every other slot of a multi page hold is EMPTY there, while the
+        // percentage still divides by the full container size. Letting the
+        // client recompute would overwrite the synched value with a far too
+        // low one, and the crates on deck would vanish on opening the screen.
+        if (this.level().isClientSide()) return;
+
         int percent = (int) getInvFillStateInPercent();
         this.setContainerFillState((byte) percent);
     }

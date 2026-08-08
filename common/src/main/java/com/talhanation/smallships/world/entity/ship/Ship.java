@@ -40,6 +40,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -665,6 +666,17 @@ public abstract class Ship extends Boat {
     @Nullable
     private java.util.UUID pendingSeatHitFor;
 
+    /**
+     * Where the passenger that is currently getting off was sitting.
+     *
+     * Needed because LivingEntity#stopRiding frees the seat before it asks for a
+     * dismount position: removePassenger runs first, dismountVehicle only after.
+     * Same single slot pattern as pendingSeatHit above - the two calls happen in
+     * one synchronous stack, so a second passenger cannot get in between.
+     */
+    private Vec3 dismountSeat;
+    private java.util.UUID dismountSeatFor;
+
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if(!this.isLocked()){
@@ -739,10 +751,65 @@ public abstract class Ship extends Boat {
         return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
     }
 
+    /**
+     * Puts a passenger off at HIS SEAT instead of at the middle of the ship.
+     *
+     * Vanilla only ever looks for a BLOCK to stand on: Boat gives up as soon as
+     * there is water under the deck, and Entity#getDismountLocationForPassenger
+     * then returns the vehicle centre - which is why a whole crew used to pile up
+     * on the same spot amidships.
+     */
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
         if (this instanceof Sailable sailShip && sailShip.getSailState() != 0) sailShip.toggleSail();
+
+        Vec3 seatPosition = null;
+        if (livingEntity.getUUID().equals(this.dismountSeatFor) && this.dismountSeat != null) {
+            seatPosition = this.dismountSeat;
+        } else if (this instanceof Seatable seatable) {
+            ShipSeat seat = seatable.getSeatOf(livingEntity);
+            if (seat != null) seatPosition = seat.getWorldPosition(this);
+        }
+        this.dismountSeat = null;
+        this.dismountSeatFor = null;
+
+        if (seatPosition != null) {
+            Vec3 spot = this.findSeatDismountSpot(livingEntity, seatPosition);
+            // no solid ground next to the seat - the normal case out at sea.
+            // Leave them over their own seat anyway: the hull parts carry them
+            // while the ship lies still, and dropping into the water beside
+            // their station beats being teleported amidships.
+            return spot != null ? spot : new Vec3(seatPosition.x, this.getBoundingBox().maxY + 0.75, seatPosition.z);
+        }
         return super.getDismountLocationForPassenger(livingEntity);
+    }
+
+    /**
+     * @return a safe place to stand at the seats' own x/z, or null if there is
+     * none. Same floor and pose checks vanilla runs, only anchored on the seat
+     * rather than on the hull centre.
+     */
+    @Nullable
+    private Vec3 findSeatDismountSpot(LivingEntity livingEntity, Vec3 seatPosition) {
+        BlockPos at = BlockPos.containing(seatPosition.x, this.getBoundingBox().maxY, seatPosition.z);
+        BlockPos below = at.below();
+        if (this.level().isWaterAt(below)) return null;
+
+        List<Vec3> candidates = new ArrayList<>();
+        double floor = this.level().getBlockFloorHeight(at);
+        if (DismountHelper.isBlockFloorValid(floor)) candidates.add(new Vec3(seatPosition.x, at.getY() + floor, seatPosition.z));
+        double floorBelow = this.level().getBlockFloorHeight(below);
+        if (DismountHelper.isBlockFloorValid(floorBelow)) candidates.add(new Vec3(seatPosition.x, below.getY() + floorBelow, seatPosition.z));
+
+        for (Pose pose : livingEntity.getDismountPoses()) {
+            for (Vec3 candidate : candidates) {
+                if (DismountHelper.canDismountTo(this.level(), candidate, livingEntity, pose)) {
+                    livingEntity.setPose(pose);
+                    return candidate;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -775,6 +842,12 @@ public abstract class Ship extends Boat {
     @Override
     protected void removePassenger(Entity entity) {
         if (this instanceof Seatable seatable && !this.level().isClientSide()) {
+            // remember the station BEFORE giving it up, see dismountSeat
+            ShipSeat seat = seatable.getSeatOf(entity);
+            if (seat != null) {
+                this.dismountSeat = seat.getWorldPosition(this);
+                this.dismountSeatFor = entity.getUUID();
+            }
             seatable.freeSeatOf(entity);
         }
         // Auto third person: Disable

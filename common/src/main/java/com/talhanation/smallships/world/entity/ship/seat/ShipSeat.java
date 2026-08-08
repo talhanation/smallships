@@ -5,46 +5,69 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A fixed seat on a ship. Seats use the same local (v, h) coordinate frame as
- * the old index-based passenger offsets: v = along the ship (negative = stern,
- * where the helm sits), h = sideways. Positions are FIXED per seat id - a
+ * A fixed seat on a ship. Seats use the same local (v, y, h) coordinate frame as
+ * the cannons and the hull parts: v = along the ship (negative = stern, where
+ * the helm sits), h = sideways, y = up. Positions are FIXED per seat id - a
  * passenger assigned to seat 6 stays on seat 6, no matter who else mounts or
  * dismounts.
  *
+ * y is an offset ON TOP of the deck height the ship reports, not an absolute
+ * height. Zero therefore means "wherever this ship puts its deck", which is what
+ * every seat did before this field existed - so the three argument factories
+ * below keep behaving exactly as they always have, and only a seat that needs to
+ * sit on a raised quarterdeck, a rowing bench or a gun carriage has to say so.
+ *
  * @param id                stable id within the ship type
- * @param v                 lengthwise offset (same frame as the old passenger offsets)
+ * @param v                 lengthwise offset (negative = stern)
+ * @param y                 height offset above deck level, 0 = on the deck
  * @param h                 sideways offset
  * @param type              DRIVER / PASSENGER / CANNON
  * @param mappedCannonSlot  the cannon slot a CANNON seat controls, -1 otherwise
  */
-public record ShipSeat(int id, float v, float h, SeatType type, int mappedCannonSlot) {
+public record ShipSeat(int id, float v, float y, float h, SeatType type, int mappedCannonSlot) {
 
     public static ShipSeat driver(int id, float v, float h) {
-        return new ShipSeat(id, v, h, SeatType.DRIVER, -1);
+        return driver(id, v, 0.0F, h);
+    }
+
+    public static ShipSeat driver(int id, float v, float y, float h) {
+        return new ShipSeat(id, v, y, h, SeatType.DRIVER, -1);
     }
 
     public static ShipSeat passenger(int id, float v, float h) {
-        return new ShipSeat(id, v, h, SeatType.PASSENGER, -1);
+        return passenger(id, v, 0.0F, h);
+    }
+
+    public static ShipSeat passenger(int id, float v, float y, float h) {
+        return new ShipSeat(id, v, y, h, SeatType.PASSENGER, -1);
     }
 
     public static ShipSeat cannon(int id, float v, float h, int mappedCannonSlot) {
-        return new ShipSeat(id, v, h, SeatType.CANNON, mappedCannonSlot);
+        return cannon(id, v, 0.0F, h, mappedCannonSlot);
+    }
+
+    public static ShipSeat cannon(int id, float v, float y, float h, int mappedCannonSlot) {
+        return new ShipSeat(id, v, y, h, SeatType.CANNON, mappedCannonSlot);
     }
 
     /**
-     * @return the attachment vector for positionRider, identical math to the
-     * old getPassengerAttachmentPoint implementations.
+     * @return the attachment vector for positionRider. The deck height still
+     * comes from the entity dimensions, the seats' own y is added on top of it.
      */
     public Vec3 getAttachmentPoint(Ship ship, EntityDimensions dimensions) {
-        return new Vec3(this.v, dimensions.height() - 0.1, this.h)
+        return new Vec3(this.v, dimensions.height() - 0.1 + this.y, this.h)
                 .yRot(-ship.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
     }
 
     /**
      * @return the world position of this seat, used for the nearest-seat search.
+     *
+     * The deck baseline is deliberately left out here - it is the same constant
+     * for every seat of a ship and would only shift the whole set, while the
+     * seats' own y really does tell two of them apart.
      */
     public Vec3 getWorldPosition(Ship ship) {
-        Vec3 local = new Vec3(this.v, 0.0D, this.h)
+        Vec3 local = new Vec3(this.v, this.y, this.h)
                 .yRot(-ship.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
         return ship.position().add(local);
     }
