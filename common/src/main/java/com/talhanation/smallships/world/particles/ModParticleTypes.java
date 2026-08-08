@@ -17,6 +17,8 @@ public class ModParticleTypes {
     public static final Supplier<SimpleParticleType> CANNON_SHOOT;
     public static final Supplier<ParticleType<DyedCannonShootOptions>> DYED_CANNON_SHOOT;
     public static final Supplier<SimpleParticleType> CANNON_BALL_SHOOT;
+    /** same muzzle blast, but half the smoke burnt off into flame - fine grain powder */
+    public static final Supplier<SimpleParticleType> CANNON_BALL_SHOOT_FINE;
     public static final Supplier<ParticleType<CustomPoofParticleOptions>> COLORED_POOF;
     public static final Supplier<SimpleParticleType> WIND_LINE;
 
@@ -27,6 +29,7 @@ public class ModParticleTypes {
         COLORED_POOF = register("colored_poof",
                 CustomPoofParticleOptions.MAP_CODEC, CustomPoofParticleOptions.STREAM_CODEC);
         CANNON_BALL_SHOOT = register("cannon_ball_shoot");
+        CANNON_BALL_SHOOT_FINE = register("cannon_ball_shoot_fine");
         WIND_LINE = register("wind_line");
     }
 
@@ -41,8 +44,8 @@ public class ModParticleTypes {
     }
 
     public static <T extends ParticleOptions> Supplier<ParticleType<T>> register(String string,
-                                                                       final MapCodec<T> codecSupplier,
-                                                                       final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodecSupplier) {
+                                                                                 final MapCodec<T> codecSupplier,
+                                                                                 final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodecSupplier) {
         ParticleType<T> type = new ParticleType<>(false) {
             @Override
             public @NotNull MapCodec<T> codec() {

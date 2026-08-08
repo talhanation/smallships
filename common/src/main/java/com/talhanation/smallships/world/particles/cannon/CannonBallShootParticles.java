@@ -11,14 +11,27 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
 public class CannonBallShootParticles extends CompoundParticles {
-    public CannonBallShootParticles(ClientLevel clientLevel,  double x, double y, double z, double vx, double vy, double vz) {
+    private static final int FLAMES = 100;
+    private static final int SMOKE = 50;
+
+    /** fine grain powder burns clean: half the smoke never forms and goes off as flame */
+    private final boolean fineGrain;
+
+    public CannonBallShootParticles(ClientLevel clientLevel, boolean fineGrain, double x, double y, double z, double vx, double vy, double vz) {
         super(clientLevel, 1, x, y, z, vx, vy, vz);
+        this.fineGrain = fineGrain;
+    }
+
+    public CannonBallShootParticles(ClientLevel clientLevel,  double x, double y, double z, double vx, double vy, double vz) {
+        this(clientLevel, false, x, y, z, vx, vy, vz);
     }
 
     @Override
     public void spawn() {
-        this.addFlamesForwardParticles(100);
-        this.addDarkSmokeParticles(50);
+        int smoke = this.fineGrain ? SMOKE / 2 : SMOKE;
+        // the total count stays the same, only what it is made of changes
+        this.addFlamesForwardParticles(FLAMES + (SMOKE - smoke));
+        this.addDarkSmokeParticles(smoke);
     }
 
     protected void addFlamesForwardParticles(int amount) {
@@ -57,7 +70,15 @@ public class CannonBallShootParticles extends CompoundParticles {
         @Nullable
         @Override
         public Particle createParticle(SimpleParticleType particleOptions, ClientLevel clientLevel, double d, double e, double f, double g, double h, double i) {
-            return new CannonBallShootParticles(clientLevel, d, e, f, g, h, i);
+            return new CannonBallShootParticles(clientLevel, false, d, e, f, g, h, i);
+        }
+    }
+
+    public static class FineProvider implements ParticleProvider<SimpleParticleType> {
+        @Nullable
+        @Override
+        public Particle createParticle(SimpleParticleType particleOptions, ClientLevel clientLevel, double d, double e, double f, double g, double h, double i) {
+            return new CannonBallShootParticles(clientLevel, true, d, e, f, g, h, i);
         }
     }
 }

@@ -19,6 +19,7 @@ public class ModParticleProviders {
         register(ModParticleTypes.DYED_CANNON_SHOOT.get(), CannonPoofParticles.DyedProvider::new);
         register(ModParticleTypes.COLORED_POOF.get(), CustomPoofParticle.Provider::new);
         register(ModParticleTypes.CANNON_BALL_SHOOT.get(), CannonBallShootParticles.Provider::new);
+        register(ModParticleTypes.CANNON_BALL_SHOOT_FINE.get(), CannonBallShootParticles.FineProvider::new);
         // wind_line is a sprite based TextureSheetParticle: it MUST go through the
         // Function<SpriteSet, ...> overload so the provider actually receives a
         // SpriteSet - the Supplier overload would build it without sprites and the

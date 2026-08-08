@@ -113,6 +113,11 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
     }
 
     @Override
+    public ParticleOptions getAdditionalCannonShootParticles(boolean fineGrain) {
+        return fineGrain ? ModParticleTypes.CANNON_BALL_SHOOT_FINE.get() : ModParticleTypes.CANNON_BALL_SHOOT.get();
+    }
+
+    @Override
     public void tick() {
         this.baseTick();
 

@@ -148,8 +148,6 @@ public class CannonAimHandler {
         // instant client side feedback (camera + trajectory + cannon render)
         cannonable.setCannonAim(aimSlot, aimRightSide, angle, rotation);
         dirty = true;
-
-        minecraft.gui.setOverlayMessage(Component.translatable("gui.smallships.cannon_aim", String.format("%.0f", angle), String.format("%.0f", rotation)), false);
     }
 
     /**

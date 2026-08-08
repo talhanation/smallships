@@ -23,4 +23,14 @@ public interface ICannonProjectile {
     default ParticleOptions getAdditionalCannonShootParticles() {
         return null;
     }
+
+    /**
+     * @param fineGrain whether the shot was loaded with fine grain powder
+     * @return the muzzle particles for this shot. Defaults to the plain ones, so
+     * a projectile only has to override this if it actually looks different.
+     */
+    @Nullable
+    default ParticleOptions getAdditionalCannonShootParticles(boolean fineGrain) {
+        return this.getAdditionalCannonShootParticles();
+    }
 }

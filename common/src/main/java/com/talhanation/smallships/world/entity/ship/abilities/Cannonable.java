@@ -357,6 +357,8 @@ public interface Cannonable extends Ability {
         }
     }
 
+    double getCannonAimY();
+
     @SuppressWarnings("ClassCanBeRecord")
     class CannonPosition {
         public final double x;

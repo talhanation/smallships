@@ -50,6 +50,8 @@ public class Cannon {
     private final float barrelHeight = 0.3F;
     private final float speed = 2.6F;
     private float speedMultiplier;
+    /** set by the owner right before the shot, see setFineGrain */
+    private boolean fineGrain;
     private float pitchBoundUp;
     private float pitchBoundDown;
     public Cannon(ICannon owner) {
@@ -171,7 +173,7 @@ public class Cannon {
 
         ServerParticleUtils.sendParticle(serverLevel, this.owner.provideShootParticles(), particlePos, forward);
 
-        ParticleOptions particles = projectile.getAdditionalCannonShootParticles();
+        ParticleOptions particles = projectile.getAdditionalCannonShootParticles(this.fineGrain);
         if (particles != null) {
             ServerParticleUtils.sendParticle(serverLevel, particles, particlePos, forward);
         }
@@ -203,5 +205,14 @@ public class Cannon {
 
     public void setSpeedMultiplier(float multiplier) {
         this.speedMultiplier = multiplier;
+    }
+
+    /**
+     * Whether the NEXT shot burns fine grain powder. Kept on the cannon rather
+     * than derived from the speed multiplier, which also carries the ball type
+     * and could not be told apart afterwards.
+     */
+    public void setFineGrain(boolean fineGrain) {
+        this.fineGrain = fineGrain;
     }
 }

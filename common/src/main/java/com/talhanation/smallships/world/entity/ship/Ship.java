@@ -94,7 +94,7 @@ public abstract class Ship extends Boat {
     private final List<ShipPartEntity> parts = new ArrayList<>();
 
     /** 1 + coefficient of restitution, wooden hulls barely bounce */
-    private static final double RAM_ELASTICITY = 1.1D;
+    private static final double RAM_ELASTICITY = 1.2D;
     /**
      * Gain on the physical impulse. Ship speeds in this game are around a
      * tenth of a block per tick, so a textbook impulse comes out below half
@@ -112,8 +112,12 @@ public abstract class Ship extends Boat {
     private static final float RAM_DECAY = 0.88F;
     private static final int RAM_COOLDOWN = 10;
 
-    /** share of the top speed available astern */
-    private static final float REVERSE_FACTOR = 0.125F;
+    /**
+     * Fixed manoeuvring speed in blocks per tick, ahead and astern alike, and
+     * deliberately NOT derived from maxSpeed: warping into a berth or working
+     * a wedged hull free should take the same patience on every ship.
+     */
+    private static final float MANOEUVRE_SPEED = 0.035F;
 
     /** below this a ram is not worth looking for */
     private static final float RAM_MIN_SPEED = 0.06F;
@@ -340,11 +344,14 @@ public abstract class Ship extends Boat {
 
             setPoint = Math.min(Math.max(sailDrive, oarDrive), this.maxSpeed);
 
-            // a light reverse gear. Canvas cannot back a ship, so this is
-            // oars, poles and patience - it exists so a hull that wedged
-            // itself into terrain can work its way out, not as a second gear
-            if (this.isBackward() && this.getDriver() != null) {
-                setPoint = -this.maxSpeed * REVERSE_FACTOR;
+            // light manoeuvring gears, ahead and astern. This is oars, poles
+            // and patience, not a second sail - so it only exists with the
+            // canvas furled, otherwise it would read as braking against the
+            // wind. Ahead it is a FLOOR, never an override, or it would cut
+            // into an oar drive that is already faster.
+            if (this.getDriver() != null && this.canManoeuvre()) {
+                if (this.isBackward()) setPoint = -MANOEUVRE_SPEED;
+                else if (this.isForward()) setPoint = Math.max(setPoint, MANOEUVRE_SPEED);
             }
 
             this.calculateSpeed(acceleration);
@@ -515,7 +522,10 @@ public abstract class Ship extends Boat {
         // If there is no interaction the speed should get reduced
         float speed = this.getSpeed();
         if(speed < setPoint){
-            speed = Kalkuel.addToSetPoint(speed, acceleration, setPoint); //getVelocityResistance() * 0.5F
+            // clamped: addToSetPoint overshoots by a full acceleration step,
+            // which is nothing at full sail but almost half the manoeuvring
+            // speed - and that one is supposed to be an exact figure
+            speed = Math.min(Kalkuel.addToSetPoint(speed, acceleration, setPoint), setPoint);
         }
         else if (setPoint < 0.0F) {
             // reverse needs its own ramp: subtractToZero only ever pulls
@@ -921,6 +931,15 @@ public abstract class Ship extends Boat {
             mass += definition.width() * definition.width() * definition.height();
         }
         return Math.max(mass, 1.0F);
+    }
+
+    /**
+     * @return whether the manoeuvring gears are available. Only with the sails
+     * furled - a ship under canvas cannot be rowed or poled, and letting it
+     * would look like braking against the wind. Ships without sails always may.
+     */
+    public boolean canManoeuvre() {
+        return !(this instanceof Sailable sailable) || sailable.getSailState() == 0;
     }
 
     /**

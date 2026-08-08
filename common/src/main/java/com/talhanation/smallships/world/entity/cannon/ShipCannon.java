@@ -117,10 +117,12 @@ public class ShipCannon implements ICannon {
         // getShotSpeedMultiplier(false) gives the type part; the fine grain part
         // is applied here because it must CONSUME the powder, not just peek it
         float speedMultiplier = cannonable.getShotSpeedMultiplier(false);
-        if (cannonable.consumeFineGrainPowder()) {
+        boolean fineGrain = cannonable.consumeFineGrainPowder();
+        if (fineGrain) {
             speedMultiplier *= 1.5F;
         }
         this.cannon.setSpeedMultiplier(speedMultiplier);
+        this.cannon.setFineGrain(fineGrain);
 
         cannonable.consumeCannonBall();
 

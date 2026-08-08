@@ -73,13 +73,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     /** barrel elevation limits, single source of truth for the entity and the Cannon core */
     public static final float PITCH_MIN = -30.0F;
     public static final float PITCH_MAX = 10.0F;
-    /**
-     * Aim mode tracking speed. The carriage is heavy: it follows the driver's
-     * view instead of snapping to it, so a flick of the mouse does not teleport
-     * a multi ton gun. Yaw traverses faster than the barrel elevates.
-     */
-    private static final float AIM_YAW_SPEED = 3.0F;
-    private static final float AIM_PITCH_SPEED = 1.5F;
+    /** barrel elevation speed while the gun traverses back to centre */
+    private static final float RECENTER_PITCH_SPEED = 1.5F;
     /** snap-to-center traverse speed, deliberately faster than manual tracking */
     private static final float RECENTER_YAW_SPEED = 6.0F;
     /** the recenter is done once the barrel is within this many degrees of the carriage */
@@ -337,7 +332,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
                 float carriageYaw = this.getCarriageYaw();
                 float recentered = Mth.approachDegrees(this.getYRot(), carriageYaw, RECENTER_YAW_SPEED);
                 this.setYRot(Mth.wrapDegrees(recentered));
-                this.setXRot(Math.clamp(Mth.approachDegrees(this.getXRot(), 0.0F, AIM_PITCH_SPEED), PITCH_MIN, PITCH_MAX));
+                this.setXRot(Math.clamp(Mth.approachDegrees(this.getXRot(), 0.0F, RECENTER_PITCH_SPEED), PITCH_MIN, PITCH_MAX));
 
                 if (Math.abs(Mth.degreesDifference(this.getYRot(), carriageYaw)) <= RECENTER_EPSILON) {
                     this.setYRot(Mth.wrapDegrees(carriageYaw));
@@ -348,18 +343,25 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
                     driver.setXRot(this.getXRot());
                 }
             }
-            // aim mode (right click held, SiegeWeapons ballista style): the cannon
-            // follows the driver's view, the camera sits behind the barrel.
+            // aim mode (right click held): DIRECT control, the same feel as the
+            // captain laying a broadside. The gun IS the view - no tracking
+            // lag in between, because a barrel that trails the crosshair means
+            // aiming at one thing and shooting at another.
             // NOTE: no early return here - the movement block below must still run,
             // otherwise the cannon keeps its old delta movement and coasts while aiming.
             else if (this.isAiming()) {
-                // rate limited: the gun approaches the target angle instead of
-                // snapping to it, which gives the carriage weight
-                float targetYaw = Mth.wrapDegrees(driver.getYRot());
                 float targetPitch = Math.clamp(driver.getXRot(), PITCH_MIN, PITCH_MAX);
+                this.setYRot(Mth.wrapDegrees(driver.getYRot()));
+                this.setXRot(targetPitch);
 
-                this.setYRot(Mth.wrapDegrees(Mth.approachDegrees(this.getYRot(), targetYaw, AIM_YAW_SPEED)));
-                this.setXRot(Math.clamp(Mth.approachDegrees(this.getXRot(), targetPitch, AIM_PITCH_SPEED), PITCH_MIN, PITCH_MAX));
+                // the barrel cannot elevate past its stops, so the view must not
+                // either - otherwise the mouse builds up a dead zone the player
+                // has to unwind before the gun moves again. Client only: the
+                // server has no business turning a players' head.
+                if (this.level().isClientSide() && driver.getXRot() != targetPitch) {
+                    driver.setXRot(targetPitch);
+                    driver.xRotO = targetPitch;
+                }
             }
             else {
 
@@ -623,12 +625,15 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
                 this.consumeCannonBall();
 
                 float speedMultiplier = ballType.speedMultiplier;
-                if (this.consumeFineGrainPowder()) {
+                boolean fineGrain = this.consumeFineGrainPowder();
+                if (fineGrain) {
                     speedMultiplier *= 1.5F;
                 }
                 this.cannon.setSpeedMultiplier(speedMultiplier);
+                this.cannon.setFineGrain(fineGrain);
             } else {
                 this.cannon.setSpeedMultiplier(1.0F);
+                this.cannon.setFineGrain(false);
             }
 
             this.cannon.triggerFuze(triggeredBy, () -> {
