@@ -21,7 +21,7 @@ public class CannonBallShootParticles extends CompoundParticles {
      */
     private static final float FINE_FLAME_MULTIPLIER = 25F;
     /** and they are thrown further out of the muzzle, which is what reads as a flash */
-    private static final float FINE_FLAME_REACH = 4.8F;
+    private static final float FINE_FLAME_REACH = 2.33F;
 
     /** fine grain powder burns clean: half the smoke never forms and goes off as flame */
     private final boolean fineGrain;
