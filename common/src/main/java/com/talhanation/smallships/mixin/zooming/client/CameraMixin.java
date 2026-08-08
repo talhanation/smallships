@@ -34,12 +34,12 @@ public abstract class CameraMixin implements CameraZoomAccess {
     @Unique private static final float DRIVER_AIM_CAMERA_PITCH = 15.0F;
     // fallback deck height, only used by a ship that is not Cannonable at all
     @Unique private static final double DRIVER_AIM_CAMERA_Y = 2.5D;
-    // ground cannon: a first person seat ON the gun, the same shape SiegeWeapons
-    // uses for the ballista - eye height, a hand's width in FRONT of the pivot.
-    // A camera behind the weapon has to swing around the pivot and reads as
-    // weight no matter how fast the gun itself tracks.
-    @Unique private static final double GROUND_CANNON_EYE_Y = 0.75D;
-    @Unique private static final double GROUND_CANNON_EYE_FORWARD = 0.75D;
+    // ground cannon: the camera is bolted to the barrel. TRUNNION_Y is the height
+    // the barrel pivots around, BORE_FORWARD how far along the bore the camera
+    // sits in front of that pivot - so elevating the gun swings the camera up
+    // with the muzzle instead of leaving it at a fixed height looking upwards.
+    @Unique private static final double GROUND_CANNON_TRUNNION_Y = 0.75D;
+    @Unique private static final double GROUND_CANNON_BORE_FORWARD = 0.75D;
     // the eight corner offsets vanilla probes in getMaxZoom
     @Unique private static final double CAMERA_PROBE = 0.1D;
     // never let the zoom factor reach zero or turn negative - the configured
@@ -53,8 +53,8 @@ public abstract class CameraMixin implements CameraZoomAccess {
 
     /**
      * Right click aim mode, SiegeWeapons ballista style:
-     * - Ground cannon: the camera sits behind and above the barrel and looks
-     *   along it, so the player sees the barrel while aiming.
+     * - Ground cannon: the camera rides the barrel and looks along it, so the
+     *   player sees the gun move under him while aiming.
      * - Cannon ship: the camera looks into the direction the aimed broadside /
      *   gunner cannon is about to shoot.
      *
@@ -83,12 +83,13 @@ public abstract class CameraMixin implements CameraZoomAccess {
             float yaw = player.getViewYRot(partialTick);
             float pitch = Mth.clamp(player.getViewXRot(partialTick), GroundCannonEntity.PITCH_MIN, GroundCannonEntity.PITCH_MAX);
 
-            // flat forward offset, yaw only: at this distance the elevation of
-            // the barrel changes nothing worth computing, and the camera stays
-            // put on the gun instead of orbiting it
-            Vec3 forward = Vec3.directionFromRotation(0.0F, yaw);
-            Vec3 anchor = new Vec3(x, y + GROUND_CANNON_EYE_Y, z);
-            Vec3 camera = this.smallships$clip(blockGetter, anchor, anchor.add(forward.scale(GROUND_CANNON_EYE_FORWARD)));
+            // the offset runs along the BORE, pitch included - that is what makes
+            // the camera sit on the gun instead of merely turning with it. A yaw
+            // only offset keeps the camera at one height whatever the barrel does,
+            // which reads as a floating viewpoint rather than a mounted one.
+            Vec3 bore = Vec3.directionFromRotation(pitch, yaw);
+            Vec3 anchor = new Vec3(x, y + GROUND_CANNON_TRUNNION_Y, z);
+            Vec3 camera = this.smallships$clip(blockGetter, anchor, anchor.add(bore.scale(GROUND_CANNON_BORE_FORWARD)));
 
             this.setPosition(camera.x, camera.y, camera.z);
             this.setRotation(yaw, pitch);
