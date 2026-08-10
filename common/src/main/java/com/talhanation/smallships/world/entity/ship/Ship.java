@@ -779,7 +779,7 @@ public abstract class Ship extends Boat {
             // Leave them over their own seat anyway: the hull parts carry them
             // while the ship lies still, and dropping into the water beside
             // their station beats being teleported amidships.
-            return spot != null ? spot : new Vec3(seatPosition.x, this.getBoundingBox().maxY + 0.75, seatPosition.z);
+            return spot != null ? spot : new Vec3(seatPosition.x, this.getBoundingBox().maxY + 1.5, seatPosition.z);
         }
         return super.getDismountLocationForPassenger(livingEntity);
     }
