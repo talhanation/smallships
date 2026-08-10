@@ -75,25 +75,28 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
             ShipPartEntity.Definition.hull(-3.0F, 0.85F, 0.0F, 2.5F, 1.25F),//middle back above
             ShipPartEntity.Definition.hull(2.5F, 0.0F, 0.0F, 2.5F, 1.25F),//middle front
             ShipPartEntity.Definition.hull(3.5F, 0.0F, 0.0F, 2.0F, 1.25F),//front
-            ShipPartEntity.Definition.mast(2.2F, 0.0F, 0.30F, 10.0F),//front mast
-            ShipPartEntity.Definition.mast(-2.0F, 0.0F, 0.30F, 9.75F));//back mast
+            ShipPartEntity.Definition.mast(2.2F, 0.0F, 0.30F, 10.75F),//front mast
+            ShipPartEntity.Definition.mast(-2.0F, 0.0F, 0.30F, 9.5F));//back mast
     @Override
     public List<ShipPartEntity.Definition> getParts() {
         return PARTS;
     }
 
     private static final List<ShipSeat> SEATS = java.util.List.of(
-            ShipSeat.driver(0, -3.0F, 1.5F,0.7F),
-            ShipSeat.passenger(1, -3.0F,0.7F, -0.7F),
+            ShipSeat.driver(0, -2.6F, 0.95F,0.7F),
+            ShipSeat.passenger(1, -2.6F,0.95F, -0.7F),
 
-            ShipSeat.cannon(2, -1.0F, 0.0F,0.8F, 0),
-            ShipSeat.cannon(3, -1.0F, 0.0F,-0.8F, 1),
+            ShipSeat.cannon(2, -1.5F, 0.12F,0.7F, 0),
+            ShipSeat.cannon(3, -1.5F, 0.12F,-0.7F, 1),
 
-            ShipSeat.passenger(4, 0.0F,0.0F, 0.8F),
-            ShipSeat.passenger(5, 0.0F, 0.0F,-0.8F),
+            ShipSeat.passenger(4, 0.25F,0.12F, 0.7F),
+            ShipSeat.passenger(5, 0.25F, 0.12F,-0.7F),
 
-            ShipSeat.cannon(6, 1.5F, 0.0F,0.8F, 2),
-            ShipSeat.cannon(7, 1.5F, 0.0F,-0.8F, 3)
+            ShipSeat.cannon(6, 1.5F, 0.12F,0.7F, 2),
+            ShipSeat.cannon(7, 1.5F, 0.12F,-0.7F, 3),
+
+            ShipSeat.passenger(8, 3.0F,0.12F, 0.7F),
+            ShipSeat.passenger(9, 3.0F, 0.12F,-0.7F)
     );
 
     @Override
@@ -109,11 +112,11 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
      **/
     public CannonPosition getCannonPosition(int index){
         List<CannonPosition> positionList = new ArrayList<>();
-        CannonPosition pos1 = new CannonPosition(2.4, 0.5, 0.6, true);
-        CannonPosition pos2 = new CannonPosition(2.4, 0.5, 0.6, false);
+        CannonPosition pos1 = new CannonPosition(0.75, 0.46, 0.8, true);
+        CannonPosition pos2 = new CannonPosition(0.75, 0.46, 0.8, false);
 
-        CannonPosition pos3 = new CannonPosition(0.4, 0.5, 0.6, true);
-        CannonPosition pos4 = new CannonPosition(0.4, 0.5, 0.6, false);
+        CannonPosition pos3 = new CannonPosition(-1.3, 0.46, 0.8, true);
+        CannonPosition pos4 = new CannonPosition(-1.3, 0.46, 0.8, false);
 
         positionList.add(pos1);
         positionList.add(pos2);

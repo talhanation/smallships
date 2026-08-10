@@ -52,10 +52,7 @@ public class CaravelModel extends ShipModel<CaravelEntity> {
 
 		PartDefinition bottom = Caravel.addOrReplaceChild("bottom", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition cube_r1 = bottom.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(12, 0).addBox(-2.4F, -6.0782F, -5.5428F, 5.0F, 5.0F, 14.0F, new CubeDeformation(0.0F))
-				.texOffs(9, 4).addBox(-2.4F, -6.0782F, -15.5428F, 5.0F, 5.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -25.6F, -65.0F, -0.3491F, 0.0F, 0.0F));
-
-		PartDefinition cube_r2 = bottom.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(0, 0).addBox(48.0F, 0.0F, -10.0F, 3.0F, 9.0F, 5.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r1 = bottom.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(0, 0).addBox(48.0F, 0.0F, -10.0F, 3.0F, 9.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 0).addBox(48.0F, -9.0F, -10.0F, 3.0F, 9.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(1, 1).addBox(48.0F, 0.0F, -5.0F, 3.0F, 9.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(1, 1).addBox(48.0F, -9.0F, -5.0F, 3.0F, 9.0F, 4.0F, new CubeDeformation(0.0F))
@@ -107,33 +104,35 @@ public class CaravelModel extends ShipModel<CaravelEntity> {
 				.texOffs(1, 1).addBox(37.0F, 0.0F, -1.0F, 14.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(2, 2).addBox(37.0F, -5.0F, 0.0F, 14.0F, 5.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -4.0F, 0.0F, -1.5708F, -1.5708F, 0.0F));
 
-		PartDefinition cube_r3 = bottom.addOrReplaceChild("cube_r3", CubeListBuilder.create().texOffs(0, 0).addBox(-36.0F, 3.0F, -5.5F, 8.0F, 6.0F, 11.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r2 = bottom.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(0, 0).addBox(-36.0F, 3.0F, -5.5F, 8.0F, 6.0F, 11.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 0).addBox(21.0F, 3.0F, -5.5F, 16.0F, 7.0F, 11.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 0).addBox(10.0F, 5.0F, -5.5F, 11.0F, 5.0F, 11.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 0).addBox(-9.0F, 5.0F, -5.5F, 19.0F, 5.0F, 11.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 0).addBox(-28.0F, 5.0F, -5.5F, 19.0F, 5.0F, 11.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 0).addBox(-36.0F, 9.0F, -5.5F, 8.0F, 1.0F, 11.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -10.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
-		PartDefinition cube_r4 = bottom.addOrReplaceChild("cube_r4", CubeListBuilder.create().texOffs(2, 0).addBox(-34.0F, 3.0F, -5.5F, 14.0F, 4.0F, 11.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -7.0F, -16.0F, 0.0F, -1.5708F, 0.0F));
+		PartDefinition cube_r3 = bottom.addOrReplaceChild("cube_r3", CubeListBuilder.create().texOffs(2, 0).addBox(-34.0F, 3.0F, -5.5F, 14.0F, 4.0F, 11.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -7.0F, -16.0F, 0.0F, -1.5708F, 0.0F));
 
-		PartDefinition cube_r5 = bottom.addOrReplaceChild("cube_r5", CubeListBuilder.create().texOffs(11, 9).addBox(-43.0F, -13.0F, -10.0F, 4.0F, 22.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(1.0F, -7.0F, -4.0F, -1.5708F, -1.5708F, 0.0F));
+		PartDefinition cube_r4 = bottom.addOrReplaceChild("cube_r4", CubeListBuilder.create().texOffs(11, 9).addBox(-43.0F, -13.0F, -10.0F, 4.0F, 22.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(1.0F, -7.0F, -4.0F, -1.5708F, -1.5708F, 0.0F));
 
-		PartDefinition cube_r6 = bottom.addOrReplaceChild("cube_r6", CubeListBuilder.create().texOffs(11, 3).addBox(-43.0F, -13.0F, -10.0F, 7.0F, 13.0F, 2.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r5 = bottom.addOrReplaceChild("cube_r5", CubeListBuilder.create().texOffs(11, 3).addBox(-43.0F, -13.0F, -10.0F, 7.0F, 13.0F, 2.0F, new CubeDeformation(0.0F))
 				.texOffs(12, 0).addBox(-36.0F, -13.0F, -10.0F, 9.0F, 13.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(12, 0).addBox(-36.0F, 0.0F, -10.0F, 9.0F, 13.0F, 5.0F, new CubeDeformation(0.0F))
 				.texOffs(10, 2).addBox(-43.0F, 0.0F, -10.0F, 7.0F, 13.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(14, 2).addBox(-36.0F, 13.0F, -10.0F, 9.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(14, 2).addBox(-36.0F, -16.0F, -10.0F, 9.0F, 3.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -7.0F, 0.0F, -1.5708F, -1.5708F, 0.0F));
 
-		PartDefinition cube_r7 = bottom.addOrReplaceChild("cube_r7", CubeListBuilder.create().texOffs(8, 0).addBox(-43.0F, 0.0F, -10.0F, 7.0F, 10.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -4.0F, -7.0F, -1.5708F, -1.5708F, 0.0F));
+		PartDefinition cube_r6 = bottom.addOrReplaceChild("cube_r6", CubeListBuilder.create().texOffs(8, 0).addBox(-43.0F, 0.0F, -10.0F, 7.0F, 10.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -4.0F, -7.0F, -1.5708F, -1.5708F, 0.0F));
 
-		PartDefinition cube_r8 = bottom.addOrReplaceChild("cube_r8", CubeListBuilder.create().texOffs(0, 0).addBox(21.0F, -13.0F, -5.0F, 16.0F, 11.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.0F, -9.0F, 0.0F, -1.5708F, -1.5708F, 0.0F));
+		PartDefinition cube_r7 = bottom.addOrReplaceChild("cube_r7", CubeListBuilder.create().texOffs(0, 0).addBox(21.0F, -13.0F, -5.0F, 16.0F, 11.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.0F, -9.0F, 0.0F, -1.5708F, -1.5708F, 0.0F));
 
-		PartDefinition cube_r9 = bottom.addOrReplaceChild("cube_r9", CubeListBuilder.create().texOffs(0, 0).addBox(21.0F, 0.0F, -5.0F, 16.0F, 11.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -9.0F, 0.0F, -1.5708F, -1.5708F, 0.0F));
+		PartDefinition cube_r8 = bottom.addOrReplaceChild("cube_r8", CubeListBuilder.create().texOffs(0, 0).addBox(21.0F, 0.0F, -5.0F, 16.0F, 11.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -9.0F, 0.0F, -1.5708F, -1.5708F, 0.0F));
 
-		PartDefinition front = bottom.addOrReplaceChild("front", CubeListBuilder.create(), PartPose.offsetAndRotation(-0.4F, 2.0F, -59.0F, -1.1345F, 0.0F, 0.0F));
+		PartDefinition front = bottom.addOrReplaceChild("front", CubeListBuilder.create(), PartPose.offsetAndRotation(-0.4F, 2.0F, -59.0F, -1.1781F, 0.0F, 0.0F));
 
-		PartDefinition cube_r10 = front.addOrReplaceChild("cube_r10", CubeListBuilder.create().texOffs(13, 3).addBox(-11.1964F, -9.1568F, -4.1F, 12.0F, 1.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.0F, -15.0F, -1.5708F, -1.5708F, 1.5708F));
+		PartDefinition cube_r9 = front.addOrReplaceChild("cube_r9", CubeListBuilder.create().texOffs(13, 3).addBox(-11.1964F, -9.1568F, -4.1F, 12.0F, 1.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.0F, -15.0F, -1.5708F, -1.5708F, 1.5708F));
+
+		PartDefinition cube_r10 = front.addOrReplaceChild("cube_r10", CubeListBuilder.create().texOffs(19, 4).addBox(-10.1964F, -7.1568F, -3.1F, 9.0F, 7.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.5F, -8.5F, -25.1F, -1.5708F, -1.0908F, 1.5708F));
 
 		PartDefinition cube_r11 = front.addOrReplaceChild("cube_r11", CubeListBuilder.create().texOffs(13, 3).addBox(-11.1964F, -16.1568F, -4.1F, 15.0F, 7.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, -15.0F, -1.5708F, -1.5708F, 1.5708F));
 
@@ -334,6 +333,7 @@ public class CaravelModel extends ShipModel<CaravelEntity> {
 
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
+
 
 	@Override
 	public void setupAnim(CaravelEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
