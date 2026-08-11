@@ -49,6 +49,7 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue shipGeneralPaddlingModifier;
         public static ForgeConfigSpec.DoubleValue shipGeneralBiomeModifier;
         public static ForgeConfigSpec.ConfigValue<List<String>> mountBlackList;
+        public static ForgeConfigSpec.ConfigValue<List<String>> driverEntities;
         public static ForgeConfigSpec.ConfigValue<List<String>> dockyardBuildableShips;
         public static ForgeConfigSpec.DoubleValue shipGeneralShieldDamageReduction;
         public static ForgeConfigSpec.DoubleValue shipGeneralDespawnTimeSunken;
@@ -167,6 +168,8 @@ public class SmallShipsConfig {
     private static void setupCommonConfig(ForgeConfigSpec.Builder builder) {
         ArrayList<String> MOUNT_BLACKLIST = new ArrayList<>(
                 Arrays.asList("minecraft:ender_dragon", "minecraft:wither", "minecraft:wither", "minecraft:ghast", "minecraft:warden", "minecraft:ravager", "alexmobs:cachalot_whale"));
+        ArrayList<String> DRIVER_ENTITIES = new ArrayList<>(
+                Arrays.asList("recruits:captain"));
         ArrayList<String> DOCKYARD_BUILDABLE_SHIPS = new ArrayList<>();
 
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
@@ -224,6 +227,10 @@ public class SmallShipsConfig {
         builder.comment("Entities in this list won't be able to mount a uuid, for example: [\"minecraft:creeper\", \"minecraft:sheep\", ...]");
         Common.mountBlackList = builder
                 .define("mountBlackList", MOUNT_BLACKLIST);
+
+        builder.comment("Non player entities that are allowed to take the helm, for example: [\"recruits:captain\", ...]. Everything else can only be taken aboard as a passenger or a gunner.");
+        Common.driverEntities = builder
+                .define("driverEntities", DRIVER_ENTITIES);
 
         builder.comment("Ships that can be built at the dockyard, for example: [\"smallships:cog\", \"smallships:galley\", \"myaddon:longship\"]. An EMPTY list allows every registered ship, so ships added by addons are accepted without touching this config.");
         Common.dockyardBuildableShips = builder

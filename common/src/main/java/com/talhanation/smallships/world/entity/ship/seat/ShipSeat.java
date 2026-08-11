@@ -17,12 +17,17 @@ import net.minecraft.world.phys.Vec3;
  * below keep behaving exactly as they always have, and only a seat that needs to
  * sit on a raised quarterdeck, a rowing bench or a gun carriage has to say so.
  *
+ * Two of the factories map to a cannon slot and they are NOT interchangeable:
+ * {@link #gunner} is the post next to a gun, {@link #cannon} is the carriage the
+ * gun itself stands on. See {@link SeatType}.
+ *
  * @param id                stable id within the ship type
  * @param v                 lengthwise offset (negative = stern)
  * @param y                 height offset above deck level, 0 = on the deck
  * @param h                 sideways offset
- * @param type              DRIVER / PASSENGER / CANNON
- * @param mappedCannonSlot  the cannon slot a CANNON seat controls, -1 otherwise
+ * @param type              DRIVER / PASSENGER / GUNNER / CANNON
+ * @param mappedCannonSlot  the cannon slot a GUNNER or CANNON seat belongs to,
+ *                          -1 otherwise
  */
 public record ShipSeat(int id, float v, float y, float h, SeatType type, int mappedCannonSlot) {
 
@@ -42,6 +47,22 @@ public record ShipSeat(int id, float v, float y, float h, SeatType type, int map
         return new ShipSeat(id, v, y, h, SeatType.PASSENGER, -1);
     }
 
+    /**
+     * The post from which a gun is worked. Place it behind the gun, not on it.
+     */
+    public static ShipSeat gunner(int id, float v, float h, int mappedCannonSlot) {
+        return gunner(id, v, 0.0F, h, mappedCannonSlot);
+    }
+
+    public static ShipSeat gunner(int id, float v, float y, float h, int mappedCannonSlot) {
+        return new ShipSeat(id, v, y, h, SeatType.GUNNER, mappedCannonSlot);
+    }
+
+    /**
+     * The gun carriage itself. Put this where the gun of the given slot stands:
+     * it seats a passenger while the slot is empty and throws him off as soon as
+     * a gun is installed there.
+     */
     public static ShipSeat cannon(int id, float v, float h, int mappedCannonSlot) {
         return cannon(id, v, 0.0F, h, mappedCannonSlot);
     }

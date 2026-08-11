@@ -88,14 +88,14 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
             ShipSeat.driver(0, -3.0F, 0.2F,0.7F),
             ShipSeat.passenger(1, -3.0F,0.2F, -0.7F),
 
-            ShipSeat.cannon(2, -1.0F, 0.0F,0.8F, 0),
-            ShipSeat.cannon(3, -1.0F, 0.0F,-0.8F, 1),
+            ShipSeat.gunner(2, -1.0F, 0.0F,0.8F, 0),
+            ShipSeat.gunner(3, -1.0F, 0.0F,-0.8F, 1),
 
             ShipSeat.passenger(4, 0.0F,0.0F, 0.8F),
             ShipSeat.passenger(5, 0.0F, 0.0F,-0.8F),
 
-            ShipSeat.cannon(6, 1.5F, 0.0F,0.8F, 2),
-            ShipSeat.cannon(7, 1.5F, 0.0F,-0.8F, 3)
+            ShipSeat.gunner(6, 1.5F, 0.0F,0.8F, 2),
+            ShipSeat.gunner(7, 1.5F, 0.0F,-0.8F, 3)
     );
 
     @Override

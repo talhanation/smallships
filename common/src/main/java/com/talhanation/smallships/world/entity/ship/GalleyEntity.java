@@ -94,8 +94,8 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
             ShipSeat.passenger(4, -0.5F,0.0F, -0.75F),
             ShipSeat.passenger(5, 2.5F, 0.0F,0.0F),
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.cannon(6, 1.2F,0.0F,0.4F, 0),
-            ShipSeat.cannon(7, 1.2F,0.0F, -0.4F, 1));
+            ShipSeat.gunner(6, 1.2F,0.0F,0.4F, 0),
+            ShipSeat.gunner(7, 1.2F,0.0F, -0.4F, 1));
 
     @Override
     public List<ShipSeat> getSeats() {

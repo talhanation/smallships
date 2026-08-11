@@ -83,19 +83,27 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     public List<ShipPartEntity.Definition> getParts() {
         return PARTS;
     }
-
+    private static final float seatHeight = 0.7F;
     private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -3.0F, 0.0F,0.0F),
-            ShipSeat.passenger(1, -1.5F,0.0F, 0.75F),
-            ShipSeat.passenger(2, -1.5F,0.0F, -0.75F),
-            ShipSeat.passenger(3, 2.5F,0.0F, 0.0F),
+            ShipSeat.driver(0, -2.8F, seatHeight,0.75F),
+            ShipSeat.passenger(1, -2.8F, seatHeight, -0.75F),
+
+            ShipSeat.gunner(2, -0.75F, seatHeight,1.0F, 0),
+            ShipSeat.gunner(3, -0.75F, seatHeight,-1.0F, 1),
+
+            ShipSeat.passenger(4, -0.75F, seatHeight, 0.0F),
+
+            ShipSeat.passenger(5, 0.20F, seatHeight, 0.0F),
+            ShipSeat.passenger(6, 0.70F, seatHeight, 0.0F),
+            ShipSeat.passenger(7, 1.250F, seatHeight, 0.0F),
+
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.cannon(4, -1.4F, 0.0F,0.45F, 0),
-            ShipSeat.cannon(5, -1.4F, 0.0F,-0.45F, 1),
-            ShipSeat.cannon(6, 0.1F, 0.0F,0.5F, 2),
-            ShipSeat.cannon(7, 0.1F, 0.0F,-0.5F, 3),
-            ShipSeat.cannon(8, 1.2F,0.0F, 0.45F, 4),
-            ShipSeat.cannon(9, 1.2F, 0.0F,-0.45F, 5));
+            ShipSeat.gunner(8, 1.25F, seatHeight,1.0F, 2),
+            ShipSeat.gunner(9, 1.25F, seatHeight,-1.0F, 3),
+
+            ShipSeat.gunner(10, 2.7F,seatHeight, 0.75F, 4),
+            ShipSeat.gunner(11, 2.7F, seatHeight,-0.75F, 5)
+    );
 
     @Override
     public List<ShipSeat> getSeats() {

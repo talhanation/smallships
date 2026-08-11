@@ -89,10 +89,10 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
             ShipSeat.passenger(2, -0.9F,0.0F, -0.9F),
             ShipSeat.passenger(3, 1.5F, 0.0F,0.0F),
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.cannon(4, -1.4F,0.0F, 0.35F, 0),
-            ShipSeat.cannon(5, -1.4F, 0.0F,-0.35F, 1),
-            ShipSeat.cannon(6, 0.6F, 0.0F,0.35F, 2),
-            ShipSeat.cannon(7, 0.6F, 0.0F,-0.35F, 3));
+            ShipSeat.gunner(4, -1.4F,0.0F, 0.35F, 0),
+            ShipSeat.gunner(5, -1.4F, 0.0F,-0.35F, 1),
+            ShipSeat.gunner(6, 0.6F, 0.0F,0.35F, 2),
+            ShipSeat.gunner(7, 0.6F, 0.0F,-0.35F, 3));
 
     @Override
     public List<ShipSeat> getSeats() {

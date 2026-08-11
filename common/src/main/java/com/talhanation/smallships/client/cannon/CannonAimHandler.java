@@ -203,7 +203,7 @@ public class CannonAimHandler {
     private static int getGunnerSlot(Player player, Ship ship) {
         if (!(ship instanceof Seatable seatable)) return -1;
         ShipSeat seat = seatable.getSeatOf(player);
-        return seat != null && seat.type() == SeatType.CANNON ? seat.mappedCannonSlot() : -1;
+        return seat != null && seat.type() == SeatType.GUNNER ? seat.mappedCannonSlot() : -1;
     }
 
     private static boolean isLookingAtStarboard(Player player, Ship ship) {

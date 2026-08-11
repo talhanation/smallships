@@ -86,14 +86,14 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
             ShipSeat.driver(0, -2.6F, 0.95F,0.7F),
             ShipSeat.passenger(1, -2.6F,0.95F, -0.7F),
 
-            ShipSeat.cannon(2, -1.5F, 0.12F,0.7F, 0),
-            ShipSeat.cannon(3, -1.5F, 0.12F,-0.7F, 1),
+            ShipSeat.gunner(2, -1.5F, 0.12F,0.7F, 0),
+            ShipSeat.gunner(3, -1.5F, 0.12F,-0.7F, 1),
 
             ShipSeat.passenger(4, 0.25F,0.12F, 0.7F),
             ShipSeat.passenger(5, 0.25F, 0.12F,-0.7F),
 
-            ShipSeat.cannon(6, 1.5F, 0.12F,0.7F, 2),
-            ShipSeat.cannon(7, 1.5F, 0.12F,-0.7F, 3),
+            ShipSeat.gunner(6, 1.5F, 0.12F,0.7F, 2),
+            ShipSeat.gunner(7, 1.5F, 0.12F,-0.7F, 3),
 
             ShipSeat.passenger(8, 3.0F,0.12F, 0.7F),
             ShipSeat.passenger(9, 3.0F, 0.12F,-0.7F)

@@ -53,7 +53,9 @@ public abstract class BoatMixin {
     private void tickCheckPassengersForShip(CallbackInfo ci) {
         if ((((Boat)(Object)this) instanceof Ship ship)) {
 
-            List<Entity> list = ((Boat)(Object)this).getCommandSenderWorld().getEntities(((Boat)(Object)this), ((Boat)(Object)this).getBoundingBox().inflate(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelector.pushableBy(((Boat)(Object)this)));
+            // the ships' own box covers only a fraction of the deck, so the
+            // hull parts are searched as well - see Ship#getBoardingCandidates
+            List<Entity> list = ship.getBoardingCandidates();
             if (!list.isEmpty()) {
                 boolean bl = !((Boat)(Object)this).getCommandSenderWorld().isClientSide && !(((Boat)(Object)this).getControllingPassenger() instanceof Player);
 

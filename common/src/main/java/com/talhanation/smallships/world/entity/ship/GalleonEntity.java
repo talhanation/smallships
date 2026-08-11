@@ -83,10 +83,10 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
             ShipSeat.passenger(8, -1.5F, 0.0F,-0.75F),
             ShipSeat.passenger(9, 2.5F,0.0F, 0.0F),
 
-            ShipSeat.cannon(4, -1.4F, 0.0F,0.45F, 6),
-            ShipSeat.cannon(5, -1.4F, 0.0F,-0.45F, 7),
-            ShipSeat.cannon(6, 0.1F, 0.0F,0.5F, 8),
-            ShipSeat.cannon(7, 0.1F, 0.0F,-0.5F, 9)
+            ShipSeat.gunner(4, -1.4F, 0.0F,0.45F, 6),
+            ShipSeat.gunner(5, -1.4F, 0.0F,-0.45F, 7),
+            ShipSeat.gunner(6, 0.1F, 0.0F,0.5F, 8),
+            ShipSeat.gunner(7, 0.1F, 0.0F,-0.5F, 9)
     );
 
 

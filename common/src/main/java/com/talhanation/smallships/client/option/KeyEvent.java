@@ -46,7 +46,7 @@ public class KeyEvent {
             // gunner: a player on a CANNON seat fires his mapped cannon with the jump key
             if (!player.equals(ship.getDriver()) && ship instanceof Seatable seatable && ship instanceof Cannonable) {
                 ShipSeat seat = seatable.getSeatOf(player);
-                if (seat != null && seat.type() == SeatType.CANNON) {
+                if (seat != null && seat.type() == SeatType.GUNNER) {
                     if (pressedJumpKey && !wasPressedGunnerKey) {
                         ModPackets.clientSendPacket(new ServerboundShootShipCannonPacket(true, seat.mappedCannonSlot()));
                     }

@@ -12,6 +12,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import com.talhanation.smallships.world.entity.ship.seat.SeatType;
+import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
@@ -216,6 +219,27 @@ public interface Cannonable extends Ability {
             }
         }
         this.setCannonCount(count);
+        this.clearOccupiedCarriages();
+    }
+
+    /**
+     * Throws whoever is sitting on a carriage off as soon as a gun is put on it.
+     *
+     * Only CANNON seats are touched, never GUNNER posts - the seat type alone
+     * decides, so this stays correct through every world load and every rebuild
+     * of the cannon list. A real gunner is never on one of these seats.
+     */
+    private void clearOccupiedCarriages() {
+        if (self().level().isClientSide()) return;
+        if (!(this instanceof Seatable seatable)) return;
+
+        for (ShipSeat seat : seatable.getSeats()) {
+            if (seat.type() != SeatType.CANNON) continue;
+            if (!this.isCannonInSlot(seat.mappedCannonSlot())) continue;
+
+            Entity occupant = seatable.getSeatOccupant(seat.id());
+            if (occupant != null) occupant.stopRiding();
+        }
     }
 
     /** @deprecated kept as alias, use {@link #updateCannons()} */

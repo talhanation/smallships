@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Predicate;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ public interface Seatable extends Ability {
     private static String key(int seatId) {
         return "Seat" + seatId;
     }
+
 
     @Nullable
     default ShipSeat getSeatById(int seatId) {
@@ -63,6 +65,29 @@ public interface Seatable extends Ability {
 
     default boolean isSeatFree(int seatId) {
         return this.getSeatOccupant(seatId) == null;
+    }
+
+    /**
+     * @return true when a gun is standing in this seat right now. Only CANNON
+     * seats can ever be blocked - they ARE the carriage, so an installed gun
+     * occupies the space. A GUNNER post stays open either way.
+     */
+    default boolean isSeatBlocked(ShipSeat seat) {
+        if (seat.type() != SeatType.CANNON) return false;
+        if (!(this instanceof Cannonable cannonable)) return false;
+        return cannonable.isCannonInSlot(seat.mappedCannonSlot());
+    }
+
+    /**
+     * @return how many seats can actually be taken right now. This is what the
+     * crew counter shows: a carriage with a gun on it is not a seat.
+     */
+    default int getUsableSeatCount() {
+        int usable = 0;
+        for (ShipSeat seat : this.getSeats()) {
+            if (!this.isSeatBlocked(seat)) usable++;
+        }
+        return usable;
     }
 
     default void assignSeat(Entity passenger, int seatId) {
@@ -112,40 +137,45 @@ public interface Seatable extends Ability {
 
     /**
      * @param worldPos  the position to search from (hit position or entity position)
-     * @param forPlayer players may take any seat; other entities only PASSENGER
      *                  seats (falling back to CANNON seats when full, never DRIVER)
      * @return the nearest free seat or null
+     *
+     * @param canDrive whether this entity is allowed to take the helm, see
+     *                 Ship#canDrive. Anything else never lands on a DRIVER seat.
+     * @return the seat to put the entity on, or NULL when the ship is full.
+     *
+     * Null really does mean full and has to be treated as such by the caller -
+     * boarding anyway leaves the passenger without an assignment, and an
+     * unassigned passenger falls back to the default attachment point, which is
+     * why a whole crew used to end up standing in one spot.
      */
     @Nullable
-    default ShipSeat findNearestFreeSeat(Vec3 worldPos, boolean forPlayer) {
+    default ShipSeat findNearestFreeSeat(Vec3 worldPos, boolean canDrive) {
+        // the helm first, but only if it is actually free
+        if (canDrive) {
+            for (ShipSeat seat : this.getSeats()) {
+                if (seat.type() == SeatType.DRIVER && this.isSeatFree(seat.id())) return seat;
+            }
+        }
+
+        ShipSeat best = this.nearestFree(worldPos, seat -> seat.type() == SeatType.PASSENGER);
+        // an empty gun carriage is simply a place to sit
+        if (best == null) best = this.nearestFree(worldPos, seat -> seat.type() == SeatType.CANNON);
+        // gun posts last, so a passenger does not take a station off a gunner
+        if (best == null) best = this.nearestFree(worldPos, seat -> seat.type() == SeatType.GUNNER);
+        return best;
+    }
+
+    @Nullable
+    private ShipSeat nearestFree(Vec3 worldPos, Predicate<ShipSeat> filter) {
         ShipSeat best = null;
         double bestDist = Double.MAX_VALUE;
         for (ShipSeat seat : this.getSeats()) {
-            if (forPlayer && this.self().getDriver() == null){
-                if(seat.type() != SeatType.DRIVER) continue;
-                else{
-                    return seat;
-                }
-                
-            }
-            if (!this.isSeatFree(seat.id())) continue;
-
-            if (!forPlayer && seat.type() != SeatType.PASSENGER) continue;
+            if (!filter.test(seat) || !this.isSeatFree(seat.id()) || this.isSeatBlocked(seat)) continue;
             double dist = seat.getWorldPosition(self()).distanceToSqr(worldPos);
             if (dist < bestDist) {
                 bestDist = dist;
                 best = seat;
-            }
-        }
-        if (best == null && !forPlayer) {
-            // mobs: fall back to CANNON seats when all passenger seats are taken
-            for (ShipSeat seat : this.getSeats()) {
-                if (seat.type() == SeatType.DRIVER || !this.isSeatFree(seat.id())) continue;
-                double dist = seat.getWorldPosition(self()).distanceToSqr(worldPos);
-                if (dist < bestDist) {
-                    bestDist = dist;
-                    best = seat;
-                }
             }
         }
         return best;
@@ -160,7 +190,7 @@ public interface Seatable extends Ability {
     @Nullable
     default Player getGunner(int cannonSlot) {
         for (ShipSeat seat : this.getSeats()) {
-            if (seat.type() == SeatType.CANNON && seat.mappedCannonSlot() == cannonSlot) {
+            if (seat.type() == SeatType.GUNNER && seat.mappedCannonSlot() == cannonSlot) {
                 return this.getSeatOccupant(seat.id()) instanceof Player player ? player : null;
             }
         }

@@ -295,7 +295,60 @@ public abstract class Ship extends Boat {
 
     @Override
     public boolean canAddPassenger(Entity entity) {
-        return super.canAddPassenger(entity) && !(entity instanceof Ship) && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && !this.isLocked() && this.getPassengers().size() < this.getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal);
+        return super.canAddPassenger(entity) && !(entity instanceof Ship) && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && !this.isLocked() && this.getPassengers().size() < this.getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && this.hasFreeSeatFor(entity);
+    }
+
+    /**
+     * @return whether there is a station left for this entity. Refusing here is
+     * the only correct answer: boarding without a seat leaves the passenger
+     * unassigned, and an unassigned passenger is drawn at the default attachment
+     * point - which is how a crew ends up piled on one spot.
+     */
+    public boolean hasFreeSeatFor(Entity entity) {
+        if (!(this instanceof Seatable seatable)) return true;
+        return seatable.findNearestFreeSeat(entity.position(), this.canDrive(entity)) != null;
+    }
+
+    /**
+     * @return whether this entity may take the helm. Players always may; every
+     * other entity has to be listed in the driverEntities config, which is how
+     * a Recruits captain gets to steer without this class knowing that mod.
+     */
+    public boolean canDrive(Entity entity) {
+        if (entity instanceof Player) return true;
+        String id = entity.getEncodeId();
+        return id != null && SmallShipsConfig.Common.driverEntities.get().contains(id);
+    }
+
+    /**
+     * Everything standing on this ship that could be taken aboard.
+     *
+     * Vanilla only looks at the entity bounding box, and for a ship that box is
+     * a fraction of its deck - a mob standing on the forecastle was simply never
+     * seen. The hull parts cover the real footprint, so they are searched too.
+     * Masts are left out: nobody boards by climbing the rigging.
+     */
+    public List<Entity> getBoardingCandidates() {
+        List<AABB> areas = new ArrayList<>();
+        areas.add(this.getBoundingBox().inflate(0.2D, -0.01D, 0.2D));
+        for (ShipPartEntity.Definition definition : this.getParts()) {
+            if (definition.mast()) continue;
+            areas.add(definition.boxAt(this.getX(), this.getY(), this.getZ(), this.getYRot()).inflate(0.2D, -0.01D, 0.2D));
+        }
+
+        AABB envelope = areas.get(0);
+        for (AABB area : areas) envelope = envelope.minmax(area);
+
+        List<Entity> candidates = new ArrayList<>();
+        for (Entity entity : this.level().getEntities(this, envelope, EntitySelector.pushableBy(this))) {
+            for (AABB area : areas) {
+                if (area.intersects(entity.getBoundingBox())) {
+                    candidates.add(entity);
+                    break;
+                }
+            }
+        }
+        return candidates;
     }
 
     public <T> void setData(EntityDataAccessor<T> accessor, T value) {
@@ -834,7 +887,7 @@ public abstract class Ship extends Boat {
             }
             this.pendingSeatHit = null;
             this.pendingSeatHitFor = null;
-            ShipSeat seat = seatable.findNearestFreeSeat(from, entity instanceof Player);
+            ShipSeat seat = seatable.findNearestFreeSeat(from, this.canDrive(entity));
             if (seat != null) seatable.assignSeat(entity, seat.id());
         }
     }
