@@ -69,10 +69,12 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
      * The longest hull of the fleet: three hull boxes plus fore and main mast.
      */
     private static final List<ShipPartEntity.Definition> PARTS = List.of(
-            ShipPartEntity.Definition.hull(-2.5F, 0.0F, 0.0F, 3.0F, 1.25F),//back
-            ShipPartEntity.Definition.hull(2.5F, 0.0F, 0.0F, 2.8F, 1.25F),//front
-            ShipPartEntity.Definition.mast(1.40F, 0.0F, 0.30F, 10.0F),//front mast
-            ShipPartEntity.Definition.mast(-2.15F, 0.0F, 0.30F, 11.0F));//back mast
+            ShipPartEntity.Definition.hull(0, -0.4F, 0.0F, 3.25F, 2.1F),//middle top
+            ShipPartEntity.Definition.hull(-2.5F, -0.4F, 0.0F, 3.2F, 2.1F),//back
+            ShipPartEntity.Definition.hull(2.5F, -0.4F, 0.0F, 3.0F, 2.1F),//front
+
+            ShipPartEntity.Definition.mast(2.1F, 0.0F, 0.30F, 10.5F),//front mast
+            ShipPartEntity.Definition.mast(-1.4F, 0.0F, 0.30F, 11.7F));//back mast
 
     @Override
     public List<ShipPartEntity.Definition> getParts() {
@@ -80,24 +82,30 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
     private static final float seatHeight = 0.7F;
     private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -2.8F, seatHeight,0.75F),
-            ShipSeat.passenger(1, -2.8F, seatHeight, -0.75F),
+            ShipSeat.driver(0, -2.75F, seatHeight,0.75F),
+            ShipSeat.passenger(1, -2.75F, seatHeight, -0.75F),
 
-            ShipSeat.gunner(2, -0.75F, seatHeight,1.0F, 0),
-            ShipSeat.gunner(3, -0.75F, seatHeight,-1.0F, 1),
+            ShipSeat.cannon(2, -1.75F, seatHeight, 0.8F, 0),
+            ShipSeat.cannon(3, -1.75F, seatHeight, -0.8F, 1),
 
-            ShipSeat.passenger(4, -0.75F, seatHeight, 0.0F),
+            ShipSeat.gunner(4, -0.75F, seatHeight,1.0F, 0),
+            ShipSeat.gunner(5, -0.75F, seatHeight,-1.0F, 1),
+            ShipSeat.passenger(6, -0.75F, seatHeight, 0.0F),
 
-            ShipSeat.passenger(5, 0.20F, seatHeight, 0.0F),
-            ShipSeat.passenger(6, 0.70F, seatHeight, 0.0F),
-            ShipSeat.passenger(7, 1.250F, seatHeight, 0.0F),
+            ShipSeat.cannon(7, 0.25F, seatHeight, 1.0F, 2),
+            ShipSeat.passenger(8, 0.25F, seatHeight, 0.0F),
+            ShipSeat.cannon(9, 0.25F, seatHeight, -1.0F, 3),
 
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.gunner(8, 1.25F, seatHeight,1.0F, 2),
-            ShipSeat.gunner(9, 1.25F, seatHeight,-1.0F, 3),
+            ShipSeat.gunner(13, 1.25F, seatHeight,1.0F, 2),
+            ShipSeat.passenger(11, 1.25F, seatHeight, 0.0F),
+            ShipSeat.gunner(14, 1.25F, seatHeight,-1.0F, 3),
 
-            ShipSeat.gunner(10, 2.7F,seatHeight, 0.75F, 4),
-            ShipSeat.gunner(11, 2.7F, seatHeight,-0.75F, 5)
+            ShipSeat.cannon(10, 2.25F, seatHeight, 1.0F, 4),
+            ShipSeat.cannon(12, 2.25F, seatHeight, -1.0F, 5),
+
+            ShipSeat.gunner(15, 3.00F,seatHeight, 0.75F, 4),
+            ShipSeat.gunner(16, 3.00F, seatHeight,-0.75F, 5)
     );
 
     @Override
@@ -150,14 +158,14 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
      **/
     public CannonPosition getCannonPosition(int index){
         List<CannonPosition> positionList = new ArrayList<>();
-        CannonPosition pos1 = new CannonPosition(1.4, 0, 0.75, true);
-        CannonPosition pos2 = new CannonPosition(1.4, 0, 0.75, false);
+        CannonPosition pos1 = new CannonPosition(1.4, -0.1, 0.75, true);
+        CannonPosition pos2 = new CannonPosition(1.4, -0.1, 0.75, false);
 
-        CannonPosition pos3 = new CannonPosition(-0.1, 0, 0.85, true);
-        CannonPosition pos4 = new CannonPosition(-0.1, 0, 0.85, false);
+        CannonPosition pos3 = new CannonPosition(-0.1, -0.1, 0.85, true);
+        CannonPosition pos4 = new CannonPosition(-0.1, -0.1, 0.85, false);
 
-        CannonPosition pos5 = new CannonPosition(-1.2, 0, 0.75, true);
-        CannonPosition pos6 = new CannonPosition(-1.2, 0, 0.75, false);
+        CannonPosition pos5 = new CannonPosition(-1.5, -0.1, 0.75, true);
+        CannonPosition pos6 = new CannonPosition(-1.5, -0.1, 0.75, false);
         positionList.add(pos1);
         positionList.add(pos2);
         positionList.add(pos3);
@@ -169,7 +177,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     public double getCannonAimY(){
-        return 1.35D;
+        return 3.5D;
     }
 
     @Override
