@@ -1195,6 +1195,7 @@ public abstract class Ship extends Boat {
     }
 
     @Override
+    /**
      * @return how many stations this ship has open right now.
      *
      * Concrete on purpose: every ship used to override this with the identical
