@@ -53,12 +53,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
         attributes.addSaveData(tag);
         return tag;
     }
-
-    @Override
-    public int getMaxPassengers() {
-        return this.getSeats().size();
-    }
-
+    
     @Override
     public @NotNull Item getDropItem() {
         if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();

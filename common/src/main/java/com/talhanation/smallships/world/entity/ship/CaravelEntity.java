@@ -52,10 +52,6 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
         attributes.addSaveData(tag);
         return tag;
     }
-    @Override
-    public int getMaxPassengers() {
-        return this.getSeats().size();
-    }
 
     @Override
     public @NotNull Item getDropItem() {

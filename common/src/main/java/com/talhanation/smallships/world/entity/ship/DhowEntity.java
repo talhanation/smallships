@@ -56,10 +56,6 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
         attributes.addSaveData(tag);
         return tag;
     }
-    @Override
-    public int getMaxPassengers() {
-        return this.getSeats().size();
-    }
 
     @Override
     public @NotNull Item getDropItem() {

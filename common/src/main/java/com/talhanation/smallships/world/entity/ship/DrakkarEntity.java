@@ -70,11 +70,6 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     @Override
-    public int getMaxPassengers() {
-        return this.getSeats().size();
-    }
-
-    @Override
     public @NotNull Item getDropItem() {
         if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.DRAKKAR_ITEMS.get(this.getVariant());

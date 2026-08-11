@@ -1195,7 +1195,15 @@ public abstract class Ship extends Boat {
     }
 
     @Override
-    public abstract int getMaxPassengers();
+     * @return how many stations this ship has open right now.
+     *
+     * Concrete on purpose: every ship used to override this with the identical
+     * body, which meant seven places to keep in sync and an addon ship silently
+     * getting it wrong. Override it only if a ship really does count differently.
+     */
+    public int getMaxPassengers() {
+        return this instanceof Seatable seatable ? seatable.getUsableSeatCount() : 0;
+    }
     @Override
     public abstract @NotNull Item getDropItem();
     public abstract BiomeModifierType getBiomeModifierType();

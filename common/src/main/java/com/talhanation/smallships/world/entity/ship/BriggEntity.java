@@ -55,11 +55,6 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
-    public int getMaxPassengers() {
-        return this.getSeats().size();
-    }
-
-    @Override
     public @NotNull Item getDropItem() {
         if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.BRIGG_ITEMS.get(this.getVariant());
