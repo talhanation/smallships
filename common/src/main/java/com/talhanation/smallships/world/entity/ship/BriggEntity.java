@@ -104,7 +104,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
             ShipSeat.cannon(10, 2.25F, seatHeight, 1.0F, 4),
             ShipSeat.cannon(12, 2.25F, seatHeight, -1.0F, 5),
 
-            ShipSeat.gunner(15, 3.00F,seatHeight, 0.75F, 4),
+            ShipSeat.gunner(15, 3.00F, seatHeight, 0.75F, 4),
             ShipSeat.gunner(16, 3.00F, seatHeight,-0.75F, 5)
     );
 
@@ -116,7 +116,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     // Implement Able-Interfaces
     @Override
     public BannerPosition getBannerPosition() {
-        return new BannerPosition(-180.0F, 90.0F, -6.6D, 1.65D, 0.05D);
+        return new BannerPosition(-180.0F, 90.0F, -6.6D, 1.10D, 0.05D);
     }
 
     @Override
