@@ -65,6 +65,27 @@ public enum ShipUpgrade {
         return this.buildTime;
     }
 
+    /**
+     * Taking an upgrade off again is destructive work: the timbers are cut, the
+     * plating is unriveted. Only a part of the material survives it.
+     */
+    public static final float REFUND_FRACTION = 0.30F;
+
+    /**
+     * @return the amount handed back when this upgrade is removed at the
+     * dockyard. Cannons and shields are bolted on and come back whole, so they
+     * are refunded in full elsewhere - everything in this enum is built INTO
+     * the hull and only returns {@link #REFUND_FRACTION} of its material.
+     */
+    public int getRefundAmount() {
+        return (int) Math.floor(this.getCostAmount() * REFUND_FRACTION);
+    }
+
+    /** The time it takes to take this upgrade off again, shorter than installing it. */
+    public int getRemoveTime() {
+        return Math.max(20, this.buildTime / 3);
+    }
+
     public String getTranslationKey() {
         return "gui.smallships.upgrade." + this.name().toLowerCase();
     }

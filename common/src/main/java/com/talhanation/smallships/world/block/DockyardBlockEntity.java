@@ -2,29 +2,40 @@ package com.talhanation.smallships.world.block;
 
 import com.talhanation.smallships.api.ShipRegistry;
 import com.talhanation.smallships.api.ShipType;
+import com.talhanation.smallships.world.dockyard.DockyardAction;
 import com.talhanation.smallships.world.dockyard.DockyardRecipe;
 import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
 import com.talhanation.smallships.world.dockyard.WaterSpawnFinder;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
+import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
+import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
+import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,30 +43,41 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * The dockyard block entity: a small state machine
- * IDLE -> BUILDING_SHIP / INSTALLING_UPGRADE / REMOVING_UPGRADE -> done.
+ * IDLE -> BUILD_SHIP / MODIFY / REPAIR -> done.
  *
  * - Ships are built from materials in the player inventory (validated at start,
  *   consumed at start) and spawned at a previously validated 5x5 water spot.
- * - Upgrades are installed on / removed from the nearest ship within 16 blocks.
+ * - MODIFY is a BATCH: the screen lets the player tick several rows at once and
+ *   sends them as one list. Costs and work times are summed, everything is
+ *   applied together when the timer runs out. That is what keeps the rule
+ *   "one progress bar, nothing else clickable while it runs" true - a queue of
+ *   single tasks would have needed a second state machine on top.
+ * - Hull and sails are repaired separately.
  * - Progress is synced to the menu via ContainerData.
  */
 public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     public static final int SHIP_DETECTION_RANGE = 16;
 
+    /**
+     * The ids are stable on purpose. 2..7 belonged to the old single step
+     * upgrade / cannon / style tasks; a world saved in the middle of one of
+     * those simply falls back to NONE instead of resuming something that no
+     * longer exists.
+     */
     public enum Task {
         NONE(0),
         BUILD_SHIP(1),
-        INSTALL_UPGRADE(2),
-        REMOVE_UPGRADE(3),
-        MOUNT_CANNON(4),
-        REMOVE_CANNON(5),
-        APPLY_DYE(6),
-        APPLY_BANNER(7),
-        REPAIR(8);
+        REPAIR(8),
+        MODIFY(9);
 
         public final int id;
         Task(int id) { this.id = id; }
@@ -72,14 +94,16 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     @Nullable private ResourceLocation shipTypeId;
     private int woodTypeOrdinal;
     @Nullable private BlockPos spawnSpot;
-    /** UPGRADE task data */
-    private int upgradeOrdinal;
-    private int cannonSlot;
-    /** APPLY_DYE task data */
+    /** MODIFY task data */
+    private final List<DockyardAction> pendingActions = new ArrayList<>();
+    /** what is handed back when the batch finishes: full cannons, partial upgrades, the old banner */
+    private final List<ItemStack> pendingRefunds = new ArrayList<>();
     @Nullable private String pendingDyeColor;
-    /** APPLY_BANNER task data */
-    private net.minecraft.world.item.ItemStack pendingBanner = net.minecraft.world.item.ItemStack.EMPTY;
-    @Nullable private java.util.UUID targetShipUUID;
+    private ItemStack pendingBanner = ItemStack.EMPTY;
+    /** REPAIR task data */
+    private boolean repairHull;
+    private boolean repairSails;
+    @Nullable private UUID targetShipUUID;
 
     public DockyardBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntityTypes.DOCKYARD, pos, blockState);
@@ -185,12 +209,18 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.setChanged();
     }
 
+    /* ---------------- modify batch ---------------- */
+
     /**
-     * Starts installing or removing an upgrade on the nearest ship.
-     * Materials come from the player inventory; removal does not refund.
-     * Server side only.
+     * Starts a whole batch of modify actions as ONE task.
+     *
+     * Every action is validated against the ship and the player inventory here;
+     * the client only says what it wants. Materials for the installs are
+     * consumed right away, refunds for the removals are handed out when the
+     * work is done - the player should not be paid for a job the dockyard has
+     * not finished yet.
      */
-    public void startUpgradeTask(ServerPlayer player, ShipUpgrade upgrade, boolean install) {
+    public void startModifyTask(ServerPlayer player, List<DockyardAction> actions) {
         if (this.level == null || this.level.isClientSide() || this.isBusy()) return;
 
         Ship ship = this.findNearestShip();
@@ -202,191 +232,172 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_busy"), true);
             return;
         }
-        if (install == upgrade.isInstalled(ship)) return;
 
-        if (install) {
-            if (!player.hasInfiniteMaterials()) {
-                int count = 0;
-                for (var stack : player.getInventory().items) {
-                    if (stack.is(upgrade.getCostItem())) count += stack.getCount();
-                }
-                if (count < upgrade.getCostAmount()) {
-                    player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
-                    return;
-                }
-                int remaining = upgrade.getCostAmount();
-                for (var stack : player.getInventory().items) {
-                    if (remaining <= 0) break;
-                    if (stack.is(upgrade.getCostItem())) {
-                        int take = Math.min(remaining, stack.getCount());
-                        stack.shrink(take);
-                        remaining -= take;
+        List<DockyardAction> accepted = new ArrayList<>();
+        List<ItemStack> costs = new ArrayList<>();
+        List<ItemStack> refunds = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        String dyeColor = null;
+        ItemStack banner = ItemStack.EMPTY;
+        int time = 0;
+
+        for (DockyardAction action : actions) {
+            // the same row twice would be paid for twice and then cancel itself
+            if (!seen.add(action.key())) continue;
+
+            switch (action.kind()) {
+                case UPGRADE -> {
+                    ShipUpgrade upgrade = ShipUpgrade.byOrdinal(action.index());
+                    if (action.install() == upgrade.isInstalled(ship)) continue;
+                    if (action.install()) {
+                        costs.add(upgrade.getCost());
+                        time += upgrade.getBuildTime();
+                    } else {
+                        int refund = upgrade.getRefundAmount();
+                        if (refund > 0) refunds.add(new ItemStack(upgrade.getCostItem(), refund));
+                        time += upgrade.getRemoveTime();
                     }
                 }
-            }
-        }
-
-        this.task = install ? Task.INSTALL_UPGRADE : Task.REMOVE_UPGRADE;
-        this.upgradeOrdinal = upgrade.ordinal();
-        this.targetShipUUID = ship.getUUID();
-        ship.setServicingDockyard(this.worldPosition);
-        this.totalTime = install ? upgrade.getBuildTime() : 15 * 20;
-        this.progress = 0;
-        this.setChanged();
-    }
-
-
-    /**
-     * Mount / dismount a cannon on the nearest ship (dockyard-only mounting).
-     * Mounting consumes one cannon item from the player inventory; removal
-     * drops the cannon at the ship.
-     */
-    public void startCannonTask(ServerPlayer player, int cannonSlot, boolean mount) {
-        if (this.level == null || this.level.isClientSide() || this.isBusy()) return;
-
-        Ship ship = this.findNearestShip();
-        if (!(ship instanceof com.talhanation.smallships.world.entity.ship.abilities.Cannonable cannonable)) {
-            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.no_ship"), true);
-            return;
-        }
-        if (cannonSlot < 0 || cannonSlot >= cannonable.getTotalCannonSlots()) return;
-        if (mount == cannonable.isCannonInSlot(cannonSlot)) return;
-        if (ship.isServicedByOtherDockyard(this.worldPosition)) {
-            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_busy"), true);
-            return;
-        }
-
-        if (mount) {
-            if (!player.hasInfiniteMaterials()) {
-                boolean consumed = false;
-                for (var stack : player.getInventory().items) {
-                    if (stack.is(com.talhanation.smallships.world.item.ModItems.CANNON)) {
-                        stack.shrink(1);
-                        consumed = true;
-                        break;
+                case CANNON -> {
+                    if (!(ship instanceof Cannonable cannonable)) continue;
+                    if (action.index() < 0 || action.index() >= cannonable.getTotalCannonSlots()) continue;
+                    if (action.install() == cannonable.isCannonInSlot(action.index())) continue;
+                    // a cannon is bolted onto its carriage, not built into the
+                    // hull: it always comes back whole
+                    if (action.install()) costs.add(new ItemStack(ModItems.CANNON));
+                    else refunds.add(new ItemStack(ModItems.CANNON));
+                    time += CANNON_TIME;
+                }
+                case BANNER -> {
+                    if (!(ship instanceof Bannerable)) continue;
+                    // there is exactly one banner on a ship, so a second banner
+                    // row in the same batch would just overwrite the first
+                    if (!banner.isEmpty()) continue;
+                    ItemStack current = ship.getData(Ship.BANNER);
+                    if (action.install()) {
+                        ItemStack source = this.itemAt(player, action.inventorySlot());
+                        if (!(source.getItem() instanceof BannerItem)) continue;
+                        banner = source.copyWithCount(1);
+                        costs.add(source.copyWithCount(1));
+                    } else {
+                        if (current.isEmpty()) continue;
+                        banner = ItemStack.EMPTY;
                     }
+                    // the banner that comes off is an item, not a material - it
+                    // is never destroyed, no matter which way the row went
+                    if (!current.isEmpty()) refunds.add(current.copyWithCount(1));
+                    time += STYLE_TIME;
                 }
-                if (!consumed) {
-                    player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
-                    return;
+                case SAIL_COLOR -> {
+                    if (!(ship instanceof Sailable)) continue;
+                    if (dyeColor != null) continue;
+                    ItemStack source = this.itemAt(player, action.inventorySlot());
+                    if (!(source.getItem() instanceof DyeItem dyeItem)) continue;
+                    if (dyeItem.getDyeColor().getName().equals(ship.getData(Ship.SAIL_COLOR))) continue;
+                    dyeColor = dyeItem.getDyeColor().getName();
+                    costs.add(source.copyWithCount(1));
+                    time += STYLE_TIME;
                 }
             }
+            accepted.add(action);
         }
 
-        this.task = mount ? Task.MOUNT_CANNON : Task.REMOVE_CANNON;
-        this.cannonSlot = cannonSlot;
+        if (accepted.isEmpty()) return;
+        if (!this.canAfford(player, costs)) {
+            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
+            return;
+        }
+        this.consume(player, costs);
+
+        this.task = Task.MODIFY;
+        this.pendingActions.clear();
+        this.pendingActions.addAll(accepted);
+        this.pendingRefunds.clear();
+        this.pendingRefunds.addAll(refunds);
+        this.pendingDyeColor = dyeColor;
+        this.pendingBanner = banner;
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
-        this.totalTime = 10 * 20;
+        this.totalTime = Math.max(20, time);
         this.progress = 0;
         this.setChanged();
     }
 
-    private void finishCannon(Level level, BlockPos pos) {
-        if (this.targetShipUUID == null || !(level instanceof ServerLevel serverLevel)) return;
-        if (!(serverLevel.getEntity(this.targetShipUUID) instanceof Ship ship)) return;
-        if (!(ship instanceof com.talhanation.smallships.world.entity.ship.abilities.Cannonable cannonable)) return;
+    /** work time of a single cannon mount / dismount in ticks */
+    private static final int CANNON_TIME = 10 * 20;
+    /** work time of a banner or dye job in ticks */
+    private static final int STYLE_TIME = 8 * 20;
 
-        ship.clearServicingDockyard(pos);
-        boolean mount = this.task == Task.MOUNT_CANNON;
-        cannonable.setCannonInSlot(this.cannonSlot, mount);
-        if (!mount) {
-            ship.spawnAtLocation(com.talhanation.smallships.world.item.ModItems.CANNON);
-        }
-        level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, mount ? 1.0F : 0.8F);
-        this.targetShipUUID = null;
-    }
-
-
-    /**
-     * Style task (dye or banner from the player inventory): validates the item
-     * in the given inventory slot, consumes it and applies it to the nearest
-     * ship after a short work time.
-     */
-    public void startStyleTask(ServerPlayer player, int inventorySlot) {
-        if (this.level == null || this.level.isClientSide() || this.isBusy()) return;
-        if (inventorySlot < 0 || inventorySlot >= player.getInventory().items.size()) return;
-
-        Ship ship = this.findNearestShip();
-        if (ship == null) {
-            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.no_ship"), true);
-            return;
-        }
-        if (ship.isServicedByOtherDockyard(this.worldPosition)) {
-            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_busy"), true);
-            return;
-        }
-
-        var stack = player.getInventory().items.get(inventorySlot);
-        if (stack.getItem() instanceof net.minecraft.world.item.DyeItem dyeItem && ship instanceof com.talhanation.smallships.world.entity.ship.abilities.Sailable) {
-            String color = dyeItem.getDyeColor().getName();
-            if (color.equals(ship.getData(Ship.SAIL_COLOR))) return;
-            if (!player.hasInfiniteMaterials()) stack.shrink(1);
-            this.pendingDyeColor = color;
-            this.task = Task.APPLY_DYE;
-        } else if (stack.getItem() instanceof net.minecraft.world.item.BannerItem && ship instanceof com.talhanation.smallships.world.entity.ship.abilities.Bannerable) {
-            this.pendingBanner = stack.copyWithCount(1);
-            if (!player.hasInfiniteMaterials()) stack.shrink(1);
-            this.task = Task.APPLY_BANNER;
-        } else {
-            return;
-        }
-
-        this.targetShipUUID = ship.getUUID();
-        ship.setServicingDockyard(this.worldPosition);
-        this.totalTime = 8 * 20;
-        this.progress = 0;
-        this.setChanged();
-    }
-
-    private void finishStyle(Level level, BlockPos pos) {
+    private void finishModify(Level level, BlockPos pos) {
         if (this.targetShipUUID == null || !(level instanceof ServerLevel serverLevel)) return;
         if (!(serverLevel.getEntity(this.targetShipUUID) instanceof Ship ship)) return;
         ship.clearServicingDockyard(pos);
 
-        if (this.task == Task.APPLY_DYE && this.pendingDyeColor != null) {
-            ship.setData(Ship.SAIL_COLOR, this.pendingDyeColor);
-            level.playSound(null, pos, SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 1.0F, 1.2F);
-        } else if (this.task == Task.APPLY_BANNER && !this.pendingBanner.isEmpty()) {
-            var oldBanner = ship.getData(Ship.BANNER);
-            if (!oldBanner.isEmpty()) {
-                oldBanner.setCount(1);
-                ship.spawnAtLocation(oldBanner, 4);
+        for (DockyardAction action : this.pendingActions) {
+            switch (action.kind()) {
+                case UPGRADE -> {
+                    ShipUpgrade upgrade = ShipUpgrade.byOrdinal(action.index());
+                    upgrade.setInstalled(ship, action.install());
+                    // the dockyard also fixes the sails while working on the ship
+                    if (action.install()) SailDamage.repair(ship);
+                }
+                case CANNON -> {
+                    if (ship instanceof Cannonable cannonable) cannonable.setCannonInSlot(action.index(), action.install());
+                }
+                case BANNER -> ship.setData(Ship.BANNER, this.pendingBanner.copy());
+                case SAIL_COLOR -> {
+                    if (this.pendingDyeColor != null) ship.setData(Ship.SAIL_COLOR, this.pendingDyeColor);
+                }
             }
-            ship.setData(Ship.BANNER, this.pendingBanner.copy());
-            level.playSound(null, pos, SoundEvents.WOOL_HIT, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
+        for (ItemStack refund : this.pendingRefunds) {
+            if (!refund.isEmpty()) ship.spawnAtLocation(refund.copy(), 4);
+        }
+
+        level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.1F);
+        this.clearModifyData();
+    }
+
+    private void clearModifyData() {
+        this.pendingActions.clear();
+        this.pendingRefunds.clear();
         this.pendingDyeColor = null;
-        this.pendingBanner = net.minecraft.world.item.ItemStack.EMPTY;
+        this.pendingBanner = ItemStack.EMPTY;
         this.targetShipUUID = null;
     }
 
+    /* ---------------- repair ---------------- */
 
     /**
      * Dynamic repair costs: the more hull damage, the more planks and iron
-     * nuggets are needed; damaged sails additionally require wool.
+     * nuggets are needed; damaged sails need wool by the same rule.
+     *
+     * Both halves are asked for separately, because the screen offers them as
+     * two buttons and each has to show only what IT costs.
      */
-    public static java.util.List<com.talhanation.smallships.world.dockyard.DockyardRecipe.Ingredient> getRepairCosts(Ship ship) {
-        java.util.List<com.talhanation.smallships.world.dockyard.DockyardRecipe.Ingredient> costs = new java.util.ArrayList<>();
-        float hullFraction = Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth);
-        if (hullFraction > 0.0F) {
-            costs.add(com.talhanation.smallships.world.dockyard.DockyardRecipe.Ingredient.of(net.minecraft.tags.ItemTags.PLANKS, 2 + (int) Math.ceil(hullFraction * 22.0F)));
-            costs.add(com.talhanation.smallships.world.dockyard.DockyardRecipe.Ingredient.of(net.minecraft.world.item.Items.IRON_NUGGET, 1 + (int) Math.ceil(hullFraction * 11.0F)));
+    public static List<DockyardRecipe.Ingredient> getRepairCosts(Ship ship, boolean hull, boolean sails) {
+        List<DockyardRecipe.Ingredient> costs = new ArrayList<>();
+        if (hull) {
+            float hullFraction = Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth);
+            if (hullFraction > 0.0F) {
+                costs.add(DockyardRecipe.Ingredient.of(ItemTags.PLANKS, 2 + (int) Math.ceil(hullFraction * 22.0F)));
+                costs.add(DockyardRecipe.Ingredient.of(Items.IRON_NUGGET, 1 + (int) Math.ceil(hullFraction * 11.0F)));
+            }
         }
-        float sailHealth = com.talhanation.smallships.world.entity.ship.sail.SailDamage.getHealth(ship);
-        float sailFraction = 1.0F - sailHealth / com.talhanation.smallships.world.entity.ship.sail.SailDamage.MAX_HEALTH;
-        if (sailFraction > 0.0F) {
-            costs.add(com.talhanation.smallships.world.dockyard.DockyardRecipe.Ingredient.of(net.minecraft.tags.ItemTags.WOOL, 1 + (int) Math.ceil(sailFraction * 7.0F)));
+        if (sails) {
+            float sailFraction = 1.0F - SailDamage.getHealth(ship) / SailDamage.MAX_HEALTH;
+            if (sailFraction > 0.0F) {
+                costs.add(DockyardRecipe.Ingredient.of(ItemTags.WOOL, 1 + (int) Math.ceil(sailFraction * 7.0F)));
+            }
         }
         return costs;
     }
 
-
     /**
-     * Repair task: fully repairs a damaged ship (hull damage AND sails) for
-     * 16 planks from the player inventory within 20 seconds of work time.
+     * Repair task: fixes the hull, the sails or both, for materials from the
+     * player inventory. The work time scales with the damage.
      */
-    public void startRepairTask(ServerPlayer player) {
+    public void startRepairTask(ServerPlayer player, boolean hull, boolean sails) {
         if (this.level == null || this.level.isClientSide() || this.isBusy()) return;
 
         Ship ship = this.findNearestShip();
@@ -398,11 +409,11 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_busy"), true);
             return;
         }
-        float hullFraction = Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth);
-        float sailFraction = 1.0F - com.talhanation.smallships.world.entity.ship.sail.SailDamage.getHealth(ship) / com.talhanation.smallships.world.entity.ship.sail.SailDamage.MAX_HEALTH;
+        float hullFraction = hull ? Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth) : 0.0F;
+        float sailFraction = sails ? 1.0F - SailDamage.getHealth(ship) / SailDamage.MAX_HEALTH : 0.0F;
         if (hullFraction <= 0.0F && sailFraction <= 0.0F) return;
 
-        java.util.List<com.talhanation.smallships.world.dockyard.DockyardRecipe.Ingredient> costs = getRepairCosts(ship);
+        List<DockyardRecipe.Ingredient> costs = getRepairCosts(ship, hull, sails);
         if (!DockyardRecipe.canAfford(costs, player)) {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
             return;
@@ -410,6 +421,8 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         DockyardRecipe.consume(costs, player);
 
         this.task = Task.REPAIR;
+        this.repairHull = hull;
+        this.repairSails = sails;
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
         // work time scales with the damage: 8s base up to ~28s
@@ -423,10 +436,56 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         if (!(serverLevel.getEntity(this.targetShipUUID) instanceof Ship ship)) return;
         ship.clearServicingDockyard(pos);
 
-        ship.setDamage(0.0F);
-        com.talhanation.smallships.world.entity.ship.sail.SailDamage.repair(ship);
+        if (this.repairHull) ship.setDamage(0.0F);
+        if (this.repairSails) SailDamage.repair(ship);
         level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.4F);
         this.targetShipUUID = null;
+    }
+
+    /* ---------------- inventory helpers ---------------- */
+
+    private ItemStack itemAt(Player player, int inventorySlot) {
+        if (inventorySlot < 0 || inventorySlot >= player.getInventory().items.size()) return ItemStack.EMPTY;
+        return player.getInventory().items.get(inventorySlot);
+    }
+
+    /**
+     * @return true if the player carries every stack in the list. The list may
+     * hold the same item twice (two upgrades of the same material), so the
+     * amounts are summed per item first.
+     */
+    private boolean canAfford(Player player, List<ItemStack> costs) {
+        if (player.hasInfiniteMaterials()) return true;
+        for (ItemStack cost : costs) {
+            int required = 0;
+            for (ItemStack other : costs) {
+                if (ItemStack.isSameItemSameComponents(cost, other)) required += other.getCount();
+            }
+            if (this.countItem(player, cost) < required) return false;
+        }
+        return true;
+    }
+
+    private int countItem(Player player, ItemStack cost) {
+        int count = 0;
+        for (ItemStack stack : player.getInventory().items) {
+            if (ItemStack.isSameItemSameComponents(stack, cost)) count += stack.getCount();
+        }
+        return count;
+    }
+
+    private void consume(Player player, List<ItemStack> costs) {
+        if (player.hasInfiniteMaterials()) return;
+        for (ItemStack cost : costs) {
+            int remaining = cost.getCount();
+            for (ItemStack stack : player.getInventory().items) {
+                if (remaining <= 0) break;
+                if (!ItemStack.isSameItemSameComponents(stack, cost)) continue;
+                int take = Math.min(remaining, stack.getCount());
+                stack.shrink(take);
+                remaining -= take;
+            }
+        }
     }
 
     /* ---------------- ticking ---------------- */
@@ -469,9 +528,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     private void finishTask(Level level, BlockPos pos) {
         switch (this.task) {
             case BUILD_SHIP -> this.finishBuildShip(level, pos);
-            case INSTALL_UPGRADE, REMOVE_UPGRADE -> this.finishUpgrade(level, pos);
-            case MOUNT_CANNON, REMOVE_CANNON -> this.finishCannon(level, pos);
-            case APPLY_DYE, APPLY_BANNER -> this.finishStyle(level, pos);
+            case MODIFY -> this.finishModify(level, pos);
             case REPAIR -> this.finishRepair(level, pos);
             default -> {}
         }
@@ -513,21 +570,6 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.spawnSpot = null;
     }
 
-    private void finishUpgrade(Level level, BlockPos pos) {
-        if (this.targetShipUUID == null || !(level instanceof ServerLevel serverLevel)) return;
-        if (!(serverLevel.getEntity(this.targetShipUUID) instanceof Ship ship)) return;
-
-        ship.clearServicingDockyard(pos);
-        ShipUpgrade upgrade = ShipUpgrade.byOrdinal(this.upgradeOrdinal);
-        upgrade.setInstalled(ship, this.task == Task.INSTALL_UPGRADE);
-        if (this.task == Task.INSTALL_UPGRADE) {
-            // the dockyard also fixes the sails while working on the ship
-            SailDamage.repair(ship);
-        }
-        level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.2F);
-        this.targetShipUUID = null;
-    }
-
     /* ---------------- save data ---------------- */
 
     @Override
@@ -538,12 +580,22 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("TotalTime", this.totalTime);
         if (this.shipTypeId != null) tag.putString("ShipType", this.shipTypeId.toString());
         tag.putInt("WoodType", this.woodTypeOrdinal);
-        tag.putInt("Upgrade", this.upgradeOrdinal);
-        tag.putInt("CannonSlot", this.cannonSlot);
+        tag.putBoolean("RepairHull", this.repairHull);
+        tag.putBoolean("RepairSails", this.repairSails);
         if (this.pendingDyeColor != null) tag.putString("PendingDyeColor", this.pendingDyeColor);
         if (!this.pendingBanner.isEmpty()) tag.put("PendingBanner", this.pendingBanner.save(provider));
         if (this.spawnSpot != null) tag.putLong("SpawnSpot", this.spawnSpot.asLong());
         if (this.targetShipUUID != null) tag.putUUID("TargetShip", this.targetShipUUID);
+
+        ListTag actions = new ListTag();
+        for (DockyardAction action : this.pendingActions) actions.add(action.save());
+        tag.put("PendingActions", actions);
+
+        ListTag refunds = new ListTag();
+        for (ItemStack refund : this.pendingRefunds) {
+            if (!refund.isEmpty()) refunds.add(refund.save(provider));
+        }
+        tag.put("PendingRefunds", refunds);
     }
 
     @Override
@@ -554,11 +606,22 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.totalTime = tag.getInt("TotalTime");
         this.shipTypeId = tag.contains("ShipType") ? ResourceLocation.tryParse(tag.getString("ShipType")) : null;
         this.woodTypeOrdinal = tag.getInt("WoodType");
-        this.upgradeOrdinal = tag.getInt("Upgrade");
-        this.cannonSlot = tag.getInt("CannonSlot");
+        this.repairHull = tag.getBoolean("RepairHull");
+        this.repairSails = tag.getBoolean("RepairSails");
         this.pendingDyeColor = tag.contains("PendingDyeColor") ? tag.getString("PendingDyeColor") : null;
-        this.pendingBanner = tag.contains("PendingBanner") ? net.minecraft.world.item.ItemStack.parse(provider, tag.getCompound("PendingBanner")).orElse(net.minecraft.world.item.ItemStack.EMPTY) : net.minecraft.world.item.ItemStack.EMPTY;
+        this.pendingBanner = tag.contains("PendingBanner")
+                ? ItemStack.parse(provider, tag.getCompound("PendingBanner")).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
         this.spawnSpot = tag.contains("SpawnSpot") ? BlockPos.of(tag.getLong("SpawnSpot")) : null;
         this.targetShipUUID = tag.hasUUID("TargetShip") ? tag.getUUID("TargetShip") : null;
+
+        this.pendingActions.clear();
+        ListTag actions = tag.getList("PendingActions", 10);
+        for (int i = 0; i < actions.size(); i++) this.pendingActions.add(DockyardAction.load(actions.getCompound(i)));
+
+        this.pendingRefunds.clear();
+        ListTag refunds = tag.getList("PendingRefunds", 10);
+        for (int i = 0; i < refunds.size(); i++) {
+            ItemStack.parse(provider, refunds.getCompound(i)).ifPresent(this.pendingRefunds::add);
+        }
     }
 }

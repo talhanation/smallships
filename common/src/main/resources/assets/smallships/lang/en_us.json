@@ -155,5 +155,40 @@
   "gui.smallships.dockyard.section.cannons": "Cannons",
   "gui.smallships.dockyard.section.style": "Style",
   "gui.smallships.dockyard.section.materials": "Materials",
-  "gui.smallships.dockyard.more_materials": "+%s more…"
+  "gui.smallships.dockyard.more_materials": "+%s more…",
+
+
+  "gui.smallships.dockyard.stat.attributes": "Attributes",
+  "gui.smallships.dockyard.stat.special": "Special",
+  "gui.smallships.dockyard.stat.turning": "Turning",
+  "gui.smallships.dockyard.stat.hull_hp": "Hull HP",
+  "gui.smallships.dockyard.stat.sails_hp": "Sail HP",
+  "gui.smallships.dockyard.stat.shields": "Shields",
+  "gui.smallships.dockyard.stat.crew": "Crew",
+
+  "gui.smallships.dockyard.stat.penalty_cargo": "Cargo Penalty",
+  "gui.smallships.dockyard.stat.penalty_cannons": "Cannon Penalty",
+  "gui.smallships.dockyard.stat.penalty_biome": "Temperature Penalty",
+  "gui.smallships.dockyard.stat.penalty_total": "Total Penalty",
+
+  "gui.smallships.dockyard.apply": "Apply",
+  "gui.smallships.dockyard.total_cost": "Total Cost:",
+  "gui.smallships.dockyard.refund": "Refund %s %s",
+  "gui.smallships.dockyard.no_damage": "No Damage",
+  "gui.smallships.dockyard.repair_hull": "Repair Hull",
+  "gui.smallships.dockyard.repair_sails": "Repair Sails",
+  "gui.smallships.dockyard.ship_name": "Ship Name",
+  "gui.smallships.dockyard.sail_color": "%s - Sail",
+  "gui.smallships.dockyard.banner_mounted" : "Banner",
+  "gui.smallships.dockyard.banner_hint" : "Sail Banner",
+
+  "gui.smallships.dockyard.stat.no_cargo_penalty" : "No Cargo Penalty",
+  "gui.smallships.dockyard.stat.no_cannon_penalty" : "No Cannon Penalty",
+  "gui.smallships.dockyard.about.smallships.cog": "The Cog: The cog has a single square sail and is a classic North Sea merchant ship. It is moderately reliant on tailwinds. It remains the clear benchmark for beginners.",
+  "gui.smallships.dockyard.about.smallships.brigg": "The Brigg: This ship has two masts and a mixed rig. Historically, it is known for being fast and maneuverable. It has the flattest profile of all ships. It is neither strong nor weak in any specific area, making it a true all-rounder.",
+  "gui.smallships.dockyard.about.smallships.galley": "The galley has lateen sails and oars. Oar propulsion acts as its wind protection, resulting in moderate sail stats. Its focus on crosswinds suits coastal traffic.",
+  "gui.smallships.dockyard.about.smallships.drakkar": "The drakkar has a square sail like the cog, but also uses oars. It is slightly more reliant on tailwinds because it uses oars to overcome headwinds.",
+  "gui.smallships.dockyard.about.smallships.galleon": "The galleon has the sharpest profile. It is practically a sitting duck against the wind. With a tailwind, it becomes an unstoppable force. This vulnerability balances its high health and firepower, ensuring that wind direction decides the battle rather than raw stats",
+  "gui.smallships.dockyard.about.smallships.caravel": "The caravel has a headwind bonus, which is its entire purpose. This is historically accurate, as lateen sails allowed ships to sail into the wind. The tailwind penalty is the trade-off, meaning any square-rigged vessel will easily overtake it downwind",
+  "gui.smallships.dockyard.about.smallships.dhow": "The dhow has the most extreme crosswind profile, as monsoon sailing was crosswind sailing. This makes it temporarily the fastest object on the water. With low health, it is completely harmless but possesses exactly the escape capability it needs."
 }

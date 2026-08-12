@@ -113,7 +113,11 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
         }
     }
 
-    private static Item plankItemOf(Boat.Type type) {
+    /**
+     * The planks item of a wood type. Public because the dockyard screen shows
+     * the very same icon in its wood type dropdown - one mapping, one place.
+     */
+    public static Item plankItemOf(Boat.Type type) {
         return switch (type.getName()) {
             case "spruce" -> Items.SPRUCE_PLANKS;
             case "birch" -> Items.BIRCH_PLANKS;

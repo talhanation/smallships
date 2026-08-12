@@ -22,9 +22,8 @@ public class ModPackets {
         registerNonPacket(ServerboundOpenCannonScreenPacket.TYPE, ServerboundOpenCannonScreenPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundSetCannonAimPacket.TYPE, ServerboundSetCannonAimPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundDockyardBuildPacket.TYPE, ServerboundDockyardBuildPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundDockyardUpgradePacket.TYPE, ServerboundDockyardUpgradePacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundDockyardCannonPacket.TYPE, ServerboundDockyardCannonPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundDockyardStylePacket.TYPE, ServerboundDockyardStylePacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundDockyardApplyPacket.TYPE, ServerboundDockyardApplyPacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ServerboundDockyardRenamePacket.TYPE, ServerboundDockyardRenamePacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundDockyardRepairPacket.TYPE, ServerboundDockyardRepairPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ClientboundWindPacket.TYPE, ClientboundWindPacket.CODEC, ModPacket.Side.CLIENTBOUND);
         registerNonPacket(ClientboundDockyardRecipesPacket.TYPE, ClientboundDockyardRecipesPacket.CODEC, ModPacket.Side.CLIENTBOUND);
