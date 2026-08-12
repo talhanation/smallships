@@ -620,6 +620,17 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.modifyTab.setTooltip(shipPresent || busy ? null
                 : net.minecraft.client.gui.components.Tooltip.create(Component.translatable("gui.smallships.dockyard.tab.no_ship")));
 
+        // A running build owns the build tab: the screen shows the ship on the
+        // stocks, not whatever the player last flipped to. Reopening the screen
+        // mid build therefore lands on the right hull instead of resetting to
+        // the first entry of the list.
+        ShipType building = ShipRegistry.byIndex(this.menu.getBuildShipIndex());
+        if (building != null && !building.equals(this.selectedShipType)) {
+            this.selectedShipType = building;
+            this.preview.reset();
+            this.rebuildMaterialList();
+        }
+
         boolean multipleTypes = ShipRegistry.getBuildable().size() > 1;
         this.prevShipButton.visible = !modify;
         this.nextShipButton.visible = !modify;
@@ -986,6 +997,10 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
         @Override
         protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
+            // the model only turns while the cursor is inside the frame. A drag
+            // that wanders off into the panels next to it stops there instead
+            // of spinning the ship from halfway across the screen.
+            if (!this.isMouseOver(mouseX, mouseY)) return;
             // dragging down has to tip the bow towards the player, so the
             // vertical axis runs against the raw mouse delta
             this.yaw += (float) dragX * DRAG_SENSITIVITY;

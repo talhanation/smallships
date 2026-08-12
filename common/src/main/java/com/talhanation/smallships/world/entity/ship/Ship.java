@@ -75,6 +75,12 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    /**
+     * True while a dockyard is working ON this ship. Synched, not transient
+     * like the dockyard claim next to it: the client refuses to board and to
+     * steer on its own, and it draws the work particles.
+     */
+    private static final EntityDataAccessor<Boolean> DOCKYARD_WORK = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     /** external push from a ramming, see ramShip. Synched because the ships' own
      *  drive is a scalar along the bow and cannot express a sideways shove. */
     private static final EntityDataAccessor<Float> IMPULSE_X = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
@@ -185,6 +191,20 @@ public abstract class Ship extends Boat {
         }
 
 
+        // The flag is refreshed by the working dockyard every second. If that
+        // stops - block broken, chunk unloaded, task lost on a crash - the ship
+        // frees itself instead of staying a locked building site forever.
+        if (!this.level().isClientSide() && this.isInDockyardWork()
+                && this.level().getGameTime() - this.dockyardWorkTime > 40L) {
+            this.setDockyardWork(false);
+        }
+
+        // work particles, the same the dockyard block throws while it runs
+        if (this.isInDockyardWork() && this.level() instanceof ServerLevel workLevel && this.tickCount % 10 == 0) {
+            workLevel.sendParticles(ParticleTypes.CRIT, this.getX(), this.getY() + 1.5D, this.getZ(),
+                    5, this.getBbWidth() * 0.5D, 0.6D, this.getBbWidth() * 0.5D, 0.01D);
+        }
+
         if(isSunken()){
             if(++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
             else this.setDeltaMovement (getDeltaMovement().x, - 0.2D, getDeltaMovement().z);
@@ -219,6 +239,7 @@ public abstract class Ship extends Boat {
         builder.define(LEFT, false);
         builder.define(RIGHT, false);
         builder.define(SUNKEN, false);
+        builder.define(DOCKYARD_WORK, false);
         builder.define(IMPULSE_X, 0.0F);
         builder.define(IMPULSE_Z, 0.0F);
 
@@ -323,6 +344,7 @@ public abstract class Ship extends Boat {
      * point - which is how a crew ends up piled on one spot.
      */
     public boolean hasFreeSeatFor(Entity entity) {
+        if (this.isInDockyardWork()) return false;
         if (!(this instanceof Seatable seatable)) return true;
         return seatable.findNearestFreeSeat(entity.position(), this.canDrive(entity)) != null;
     }
@@ -333,6 +355,7 @@ public abstract class Ship extends Boat {
      * a Recruits captain gets to steer without this class knowing that mod.
      */
     public boolean canDrive(Entity entity) {
+        if (this.isInDockyardWork()) return false;
         if (entity instanceof Player) return true;
         String id = entity.getEncodeId();
         return id != null && SmallShipsConfig.Common.driverEntities.get().contains(id);
@@ -708,6 +731,9 @@ public abstract class Ship extends Boat {
      */
     @Override
     public @NotNull InteractionResult interactAt(@NotNull Player player, @NotNull Vec3 hitVec, @NotNull InteractionHand interactionHand) {
+        // hands off while the dockyard has her: no boarding, no seat switching,
+        // no repairing or dyeing behind the shipwrights' back
+        if (this.isInDockyardWork()) return InteractionResult.PASS;
         if (this instanceof Seatable seatable && !this.isLocked()) {
             Vec3 worldHit = this.position().add(hitVec);
             if (player.getVehicle() == this) {
@@ -926,6 +952,23 @@ public abstract class Ship extends Boat {
             Minecraft.getInstance().options.setCameraType(this.previousCameraType);
         }
         super.removePassenger(entity);
+    }
+
+    /**
+     * A ship on the stocks is a building site: nobody climbs aboard, nobody
+     * takes the helm, and the work is visible from the outside. Set by the
+     * dockyard when a task starts and cleared when it ends.
+     */
+    /** server side: when the working dockyard last refreshed the flag */
+    private long dockyardWorkTime;
+
+    public void setDockyardWork(boolean working) {
+        if (working) this.dockyardWorkTime = this.level().getGameTime();
+        if (this.isInDockyardWork() != working) this.entityData.set(DOCKYARD_WORK, working);
+    }
+
+    public boolean isInDockyardWork() {
+        return this.entityData.get(DOCKYARD_WORK);
     }
 
     public void setSunken(boolean sunken){

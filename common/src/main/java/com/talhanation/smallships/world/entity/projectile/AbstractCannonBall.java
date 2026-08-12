@@ -211,6 +211,11 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
      * The muzzle sits INSIDE the own ships' parts, unlike the small vanilla boat
      * box before them - without this every broadside would detonate on the own
      * hull the moment it leaves the barrel.
+     *
+     * Note what super does here: AbstractHurtingProjectile#canHitEntity refuses
+     * every entity carrying noPhysics. Hitting a ship at all therefore depends
+     * on ShipPartEntity NOT setting that flag - see the note in its constructor
+     * before touching either side.
      */
     @Override
     protected boolean canHitEntity(@NotNull Entity entity) {

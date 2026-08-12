@@ -67,6 +67,39 @@ public final class ShipRegistry {
     }
 
     /**
+     * Position of a ship type in the registration order.
+     *
+     * The dockyard syncs the ship it is currently building through the menus'
+     * ContainerData, which carries plain ints - a ResourceLocation does not fit
+     * through there. Registration happens identically on both sides at mod
+     * setup, and the backing map keeps insertion order, so the index means the
+     * same thing on the client. The CONFIG whitelist must not be involved here:
+     * it is common config and not synced.
+     *
+     * @return the index, or -1 if the type is not registered
+     */
+    public static synchronized int indexOf(@Nullable ShipType shipType) {
+        if (shipType == null) return -1;
+        int index = 0;
+        for (ResourceLocation id : SHIP_TYPES.keySet()) {
+            if (id.equals(shipType.getId())) return index;
+            index++;
+        }
+        return -1;
+    }
+
+    /** Counterpart of {@link #indexOf(ShipType)}. */
+    @Nullable
+    public static synchronized ShipType byIndex(int index) {
+        if (index < 0) return null;
+        int current = 0;
+        for (ShipType shipType : SHIP_TYPES.values()) {
+            if (current++ == index) return shipType;
+        }
+        return null;
+    }
+
+    /**
      * @return true if this ship may be built at the dockyard. An EMPTY config
      * whitelist means no restriction, so ships added by addons are accepted
      * without the player having to touch the config first.

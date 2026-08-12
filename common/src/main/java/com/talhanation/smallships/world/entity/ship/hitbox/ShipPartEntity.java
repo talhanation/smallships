@@ -166,8 +166,19 @@ public class ShipPartEntity extends Entity {
 
     public ShipPartEntity(EntityType<? extends ShipPartEntity> entityType, Level level) {
         super(entityType, level);
-        // a part is carried by its ship, it never moves on its own
-        this.noPhysics = true;
+        // DO NOT set noPhysics here. It reads like the right flag for a body
+        // that is carried by its ship and never moves on its own - but
+        // AbstractHurtingProjectile#canHitEntity is
+        //     super.canHitEntity(entity) && !entity.noPhysics
+        // so every cannon ball silently refused to hit any part, and a
+        // broadside only ever found the ships' own small vanilla box. Arrows
+        // and melee go through Projectile#canHitEntity, which has no such
+        // clause, which is why those worked and this stayed hidden.
+        //
+        // The flag bought nothing anyway: it only takes effect inside
+        // Entity#move and Entity#baseTick, and tick() below overrides both away
+        // - a part is placed with setPos and never simulates anything.
+        //
         // no blocks where the ship is, hull and masts alike
         this.blocksBuilding = true;
     }
@@ -300,8 +311,8 @@ public class ShipPartEntity extends Entity {
      * A hit on a part is a hit on the ship - but WHICH part was hit decides
      * where the damage lands.
      *
-     * The masts are the sails' hit box. Until now everything that came through
-     * here was forwarded to the hull, so an arrow or an axe in the rigging tore
+     * The masts are the sails' hit box. Everything that comes through here used
+     * to be forwarded to the hull, so an arrow or an axe in the rigging tore
      * timbers instead of canvas; only cannon balls split correctly, because
      * AbstractCannonBall resolves the part itself and never calls this method.
      */

@@ -23,7 +23,9 @@ public class DockyardMenu extends AbstractContainerMenu {
     public static final int DATA_POS_Y = 4;
     public static final int DATA_POS_Z = 5;
     public static final int DATA_SHIP_ID = 6;
-    public static final int DATA_COUNT = 7;
+    /** registry index of the ship type currently being built, -1 while idle */
+    public static final int DATA_BUILD_SHIP = 7;
+    public static final int DATA_COUNT = 8;
 
     private final ContainerData data;
     private final Player player;
@@ -43,6 +45,15 @@ public class DockyardMenu extends AbstractContainerMenu {
 
     public int getProgress() {
         return this.data.get(DATA_PROGRESS);
+    }
+
+    /**
+     * @return the registry index of the ship the dockyard is building, or -1.
+     * Lets the build tab come back up on the right ship after the player closed
+     * and reopened the screen mid build.
+     */
+    public int getBuildShipIndex() {
+        return this.data.get(DATA_BUILD_SHIP);
     }
 
     public int getTotalTime() {

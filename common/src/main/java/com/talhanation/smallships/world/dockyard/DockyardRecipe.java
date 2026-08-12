@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -67,12 +68,16 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
         }
 
         public ItemStack getDisplayStack(Boat.Type woodType) {
-            if (this.tag != null) {
-                // display the planks of the selected wood type
-                Item planks = plankItemOf(woodType);
-                return new ItemStack(planks, this.amount);
-            }
-            return new ItemStack(this.item, this.amount);
+            if (this.tag == null) return new ItemStack(this.item, this.amount);
+            // ONLY the planks tag follows the selected wood type. Every other
+            // tag shows whatever is registered in it first - otherwise a wool
+            // ingredient (sail repair) advertised itself as planks.
+            if (this.tag.equals(ItemTags.PLANKS)) return new ItemStack(plankItemOf(woodType), this.amount);
+            return BuiltInRegistries.ITEM.getTag(this.tag)
+                    .flatMap(holders -> holders.stream().findFirst())
+                    .map(holder -> new ItemStack(holder.value(), this.amount))
+                    // an empty tag is a broken data pack, and it has to look broken
+                    .orElseGet(() -> new ItemStack(Items.BARRIER, this.amount));
         }
 
         /** Tags travel with a leading '#', exactly like they are written in json. */
@@ -113,10 +118,6 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
         }
     }
 
-    /**
-     * The planks item of a wood type. Public because the dockyard screen shows
-     * the very same icon in its wood type dropdown - one mapping, one place.
-     */
     public static Item plankItemOf(Boat.Type type) {
         return switch (type.getName()) {
             case "spruce" -> Items.SPRUCE_PLANKS;

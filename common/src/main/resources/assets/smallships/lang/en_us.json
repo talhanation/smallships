@@ -102,6 +102,11 @@
   "item.smallships.mangrove_galleon": "Mangrove Galleon",
   "item.smallships.cherry_galleon": "Cherry Galleon",
   "item.smallships.bamboo_galleon": "Bamboo Galleon",
+
+  "item.smallships.iron_scantlings": "Iron Scantlings",
+  "item.smallships.copper_plating": "Copper Plating",
+  "item.smallships.cottn_sails": "Cotton Sails",
+
   "tooltip.plane.damage": "Damage: %s %%",
   "tooltip.plane.throttle": "Throttle: %s %%",
   "tooltip.plane.speed": "Speed: %s",

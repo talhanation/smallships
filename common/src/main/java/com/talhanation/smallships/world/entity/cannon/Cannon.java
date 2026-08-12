@@ -142,8 +142,15 @@ public class Cannon {
         this.shootDelayTimer = 10 + random.nextInt(10);
     }
 
+    /**
+     * Ticks between a shot and the cannon being ready again. Loading a muzzle
+     * loader is sponge, powder, wad, ball, ram, prime - a broadside is meant to
+     * be a decision, not a rate of fire.
+     */
+    private static final int COOL_DOWN_TICKS = 75;
+
     private void setCoolDown() {
-        this.coolDown = 50;
+        this.coolDown = COOL_DOWN_TICKS;
     }
 
     public boolean isCooldown() {

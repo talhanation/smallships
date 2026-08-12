@@ -50,7 +50,7 @@ public class ModEntityTypesImpl {
                 .build()));
 
         entries.put(ChainShotEntity.class, register(ChainShotEntity.ID, EntityType.Builder.of(ChainShotEntity::factory, MobCategory.MISC)
-                .sized(0.25F, 0.25F)
+                .sized(1.00F, 0.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
                 .build()));

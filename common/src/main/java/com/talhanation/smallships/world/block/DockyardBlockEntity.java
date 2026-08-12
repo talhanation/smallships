@@ -26,6 +26,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -121,6 +122,8 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                 case DockyardMenu.DATA_POS_X -> DockyardBlockEntity.this.worldPosition.getX();
                 case DockyardMenu.DATA_POS_Y -> DockyardBlockEntity.this.worldPosition.getY();
                 case DockyardMenu.DATA_POS_Z -> DockyardBlockEntity.this.worldPosition.getZ();
+                case DockyardMenu.DATA_BUILD_SHIP ->
+                        ShipRegistry.indexOf(ShipRegistry.get(DockyardBlockEntity.this.shipTypeId));
                 case DockyardMenu.DATA_SHIP_ID -> {
                     // while building a ship, no ship is reported - the screen
                     // stays in build mode showing the progress
@@ -161,6 +164,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         AABB area = new AABB(pos).inflate(SHIP_DETECTION_RANGE);
         return this.level.getEntitiesOfClass(Ship.class, area).stream()
                 .filter(ship -> !ship.isRemoved())
+                // a sunken ship is a wreck: there is nothing left to service,
+                // and detecting one would block the build tab for good
+                .filter(ship -> !ship.isSunken())
                 // exclusive detection: a ship captured by another dockyard is invisible to this one
                 .filter(ship -> !ship.isServicedByOtherDockyard(this.worldPosition))
                 .min(Comparator.comparingDouble(ship -> ship.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)))
@@ -318,6 +324,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.pendingBanner = banner;
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
+        ship.setDockyardWork(true);
         this.totalTime = Math.max(20, time);
         this.progress = 0;
         this.setChanged();
@@ -332,6 +339,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         if (this.targetShipUUID == null || !(level instanceof ServerLevel serverLevel)) return;
         if (!(serverLevel.getEntity(this.targetShipUUID) instanceof Ship ship)) return;
         ship.clearServicingDockyard(pos);
+        ship.setDockyardWork(false);
 
         for (DockyardAction action : this.pendingActions) {
             switch (action.kind()) {
@@ -351,8 +359,10 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                 }
             }
         }
+        // refunds land at the DOCKYARD, not at the ship: that is where the
+        // player is standing, and a stack dropped over open water is gone
         for (ItemStack refund : this.pendingRefunds) {
-            if (!refund.isEmpty()) ship.spawnAtLocation(refund.copy(), 4);
+            if (!refund.isEmpty()) Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, refund.copy());
         }
 
         level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.1F);
@@ -426,6 +436,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.repairSails = sails;
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
+        ship.setDockyardWork(true);
         // work time scales with the damage: 8s base up to ~28s
         this.totalTime = (int) ((8.0F + 16.0F * hullFraction + (sailFraction > 0.0F ? 4.0F : 0.0F)) * 20.0F);
         this.progress = 0;
@@ -436,6 +447,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         if (this.targetShipUUID == null || !(level instanceof ServerLevel serverLevel)) return;
         if (!(serverLevel.getEntity(this.targetShipUUID) instanceof Ship ship)) return;
         ship.clearServicingDockyard(pos);
+        ship.setDockyardWork(false);
 
         if (this.repairHull) ship.setDamage(0.0F);
         if (this.repairSails) SailDamage.repair(ship);
@@ -508,6 +520,8 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         if (dockyard.targetShipUUID != null && dockyard.progress % 20 == 0 && level instanceof ServerLevel serverLevel
                 && serverLevel.getEntity(dockyard.targetShipUUID) instanceof Ship claimedShip) {
             claimedShip.setServicingDockyard(pos);
+            // the ship watches this timestamp: if the refresh stops, it unlocks
+            claimedShip.setDockyardWork(true);
         }
 
         // working ambience
