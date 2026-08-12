@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship.hitbox;
 
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -295,10 +296,24 @@ public class ShipPartEntity extends Entity {
 
     /* ---------------- forwarding ---------------- */
 
+    /**
+     * A hit on a part is a hit on the ship - but WHICH part was hit decides
+     * where the damage lands.
+     *
+     * The masts are the sails' hit box. Until now everything that came through
+     * here was forwarded to the hull, so an arrow or an axe in the rigging tore
+     * timbers instead of canvas; only cannon balls split correctly, because
+     * AbstractCannonBall resolves the part itself and never calls this method.
+     */
     @Override
     public boolean hurt(@NotNull DamageSource damageSource, float amount) {
         Ship ship = this.getParent();
-        return ship != null && ship.hurt(damageSource, amount);
+        if (ship == null) return false;
+        if (this.isMast() && SailDamage.canTakeDamage(ship)) {
+            SailDamage.applyCannonHit(ship, amount);
+            return true;
+        }
+        return ship.hurt(damageSource, amount);
     }
 
     @Override

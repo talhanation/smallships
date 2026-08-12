@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Central handler for the sail damage system.
  *
- * Sails have a single health pool of {@link #MAX_HEALTH} (30) points per ship,
+ * Sails have a single health pool of {@link #MAX_HEALTH} (100) points per ship,
  * stored in the ship's synched entity data ({@link Ship#SAIL_HEALTH}).
  *
  * - The masts are the sails' hit box: a shot through the rigging damages the
@@ -28,9 +28,9 @@ import net.minecraft.world.item.ItemStack;
  * - Repaired by hand with 6x wool (any color), or completely at the dockyard.
  */
 public final class SailDamage {
-    /** reduced from 100: with 15%/50% damage transfer the states are actually reachable now */
-    public static final float MAX_HEALTH = 30.0F;
-    public static final float TORN_THRESHOLD = 15.0F;
+    public static final float MAX_HEALTH = 100.0F;
+    /** at or below half the pool the canvas is rendered torn */
+    public static final float TORN_THRESHOLD = 50.0F;
 
     private SailDamage() {}
 
@@ -66,6 +66,17 @@ public final class SailDamage {
      * sails' own hit box, this is no longer a percentage bled off a hull hit but
      * the damage of a shot that actually went through the rigging.
      */
+    /**
+     * @return true if a hit on the rigging should land on the canvas rather
+     * than on the timbers. Shredded sails cannot absorb anything any more, so
+     * from then on a mast hit goes to the hull like every other hit does.
+     */
+    public static boolean canTakeDamage(Ship ship) {
+        return ship instanceof Sailable
+                && SmallShipsConfig.Common.sailDamageEnable.get()
+                && getHealth(ship) > 0.0F;
+    }
+
     public static void applyCannonHit(Ship ship, float sailDamage) {
         if (!(ship instanceof Sailable)) return;
         if (!SmallShipsConfig.Common.sailDamageEnable.get()) return;

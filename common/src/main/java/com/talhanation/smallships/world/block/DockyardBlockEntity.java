@@ -337,9 +337,10 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             switch (action.kind()) {
                 case UPGRADE -> {
                     ShipUpgrade upgrade = ShipUpgrade.byOrdinal(action.index());
+                    // the sails are NOT touched here: canvas is mended with
+                    // wool and nothing else, so a free repair riding along with
+                    // an unrelated upgrade would undercut the repair button
                     upgrade.setInstalled(ship, action.install());
-                    // the dockyard also fixes the sails while working on the ship
-                    if (action.install()) SailDamage.repair(ship);
                 }
                 case CANNON -> {
                     if (ship instanceof Cannonable cannonable) cannonable.setCannonInSlot(action.index(), action.install());

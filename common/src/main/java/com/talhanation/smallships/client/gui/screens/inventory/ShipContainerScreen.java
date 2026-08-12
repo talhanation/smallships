@@ -7,6 +7,7 @@ import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,9 @@ import net.minecraft.world.entity.player.Inventory;
 public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMenu> {
     private static final ResourceLocation RESOURCE_LOCATION = ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/gui/ship_inventory.png" );
     public static final int FONT_COLOR = 4210752;
+    /** centre of the gap between the two page buttons, in menu local coordinates */
+    private static final int PAGE_LABEL_X = 142;
+    private static final int PAGE_LABEL_Y = 127;
     private final int rowCount;
     private final int pageCount;
     private final int pageIndex;
@@ -141,7 +145,11 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
             currentAttachment = shieldable.getShields().size();
         }
 
-        int dmg = (int) (this.containerShip.getDamage() * 100 / this.containerShip.getAttributes().maxHealth);
+        // The ship inventory is the quick glance: how beaten up is she, in one
+        // number. The exact point counts belong in the dockyard, where the
+        // player is about to pay for them.
+        int hullDamagePercent = Mth.clamp(Mth.ceil(this.containerShip.getDamage() * 100.0F / this.containerShip.getAttributes().maxHealth), 0, 100);
+        int sailDamagePercent = Mth.clamp(100 - Mth.floor(SailDamage.getHealth(this.containerShip) * 100.0F / SailDamage.MAX_HEALTH), 0, 100);
 
         String unit;
         int maxSpeed;
@@ -181,21 +189,27 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         guiGraphics.drawString(font, "Type:", leftPos, topPos + gap * 0, FONT_COLOR, false);
         guiGraphics.drawString(font, "Crew:", leftPos, topPos + gap * 1, FONT_COLOR, false);
         guiGraphics.drawString(font, "Speed " + unit + ":", leftPos, topPos + gap * 2, FONT_COLOR, false);
-        guiGraphics.drawString(font, "Damage:", leftPos, topPos + gap * 3, FONT_COLOR, false);
-        guiGraphics.drawString(font, attachment, leftPos, topPos + gap * 4, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Hull Dmg.:", leftPos, topPos + gap * 3, FONT_COLOR, false);
+        guiGraphics.drawString(font, "Sail Dmg.:", leftPos, topPos + gap * 4, FONT_COLOR, false);
+        guiGraphics.drawString(font, attachment, leftPos, topPos + gap * 5, FONT_COLOR, false);
 
         //guiGraphics.drawString(font, name, leftPos2, topPos + gap * 0, FONT_COLOR, false);
         guiGraphics.drawString(font, smallShipType, leftPos2, topPos + gap * 0, FONT_COLOR, false);
         guiGraphics.drawString(font, currentPassengers + "/" + maxPassengers, leftPos2, topPos + gap * 1, FONT_COLOR, false);
         guiGraphics.drawString(font, currentSpeed + "/" + maxSpeed, leftPos2, topPos + gap * 2, FONT_COLOR, false);
-        guiGraphics.drawString(font, dmg + "%", leftPos2, topPos + gap * 3, FONT_COLOR, false);
-        guiGraphics.drawString(font, currentAttachment + "/" + maxAttachment, leftPos2, topPos + gap * 4, FONT_COLOR, false);
-
-        // render page number
-        int xOffset = origLeftPos + (int) (133 - (float) (Mth.floor(Math.log10(this.pageCount))) * 6);
-        int yOffset = origTopPos + this.rowCount * 18;
-        if (this.pageCount > 1) guiGraphics.drawString(font, (this.pageIndex + 1) + "/"  + this.pageCount, xOffset, yOffset, FONT_COLOR, false);
+        guiGraphics.drawString(font, hullDamagePercent + "%", leftPos2, topPos + gap * 3, FONT_COLOR, false);
+        guiGraphics.drawString(font, sailDamagePercent + "%", leftPos2, topPos + gap * 4, FONT_COLOR, false);
+        guiGraphics.drawString(font, currentAttachment + "/" + maxAttachment, leftPos2, topPos + gap * 5, FONT_COLOR, false);
 
         guiGraphics.pose().popPose();
+
+        // The page number belongs BETWEEN the two page buttons, and OUTSIDE the
+        // 0.7 scale block above: it was drawn shrunken, and offset by
+        // origLeftPos on top of that - a coordinate frame renderLabels is not
+        // in. The buttons sit at local x 115..127 and 157..169, y 125..137.
+        if (this.pageCount > 1) {
+            String page = (this.pageIndex + 1) + "/" + this.pageCount;
+            guiGraphics.drawString(font, page, PAGE_LABEL_X - font.width(page) / 2, PAGE_LABEL_Y, FONT_COLOR, false);
+        }
     }
 }

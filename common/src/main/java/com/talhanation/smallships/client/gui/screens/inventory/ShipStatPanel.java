@@ -28,6 +28,11 @@ import org.jetbrains.annotations.Nullable;
  * null in build mode, {@code displayShip} is whatever is shown in the preview -
  * the docked ship or the build dummy. Only values that need a ship that really
  * exists (current crew, current damage, live penalties) read from {@code ship}.
+ *
+ * Hull and sails are given in POINTS here, remaining out of maximum. The ship
+ * inventory shows the same two values as a single damage percentage - that is
+ * the quick glance while sailing; this is the screen where the player is about
+ * to pay per point, so it spells them out.
  */
 public class ShipStatPanel {
 
@@ -62,10 +67,9 @@ public class ShipStatPanel {
         return COLOR_WORST;
     }
 
-    /** 0.55 -> "-45%", 1.45 -> "+45%", 1.0 -> "0%" */
+    /** 0.55 -> "-45%", 1.45 -> "+45%" */
     private static Component asPercent(float multiplier) {
         int percent = Math.round((multiplier - 1.0F) * 100.0F);
-        if (percent == 0) return Component.literal("0%");
         return Component.literal((percent > 0 ? "+" : "") + percent + "%");
     }
 
@@ -86,18 +90,23 @@ public class ShipStatPanel {
         /* ---------------- attributes ---------------- */
 
         line = header(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.attributes");
-        line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.max_speed", speedText(attributes.maxSpeed));
+        // a docked ship reports the ceiling it can actually reach right now,
+        // penalties included - the very number its own inventory shows. The
+        // build preview has no penalties yet, so it converts the raw attribute.
+        line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.max_speed",
+                speedText(ship != null ? ship.maxSpeed : Ship.toTickSpeed(attributes.maxSpeed)));
         line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.turning", number(attributes.maxRotationSpeed));
         line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.crew",
                 ship != null ? ship.getPassengers().size() + "/" + ship.getMaxPassengers() : String.valueOf(displayShip.getMaxPassengers()));
+
+        int maxHull = Mth.ceil(attributes.maxHealth);
         line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.hull_hp",
-                ship != null ? Mth.ceil(Math.max(0.0F, attributes.maxHealth - ship.getDamage())) + "/" + Mth.ceil(attributes.maxHealth)
-                        : String.valueOf(Mth.ceil(attributes.maxHealth)));
+                ship != null ? Mth.clamp(maxHull - Mth.ceil(ship.getDamage()), 0, maxHull) + "/" + maxHull : String.valueOf(maxHull));
 
         if (displayShip instanceof Sailable) {
+            int maxSail = Mth.ceil(SailDamage.MAX_HEALTH);
             line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.sails_hp",
-                    ship != null ? Mth.ceil(SailDamage.getHealth(ship)) + "/" + Mth.ceil(SailDamage.MAX_HEALTH)
-                            : String.valueOf(Mth.ceil(SailDamage.MAX_HEALTH)));
+                    ship != null ? Mth.clamp(Mth.ceil(SailDamage.getHealth(ship)), 0, maxSail) + "/" + maxSail : String.valueOf(maxSail));
         }
         if (displayShip instanceof Cannonable cannonable) {
             line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.cannons",
@@ -135,19 +144,18 @@ public class ShipStatPanel {
         line = header(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.special");
 
         if (ship != null) {
-            // live penalties: only meaningful for a ship that actually exists
+            // only penalties that BITE are listed. A row saying "0%" carries no
+            // information and pushes the ones that matter off the panel.
             if (ship instanceof ContainerShip containerShip && containerShip.isEffectedByCargoPenalty()) {
-                line = multiplier(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_cargo",
+                line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_cargo",
                         1.0F - containerShip.getContainerModifier() / 100.0F);
             }
             if (ship instanceof Cannonable cannonShip) {
-                line = multiplier(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_cannons",
+                line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_cannons",
                         1.0F - cannonShip.getCannonModifier() / 100.0F);
             }
-            line = multiplier(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_biome",
+            line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_biome",
                     1.0F + ship.getBiomeModifier() / 100.0F);
-            // the resulting ceiling, the product of all of them
-            line = multiplier(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_total", getTotalPenalty(ship));
         } else {
             // build mode: name the penalties this hull will never suffer from,
             // that is what makes one type worth building over another
@@ -163,16 +171,6 @@ public class ShipStatPanel {
         }
 
         return line;
-    }
-
-    /**
-     * @return the product of all speed penalties, i.e. the fraction of the
-     * configured max speed this ship can currently reach at best.
-     */
-    public static float getTotalPenalty(Ship ship) {
-        return (1.0F + ship.getBiomeModifier() / 100.0F)
-                * (ship instanceof Cannonable cannonShip ? 1.0F - cannonShip.getCannonModifier() / 100.0F : 1.0F)
-                * (ship instanceof ContainerShip containerShip ? 1.0F - containerShip.getContainerModifier() / 100.0F : 1.0F);
     }
 
     /* ---------------- line helpers ---------------- */
@@ -197,6 +195,12 @@ public class ShipStatPanel {
         return y + LINE_HEIGHT;
     }
 
+    /** like {@link #multiplier} but silent when the modifier does nothing */
+    private static int penalty(GuiGraphics guiGraphics, Font font, int x, int y, int width, String translationKey, float value) {
+        if (Math.round((value - 1.0F) * 100.0F) == 0) return y;
+        return multiplier(guiGraphics, font, x, y, width, translationKey, value);
+    }
+
     /** a full width note without a value column */
     private static int note(GuiGraphics guiGraphics, Font font, int x, int y, String translationKey) {
         guiGraphics.drawString(font, Component.translatable(translationKey), x, y, COLOR_GOOD, false);
@@ -208,13 +212,19 @@ public class ShipStatPanel {
         return String.format("%.1f", value);
     }
 
-    /** max speed in the unit the player picked in the client config */
-    private static String speedText(float maxSpeed) {
+    /**
+     * Max speed in the unit the player picked in the client config.
+     *
+     * The argument is a speed in blocks per tick, NOT the raw config attribute
+     * - see {@link Ship#toTickSpeed}. Feeding the attribute in directly is what
+     * made the dockyard print roughly 69 times the ship inventorys' number.
+     */
+    private static String speedText(float tickSpeed) {
         return switch (SmallShipsConfig.Client.shipModSpeedUnit.get()) {
-            case 1 -> Mth.ceil(Kalkuel.getMeterPerSecond(maxSpeed)) + " m/s";
-            case 2 -> Mth.ceil(Kalkuel.getKnots(maxSpeed)) + " kn";
-            case 3 -> Mth.ceil(Kalkuel.getMilesPerHour(maxSpeed)) + " mph";
-            default -> Mth.ceil(Kalkuel.getKilometerPerHour(maxSpeed)) + " km/h";
+            case 1 -> Mth.ceil(Kalkuel.getMeterPerSecond(tickSpeed)) + " m/s";
+            case 2 -> Mth.ceil(Kalkuel.getKnots(tickSpeed)) + " kn";
+            case 3 -> Mth.ceil(Kalkuel.getMilesPerHour(tickSpeed)) + " mph";
+            default -> Mth.ceil(Kalkuel.getKilometerPerHour(tickSpeed)) + " km/h";
         };
     }
 }

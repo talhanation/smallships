@@ -80,7 +80,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
     /* ---------------- layout: every value is read off the background texture ---------------- */
 
-    private static final int WINDOW_W = 438;
+    private static final int WINDOW_W = 430;
     private static final int WINDOW_H = 211;
 
     /** the recessed lane at the top the tabs sit in */
@@ -92,32 +92,43 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     /** left panel: attributes, wind profile, penalties */
     private static final int STATS_X = 5;
     private static final int STATS_Y = 22;
-    private static final int STATS_W = 116;
+    private static final int STATS_W = 114;
 
-    /** center panel: the ship preview */
-    private static final int PREVIEW_X = 127;
+    /**
+     * Center panel: the ship preview. This is the FULL black area - the model
+     * is clipped to all of it, including the caption row, so a tall mast may
+     * run behind the name and the ship type instead of being cut off above
+     * them.
+     */
+    private static final int PREVIEW_X = 125;
     private static final int PREVIEW_Y = 24;
-    private static final int PREVIEW_W = 184;
+    private static final int PREVIEW_W = 180;
     private static final int PREVIEW_H = 131;
-    /** the caption row inside the preview frame, the model is drawn below it */
-    private static final int PREVIEW_HEADER_H = 12;
 
     /** center panel below the preview: about text (build) / repair buttons (modify) */
-    private static final int CENTER_X = 125;
+    private static final int CENTER_X = 123;
     private static final int CENTER_Y = 163;
-    private static final int CENTER_W = 188;
+    private static final int CENTER_W = 184;
     private static final int CENTER_H = 40;
 
     /** right panel: material list (build) / upgrade list (modify) */
-    private static final int LIST_X = 317;
+    private static final int LIST_X = 311;
     private static final int LIST_Y = 22;
-    private static final int LIST_W = 116;
+    private static final int LIST_W = 114;
     private static final int LIST_H = 135;
+    /**
+     * AbstractSelectionList centers its rows and hit tests them centered
+     * (getEntryAtPosition is final). To get the rows close to the LEFT edge of
+     * the panel without the drawing and the hit box drifting apart, the widget
+     * itself starts this far left of the panel - the extra strip is excluded
+     * again in isMouseOver, see the lists below.
+     */
+    private static final int LIST_OVERHANG = 4;
 
     /** right panel bottom: action button and the wood type dropdown */
-    private static final int ACTION_X = 316;
+    private static final int ACTION_X = 310;
     private static final int ACTION_Y = 160;
-    private static final int ACTION_W = 118;
+    private static final int ACTION_W = 116;
 
     /** height of the progress bar drawn over the lower edge of the preview */
     private static final int PROGRESS_H = 9;
@@ -246,16 +257,17 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 Component.translatable("gui.smallships.dockyard.repair_sails"),
                 button -> this.sendRepairPacket(false, true)));
 
-        this.materialList = this.addRenderableWidget(new MaterialList(this.x(LIST_X), this.y(LIST_Y), LIST_W, LIST_H));
-        this.upgradeList = this.addRenderableWidget(new UpgradeList(this.x(LIST_X), this.y(LIST_Y), LIST_W, LIST_H));
+        this.materialList = this.addRenderableWidget(new MaterialList(this.x(LIST_X - LIST_OVERHANG), this.y(LIST_Y),
+                LIST_W + LIST_OVERHANG, LIST_H));
+        this.upgradeList = this.addRenderableWidget(new UpgradeList(this.x(LIST_X - LIST_OVERHANG), this.y(LIST_Y),
+                LIST_W + LIST_OVERHANG, LIST_H));
 
         this.nameField = this.addRenderableWidget(new NameField(this.x(PREVIEW_X + 4), this.y(PREVIEW_Y + 2), 104, 10));
 
         // the preview is a child (so it receives drag and scroll) but not
         // renderable: it is drawn in renderBg, below the arrow buttons sitting
         // on top of it
-        this.preview = this.addWidget(new ShipPreview(this.x(PREVIEW_X), this.y(PREVIEW_Y + PREVIEW_HEADER_H),
-                PREVIEW_W, PREVIEW_H - PREVIEW_HEADER_H));
+        this.preview = this.addWidget(new ShipPreview(this.x(PREVIEW_X), this.y(PREVIEW_Y), PREVIEW_W, PREVIEW_H));
 
         this.rebuildMaterialList();
         this.optionSignature = "";
@@ -599,10 +611,13 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         Ship ship = this.getShip();
         boolean shipPresent = ship != null;
 
-        this.modifyTab.active = shipPresent;
+        // a running job belongs to one tab: switching away mid task would
+        // hide the progress bar the player is waiting on
+        this.buildTab.active = !busy;
+        this.modifyTab.active = shipPresent && !busy;
         this.modifyTab.selected = modify;
         this.buildTab.selected = !modify;
-        this.modifyTab.setTooltip(shipPresent ? null
+        this.modifyTab.setTooltip(shipPresent || busy ? null
                 : net.minecraft.client.gui.components.Tooltip.create(Component.translatable("gui.smallships.dockyard.tab.no_ship")));
 
         boolean multipleTypes = ShipRegistry.getBuildable().size() > 1;
@@ -787,7 +802,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
         guiGraphics.fill(barX, barY, barX + barWidth, barY + PROGRESS_H, 0xFF15151A);
         guiGraphics.fill(barX + 1, barY + 1, barX + 1 + (int) ((barWidth - 2) * progress), barY + PROGRESS_H - 1, FRAME_INSTALLED);
-
+        Component working = Component.translatable("gui.smallships.dockyard.working");
+        guiGraphics.drawString(this.font, working, barX + barWidth / 2 - this.font.width(working) / 2, barY + 1, 0xFFFFFFFF, false);
     }
 
     @Override
@@ -927,8 +943,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         private static final float PITCH_LIMIT = 80.0F;
         private static final float ZOOM_MIN = 0.4F;
         private static final float ZOOM_MAX = 3.0F;
-        private static final float ZOOM_DEFAULT = 0.75F;
-        private static final float DEFAULT_YAW = 150.0F;
+        private static final float ZOOM_DEFAULT = 0.65F;
+        private static final float DEFAULT_YAW = -150.0F;
         private static final float DEFAULT_PITCH = -12.0F;
         /**
          * Where the models' own origin sits inside the frame. A ship pivots
@@ -1054,7 +1070,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
          * and right - half of this on each side. Anything else and the clicks
          * land next to what is drawn.
          */
-        private static final int ROW_INSET = 16;
+        private static final int ROW_INSET = 12;
         /** the vanilla scrollbar is 6 wide and sits right of the rows */
         private static final int SCROLLBAR_LANE = 8;
 
@@ -1090,10 +1106,13 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
          * alone, without asking whether it is visible. Both lists share the
          * same rectangle, so the hidden one would otherwise swallow every
          * click and every wheel tick meant for the one on screen.
+         *
+         * The LIST_OVERHANG strip on the left is only there to shift the
+         * centered rows; it is not part of the panel and must not react.
          */
         @Override
         public boolean isMouseOver(double mouseX, double mouseY) {
-            return this.visible && super.isMouseOver(mouseX, mouseY);
+            return this.visible && mouseX >= this.getX() + LIST_OVERHANG && super.isMouseOver(mouseX, mouseY);
         }
 
         @Override
@@ -1161,7 +1180,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private class UpgradeList extends AbstractSelectionList<UpgradeList.Entry> {
         private static final int ROW_HEIGHT = 22;
         /** see MaterialList.ROW_INSET - the rows are centered, not left aligned */
-        private static final int ROW_INSET = 16;
+        private static final int ROW_INSET = 12;
         private static final int SCROLLBAR_LANE = 8;
 
         @Nullable private List<Component> hoveredTooltip;
@@ -1195,10 +1214,13 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
          * alone, without asking whether it is visible. Both lists share the
          * same rectangle, so the hidden one would otherwise swallow every
          * click and every wheel tick meant for the one on screen.
+         *
+         * The LIST_OVERHANG strip on the left is only there to shift the
+         * centered rows; it is not part of the panel and must not react.
          */
         @Override
         public boolean isMouseOver(double mouseX, double mouseY) {
-            return this.visible && super.isMouseOver(mouseX, mouseY);
+            return this.visible && mouseX >= this.getX() + LIST_OVERHANG && super.isMouseOver(mouseX, mouseY);
         }
 
         @Override

@@ -28,6 +28,7 @@ import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -360,7 +361,16 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.entityData.set(CONTAINER_FILL_STATE, b);
     }
 
+    /**
+     * The cargo penalty, scaled by how full the hold is.
+     *
+     * The fill state is a PERCENTAGE (0..100), written by
+     * {@link #updateContainerFillState()}. The old formula read it as a signed
+     * byte spanning -128..127 and remapped it onto 0..1, so an empty hold came
+     * out at 128/255 - half the configured penalty on a ship carrying nothing.
+     */
     public float getContainerModifier() {
-        return SmallShipsConfig.Common.shipGeneralContainerModifier.get().floatValue() * (float)(this.getContainerFillState() - Byte.MIN_VALUE) / (-Byte.MIN_VALUE + Byte.MAX_VALUE);
+        float fillPercent = Mth.clamp(this.getContainerFillState(), 0, 100) / 100.0F;
+        return SmallShipsConfig.Common.shipGeneralContainerModifier.get().floatValue() * fillPercent;
     }
 }

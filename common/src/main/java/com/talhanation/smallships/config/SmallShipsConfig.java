@@ -267,13 +267,13 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Common.shipAttributeCogMaxHealth = builder
-                .defineInRange("shipAttributeCogMaxHealth", 300.0D, 1.0D, 10000.0D);
+                .defineInRange("shipAttributeCogMaxHealth", 400.0D, 1.0D, 10000.0D);
         Common.shipAttributeCogMaxSpeed = builder
-                .defineInRange("shipAttributeCogMaxSpeed", 40.0D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeCogMaxSpeed", 28.0D, 0.0D, 100.0D);
         Common.shipAttributeCogMaxReverseSpeed = builder
                 .defineInRange("shipAttributeCogMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeCogMaxRotationSpeed = builder
-                .defineInRange("shipAttributeCogMaxRotationSpeed", 4.5D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeCogMaxRotationSpeed", 4.0D, 0.0D, 100.0D);
         Common.shipAttributeCogAcceleration = builder
                 .defineInRange("shipAttributeCogAcceleration", 0.015D, 0.0D, 100.0D);
         Common.shipAttributeCogRotationAcceleration = builder
@@ -308,13 +308,13 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Common.shipAttributeBriggMaxHealth = builder
-                .defineInRange("shipAttributeBriggMaxHealth", 450.0D, 0.0D, 10000.0D);
+                .defineInRange("shipAttributeBriggMaxHealth", 500.0D, 0.0D, 10000.0D);
         Common.shipAttributeBriggMaxSpeed = builder
-                .defineInRange("shipAttributeBriggMaxSpeed", 35.0D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeBriggMaxSpeed", 30.0D, 0.0D, 100.0D);
         Common.shipAttributeBriggMaxReverseSpeed = builder
                 .defineInRange("shipAttributeBriggMaxReverseSpeed", 0.1D, 0.0D, 100.0D);
         Common.shipAttributeBriggMaxRotationSpeed = builder
-                .defineInRange("shipAttributeBriggMaxRotationSpeed", 4.0D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeBriggMaxRotationSpeed", 3.0D, 0.0D, 100.0D);
         Common.shipAttributeBriggAcceleration = builder
                 .defineInRange("shipAttributeBriggAcceleration", 0.015D, 0.0D, 100.0D);
         Common.shipAttributeBriggRotationAcceleration = builder

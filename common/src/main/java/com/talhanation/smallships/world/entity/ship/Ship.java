@@ -141,6 +141,18 @@ public abstract class Ship extends Boat {
     public final List<ShipCannon> CANNONS = new ArrayList<>();
     public final Stack<ItemStack> SHIELDS = new Stack<>();
     public float maxSpeed;
+
+    /**
+     * The configured maxSpeed attribute is a readability number, not a
+     * speed: the physics run on blocks per tick. Everything that shows a
+     * speed to the player has to go through here first, or the dockyard
+     * and the ship inventory print two different numbers for one hull.
+     */
+    public static final float SPEED_ATTRIBUTE_DIVISOR = 60F * 1.15F;
+
+    public static float toTickSpeed(float attributeSpeed) {
+        return attributeSpeed / SPEED_ATTRIBUTE_DIVISOR;
+    }
     private CameraType previousCameraType;
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
@@ -154,7 +166,16 @@ public abstract class Ship extends Boat {
         if (this instanceof Seatable seatable && !this.level().isClientSide() && this.tickCount % 20 == 0) {
             seatable.validateSeatAssignments();
         }
+        // Vanilla Boat.tick() heals the hull by one point per tick. A ship
+        // never heals itself - the hull is repaired by hand or at the dockyard
+        // and nowhere else - so the value is taken here and put straight back
+        // afterwards. This used to be an "+ 1.0F" further down that happened to
+        // cancel the vanilla "- 1.0F" out; restoring the exact value instead
+        // means neither number can silently start healing ships again, and a
+        // single point of damage no longer decays to nothing.
+        float hullDamageBeforeVanillaTick = this.getDamage();
         super.tick();
+        if (this.getDamage() != hullDamageBeforeVanillaTick) this.setDamage(hullDamageBeforeVanillaTick);
 
         if (!this.level().isClientSide() && (this.parts.isEmpty() || this.tickCount % 20 == 0)) this.updateParts();
 
@@ -163,9 +184,6 @@ public abstract class Ship extends Boat {
             this.decayRamImpulse();
         }
 
-        if (this.getDamage() > 0.0F) {
-            this.setDamage(this.getDamage() + 1.0F);
-        }
 
         if(isSunken()){
             if(++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
@@ -366,7 +384,7 @@ public abstract class Ship extends Boat {
                         (1 - (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0.0F)) *
                         (1 - (this instanceof ContainerShip containerShip && containerShip.isEffectedByCargoPenalty() ? containerShip.getContainerModifier()/100 : 0.0F));
 
-        this.maxSpeed = (attributes.maxSpeed / (60F * 1.15F)) * speedPenalty;
+        this.maxSpeed = toTickSpeed(attributes.maxSpeed) * speedPenalty;
         float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
