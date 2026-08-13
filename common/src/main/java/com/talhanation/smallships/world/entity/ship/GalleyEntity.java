@@ -53,7 +53,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
         attributes.addSaveData(tag);
         return tag;
     }
-    
+
     @Override
     public @NotNull Item getDropItem() {
         if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
@@ -184,5 +184,10 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     @Override
     public float getOarFactor() {
         return 0.85F;
+    }
+
+    @Override
+    public float getRamSelfDamageFactor() {
+        return 0.0F;
     }
 }

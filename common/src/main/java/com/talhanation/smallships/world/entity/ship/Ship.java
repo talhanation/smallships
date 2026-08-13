@@ -1200,6 +1200,14 @@ public abstract class Ship extends Boat {
 
         float ownDamage = (float) (pot * share);
         float otherDamage = (float) (pot * (1.0D - share));
+
+        // A reinforced ram bow only helps the hull that is actually driving the
+        // hit - hence the closing check. Either ship can be the one charging
+        // here: tickRam runs on the mover, but the one it finds may well be
+        // under way itself and meeting it bow to bow.
+        if (ownClosing > 0.0D) ownDamage *= this.getRamSelfDamageFactor();
+        if (otherClosing > 0.0D) otherDamage *= other.getRamSelfDamageFactor();
+
         if (ownDamage >= 1.0F) this.hurt(this.damageSources().generic(), ownDamage);
         if (otherDamage >= 1.0F) other.hurt(other.damageSources().generic(), otherDamage);
     }
@@ -1216,6 +1224,21 @@ public abstract class Ship extends Boat {
         double along = heading.dot(into);
         if (along <= 0.0D) return;
         this.setSpeed((float) (this.getSpeed() * (1.0D - RAM_DRIVE_LOSS * along)));
+    }
+
+    /**
+     * How much of its own share of a ram this hull actually takes.
+     *
+     * 1.0 is a normal hull: bow timbers that were never meant to be a weapon
+     * split the blow with whatever they run into. A hull built around a ram
+     * returns less, down to 0.0 for one that pays nothing at all.
+     *
+     * This applies only to the ship DRIVING into the hit. Lying still and being
+     * rammed is not ramming, and no bow reinforcement helps against a stem that
+     * comes in from abeam.
+     */
+    public float getRamSelfDamageFactor() {
+        return 1.0F;
     }
 
     public void addRamImpulse(Vec3 impulse) {

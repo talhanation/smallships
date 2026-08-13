@@ -162,11 +162,8 @@ public class ShipStatPanel {
             if (!(displayShip instanceof ContainerShip containerShip) || !containerShip.isEffectedByCargoPenalty()) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_cargo_penalty");
             }
-            if (!(displayShip instanceof Cannonable)) {
-                line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_cannon_penalty");
-            }
-            if (displayShip.getOarFactor() > 0.0F) {
-                line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.wind_independent");
+            if (displayShip.getRamSelfDamageFactor() < 1.0F) {
+                line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.ramming");
             }
         }
 
