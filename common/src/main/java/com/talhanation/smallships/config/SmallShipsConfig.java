@@ -67,8 +67,6 @@ public class SmallShipsConfig {
 
         // Sail damage (Feature: More Cannon Balls / Chained Shot)
         public static ForgeConfigSpec.BooleanValue sailDamageEnable;
-        public static ForgeConfigSpec.DoubleValue sailDamageBaseTransfer;
-        public static ForgeConfigSpec.DoubleValue sailDamageChainedTransfer;
         public static ForgeConfigSpec.ConfigValue<Integer> sailRepairWoolAmount;
         public static ForgeConfigSpec.BooleanValue shipGeneralCameraFreeLook;
         public static ForgeConfigSpec.BooleanValue vanillaBoatSlowdownEnable;
@@ -589,14 +587,6 @@ public class SmallShipsConfig {
         builder.comment("Enable the sail damage system. Sails have 100 hitpoints; cannon hits transfer a part of their damage to the sails.");
         Common.sailDamageEnable = builder
                 .define("sailDamageEnable", true);
-
-        builder.comment("Fraction of a cannonball hit that is transferred to the sails (default 15%).");
-        Common.sailDamageBaseTransfer = builder
-                .defineInRange("sailDamageBaseTransfer", 0.15D, 0.0D, 1.0D);
-
-        builder.comment("Fraction of a chained shot hit that is transferred to the sails (default 50%).");
-        Common.sailDamageChainedTransfer = builder
-                .defineInRange("sailDamageChainedTransfer", 0.5D, 0.0D, 1.0D);
 
         builder.comment("Amount of wool needed to repair the sails by hand.");
         Common.sailRepairWoolAmount = builder

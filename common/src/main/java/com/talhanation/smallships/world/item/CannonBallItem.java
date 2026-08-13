@@ -9,11 +9,11 @@ public class CannonBallItem extends Item {
      */
     public enum Type {
         /** default cannonball: solid shot, made for timbers */
-        BALL((byte) 0, 1.0F, 1.0F, 1.0F, 1, 1.0F, 0.33F),
+        BALL((byte) 0, 1.0F, 1.5F, 1.5F, 1, 1.0F, 0.33F),
         /** chained shot: two balls on a chain, made for rigging */
-        CHAINED((byte) 1, 0.75F, 0.75F, 0.75F, 1, 0.33F, 1.0F),
+        CHAINED((byte) 1, 0.75F, 1.0F, 1.00F, 1, 0.33F, 1.0F),
         /** grape shot: a cloud of pellets, made for the crew */
-        GRAPE((byte) 2, 0.6F, 0.5F, 2.5F, 6, 0.25F, 0.5F);
+        GRAPE((byte) 2, 0.6F, 0.5F, 2.5F, 6, 0.25F, 0.75F);
 
         public final byte id;
         /** multiplier for projectile speed → range */

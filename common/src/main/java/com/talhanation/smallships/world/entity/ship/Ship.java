@@ -30,6 +30,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
@@ -1327,7 +1328,12 @@ public abstract class Ship extends Boat {
             this.setDamage(this.getDamage() + f * (this instanceof Shieldable shieldShip ? shieldShip.getDamageModifier() : 1));
             this.markHurt();
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
-            if(f > 10)this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+            // Projectiles play their own impact sound at the point they struck -
+            // see AbstractCannonBall#onHitEntity. Playing it a second time from
+            // here would double up on every hull hit that happens to be heavy.
+            if (f > 10 && !damageSource.is(DamageTypeTags.IS_PROJECTILE)) {
+                this.level().playSound(null, this.getX(), this.getY() + 4, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+            }
 
             boolean bl = damageSource.getEntity() instanceof Player player && player.getAbilities().instabuild && player.isCrouching();
 

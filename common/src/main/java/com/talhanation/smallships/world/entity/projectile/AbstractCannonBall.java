@@ -20,6 +20,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
+import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -205,6 +206,12 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
     protected void onHit(HitResult hitResult) {
         super.onHit(hitResult);
         this.hitParticles();
+        // AbstractHurtingProjectile does NOT remove itself on impact - the
+        // concrete vanilla fireballs each do that in their own onHit. That is
+        // why onHitBlock below always removed by hand; an ENTITY hit never did,
+        // so the ball kept flying straight through the ship it had just holed
+        // and stayed live for the next one behind it.
+        if (!this.level().isClientSide()) this.discard();
     }
 
     /**
@@ -239,7 +246,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
                 if(shipHitEntity.getControllingPassenger() != null &&  ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(shipHitEntity.getControllingPassenger()) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
 
                 CannonBallItem.Type ballType = this.getBallType();
-                float shipDamage = (random.nextInt(7) + 7) * ballType.damageMultiplier;
+                float shipDamage = (random.nextInt(10) + 10) * ballType.damageMultiplier;
                 // the masts ARE the sails' hit box: what goes through the rigging
                 // never reaches the timbers, and a ball in the side never reaches
                 // the canvas. Which one you hit is now the players' decision.
@@ -248,6 +255,12 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
                 } else {
                     shipHitEntity.hurt(this.damageSources().thrown(this, ownerEntity), shipDamage * ballType.hullFactor);
                 }
+                // The impact sound belongs to the BALL, not to the hull damage.
+                // Ship#hurt only plays it above 10 damage, and once hullFactor
+                // and sailFactor split a shot up, a hit rarely reaches that -
+                // a mast hit never called hurt at all, so it stayed silent.
+                this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
+                        ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
                 if(ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
