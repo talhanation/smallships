@@ -79,7 +79,7 @@ public class ModEntityTypesImpl {
                 .build()));
 
         entries.put(GalleyEntity.class, register(GalleyEntity.ID, EntityType.Builder.of(GalleyEntity::new, MobCategory.MISC)
-                .sized(3.5F, 1.25F)
+                .sized(1F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
                 .build()));

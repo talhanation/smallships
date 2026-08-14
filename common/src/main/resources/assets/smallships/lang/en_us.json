@@ -194,6 +194,7 @@
   "gui.smallships.dockyard.stat.penalty_cargo": "Cargo Penalty",
   "gui.smallships.dockyard.stat.penalty_cannons": "Cannon Penalty",
   "gui.smallships.dockyard.stat.penalty_biome": "Biome Penalty",
+  "gui.smallships.dockyard.stat.ramming": "No Ramming Damage",
 
   "gui.smallships.dockyard.apply": "Apply",
   "gui.smallships.dockyard.total_cost": "Total Cost:",
@@ -205,6 +206,8 @@
   "gui.smallships.dockyard.sail_color": "%s - Sail",
   "gui.smallships.dockyard.banner_mounted" : "Banner",
   "gui.smallships.dockyard.banner_hint" : "Sail Banner",
+  "gui.smallships.dockyard.duration" : "Time: %s",
+
 
   "gui.smallships.dockyard.stat.no_cargo_penalty" : "No Cargo Penalty",
   "gui.smallships.dockyard.stat.no_cannon_penalty" : "No Cannon Penalty",

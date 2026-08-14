@@ -331,9 +331,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /** work time of a single cannon mount / dismount in ticks */
-    private static final int CANNON_TIME = 10 * 20;
+    public static final int CANNON_TIME = 10 * 20;
     /** work time of a banner or dye job in ticks */
-    private static final int STYLE_TIME = 8 * 20;
+    public static final int STYLE_TIME = 8 * 20;
 
     private void finishModify(Level level, BlockPos pos) {
         if (this.targetShipUUID == null || !(level instanceof ServerLevel serverLevel)) return;
@@ -405,6 +405,20 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
+     * Work time of a repair in ticks: 8s base plus up to 16s for the hull and
+     * 4s for torn canvas.
+     *
+     * Public and separate from the task itself because the screen has to put
+     * the same number in the buttons' tooltip - one formula, not two that drift
+     * apart.
+     */
+    public static int getRepairTime(Ship ship, boolean hull, boolean sails) {
+        float hullFraction = hull ? Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth) : 0.0F;
+        float sailFraction = sails ? 1.0F - SailDamage.getHealth(ship) / SailDamage.MAX_HEALTH : 0.0F;
+        return (int) ((8.0F + 16.0F * hullFraction + (sailFraction > 0.0F ? 4.0F : 0.0F)) * 20.0F);
+    }
+
+    /**
      * Repair task: fixes the hull, the sails or both, for materials from the
      * player inventory. The work time scales with the damage.
      */
@@ -437,8 +451,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
         ship.setDockyardWork(true);
-        // work time scales with the damage: 8s base up to ~28s
-        this.totalTime = (int) ((8.0F + 16.0F * hullFraction + (sailFraction > 0.0F ? 4.0F : 0.0F)) * 20.0F);
+        this.totalTime = getRepairTime(ship, hull, sails);
         this.progress = 0;
         this.setChanged();
     }

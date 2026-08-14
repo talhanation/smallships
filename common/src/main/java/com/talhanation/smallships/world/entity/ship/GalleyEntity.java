@@ -71,8 +71,10 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
      * part but several short ones.
      */
     private static final List<ShipPartEntity.Definition> PARTS = List.of(
-            ShipPartEntity.Definition.hull(-2.65F, 0.0F, 0.0F, 2.8F, 1.25F),//back
-            ShipPartEntity.Definition.hull(2.65F, 0.0F, 0.0F, 2.5F, 1.25F),//front
+            ShipPartEntity.Definition.hull(-2.65F, 0.0F, 0.0F, 2.8F, 1.6F),//back
+            ShipPartEntity.Definition.hull(2.65F, 0.0F, 0.0F, 2.5F, 1.6F),//front
+            ShipPartEntity.Definition.hull(0.0F, 0.0F, 0.0F, 3.00F, 1.6F),//center
+            ShipPartEntity.Definition.hull(4.35F, 0.75F, 0.0F, 1.25F, 1.0F),//front ram
             ShipPartEntity.Definition.mast(-0.275F, 0.0F, 0.3F, 8.5F)//mast
     );
 
@@ -82,15 +84,15 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -3.0F, 0.0F,0.0F),
-            ShipSeat.passenger(1, -1.5F,0.0F, 0.75F),
-            ShipSeat.passenger(2, -1.5F,0.0F, -0.75F),
-            ShipSeat.passenger(3, -0.5F,0.0F, 0.75F),
-            ShipSeat.passenger(4, -0.5F,0.0F, -0.75F),
-            ShipSeat.passenger(5, 2.5F, 0.0F,0.0F),
+            ShipSeat.driver(0, -3.0F, 0.4F,0.0F),
+            ShipSeat.passenger(1, -1.5F,0.4F, 0.75F),
+            ShipSeat.passenger(2, -1.5F,0.4F, -0.75F),
+            ShipSeat.passenger(3, -0.5F,0.4F, 0.75F),
+            ShipSeat.passenger(4, -0.5F,0.4F, -0.75F),
+            ShipSeat.passenger(5, 2.5F, 0.4F,0.0F),
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.gunner(6, 1.2F,0.0F,0.4F, 0),
-            ShipSeat.gunner(7, 1.2F,0.0F, -0.4F, 1));
+            ShipSeat.gunner(6, 1.2F,0.4F,0.4F, 0),
+            ShipSeat.gunner(7, 1.2F,0.4F, -0.4F, 1));
 
     @Override
     public List<ShipSeat> getSeats() {

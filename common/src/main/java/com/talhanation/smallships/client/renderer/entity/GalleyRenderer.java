@@ -28,7 +28,7 @@ public class GalleyRenderer extends ShipRenderer<GalleyEntity> {
     public void render(@NotNull GalleyEntity galleyEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
-        poseStack.translate(0.0D, 2.7D,0.0D);
+        poseStack.translate(0.0D, 3.15D,0.0D);
         super.render(galleyEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 }

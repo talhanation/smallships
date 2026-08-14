@@ -285,9 +285,7 @@ public class ShipPartEntity extends Entity {
     @Override
     public boolean canBeCollidedWith() {
         Ship ship = this.getParent();
-        return ship != null
-                && Math.abs(ship.getSpeed()) < STILL_SPEED
-                && Math.abs(ship.getRotSpeed()) < STILL_ROT_SPEED;
+        return ship != null;
     }
 
     @Override

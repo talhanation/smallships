@@ -135,10 +135,41 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     }
 
     private static final CannonModel cannonModel = new CannonModel();
+
+    /**
+     * Dockyard preview only: a cannon slot drawn on the model although nothing
+     * is mounted there, so the player can see where the gun he is hovering over
+     * would end up.
+     *
+     * Static because it is set for a single draw call from the screen and
+     * cleared right after - the world is already rendered by the time a screen
+     * draws, so the ghost never reaches the ship floating outside.
+     */
+    private static int ghostCannonSlot = -1;
+
+    /**
+     * Flat white, mostly opaque and steady - no pulse.
+     *
+     * The alpha stays high on purpose: the ghost is blended against the
+     * dockyards' black preview panel, so a faint white does not read as "see
+     * through" there, it reads as a black gun. Short of solid so it still tells
+     * itself apart from the guns that are actually mounted.
+     */
+    private static final int GHOST_COLOR = 0xD8FFFFFF;
+
+    public static void setGhostCannon(int slot) {
+        ghostCannonSlot = slot;
+    }
+
+    public static void clearGhostCannon() {
+        ghostCannonSlot = -1;
+    }
     @SuppressWarnings({"unused"})
     private void renderCannon(Cannonable cannonShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         for(int slot = 0; slot < cannonShipEntity.getTotalCannonSlots(); slot++){
-            if (!cannonShipEntity.isCannonInSlot(slot)) continue;
+            boolean mounted = cannonShipEntity.isCannonInSlot(slot);
+            boolean ghost = !mounted && slot == ghostCannonSlot;
+            if (!mounted && !ghost) continue;
             ShipCannon cannon = new ShipCannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(slot), slot);
 
             // per-cannon aim (gunner) with broadside fallback (driver)
@@ -156,7 +187,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             // cannon pose like the SiegeWeapons ballista - it follows every ship
             // rotation and the cannon aim automatically. The hull scale (-1.3)
             // is normalized away so the ballista math applies 1:1.
-            if (CannonAimHandler.isAimingShip(cannonShipEntity.self())
+            if (!ghost && CannonAimHandler.isAimingShip(cannonShipEntity.self())
                     && (CannonAimHandler.getAimSlot() >= 0
                     ? slot == CannonAimHandler.getAimSlot()
                     : cannon.isRightSided() == CannonAimHandler.getAimSide())) {
@@ -175,8 +206,13 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             // barrel elevation, mc pitch convention (negative = up)
             cannonModel.setLaufPitch(-aimAngle);
 
-            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entitySolid(cannonShipEntity.getTextureLocation()));
-            cannonModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+            // a ghost has to go through a translucent render type: entitySolid
+            // discards the alpha channel and would draw it fully opaque
+            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(ghost
+                    ? RenderType.entityTranslucent(cannonShipEntity.getTextureLocation())
+                    : RenderType.entitySolid(cannonShipEntity.getTextureLocation()));
+            cannonModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY,
+                    ghost ? GHOST_COLOR : 0xFFFFFFFF);
 
             poseStack.popPose();
         }

@@ -101,37 +101,57 @@ public abstract class Ship extends Boat {
     /** live collision parts, server side only, see updateParts */
     private final List<ShipPartEntity> parts = new ArrayList<>();
 
-    /** 1 + coefficient of restitution, wooden hulls barely bounce */
-    private static final double RAM_ELASTICITY = 1.2D;
-    /**
-     * Gain on the physical impulse. Ship speeds in this game are around a
-     * tenth of a block per tick, so a textbook impulse comes out below half
-     * a block of travel and reads as nothing happening at all.
+    /*
+     * ---- ramming -------------------------------------------------------
+     *
+     * Below the threshold nothing happens at all. Above it:
+     *
+     *     damage = BASE + (closing km/h - threshold) x PER_KMH
+     *
+     * That number is then split by weight - the lighter hull takes more of it,
+     * up to double, the heavier one less. The crew takes a fixed share, and the
+     * hit ship is thrown at the speed it was hit with. Nothing else.
+     *
+     * Speeds are in km/h, the unit the ships report to the player, so the
+     * threshold can be checked against the readout on screen. A Cog at full
+     * speed makes about 42 km/h; two of them head-on close at roughly 84.
      */
-    private static final double RAM_PUSH = 5.0D;
-    /** hard ceiling per ship per hit, in blocks per tick */
-    private static final double RAM_MAX_PUSH = 1.0D;
-    /** total hull damage per unit of impulse, shared between the two ships */
-    private static final double RAM_DAMAGE = 3.0D;
-    /** how lopsided the split may get - 0 shares evenly, 1 spares the rammer entirely */
-    private static final double RAM_DAMAGE_BIAS = 0.85D;
-    /** share of the drive lost when it pointed straight into the hit */
-    private static final double RAM_DRIVE_LOSS = 0.8D;
-    private static final float RAM_DECAY = 0.88F;
-    private static final int RAM_COOLDOWN = 10;
+
+    /** below this closing speed the hulls just bump and nothing is spent */
+    private static final double RAM_MIN_CLOSING_KMH = 25.0D;
+    /** damage every ram that counts deals, before the weight split */
+    private static final float RAM_BASE_DAMAGE = 7.0F;
+    /** further damage per km/h of closing speed above the threshold */
+    private static final float RAM_DAMAGE_PER_KMH = 1.0F;
+    /** share of the hull damage everyone aboard takes, thrown across the deck */
+    private static final float RAM_CREW_DAMAGE_SHARE = 0.15F;
+
+    /** ceiling on how hard a hull is thrown, in blocks per tick */
+    private static final double RAM_MAX_SHOVE = 2.5D;
+    /** how much of that throw survives each tick, so how far it carries */
+    private static final float RAM_DECAY = 0.9F;
+
+    /**
+     * How far a ship has to get from the spot it last rammed at before the next
+     * ram counts, in blocks.
+     *
+     * A fixed point, not the other ship: a target that is right in front of you
+     * is by definition close, so a distance TO IT can never clear and the block
+     * would hold forever. Not a timer either - the drive is back within a
+     * second, so a cooldown only throttles grinding against a hull already
+     * touched. This says what it should: break off, come about, run in again.
+     */
+    private static final double RAM_REARM_DISTANCE = 10.0D;
 
     /**
      * Fixed manoeuvring speed in blocks per tick, ahead and astern alike, and
      * deliberately NOT derived from maxSpeed: warping into a berth or working
      * a wedged hull free should take the same patience on every ship.
      */
-    private static final float MANOEUVRE_SPEED = 0.035F;
+    private static final float MANOEUVRE_SPEED = 0.03F;
 
-    /** below this a ram is not worth looking for */
-    private static final float RAM_MIN_SPEED = 0.06F;
-
-    /** ticks until this ship can be rammed again, server side */
-    private int ramCooldown;
+    /** Server side: where this ship last rammed, see RAM_REARM_DISTANCE. */
+    @Nullable private Vec3 ramRearmPos;
 
     private int blockerTick = -1;
     private AABB blockerArea;
@@ -1104,7 +1124,7 @@ public abstract class Ship extends Boat {
         double wanted = delta.x * delta.x + delta.z * delta.z;
         double reached = allowed.x * allowed.x + allowed.z * allowed.z;
         // running into a cliff stops a ship dead, brushing along a quay does not
-        if (reached < wanted * 0.0625D) this.ram();
+        if (reached < wanted * 0.0625D) this.stopAgainstObstacle();
     }
 
     /**
@@ -1137,9 +1157,25 @@ public abstract class Ship extends Boat {
      * runs for crewed and drifting ships alike.
      */
     private void tickRam() {
-        if (Math.abs(this.getSpeed()) <= RAM_MIN_SPEED) return;
+        // Half the threshold, because closing speed is the sum of both ships:
+        // anything slower than this cannot reach the bar even head-on against
+        // an equal, and the search is the expensive part.
+        if (Kalkuel.getKilometerPerHour(Math.abs(this.getSpeed())) < RAM_MIN_CLOSING_KMH * 0.5D) return;
+        if (!this.isRamReady()) return;
         Ship rammed = ShipPartEntity.findRammedShip(this, this.getRamVelocity());
         if (rammed != null) this.ramShip(rammed);
+    }
+
+    /**
+     * @return true once this ship has got clear of the spot it last rammed at.
+     * Measured against a fixed point, so it keeps growing as the ship sails
+     * away and the block releases itself without anything having to tick.
+     */
+    private boolean isRamReady() {
+        if (this.ramRearmPos == null) return true;
+        if (this.position().distanceToSqr(this.ramRearmPos) < RAM_REARM_DISTANCE * RAM_REARM_DISTANCE) return false;
+        this.ramRearmPos = null;
+        return true;
     }
 
     /**
@@ -1160,56 +1196,54 @@ public abstract class Ship extends Boat {
      * hit throws the lighter ship clear.
      */
     private void ramShip(Ship other) {
-        if (this.level().isClientSide() || this.ramCooldown > 0) return;
+        if (this.level().isClientSide()) return;
 
         Vec3 line = new Vec3(other.getX() - this.getX(), 0.0D, other.getZ() - this.getZ());
         if (line.lengthSqr() < 1.0E-4D) return;
         Vec3 normal = line.normalize();
 
+        // Anything under the bar is not a ram and is left entirely alone: no
+        // damage, no shove, and the re-arm block stays unarmed so a nudge while
+        // manoeuvring cannot eat the run that comes after it. The hulls still
+        // stop each other - that is ShipPartEntity#collide, not this.
         double closing = this.getRamVelocity().subtract(other.getRamVelocity()).dot(normal);
-        if (closing <= 0.0D) return;
+        double closingKmh = Kalkuel.getKilometerPerHour((float) closing);
+        if (closingKmh < RAM_MIN_CLOSING_KMH) return;
 
+        float hit = RAM_BASE_DAMAGE + (float) (closingKmh - RAM_MIN_CLOSING_KMH) * RAM_DAMAGE_PER_KMH;
+
+        // Split by weight: 1.0 between equals, up to 2.0 for the lighter hull,
+        // towards 0 for the heavier one. Running into something bigger than
+        // yourself is what hurts.
         float mass = this.getMass();
         float otherMass = other.getMass();
-        double impulse = RAM_ELASTICITY * closing / (1.0D / mass + 1.0D / otherMass);
-        double push = impulse * RAM_PUSH;
+        double ownShare = 2.0D * otherMass / (mass + otherMass);
+        double otherShare = 2.0D * mass / (mass + otherMass);
 
-        this.addRamImpulse(normal.scale(-Math.min(push / mass, RAM_MAX_PUSH)));
-        other.addRamImpulse(normal.scale(Math.min(push / otherMass, RAM_MAX_PUSH)));
+        // Read who is under power into the hit BEFORE dampDrive takes the way
+        // off both of them - afterwards the answer would depend on the order
+        // the two calls happen to run in.
+        boolean ownRamming = this.driveInto(normal) > 0.0D;
+        boolean otherRamming = other.driveInto(normal.reverse()) > 0.0D;
+
+        // the stem that drives the hit carries through it, the hull it meets is
+        // the one that gets thrown - and at the speed it was hit with
+        if (!ownRamming) this.addRamImpulse(normal.scale(-Math.min(closing * ownShare, RAM_MAX_SHOVE)));
+        if (!otherRamming) other.addRamImpulse(normal.scale(Math.min(closing * otherShare, RAM_MAX_SHOVE)));
         // both drives are damped, not just the one that happened to tick
         // first - otherwise a head-on would leave one ship pushing on
         this.dampDrive(normal);
         other.dampDrive(normal.reverse());
 
-        this.ramCooldown = RAM_COOLDOWN;
-        other.ramCooldown = RAM_COOLDOWN;
+        this.ramRearmPos = this.position();
+        other.ramRearmPos = other.position();
 
-        this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), SoundEvents.WOOD_BREAK, this.getSoundSource(), 2.0F, 0.5F + 0.2F * this.random.nextFloat());
+        this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 2.0F, 0.5F + 0.2F * this.random.nextFloat());
 
-        // the pot comes off the physical impulse, never off the boosted push
-        double pot = impulse * RAM_DAMAGE;
-
-        // split by who carried the momentum into the hit. A hull driven bow
-        // first meets the blow with its stem and its own way behind it, while a
-        // ship lying still simply absorbs everything - so the slower one pays.
-        double ownClosing = Math.max(0.0D, this.getRamVelocity().dot(normal));
-        double otherClosing = Math.max(0.0D, other.getRamVelocity().dot(normal.reverse()));
-        double closingSum = ownClosing + otherClosing;
-        double share = closingSum <= 1.0E-6D ? 0.5D : otherClosing / closingSum;
-        share = 0.5D + (share - 0.5D) * RAM_DAMAGE_BIAS;
-
-        float ownDamage = (float) (pot * share);
-        float otherDamage = (float) (pot * (1.0D - share));
-
-        // A reinforced ram bow only helps the hull that is actually driving the
-        // hit - hence the closing check. Either ship can be the one charging
-        // here: tickRam runs on the mover, but the one it finds may well be
-        // under way itself and meeting it bow to bow.
-        if (ownClosing > 0.0D) ownDamage *= this.getRamSelfDamageFactor();
-        if (otherClosing > 0.0D) otherDamage *= other.getRamSelfDamageFactor();
-
-        if (ownDamage >= 1.0F) this.hurt(this.damageSources().generic(), ownDamage);
-        if (otherDamage >= 1.0F) other.hurt(other.damageSources().generic(), otherDamage);
+        // A ram bow only spares the hull that is DRIVING the hit - being rammed
+        // costs every ship the same, whatever its stem is built like.
+        this.takeRamHit((float) (hit * ownShare), ownRamming ? this.getRamSelfDamageFactor() : 1.0F);
+        other.takeRamHit((float) (hit * otherShare), otherRamming ? other.getRamSelfDamageFactor() : 1.0F);
     }
 
     /**
@@ -1219,11 +1253,49 @@ public abstract class Ship extends Boat {
      * line there.
      */
     private void dampDrive(Vec3 into) {
+        double along = this.driveInto(into);
+        if (along <= 0.0D) return;
+        // the way that was pointing into the target is spent on it, no dial
+        this.setSpeed((float) (this.getSpeed() * (1.0D - along)));
+    }
+
+    /**
+     * @return how much of this ships' DRIVE points the given way, 0 if none of
+     * it does.
+     *
+     * Built from the speed and the heading only, never from getRamVelocity:
+     * that one carries the ram impulse, so a ship still lodged in the target it
+     * just hit reads as moving away from it a few ticks later - and a ram bow
+     * would stop protecting halfway through the very ram it is delivering.
+     */
+    private double driveInto(Vec3 into) {
         Vec3 heading = new Vec3(Kalkuel.calculateMotionX(1.0F, this.getYRot()), 0.0D, Kalkuel.calculateMotionZ(1.0F, this.getYRot()))
                 .scale(Math.signum(this.getSpeed()));
-        double along = heading.dot(into);
-        if (along <= 0.0D) return;
-        this.setSpeed((float) (this.getSpeed() * (1.0D - RAM_DRIVE_LOSS * along)));
+        return Math.max(0.0D, heading.dot(into));
+    }
+
+    /**
+     * What a ram costs THIS ship: timbers and crew, both read off the same
+     * damage figure. Nothing here needs to know about the other hull - the
+     * split already happened.
+     *
+     * Anything under a point of damage is a bump and is dropped, which is also
+     * what keeps a gentle nudge from bruising the crew.
+     *
+     * @param damage     this ships' share of the hit, see ramShip
+     * @param hullFactor 1.0 for a normal stem, less for a ram bow. It never
+     *                   touches the crew: they are thrown across the deck
+     *                   whatever the bow is built like.
+     */
+    private void takeRamHit(float damage, float hullFactor) {
+        float hullDamage = damage * hullFactor;
+        if (hullDamage >= 1.0F) this.hurt(this.damageSources().generic(), hullDamage);
+
+        float crewDamage = damage * RAM_CREW_DAMAGE_SHARE;
+        if (crewDamage < 1.0F) return;
+        for (Entity passenger : this.getPassengers()) {
+            passenger.hurt(this.damageSources().flyIntoWall(), crewDamage);
+        }
     }
 
     /**
@@ -1233,23 +1305,22 @@ public abstract class Ship extends Boat {
      * split the blow with whatever they run into. A hull built around a ram
      * returns less, down to 0.0 for one that pays nothing at all.
      *
-     * This applies only to the ship DRIVING into the hit. Lying still and being
-     * rammed is not ramming, and no bow reinforcement helps against a stem that
-     * comes in from abeam.
+     * It applies only to a ram this ship DRIVES: no hull has ever been safe
+     * from being rammed, and a beak on the bow does nothing about a stem coming
+     * in abeam. It never covers the crew either - they are thrown across the
+     * deck whatever the stem is made of.
      */
     public float getRamSelfDamageFactor() {
         return 1.0F;
     }
 
-    public void addRamImpulse(Vec3 impulse) {
+    private void addRamImpulse(Vec3 impulse) {
         this.setData(IMPULSE_X, (float) (this.getData(IMPULSE_X) + impulse.x));
         this.setData(IMPULSE_Z, (float) (this.getData(IMPULSE_Z) + impulse.z));
     }
 
     /** Water swallows a shove quickly - roughly two seconds until it is gone. */
     private void decayRamImpulse() {
-        if (this.ramCooldown > 0) this.ramCooldown--;
-
         float x = this.getData(IMPULSE_X);
         float z = this.getData(IMPULSE_Z);
         if (x == 0.0F && z == 0.0F) return;
@@ -1264,8 +1335,14 @@ public abstract class Ship extends Boat {
         this.setData(IMPULSE_Z, z);
     }
 
-    /** Full stop against something solid, with the timber to go with it. */
-    private void ram() {
+    /**
+     * Full stop against something solid - terrain, a wall, a wedged hull - with
+     * the timber to go with it.
+     *
+     * Nothing to do with ramShip: this is the ship being brought up short by
+     * the world, it costs no damage and knows nothing about the other party.
+     */
+    private void stopAgainstObstacle() {
         if (this.level().isClientSide()) return;
         if (Math.abs(this.getSpeed()) > 0.05F && this.tickCount % 10 == 0) {
             this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), SoundEvents.WOOD_HIT, this.getSoundSource(), 1.6F, 0.6F + 0.2F * this.random.nextFloat());

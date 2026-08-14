@@ -2,7 +2,6 @@ package com.talhanation.smallships.client;
 
 import com.talhanation.smallships.api.client.ShipRenderRegistry;
 import com.talhanation.smallships.client.gui.screens.inventory.DockyardScreen;
-import com.talhanation.smallships.client.gui.screens.inventory.GroundCannonContainerScreen;
 import com.talhanation.smallships.client.gui.screens.inventory.ShipContainerScreen;
 import com.talhanation.smallships.client.model.sail.*;
 import com.talhanation.smallships.client.model.sail.banner.CogSailBannerModel;
@@ -14,7 +13,6 @@ public class ClientInitializer {
     public static void init() {
         //common client
         MenuScreens.register(ModMenuTypes.SHIP_CONTAINER, ShipContainerScreen::new);
-        MenuScreens.register(ModMenuTypes.CANNON_CONTAINER, GroundCannonContainerScreen::new);
         MenuScreens.register(ModMenuTypes.DOCKYARD, DockyardScreen::new);
 
         initRegisterShipRenderLayers();

@@ -273,7 +273,7 @@ public class SmallShipsConfig {
         Common.shipAttributeCogMaxRotationSpeed = builder
                 .defineInRange("shipAttributeCogMaxRotationSpeed", 4.0D, 0.0D, 100.0D);
         Common.shipAttributeCogAcceleration = builder
-                .defineInRange("shipAttributeCogAcceleration", 0.015D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeCogAcceleration", 0.010D, 0.0D, 100.0D);
         Common.shipAttributeCogRotationAcceleration = builder
                 .defineInRange("shipAttributeCogRotationAcceleration", 0.7D, 0.0D, 100.0D);
 
@@ -314,7 +314,7 @@ public class SmallShipsConfig {
         Common.shipAttributeBriggMaxRotationSpeed = builder
                 .defineInRange("shipAttributeBriggMaxRotationSpeed", 3.0D, 0.0D, 100.0D);
         Common.shipAttributeBriggAcceleration = builder
-                .defineInRange("shipAttributeBriggAcceleration", 0.015D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeBriggAcceleration", 0.010D, 0.0D, 100.0D);
         Common.shipAttributeBriggRotationAcceleration = builder
                 .defineInRange("shipAttributeBriggRotationAcceleration", 0.55D, 0.0D, 100.0D);
 
@@ -355,7 +355,7 @@ public class SmallShipsConfig {
         Common.shipAttributeGalleyMaxRotationSpeed = builder
                 .defineInRange("shipAttributeGalleyMaxRotationSpeed", 5.0D, 0.0D, 100.0D);
         Common.shipAttributeGalleyAcceleration = builder
-                .defineInRange("shipAttributeGalleyAcceleration", 0.015D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeGalleyAcceleration", 0.010D, 0.0D, 100.0D);
         Common.shipAttributeGalleyRotationAcceleration = builder
                 .defineInRange("shipAttributeGalleyRotationAcceleration", 1.00D, 0.0D, 100.0D);
 
@@ -395,7 +395,7 @@ public class SmallShipsConfig {
         Common.shipAttributeDrakkarMaxRotationSpeed = builder
                 .defineInRange("shipAttributeDrakkarMaxRotationSpeed", 5.0D, 0.0D, 100.0D);
         Common.shipAttributeDrakkarAcceleration = builder
-                .defineInRange("shipAttributeDrakkarAcceleration", 0.015D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeDrakkarAcceleration", 0.010D, 0.0D, 100.0D);
         Common.shipAttributeDrakkarRotationAcceleration = builder
                 .defineInRange("shipAttributeDrakkarRotationAcceleration", 1.00D, 0.0D, 100.0D);
 
@@ -436,7 +436,7 @@ public class SmallShipsConfig {
         Common.shipAttributeGalleonMaxRotationSpeed = builder
                 .defineInRange("shipAttributeGalleonMaxRotationSpeed", 3.3D, 0.0D, 100.0D);
         Common.shipAttributeGalleonAcceleration = builder
-                .defineInRange("shipAttributeGalleonAcceleration", 0.013D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeGalleonAcceleration", 0.007D, 0.0D, 100.0D);
         Common.shipAttributeGalleonRotationAcceleration = builder
                 .defineInRange("shipAttributeGalleonRotationAcceleration", 1.00D, 0.0D, 100.0D);
 
@@ -478,7 +478,7 @@ public class SmallShipsConfig {
         Common.shipAttributeDhowMaxRotationSpeed = builder
                 .defineInRange("shipAttributeDhowMaxRotationSpeed", 4.5D, 0.0D, 100.0D);
         Common.shipAttributeDhowAcceleration = builder
-                .defineInRange("shipAttributeDhowAcceleration", 0.015D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeDhowAcceleration", 0.010D, 0.0D, 100.0D);
         Common.shipAttributeDhowRotationAcceleration = builder
                 .defineInRange("shipAttributeDhowRotationAcceleration", 1.00D, 0.0D, 100.0D);
 
@@ -520,7 +520,7 @@ public class SmallShipsConfig {
         Common.shipAttributeCaravelMaxRotationSpeed = builder
                 .defineInRange("shipAttributeCaravelMaxRotationSpeed", 4.75D, 0.0D, 100.0D);
         Common.shipAttributeCaravelAcceleration = builder
-                .defineInRange("shipAttributeCaravelAcceleration", 0.015D, 0.0D, 100.0D);
+                .defineInRange("shipAttributeCaravelAcceleration", 0.010D, 0.0D, 100.0D);
         Common.shipAttributeCaravelRotationAcceleration = builder
                 .defineInRange("shipAttributeCaravelRotationAcceleration", 1.00D, 0.0D, 100.0D);
 

@@ -5,6 +5,7 @@ import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.api.ShipRegistry;
 import com.talhanation.smallships.api.ShipType;
 import com.talhanation.smallships.client.gui.GuiCompat;
+import com.talhanation.smallships.client.renderer.entity.ShipRenderer;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundDockyardApplyPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardBuildPacket;
@@ -375,15 +376,18 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         private final Component name;
         /** what this row costs; EMPTY for a removal, which never costs anything */
         private final ItemStack cost;
+        /** how long the dockyard needs for this one row, in ticks */
+        private final int time;
         private final boolean installed;
         private final List<Component> tooltip;
 
         private UpgradeOption(DockyardAction action, ItemStack icon, Component name, ItemStack cost,
-                              boolean installed, List<Component> tooltip) {
+                              int time, boolean installed, List<Component> tooltip) {
             this.action = action;
             this.icon = icon;
             this.name = name;
             this.cost = cost;
+            this.time = time;
             this.installed = installed;
             this.tooltip = tooltip;
         }
@@ -411,10 +415,12 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 tooltip.add(Component.translatable("gui.smallships.dockyard.cost",
                         upgrade.getCostAmount(), upgrade.getCost().getHoverName()).withStyle(ChatFormatting.YELLOW));
             }
+            int upgradeTime = installed ? upgrade.getRemoveTime() : upgrade.getBuildTime();
+            tooltip.add(durationLine(upgradeTime));
             this.options.add(new UpgradeOption(
                     new DockyardAction(DockyardAction.Kind.UPGRADE, upgrade.ordinal(), -1, !installed),
                     upgrade.getCost(), Component.translatable(upgrade.getTranslationKey()),
-                    installed ? ItemStack.EMPTY : upgrade.getCost(), installed, tooltip));
+                    installed ? ItemStack.EMPTY : upgrade.getCost(), upgradeTime, installed, tooltip));
         }
 
         if (ship instanceof Cannonable cannonable) {
@@ -431,9 +437,11 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 tooltip.add(mounted
                         ? Component.translatable("gui.smallships.dockyard.refund", 1, cannonStack.getHoverName()).withStyle(ChatFormatting.GREEN)
                         : Component.translatable("gui.smallships.dockyard.cost", 1, cannonStack.getHoverName()).withStyle(ChatFormatting.YELLOW));
+                tooltip.add(durationLine(DockyardBlockEntity.CANNON_TIME));
                 this.options.add(new UpgradeOption(
                         new DockyardAction(DockyardAction.Kind.CANNON, slot, -1, !mounted),
-                        cannonStack, name, mounted ? ItemStack.EMPTY : cannonStack.copy(), mounted, tooltip));
+                        cannonStack, name, mounted ? ItemStack.EMPTY : cannonStack.copy(),
+                        DockyardBlockEntity.CANNON_TIME, mounted, tooltip));
             }
         }
 
@@ -443,9 +451,11 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 List<Component> tooltip = new ArrayList<>();
                 tooltip.add(current.getHoverName().copy().withStyle(ChatFormatting.GOLD));
                 tooltip.add(Component.translatable("gui.smallships.dockyard.banner_mounted").withStyle(ChatFormatting.GRAY));
+                tooltip.add(durationLine(DockyardBlockEntity.STYLE_TIME));
                 this.options.add(new UpgradeOption(
                         new DockyardAction(DockyardAction.Kind.BANNER, 0, -1, false),
-                        current.copyWithCount(1), current.getHoverName(), ItemStack.EMPTY, true, tooltip));
+                        current.copyWithCount(1), current.getHoverName(), ItemStack.EMPTY,
+                        DockyardBlockEntity.STYLE_TIME, true, tooltip));
             }
             if (player != null) {
                 List<ItemStack> seen = new ArrayList<>();
@@ -462,9 +472,11 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                     List<Component> tooltip = new ArrayList<>();
                     tooltip.add(stack.getHoverName().copy().withStyle(ChatFormatting.GOLD));
                     tooltip.add(Component.translatable("gui.smallships.dockyard.banner_hint").withStyle(ChatFormatting.GRAY));
+                    tooltip.add(durationLine(DockyardBlockEntity.STYLE_TIME));
                     this.options.add(new UpgradeOption(
                             new DockyardAction(DockyardAction.Kind.BANNER, 0, slot, true),
-                            stack.copyWithCount(1), stack.getHoverName(), stack.copyWithCount(1), false, tooltip));
+                            stack.copyWithCount(1), stack.getHoverName(), stack.copyWithCount(1),
+                            DockyardBlockEntity.STYLE_TIME, false, tooltip));
                 }
             }
         }
@@ -483,9 +495,11 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 List<Component> tooltip = new ArrayList<>();
                 tooltip.add(name.copy().withStyle(ChatFormatting.GOLD));
                 tooltip.add(Component.translatable("gui.smallships.dockyard.cost", 1, stack.getHoverName()).withStyle(ChatFormatting.YELLOW));
+                tooltip.add(durationLine(DockyardBlockEntity.STYLE_TIME));
                 this.options.add(new UpgradeOption(
                         new DockyardAction(DockyardAction.Kind.SAIL_COLOR, 0, slot, true),
-                        stack.copyWithCount(1), name, stack.copyWithCount(1), false, tooltip));
+                        stack.copyWithCount(1), name, stack.copyWithCount(1),
+                        DockyardBlockEntity.STYLE_TIME, false, tooltip));
             }
         }
 
@@ -591,6 +605,23 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
     }
 
+    /**
+     * Work time as the player reads a clock: "55s" below a minute,
+     * "1:30 min" above it. Always rounded UP - promising 59s for a job that
+     * takes 59.6 would have the bar sitting full while the dockyard is still
+     * hammering.
+     */
+    private static String formatDuration(int ticks) {
+        int seconds = Math.max(1, Mth.ceil(ticks / 20.0F));
+        if (seconds < 60) return seconds + "s";
+        return seconds / 60 + ":" + String.format("%02d", seconds % 60) + " min";
+    }
+
+    private static Component durationLine(int ticks) {
+        return Component.translatable("gui.smallships.dockyard.duration", formatDuration(ticks))
+                .withStyle(ChatFormatting.GRAY);
+    }
+
     /** @return the lang key of a ship types' flavour text, addon safe. */
     private static String aboutKey(ShipType shipType) {
         return "gui.smallships.dockyard.about." + shipType.getId().getNamespace() + "." + shipType.getId().getPath();
@@ -642,6 +673,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         // while the dockyard works, nothing may be started on top of it
         this.buildButton.visible = !modify;
         this.buildButton.active = !busy && this.canAffordSelection();
+        this.buildButton.setTooltip(this.selectedShipType == null ? null
+                : net.minecraft.client.gui.components.Tooltip.create(
+                durationLine(DockyardRecipeManager.get(this.selectedShipType).buildTime())));
         this.woodDropdown.visible = !modify;
         this.woodDropdown.active = !busy;
         if (modify || busy) this.woodDropdown.close();
@@ -685,7 +719,12 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         for (ItemStack cost : this.getSelectionCosts()) {
             summary.append(Component.literal("\n" + cost.getCount() + "x ")).append(cost.getHoverName());
         }
-        return summary;
+        // the batch runs as ONE job, so the times add up just like the costs do
+        int time = 0;
+        for (UpgradeOption option : this.options) {
+            if (this.selectedRows.contains(option.action.key())) time += option.time;
+        }
+        return summary.append(Component.literal("\n")).append(durationLine(Math.max(20, time)));
     }
 
     /* ---------------- input ---------------- */
@@ -819,9 +858,12 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        // reset before the lists render: they set it again while drawing the
-        // hovered row, one frame late would make the ghost cannon flicker
-        this.ghostCannonSlot = -1;
+        // Resolved from the cursor BEFORE anything draws. It cannot be picked
+        // up from the lists' own render pass: AbstractContainerScreen paints
+        // renderBg - and with it the preview - before it gets to the widgets,
+        // so a slot set while drawing a row would always arrive one frame after
+        // the model that was supposed to show it.
+        this.ghostCannonSlot = this.upgradeList.getHoveredCannonSlot(mouseX, mouseY);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // the dropdown popup overlaps the list and the button, so it is drawn
@@ -925,6 +967,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 costLine.append(Component.literal("\n" + cost.amount() + "x ")).append(display.getHoverName());
                 if (player != null && !player.hasInfiniteMaterials() && cost.countIn(player) < cost.amount()) afford = false;
             }
+            costLine.append(Component.literal("\n")).append(durationLine(DockyardBlockEntity.getRepairTime(ship, hull, sails)));
             this.setTooltip(net.minecraft.client.gui.components.Tooltip.create(costLine));
             this.active = !busy && afford;
         }
@@ -965,6 +1008,14 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
          * eye expects it and gives the masts the room they need.
          */
         private static final float PIVOT_Y_FRACTION = 0.75F;
+        /**
+         * How much of the room above the pivot the tallest point of the ship
+         * takes up. The single dial for "how big is a ship in the preview" -
+         * every hull is measured the same way, so they all come out at a
+         * comparable size instead of at whatever their registered bounding box
+         * happens to be.
+         */
+        private static final float PREVIEW_FIT = 0.9F;
         /** two clicks within this many milliseconds count as a double click */
         private static final long DOUBLE_CLICK_MS = 250L;
 
@@ -1018,8 +1069,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
          * Draws the ship into the frame. Called from renderBg, not as a
          * renderable: the arrow buttons have to sit on top of the model.
          *
-         * The hovered cannon is projected by flipping its slot on for the
-         * duration of this ONE draw call and off again right after. The world
+         * The hovered cannon is projected by handing its slot to the renderer
+         * for the duration of this ONE draw call and clearing it right after.
+         * The world
          * has already been rendered by the time the screen draws, so the ghost
          * exists inside the GUI frame only - and the shared ShipRenderer puts
          * it exactly where the real gun would sit, without a second copy of
@@ -1028,14 +1080,18 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         public void renderPreview(GuiGraphics guiGraphics, @Nullable Ship ship, boolean modify) {
             if (ship == null || DockyardScreen.this.minecraft == null) return;
 
+            // The hovered gun is handed to the renderer, which draws it in
+            // flat white on the spot it would occupy. Set for this one draw
+            // call and cleared right after: the world has already been rendered
+            // by the time a screen draws, so it never reaches the ship floating
+            // outside.
             int ghostSlot = modify ? DockyardScreen.this.ghostCannonSlot : -1;
-            boolean ghosting = ghostSlot >= 0 && ship instanceof Cannonable cannonable && !cannonable.isCannonInSlot(ghostSlot);
-            if (ghosting) ((Cannonable) ship).setCannonInSlot(ghostSlot, true);
+            if (ghostSlot >= 0) ShipRenderer.setGhostCannon(ghostSlot);
 
             int centerX = this.getX() + this.getWidth() / 2;
             int centerY = this.getY() + (int) (this.getHeight() * PIVOT_Y_FRACTION);
-            // fit the hull into the frame once, the player takes it from there
-            float fit = this.getHeight() * 0.40F / Math.max(1.0F, ship.getBbWidth());
+            // fit the ship into the frame once, the player takes it from there
+            float fit = this.getHeight() * PIVOT_Y_FRACTION * PREVIEW_FIT / ship.getModelHeight();
             float scale = fit * this.zoom;
 
             guiGraphics.enableScissor(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight());
@@ -1059,7 +1115,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             guiGraphics.pose().popPose();
             guiGraphics.disableScissor();
 
-            if (ghosting) ((Cannonable) ship).setCannonInSlot(ghostSlot, false);
+            ShipRenderer.clearGhostCannon();
         }
 
         @Override
@@ -1247,6 +1303,18 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             return this.hoveredTooltip;
         }
 
+        /**
+         * @return the cannon slot of the row under the cursor, or -1. Read
+         * straight from the position instead of from the last render pass, so
+         * the preview can use it in the same frame.
+         */
+        public int getHoveredCannonSlot(double mouseX, double mouseY) {
+            if (!this.visible || !this.isMouseOver(mouseX, mouseY)) return -1;
+            Entry entry = this.getEntryAtPosition(mouseX, mouseY);
+            if (entry == null || entry.option.action.kind() != DockyardAction.Kind.CANNON) return -1;
+            return entry.option.action.index();
+        }
+
         /** Keeps the scroll position: the rows are rebuilt while the player reads them. */
         public void rebuild(List<UpgradeOption> options) {
             double scroll = this.getScrollAmount();
@@ -1303,13 +1371,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                         DockyardScreen.this.font.plainSubstrByWidth(this.option.name.getString(), width - 24),
                         left + 22, top + 6, COLOR_TEXT, false);
 
-                if (hovering) {
-                    UpgradeList.this.hoveredTooltip = this.option.tooltip;
-                    // the projected gun only exists inside the preview frame
-                    if (this.option.action.kind() == DockyardAction.Kind.CANNON) {
-                        DockyardScreen.this.ghostCannonSlot = this.option.action.index();
-                    }
-                }
+                // the ghost cannon is NOT set here - see getHoveredCannonSlot
+                if (hovering) UpgradeList.this.hoveredTooltip = this.option.tooltip;
             }
         }
     }
