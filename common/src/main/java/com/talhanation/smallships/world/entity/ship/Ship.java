@@ -1132,6 +1132,25 @@ public abstract class Ship extends Boat {
      * of from yet another config value: an addon ship gets a sensible mass the
      * moment its parts are defined. Masts do not count, they carry no water.
      */
+    /**
+     * @return how far the tallest point of this ship reaches above the
+     * waterline, in blocks - masthead on a rigged ship, deck rail otherwise.
+     *
+     * Read off the part definitions, the same data the collision and the mass
+     * use, and NOT off getBbWidth: the vanilla bounding box is registered per
+     * entity type in a completely separate place and is free to disagree with
+     * the model. Anything sizing a ship by that box - the dockyard preview, for
+     * one - shows each hull at whatever zoom its registration happened to get,
+     * and an addon ship inherits the same lottery.
+     */
+    public float getModelHeight() {
+        float height = 1.0F;
+        for (ShipPartEntity.Definition part : this.getParts()) {
+            height = Math.max(height, part.y() + part.height());
+        }
+        return height;
+    }
+
     public float getMass() {
         float mass = 0.0F;
         for (ShipPartEntity.Definition definition : this.getParts()) {
