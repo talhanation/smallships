@@ -28,7 +28,7 @@ public class CogRenderer extends ShipRenderer<CogEntity> {
     public void render(@NotNull CogEntity cogEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
-        poseStack.translate(0.0D, 2.7D,0.0D);
+        poseStack.translate(0.0D, 3.1D,0.0D);
         super.render(cogEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 }

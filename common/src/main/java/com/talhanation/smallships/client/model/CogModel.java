@@ -161,10 +161,10 @@ public class CogModel extends ShipModel<CogEntity> {
 
 		PartDefinition cube_r6 = mast_1.addOrReplaceChild("cube_r6", CubeListBuilder.create(), PartPose.offsetAndRotation(-47.5F, -15.5F, 1.0F, 0.0F, 0.0F, -0.7854F));
 
-		PartDefinition mast_oben = Cog.addOrReplaceChild("mast_oben", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -69.0F, -16.0F, 2.0F, 2.0F, 16.0F, new CubeDeformation(0.0F))
-				.texOffs(-2, -2).addBox(-3.0F, -69.0F, -34.0F, 2.0F, 2.0F, 18.0F, new CubeDeformation(0.0F))
-				.texOffs(0, 0).addBox(-3.0F, -69.0F, 0.0F, 2.0F, 2.0F, 16.0F, new CubeDeformation(0.0F))
-				.texOffs(-2, -2).addBox(-3.0F, -69.0F, 16.0F, 2.0F, 2.0F, 18.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition mast_oben = Cog.addOrReplaceChild("mast_oben", CubeListBuilder.create().texOffs(0, 7).addBox(-3.0F, -69.0F, -16.0F, 2.0F, 2.0F, 16.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 5).addBox(-3.0F, -69.0F, -34.0F, 2.0F, 2.0F, 18.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 6).addBox(-3.0F, -69.0F, 0.0F, 2.0F, 2.0F, 16.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 6).addBox(-3.0F, -69.0F, 16.0F, 2.0F, 2.0F, 18.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition chest_1 = Cog.addOrReplaceChild("chest_1", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
@@ -215,8 +215,7 @@ public class CogModel extends ShipModel<CogEntity> {
 
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
-
-	@Override
+ 	@Override
 	public void setupAnim(@NotNull CogEntity cogEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.chest1.visible = cogEntity.getInvFillState() >= 15;
 		this.chest2.visible = cogEntity.getInvFillState() >= 30;

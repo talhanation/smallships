@@ -70,25 +70,40 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
      * part but several short ones.
      */
     private static final List<ShipPartEntity.Definition> PARTS = List.of(
-            ShipPartEntity.Definition.hull(-2.1F, 0.0F, 0.0F, 2.8F, 1.25F),//back
-            ShipPartEntity.Definition.hull(1.75F, 0.0F, 0.0F, 2.3F, 1.25F),//front
-            ShipPartEntity.Definition.mast(-1.05F, 0.0F, 0.3F, 8.5F));//mast
+            ShipPartEntity.Definition.hull(-2.1F, 0.0F, 0.0F, 2.8F, 1.6F),//back
+            ShipPartEntity.Definition.hull(-3.4F, 0.0F, 0.0F, 2.35F, 2.7F),//back above
+
+            ShipPartEntity.Definition.hull(0.0F, 0.0F, 0.0F, 2.3F, 1.6F),//center
+
+            ShipPartEntity.Definition.hull(1.5F, 0.0F, 0.0F, 2.3F, 1.6F),//front
+            ShipPartEntity.Definition.hull(3.00F, 1.00F, 0.0F, 0.75F, 1.5F),//front tip
+
+            ShipPartEntity.Definition.mast(0.0F, 0.0F, 0.3F, 9.0F)//mast
+    );
 
     @Override
     public List<ShipPartEntity.Definition> getParts() {
         return PARTS;
     }
-
+    private static final float tower = 1.6F;
+    private static final float deck = 0.4F;
     private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -2.25F, 0.0F, 0.0F),
-            ShipSeat.passenger(1, -0.9F, 0.0F,0.9F),
-            ShipSeat.passenger(2, -0.9F,0.0F, -0.9F),
-            ShipSeat.passenger(3, 1.5F, 0.0F,0.0F),
-            // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.gunner(4, -1.4F,0.0F, 0.35F, 0),
-            ShipSeat.gunner(5, -1.4F, 0.0F,-0.35F, 1),
-            ShipSeat.gunner(6, 0.6F, 0.0F,0.35F, 2),
-            ShipSeat.gunner(7, 0.6F, 0.0F,-0.35F, 3));
+            ShipSeat.driver(0, -3.0F, tower, 0.0F),
+            ShipSeat.passenger(1, -3.75F, tower,0.7F),
+            ShipSeat.passenger(2, -3.75F,tower, -0.7F),
+
+            ShipSeat.cannon(3, -1.8F,deck, 0.7F, 0),
+            ShipSeat.cannon(4, -1.8F, deck,-0.7F, 1),
+
+            ShipSeat.gunner(5, -0.8F,deck, 0.7F, 0),
+            ShipSeat.gunner(6, -0.8F, deck,-0.7F, 1),
+
+            ShipSeat.gunner(7, 0.2F,deck, 0.7F, 2),
+            ShipSeat.gunner(8, 0.2F, deck,-0.7F, 3),
+
+            ShipSeat.cannon(9, 1.2F,deck, 0.7F, 2),
+            ShipSeat.cannon(10, 1.2F, deck,-0.7F, 3)
+    );
 
     @Override
     public List<ShipSeat> getSeats() {
@@ -118,7 +133,7 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     }
 
     public double getCannonAimY(){
-        return 1.35D;
+        return 3.00D;
     }
 
     @Override
@@ -129,7 +144,7 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     // Implement Able-Interfaces
     @Override
     public BannerPosition getBannerPosition() {
-        return new BannerPosition(-180.0F, 90.0F, -4.0D, 0.78D, 0.05D);
+        return new BannerPosition(-180.0F, 90.0F, -3.0D, 0.78D, 0.05D);
     }
 
     @Override
