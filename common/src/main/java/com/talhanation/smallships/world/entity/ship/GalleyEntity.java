@@ -84,15 +84,24 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -3.0F, 0.4F,0.0F),
-            ShipSeat.passenger(1, -1.5F,0.4F, 0.75F),
-            ShipSeat.passenger(2, -1.5F,0.4F, -0.75F),
-            ShipSeat.passenger(3, -0.5F,0.4F, 0.75F),
-            ShipSeat.passenger(4, -0.5F,0.4F, -0.75F),
-            ShipSeat.passenger(5, 2.5F, 0.4F,0.0F),
+            ShipSeat.driver(0, -2.8F, 0.4F,0.0F),
+            ShipSeat.passenger(1, -2.2F,0.4F, 0.75F),
+            ShipSeat.passenger(2, -2.2F,0.4F, -0.75F),
+            ShipSeat.passenger(3, -1.2F,0.4F, 0.75F),
+            ShipSeat.passenger(4, -1.2F,0.4F, -0.75F),
+            ShipSeat.passenger(5, -0.2F,0.4F, 0.75F),
+            ShipSeat.passenger(6, -0.2F,0.4F, -0.75F),
+
+            ShipSeat.gunner(7, 0.8F,0.4F,0.75F, 0),
+            ShipSeat.gunner(8, 0.8F,0.4F, -0.75F, 1),
+
+            ShipSeat.cannon(9, 1.8F,0.4F,0.75F, 0),
+            ShipSeat.cannon(10, 1.8F,0.4F, -0.75F, 1),
+
+            ShipSeat.passenger(11, 2.6F, 0.4F,0.0F)
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
-            ShipSeat.gunner(6, 1.2F,0.4F,0.4F, 0),
-            ShipSeat.gunner(7, 1.2F,0.4F, -0.4F, 1));
+    );
+
 
     @Override
     public List<ShipSeat> getSeats() {
