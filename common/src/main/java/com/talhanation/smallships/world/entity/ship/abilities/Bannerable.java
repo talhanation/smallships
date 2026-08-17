@@ -22,12 +22,18 @@ public interface Bannerable extends Ability {
 
     default void readBannerShipSaveData(CompoundTag tag) {
         if (tag.get("Banner") instanceof CompoundTag bannerCompound) self().setData(Ship.BANNER, ItemStack.parse(self().registryAccess(), bannerCompound).orElse(ItemStack.EMPTY));
+        if (tag.get("SailBanner") instanceof CompoundTag sailBannerCompound) self().setData(Ship.SAIL_BANNER, ItemStack.parse(self().registryAccess(), sailBannerCompound).orElse(ItemStack.EMPTY));
     }
 
     default void addBannerShipSaveData(CompoundTag tag) {
         if (!self().getData(Ship.BANNER).isEmpty()) tag.put("Banner", self().getData(Ship.BANNER).save(self().registryAccess()));
+        if (!self().getData(Ship.SAIL_BANNER).isEmpty()) tag.put("SailBanner", self().getData(Ship.SAIL_BANNER).save(self().registryAccess()));
     }
 
+    /**
+     * Hand interaction fits the STAFF banner only. The sail device is painted
+     * canvas work and is fitted at the dockyard - see DockyardAction.Kind.
+     */
     default boolean interactBanner(Player player, InteractionHand interactionHand) {
         ItemStack item = player.getItemInHand(interactionHand);
         ItemStack shipBanner = self().getData(Ship.BANNER);

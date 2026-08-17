@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
@@ -80,21 +81,41 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
         return SmallShipsConfig.Common.shipModifierDrakkarBiome.get();
     }
 
-    private static final java.util.List<ShipSeat> SEATS = java.util.List.of(
-            ShipSeat.driver(0, -3.0F, 0.0F,0.0F),
-            ShipSeat.passenger(1, -1.5F,0.0F, 0.75F),
-            ShipSeat.passenger(2, -1.5F,0.0F, -0.75F),
-            ShipSeat.passenger(3, -0.5F,0.0F, 0.75F),
-            ShipSeat.passenger(4, -0.5F,0.0F, -0.75F),
-            ShipSeat.passenger(5, 0.5F, 0.0F,0.75F),
-            ShipSeat.passenger(6, 0.5F,0.0F, -0.75F),
-            ShipSeat.passenger(7, 1.5F,0.0F, 0.75F),
-            ShipSeat.passenger(8, 1.5F,0.0F, -0.75F),
-            ShipSeat.passenger(9, 2.5F,0.0F, 0.5F),
-            ShipSeat.passenger(10, 2.5F,0.0F, -0.5F));
+    private static final List<ShipPartEntity.Definition> PARTS = List.of(
+            ShipPartEntity.Definition.hull(-2.65F, 0.0F, 0.0F, 2.8F, 1.6F),//back
+            ShipPartEntity.Definition.hull(2.65F, 0.0F, 0.0F, 2.5F, 1.6F),//front
+            ShipPartEntity.Definition.hull(0.0F, 0.0F, 0.0F, 3.00F, 1.6F),//center
+            ShipPartEntity.Definition.hull(4.35F, 0.75F, 0.0F, 1.25F, 1.0F),//front ram
+            ShipPartEntity.Definition.mast(-0.275F, 0.0F, 0.3F, 8.5F)//mast
+    );
 
     @Override
-    public java.util.List<ShipSeat> getSeats() {
+    public List<ShipPartEntity.Definition> getParts() {
+        return PARTS;
+    }
+
+    private static final List<ShipSeat> SEATS = List.of(
+            ShipSeat.driver(0, -2.8F, 0.4F,0.0F),
+            ShipSeat.passenger(1, -2.2F,0.4F, 0.75F),
+            ShipSeat.passenger(2, -2.2F,0.4F, -0.75F),
+            ShipSeat.passenger(3, -1.2F,0.4F, 0.75F),
+            ShipSeat.passenger(4, -1.2F,0.4F, -0.75F),
+            ShipSeat.passenger(5, -0.2F,0.4F, 0.75F),
+            ShipSeat.passenger(6, -0.2F,0.4F, -0.75F),
+            ShipSeat.passenger(7, 0.8F,0.4F,0.75F),
+            ShipSeat.passenger(8, 0.8F,0.4F, -0.75F),
+            ShipSeat.passenger(9, 1.8F,0.4F,0.75F),
+            ShipSeat.passenger(10, 1.8F,0.4F, -0.75F),
+            ShipSeat.passenger(11, 2.6F, 0.4F,0.75F),
+            ShipSeat.passenger(12, 2.6F, 0.4F,-0.75F),
+            ShipSeat.passenger(13, 3.4F, 0.4F,0.75F),
+            ShipSeat.passenger(14, 2.4F, 0.4F,-0.75F)
+            // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
+    );
+
+
+    @Override
+    public List<ShipSeat> getSeats() {
         return SEATS;
     }
 

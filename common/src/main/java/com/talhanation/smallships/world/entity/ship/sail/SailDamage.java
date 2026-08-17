@@ -15,22 +15,40 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Central handler for the sail damage system.
  *
- * Sails have a single health pool of {@link #MAX_HEALTH} (100) points per ship,
- * stored in the ship's synched entity data ({@link Ship#SAIL_HEALTH}).
+ * Sails have a single health pool, stored in the ship's synched entity data
+ * ({@link Ship#SAIL_HEALTH}). It is {@link #HEALTH_PER_SAIL} points PER SAIL -
+ * a two masted ship carries twice the canvas, so it takes twice the shooting to
+ * bring it down. The pool stays a single number even so: which of the two sails
+ * a ball went through is not something a gun crew aims for.
  *
  * - The masts are the sails' hit box: a shot through the rigging damages the
  *   sails and leaves the timbers alone, a shot into the hull does the reverse.
  *   How much of a shot lands where is CannonBallItem.Type#sailFactor.
- * - At or below {@link #TORN_THRESHOLD} the sail is rendered with the torn texture.
+ * - At or below half the pool the sail is rendered with the torn texture.
  * - At 0 the sail is not rendered at all.
  * - Speed: above 50 HP no debuff, at 50 HP or below the sail output is reduced
  *   by 25%, at 0 HP the sail contributes nothing.
  * - Repaired by hand with 6x wool (any color), or completely at the dockyard.
  */
 public final class SailDamage {
-    public static final float MAX_HEALTH = 100.0F;
-    /** at or below half the pool the canvas is rendered torn */
-    public static final float TORN_THRESHOLD = 50.0F;
+    /** health one sail is worth; the pool is this times the sail count */
+    public static final float HEALTH_PER_SAIL = 100.0F;
+    /** share of the pool at or below which the canvas is rendered torn */
+    public static final float TORN_FRACTION = 0.5F;
+
+    /**
+     * @return the full sail health of this ship: {@link #HEALTH_PER_SAIL} for
+     * every sail it carries. Anything that shows or repairs sail health has to
+     * ask the SHIP, never a constant - the maximum is not the same for a Cog
+     * and a Brigg.
+     */
+    public static float getMaxHealth(Ship ship) {
+        return ship instanceof Sailable sailable ? HEALTH_PER_SAIL * sailable.getSailCount() : HEALTH_PER_SAIL;
+    }
+
+    public static float getTornThreshold(Ship ship) {
+        return getMaxHealth(ship) * TORN_FRACTION;
+    }
 
     private SailDamage() {}
 
@@ -47,13 +65,13 @@ public final class SailDamage {
     }
 
     public static void setHealth(Ship ship, float health) {
-        ship.setData(Ship.SAIL_HEALTH, Mth.clamp(health, 0.0F, MAX_HEALTH));
+        ship.setData(Ship.SAIL_HEALTH, Mth.clamp(health, 0.0F, getMaxHealth(ship)));
     }
 
     public static State getState(Ship ship) {
         float health = getHealth(ship);
         if (health <= 0.0F) return State.DESTROYED;
-        if (health <= TORN_THRESHOLD) return State.TORN;
+        if (health <= getTornThreshold(ship)) return State.TORN;
         return State.INTACT;
     }
 
@@ -89,7 +107,7 @@ public final class SailDamage {
 
         if (after <= 0.0F && before > 0.0F) {
             ship.level().playSound(null, ship.getX(), ship.getY() + 4, ship.getZ(), SoundEvents.WOOL_BREAK, SoundSource.NEUTRAL, 3.0F, 0.6F);
-        } else if (after <= TORN_THRESHOLD && before > TORN_THRESHOLD) {
+        } else if (after <= getTornThreshold(ship) && before > getTornThreshold(ship)) {
             ship.level().playSound(null, ship.getX(), ship.getY() + 4, ship.getZ(), SoundEvents.WOOL_HIT, SoundSource.NEUTRAL, 3.0F, 0.7F);
         }
     }
@@ -98,7 +116,7 @@ public final class SailDamage {
 
     /**
      * @return the factor the sail speed output has to be multiplied with:
-     * 1.0 above 50 HP, 0.75 at 50 HP or below, 0.0 at 0 HP.
+     * 1.0 above half the pool, 0.75 at or below it, 0.0 at 0.
      */
     public static float getSpeedFactor(Ship ship) {
         if (!SmallShipsConfig.Common.sailDamageEnable.get()) return 1.0F;
@@ -117,7 +135,7 @@ public final class SailDamage {
      */
     public static boolean interactRepair(Ship ship, Player player, InteractionHand interactionHand) {
         if (!(ship instanceof Sailable)) return false;
-        if (getHealth(ship) >= MAX_HEALTH) return false;
+        if (getHealth(ship) >= getMaxHealth(ship)) return false;
 
         ItemStack item = player.getItemInHand(interactionHand);
         int cost = SmallShipsConfig.Common.sailRepairWoolAmount.get();
@@ -131,7 +149,7 @@ public final class SailDamage {
 
     /** Full repair, e.g. from the dockyard. */
     public static void repair(Ship ship) {
-        setHealth(ship, MAX_HEALTH);
+        setHealth(ship, getMaxHealth(ship));
     }
 
     /* ---------------- save data ---------------- */
@@ -142,6 +160,6 @@ public final class SailDamage {
 
     public static void readSaveData(Ship ship, CompoundTag tag) {
         if (tag.contains("SailHealth")) setHealth(ship, tag.getFloat("SailHealth"));
-        else setHealth(ship, MAX_HEALTH);
+        else setHealth(ship, getMaxHealth(ship));
     }
 }

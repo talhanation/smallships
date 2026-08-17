@@ -351,6 +351,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         int shipId = this.menu.getShipId();
         if (shipId < 0) return null;
         Entity entity = this.minecraft.level.getEntity(shipId);
+
         return entity instanceof Ship ship ? ship : null;
     }
 
@@ -446,38 +447,13 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
 
         if (ship instanceof Bannerable) {
-            ItemStack current = ship.getData(Ship.BANNER);
-            if (!current.isEmpty()) {
-                List<Component> tooltip = new ArrayList<>();
-                tooltip.add(current.getHoverName().copy().withStyle(ChatFormatting.GOLD));
-                tooltip.add(Component.translatable("gui.smallships.dockyard.banner_mounted").withStyle(ChatFormatting.GRAY));
-                tooltip.add(durationLine(DockyardBlockEntity.STYLE_TIME));
-                this.options.add(new UpgradeOption(
-                        new DockyardAction(DockyardAction.Kind.BANNER, 0, -1, false),
-                        current.copyWithCount(1), current.getHoverName(), ItemStack.EMPTY,
-                        DockyardBlockEntity.STYLE_TIME, true, tooltip));
-            }
-            if (player != null) {
-                List<ItemStack> seen = new ArrayList<>();
-                var items = player.getInventory().items;
-                for (int slot = 0; slot < items.size() && seen.size() < 8; slot++) {
-                    ItemStack stack = items.get(slot);
-                    if (!(stack.getItem() instanceof BannerItem)) continue;
-                    boolean duplicate = false;
-                    for (ItemStack other : seen) {
-                        if (ItemStack.isSameItemSameComponents(other, stack)) duplicate = true;
-                    }
-                    if (duplicate) continue;
-                    seen.add(stack);
-                    List<Component> tooltip = new ArrayList<>();
-                    tooltip.add(stack.getHoverName().copy().withStyle(ChatFormatting.GOLD));
-                    tooltip.add(Component.translatable("gui.smallships.dockyard.banner_hint").withStyle(ChatFormatting.GRAY));
-                    tooltip.add(durationLine(DockyardBlockEntity.STYLE_TIME));
-                    this.options.add(new UpgradeOption(
-                            new DockyardAction(DockyardAction.Kind.BANNER, 0, slot, true),
-                            stack.copyWithCount(1), stack.getHoverName(), stack.copyWithCount(1),
-                            DockyardBlockEntity.STYLE_TIME, false, tooltip));
-                }
+            // two independent jobs: the colours on the staff and the device
+            // painted onto the canvas
+            this.addBannerOptions(player, DockyardAction.Kind.BANNER, ship.getData(Ship.BANNER),
+                    "gui.smallships.dockyard.banner", "gui.smallships.dockyard.banner_hint");
+            if (ship instanceof Sailable) {
+                this.addBannerOptions(player, DockyardAction.Kind.SAIL_BANNER, ship.getData(Ship.SAIL_BANNER),
+                        "gui.smallships.dockyard.sail_banner", "gui.smallships.dockyard.sail_banner_hint");
             }
         }
 
@@ -514,6 +490,60 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     }
 
     /**
+     * Adds the rows for one banner slot.
+     *
+     * A slot that is taken offers exactly ONE row - taking it off. The banners
+     * in the inventory only show up once the slot is clear, so a swap is always
+     * two deliberate jobs: strike the old colours, then hoist the new ones. It
+     * also keeps the rule honest, since a batch cannot free the slot and fill
+     * it again in the same run.
+     *
+     * @param kind      which of the two slots these rows drive
+     * @param mounted   what is on the ship right now, may be empty
+     * @param nameKey   heading of the tooltip for the inventory rows
+     * @param hintKey   the line under it explaining what fitting one does
+     */
+    private void addBannerOptions(@Nullable Player player, DockyardAction.Kind kind, ItemStack mounted,
+                                  String nameKey, String hintKey) {
+        if (!mounted.isEmpty()) {
+            List<Component> tooltip = new ArrayList<>();
+            tooltip.add(Component.translatable(nameKey).withStyle(ChatFormatting.GOLD));
+            tooltip.add(mounted.getHoverName().copy().withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("gui.smallships.dockyard.banner_mounted").withStyle(ChatFormatting.GRAY));
+            tooltip.add(durationLine(DockyardBlockEntity.STYLE_TIME));
+            this.options.add(new UpgradeOption(
+                    new DockyardAction(kind, 0, -1, false),
+                    mounted.copyWithCount(1), Component.translatable(nameKey), ItemStack.EMPTY,
+                    DockyardBlockEntity.STYLE_TIME, true, tooltip));
+            return;
+        }
+        if (player == null) return;
+
+        List<ItemStack> seen = new ArrayList<>();
+        var items = player.getInventory().items;
+        for (int slot = 0; slot < items.size() && seen.size() < 8; slot++) {
+            ItemStack stack = items.get(slot);
+            if (!(stack.getItem() instanceof BannerItem)) continue;
+            boolean duplicate = false;
+            for (ItemStack other : seen) {
+                if (ItemStack.isSameItemSameComponents(other, stack)) duplicate = true;
+            }
+            if (duplicate) continue;
+            seen.add(stack);
+
+            List<Component> tooltip = new ArrayList<>();
+            tooltip.add(Component.translatable(nameKey).withStyle(ChatFormatting.GOLD));
+            tooltip.add(stack.getHoverName().copy().withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable(hintKey).withStyle(ChatFormatting.GRAY));
+            tooltip.add(durationLine(DockyardBlockEntity.STYLE_TIME));
+            this.options.add(new UpgradeOption(
+                    new DockyardAction(kind, 0, slot, true),
+                    stack.copyWithCount(1), Component.translatable(nameKey), stack.copyWithCount(1),
+                    DockyardBlockEntity.STYLE_TIME, false, tooltip));
+        }
+    }
+
+    /**
      * @return a signature of everything the row list depends on. Rebuilding
      * only when this changes keeps the scroll position stable while the player
      * reads through a long list.
@@ -527,6 +557,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
         builder.append(ship.getData(Ship.SAIL_COLOR));
         builder.append(ship.getData(Ship.BANNER).getHoverName().getString());
+        builder.append(ship.getData(Ship.SAIL_BANNER).getHoverName().getString());
         Player player = this.menu.getPlayer();
         if (player != null) {
             for (ItemStack stack : player.getInventory().items) {

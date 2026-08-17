@@ -104,7 +104,7 @@ public class ShipStatPanel {
                 ship != null ? Mth.clamp(maxHull - Mth.ceil(ship.getDamage()), 0, maxHull) + "/" + maxHull : String.valueOf(maxHull));
 
         if (displayShip instanceof Sailable) {
-            int maxSail = Mth.ceil(SailDamage.MAX_HEALTH);
+            int maxSail = Mth.ceil(SailDamage.getMaxHealth(displayShip));
             line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.sails_hp",
                     ship != null ? Mth.clamp(Mth.ceil(SailDamage.getHealth(ship)), 0, maxSail) + "/" + maxSail : String.valueOf(maxSail));
         }

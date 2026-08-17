@@ -101,6 +101,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     private final List<ItemStack> pendingRefunds = new ArrayList<>();
     @Nullable private String pendingDyeColor;
     private ItemStack pendingBanner = ItemStack.EMPTY;
+    private ItemStack pendingSailBanner = ItemStack.EMPTY;
     /** REPAIR task data */
     private boolean repairHull;
     private boolean repairSails;
@@ -245,6 +246,11 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         Set<String> seen = new HashSet<>();
         String dyeColor = null;
         ItemStack banner = ItemStack.EMPTY;
+        ItemStack sailBanner = ItemStack.EMPTY;
+        // "empty" is a legal result, so a separate flag says whether the slot
+        // was claimed at all
+        boolean bannerSet = false;
+        boolean sailBannerSet = false;
         int time = 0;
 
         for (DockyardAction action : actions) {
@@ -274,20 +280,33 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                     else refunds.add(new ItemStack(ModItems.CANNON));
                     time += CANNON_TIME;
                 }
-                case BANNER -> {
+                case BANNER, SAIL_BANNER -> {
                     if (!(ship instanceof Bannerable)) continue;
-                    // there is exactly one banner on a ship, so a second banner
-                    // row in the same batch would just overwrite the first
-                    if (!banner.isEmpty()) continue;
-                    ItemStack current = ship.getData(Ship.BANNER);
+                    boolean sail = action.kind() == DockyardAction.Kind.SAIL_BANNER;
+                    if (sail && !(ship instanceof Sailable)) continue;
+                    // one banner per slot, so a second row for the same slot in
+                    // the same batch would only overwrite the first
+                    if (sail ? sailBannerSet : bannerSet) continue;
+
+                    ItemStack current = ship.getData(sail ? Ship.SAIL_BANNER : Ship.BANNER);
+                    ItemStack next = ItemStack.EMPTY;
                     if (action.install()) {
+                        // the slot has to be clear first, exactly as the screen
+                        // offers it: old colours come down as their own job
+                        if (!current.isEmpty()) continue;
                         ItemStack source = this.itemAt(player, action.inventorySlot());
                         if (!(source.getItem() instanceof BannerItem)) continue;
-                        banner = source.copyWithCount(1);
+                        next = source.copyWithCount(1);
                         costs.add(source.copyWithCount(1));
+                    } else if (current.isEmpty()) {
+                        continue;
+                    }
+                    if (sail) {
+                        sailBanner = next;
+                        sailBannerSet = true;
                     } else {
-                        if (current.isEmpty()) continue;
-                        banner = ItemStack.EMPTY;
+                        banner = next;
+                        bannerSet = true;
                     }
                     // the banner that comes off is an item, not a material - it
                     // is never destroyed, no matter which way the row went
@@ -322,6 +341,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.pendingRefunds.addAll(refunds);
         this.pendingDyeColor = dyeColor;
         this.pendingBanner = banner;
+        this.pendingSailBanner = sailBanner;
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
         ship.setDockyardWork(true);
@@ -354,6 +374,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                     if (ship instanceof Cannonable cannonable) cannonable.setCannonInSlot(action.index(), action.install());
                 }
                 case BANNER -> ship.setData(Ship.BANNER, this.pendingBanner.copy());
+                case SAIL_BANNER -> ship.setData(Ship.SAIL_BANNER, this.pendingSailBanner.copy());
                 case SAIL_COLOR -> {
                     if (this.pendingDyeColor != null) ship.setData(Ship.SAIL_COLOR, this.pendingDyeColor);
                 }
@@ -374,6 +395,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.pendingRefunds.clear();
         this.pendingDyeColor = null;
         this.pendingBanner = ItemStack.EMPTY;
+        this.pendingSailBanner = ItemStack.EMPTY;
         this.targetShipUUID = null;
     }
 
@@ -396,7 +418,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
         if (sails) {
-            float sailFraction = 1.0F - SailDamage.getHealth(ship) / SailDamage.MAX_HEALTH;
+            float sailFraction = 1.0F - SailDamage.getHealth(ship) / SailDamage.getMaxHealth(ship);
             if (sailFraction > 0.0F) {
                 costs.add(DockyardRecipe.Ingredient.of(ItemTags.WOOL, 1 + (int) Math.ceil(sailFraction * 7.0F)));
             }
@@ -414,7 +436,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
      */
     public static int getRepairTime(Ship ship, boolean hull, boolean sails) {
         float hullFraction = hull ? Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth) : 0.0F;
-        float sailFraction = sails ? 1.0F - SailDamage.getHealth(ship) / SailDamage.MAX_HEALTH : 0.0F;
+        float sailFraction = sails ? 1.0F - SailDamage.getHealth(ship) / SailDamage.getMaxHealth(ship) : 0.0F;
         return (int) ((8.0F + 16.0F * hullFraction + (sailFraction > 0.0F ? 4.0F : 0.0F)) * 20.0F);
     }
 
@@ -435,7 +457,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
         float hullFraction = hull ? Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth) : 0.0F;
-        float sailFraction = sails ? 1.0F - SailDamage.getHealth(ship) / SailDamage.MAX_HEALTH : 0.0F;
+        float sailFraction = sails ? 1.0F - SailDamage.getHealth(ship) / SailDamage.getMaxHealth(ship) : 0.0F;
         if (hullFraction <= 0.0F && sailFraction <= 0.0F) return;
 
         List<DockyardRecipe.Ingredient> costs = getRepairCosts(ship, hull, sails);
@@ -612,6 +634,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         tag.putBoolean("RepairSails", this.repairSails);
         if (this.pendingDyeColor != null) tag.putString("PendingDyeColor", this.pendingDyeColor);
         if (!this.pendingBanner.isEmpty()) tag.put("PendingBanner", this.pendingBanner.save(provider));
+        if (!this.pendingSailBanner.isEmpty()) tag.put("PendingSailBanner", this.pendingSailBanner.save(provider));
         if (this.spawnSpot != null) tag.putLong("SpawnSpot", this.spawnSpot.asLong());
         if (this.targetShipUUID != null) tag.putUUID("TargetShip", this.targetShipUUID);
 
@@ -639,6 +662,8 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.pendingDyeColor = tag.contains("PendingDyeColor") ? tag.getString("PendingDyeColor") : null;
         this.pendingBanner = tag.contains("PendingBanner")
                 ? ItemStack.parse(provider, tag.getCompound("PendingBanner")).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
+        this.pendingSailBanner = tag.contains("PendingSailBanner")
+                ? ItemStack.parse(provider, tag.getCompound("PendingSailBanner")).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
         this.spawnSpot = tag.contains("SpawnSpot") ? BlockPos.of(tag.getLong("SpawnSpot")) : null;
         this.targetShipUUID = tag.hasUUID("TargetShip") ? tag.getUUID("TargetShip") : null;
 

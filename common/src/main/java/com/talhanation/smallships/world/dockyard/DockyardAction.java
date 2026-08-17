@@ -29,6 +29,8 @@ public record DockyardAction(Kind kind, int index, int inventorySlot, boolean in
         CANNON,
         /** the ship banner - it doubles as the sail banner, there is only one */
         BANNER,
+        /** the device projected onto the canvas, a separate piece of work */
+        SAIL_BANNER,
         /** the sail dye */
         SAIL_COLOR;
 

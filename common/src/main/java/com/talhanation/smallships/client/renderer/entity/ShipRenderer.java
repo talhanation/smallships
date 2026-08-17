@@ -344,7 +344,8 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
         if(sailModel == null) return;
 
-        ItemStack banner = bannerShipEntity.self().getData(Ship.BANNER);
+        ItemStack banner = bannerShipEntity.self().getData(Ship.SAIL_BANNER);
+        if (banner.isEmpty()) return;
         sailModel.render(bannerShipEntity.self(), banner, poseStack, multiBufferSource, packedLight);
     }
 

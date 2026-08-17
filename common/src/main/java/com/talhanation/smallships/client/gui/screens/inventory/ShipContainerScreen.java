@@ -149,7 +149,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         // number. The exact point counts belong in the dockyard, where the
         // player is about to pay for them.
         int hullDamagePercent = Mth.clamp(Mth.ceil(this.containerShip.getDamage() * 100.0F / this.containerShip.getAttributes().maxHealth), 0, 100);
-        int sailDamagePercent = Mth.clamp(100 - Mth.floor(SailDamage.getHealth(this.containerShip) * 100.0F / SailDamage.MAX_HEALTH), 0, 100);
+        int sailDamagePercent = Mth.clamp(100 - Mth.floor(SailDamage.getHealth(this.containerShip) * 100.0F / SailDamage.getMaxHealth(this.containerShip)), 0, 100);
 
         String unit;
         int maxSpeed;

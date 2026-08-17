@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
@@ -16,6 +17,20 @@ import static com.talhanation.smallships.world.entity.ship.Ship.SAIL_STATE;
 
 public interface Sailable extends Ability {
 
+    /**
+     * @return how many sails this ship carries. Counted from the mast parts,
+     * because a mast IS the carrier of a sail and the same definitions already
+     * drive the collision, the mass and the preview scale - a ship that gets a
+     * second mast gets a second sail without anything else being touched.
+     */
+    default int getSailCount() {
+        int masts = 0;
+        for (ShipPartEntity.Definition part : self().getParts()) {
+            if (part.mast()) masts++;
+        }
+        return Math.max(1, masts);
+    }
+
     default void tickSailShip() {
         if (self().sailStateCooldown > 0) self().sailStateCooldown--;
     }
@@ -25,6 +40,14 @@ public interface Sailable extends Ability {
         self().setData(SAIL_STATE, compoundTag.getByte("State"));
         self().setData(Ship.SAIL_COLOR, compoundTag.getString("Color"));
         SailDamage.readSaveData(self(), compoundTag);
+        // A ship saved before the pool was sized by mast count carries exactly
+        // one sails' worth. Topping it up once on load is cheaper and less
+        // surprising than making the player pay to repair canvas that was never
+        // shot at. Can go once every world has been loaded on this version.
+        if (SailDamage.getHealth(self()) == SailDamage.HEALTH_PER_SAIL
+                && SailDamage.getMaxHealth(self()) > SailDamage.HEALTH_PER_SAIL) {
+            SailDamage.repair(self());
+        }
 
     }
 

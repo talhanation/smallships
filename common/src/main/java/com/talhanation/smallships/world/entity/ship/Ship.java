@@ -69,6 +69,15 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<Byte> SAIL_STATE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<String>  SAIL_COLOR = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.STRING);
     public static final EntityDataAccessor<ItemStack> BANNER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
+    /**
+     * The banner projected onto the canvas, separate from the one on the staff.
+     *
+     * Two fields on purpose: a ship may fly its colours from the stern and
+     * carry a different device on the sail, and the dockyard offers them as two
+     * jobs. They used to share BANNER, which made one silently overwrite the
+     * other.
+     */
+    public static final EntityDataAccessor<ItemStack> SAIL_BANNER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<Float> CANNON_POWER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Byte> CANNON_COUNT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> FORWARD = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
@@ -119,6 +128,12 @@ public abstract class Ship extends Boat {
 
     /** below this closing speed the hulls just bump and nothing is spent */
     private static final double RAM_MIN_CLOSING_KMH = 25.0D;
+    /**
+     * The same bar for running aground, and lower on purpose. Another hull
+     * gives way, takes part of the blow and carries some of it off; rock does
+     * none of that, so a lesser knock already tells on the timbers.
+     */
+    private static final double CRASH_MIN_SPEED_KMH = 20.0D;
     /** damage every ram that counts deals, before the weight split */
     private static final float RAM_BASE_DAMAGE = 7.0F;
     /** further damage per km/h of closing speed above the threshold */
@@ -142,6 +157,18 @@ public abstract class Ship extends Boat {
      * touched. This says what it should: break off, come about, run in again.
      */
     private static final double RAM_REARM_DISTANCE = 10.0D;
+    /**
+     * Share of the wanted movement that has to survive the collision test for
+     * the way to count as free. Running into a cliff stops a ship dead;
+     * brushing along a quay is not an impact.
+     */
+    private static final double OBSTACLE_STOP_FRACTION = 0.0625D;
+    /**
+     * Ticks the drive stays shut off in the direction that hit something.
+     * Without it the ship would stop, be free again the next tick because it
+     * has no way on, accelerate, hit, stop - grinding its way along a wall.
+     */
+    private static final int OBSTACLE_HOLD_TICKS = 10;
 
     /**
      * Fixed manoeuvring speed in blocks per tick, ahead and astern alike, and
@@ -152,6 +179,10 @@ public abstract class Ship extends Boat {
 
     /** Server side: where this ship last rammed, see RAM_REARM_DISTANCE. */
     @Nullable private Vec3 ramRearmPos;
+    /** ticks left of the drive block after an impact, see OBSTACLE_HOLD_TICKS */
+    private int obstructedTicks;
+    /** which way was blocked: +1 ahead, -1 astern, 0 nothing */
+    private int obstructedDirection;
 
     private int blockerTick = -1;
     private AABB blockerArea;
@@ -205,6 +236,8 @@ public abstract class Ship extends Boat {
         if (this.getDamage() != hullDamageBeforeVanillaTick) this.setDamage(hullDamageBeforeVanillaTick);
 
         if (!this.level().isClientSide() && (this.parts.isEmpty() || this.tickCount % 20 == 0)) this.updateParts();
+
+        this.tickObstacleContact();
 
         if (!this.level().isClientSide()) {
             this.tickRam();
@@ -270,6 +303,7 @@ public abstract class Ship extends Boat {
 
         // Bannerable
         builder.define(Ship.BANNER, ItemStack.EMPTY);
+        builder.define(Ship.SAIL_BANNER, ItemStack.EMPTY);
 
         // Cannonable
         builder.define(Ship.CANNON_POWER, 4.0F);
@@ -282,7 +316,11 @@ public abstract class Ship extends Boat {
         builder.define(Ship.CANNON_AIM, new CompoundTag());
 
         // Sail damage
-        builder.define(Ship.SAIL_HEALTH, SailDamage.MAX_HEALTH);
+        // The real maximum, not a placeholder. getParts is a static list per
+        // ship class, so it answers correctly even this early - and a two masted
+        // hull seeded with one sails' worth would sit exactly ON the torn
+        // threshold and show up with shredded canvas the moment it is built.
+        builder.define(Ship.SAIL_HEALTH, SailDamage.getMaxHealth(this));
 
         // Dockyard upgrades
         builder.define(Ship.UPGRADES, new CompoundTag());
@@ -637,6 +675,10 @@ public abstract class Ship extends Boat {
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced
         float speed = this.getSpeed();
+        // A hull pressed against blocks makes no way, so the drive must not
+        // wind up behind it either - otherwise a player could sit against a
+        // cliff at full sail and charge a ram he never sailed for.
+        if (this.isDriveBlocked(setPoint)) setPoint = 0.0F;
         if(speed < setPoint){
             // clamped: addToSetPoint overshoots by a full acceleration step,
             // which is nothing at full sail but almost half the manoeuvring
@@ -1121,10 +1163,8 @@ public abstract class Ship extends Boat {
         // vanilla only ever saw its own small box, so it would miss what we cut
         this.horizontalCollision = true;
 
-        double wanted = delta.x * delta.x + delta.z * delta.z;
-        double reached = allowed.x * allowed.x + allowed.z * allowed.z;
-        // running into a cliff stops a ship dead, brushing along a quay does not
-        if (reached < wanted * 0.0625D) this.stopAgainstObstacle();
+        // The impact itself is handled by tickObstacleContact, which runs on
+        // both sides - this one only ever runs on the controlling client.
     }
 
     /**
@@ -1180,6 +1220,7 @@ public abstract class Ship extends Boat {
         // anything slower than this cannot reach the bar even head-on against
         // an equal, and the search is the expensive part.
         if (Kalkuel.getKilometerPerHour(Math.abs(this.getSpeed())) < RAM_MIN_CLOSING_KMH * 0.5D) return;
+
         if (!this.isRamReady()) return;
         Ship rammed = ShipPartEntity.findRammedShip(this, this.getRamVelocity());
         if (rammed != null) this.ramShip(rammed);
@@ -1276,6 +1317,9 @@ public abstract class Ship extends Boat {
         if (along <= 0.0D) return;
         // the way that was pointing into the target is spent on it, no dial
         this.setSpeed((float) (this.getSpeed() * (1.0D - along)));
+        // and the turn with it: a hull that has just buried its bow in another
+        // does not keep pivoting around the point of contact
+        this.setRotSpeed(0.0F);
     }
 
     /**
@@ -1361,12 +1405,61 @@ public abstract class Ship extends Boat {
      * Nothing to do with ramShip: this is the ship being brought up short by
      * the world, it costs no damage and knows nothing about the other party.
      */
+    /**
+     * Watches for the hull running into terrain, on BOTH sides.
+     *
+     * It cannot live in move(): vanilla only calls that on the controlling
+     * client, so for a crewed ship the server never sees the impact at all -
+     * and the damage has to be dealt there. controlBoat is driven on both sides
+     * by BoatMixin, and so is tick, which is where this hangs.
+     */
+    private void tickObstacleContact() {
+        if (this.obstructedTicks > 0) this.obstructedTicks--;
+
+        float speed = this.getSpeed();
+        if (Math.abs(speed) < 1.0E-4F || this.getParts().isEmpty()) return;
+
+        Vec3 wanted = new Vec3(Kalkuel.calculateMotionX(speed, this.getYRot()), 0.0D,
+                Kalkuel.calculateMotionZ(speed, this.getYRot()));
+        Vec3 allowed = ShipPartEntity.collide(this, wanted);
+        if (allowed.lengthSqr() >= wanted.lengthSqr() * OBSTACLE_STOP_FRACTION) return;
+
+        this.obstructedDirection = speed > 0.0F ? 1 : -1;
+        this.obstructedTicks = OBSTACLE_HOLD_TICKS;
+        this.stopAgainstObstacle();
+    }
+
+    /**
+     * @return true while the drive must not build any more way this way. The
+     * blocked DIRECTION is remembered, so a ship that has buried its bow can
+     * still back out of it.
+     */
+    private boolean isDriveBlocked(float wantedSpeed) {
+        return this.obstructedTicks > 0 && this.obstructedDirection != 0
+                && Math.signum(wantedSpeed) == this.obstructedDirection;
+    }
+
     private void stopAgainstObstacle() {
-        if (this.level().isClientSide()) return;
-        if (Math.abs(this.getSpeed()) > 0.05F && this.tickCount % 10 == 0) {
+        if (!this.level().isClientSide()) {
+            float impactKmh = Kalkuel.getKilometerPerHour(Math.abs(this.getSpeed()));
             this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), SoundEvents.WOOD_HIT, this.getSoundSource(), 1.6F, 0.6F + 0.2F * this.random.nextFloat());
+
+            // Running aground at speed is a ram like any other, against
+            // something that cannot be pushed and takes nothing itself. No mass
+            // split therefore - the hull keeps the whole hit - and the re-arm
+            // gate stops a ship wedged in a cliff from paying for it every tick.
+            if (impactKmh >= CRASH_MIN_SPEED_KMH && this.isRamReady()) {
+                this.ramRearmPos = this.position();
+                this.takeRamHit(RAM_BASE_DAMAGE + (impactKmh - (float) CRASH_MIN_SPEED_KMH) * RAM_DAMAGE_PER_KMH,
+                        this.getRamSelfDamageFactor());
+                this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), SoundEvents.WOOD_BREAK, this.getSoundSource(), 2.0F, 0.6F);
+            }
         }
+        // The turn goes with the way. A hull wedged against a cliff that keeps
+        // swinging looks like it is grinding its way free, and the rotation
+        // would carry the parts through the very blocks that stopped it.
         this.setSpeed(0.0F);
+        this.setRotSpeed(0.0F);
     }
 
     @Override
