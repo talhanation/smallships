@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
 
 public interface Bannerable extends Ability {
-    BannerPosition getBannerPosition();//ZP for different angles usefully for wind feature
 
     default void tickBannerShip() {
         if (!self().getData(Ship.BANNER).isEmpty()) {
@@ -67,21 +66,4 @@ public interface Bannerable extends Ability {
         return Mth.lerp(partialTicks, self().prevBannerWaveAngle, self().bannerWaveAngle);
     }
 
-    @SuppressWarnings("ClassCanBeRecord")
-    class BannerPosition {
-        public final float yp;
-        public final float zp;
-
-        public final double x;
-        public final double y;
-        public final double z;
-
-        public BannerPosition(float yp, float zp, double x, double y, double z) {
-            this.yp = yp;
-            this.zp = zp;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-    }
 }

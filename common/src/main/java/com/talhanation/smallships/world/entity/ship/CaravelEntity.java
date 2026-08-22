@@ -131,12 +131,6 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
         return 2;
     }
 
-    // Implement Able-Interfaces
-    @Override
-    public BannerPosition getBannerPosition() {
-        return new BannerPosition(-180.0F, 90.0F, -4.0D, 0.78D, 0.05D);
-    }
-
     @Override
     public void waterSplash() {
         Vec3 vector3d = this.getViewVector(0.0F);

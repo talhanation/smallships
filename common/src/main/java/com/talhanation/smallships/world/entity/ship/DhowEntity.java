@@ -125,15 +125,6 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     public byte getMaxCannonPerSide(){
         return 2;
     }
-    double bannerY = -5.4D;
-    double bannerX = 1.75D;
-    double bannerZ = 0.00D;
-
-    @Override
-    public BannerPosition getBannerPosition() {
-        return new BannerPosition(-180.0F, 90.0F, bannerY, bannerX , bannerZ);
-    }
-
     public double getCannonAimY(){
         return 3.0D;
     }

@@ -113,12 +113,6 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
         return SEATS;
     }
 
-    // Implement Able-Interfaces
-    @Override
-    public BannerPosition getBannerPosition() {
-        return new BannerPosition(-180.0F, 90.0F, -6.6D, 1.10D, 0.05D);
-    }
-
     @Override
     public void waterSplash(){
         Vec3 vector3d = this.getViewVector(0.0F);

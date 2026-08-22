@@ -107,13 +107,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     public List<ShipSeat> getSeats() {
         return SEATS;
     }
-
-    // Implement Able-Interfaces
-    @Override
-    public Bannerable.BannerPosition getBannerPosition() {
-        return new Bannerable.BannerPosition(-180.0F, 90.0F, -4.0D, 0.15D, 0.05D); //+x=up, +y=back, +z=right
-    }
-
+    
     @Override
     public void waterSplash(){
         Vec3 vector3d = this.getViewVector(0.0F);
