@@ -1,32 +1,52 @@
 package com.talhanation.smallships.client.model.sail.banner;
 
+import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
- * Banner surface for the Cog sail: one group of 8 horizontal strips
- * (20x5 model pixels each, 20x40 in total), chained top to bottom along the
- * lsail curvature. Geometry taken 1:1 from the Bockbench export
- * {@code ModelCogSailBanner}.
+ * Banner surface for the Cog sail: one group of 8 strips of 20x5 model pixels,
+ * chained top to bottom along the sail curvature. Everything below
+ * {@code createBodyLayer} is the unchanged Blockbench export, the UVs of the
+ * export are unused - see {@link SailBannerModel}.
  */
 public class CogSailBannerModel extends SailBannerModel {
-    private static final List<Group> GROUPS = List.of(new Group(-0.425F, 24.0F, -6.6F, false, List.of(
-            //          pivotX  pivotY   pivotZ  zRot      boxX  boxY   boxZ  wPx    hPx   uPx   vPx
-            new Segment(1.55F, -62.2F, -4.4F, 0.7418F, 0.0F, -4.7F, 0.0F, 20.0F, 5.0F, 0.0F, 0.0F),
-            new Segment(0.0F, 0.3F, 0.0F, -0.2531F, 0.0F, 0.0F, 0.0F, 20.0F, 5.0F, 0.0F, 5.0F),
-            new Segment(0.0F, 5.0F, 0.0F, -0.1309F, 0.0F, 0.0F, 0.0F, 20.0F, 5.0F, 0.0F, 10.0F),
-            new Segment(0.0F, 5.0F, 0.0F, -0.3054F, 0.0F, 0.0F, 0.0F, 20.0F, 5.0F, 0.0F, 15.0F),
-            new Segment(0.0F, 5.0F, 0.0F, -0.2443F, 0.0F, 0.0F, 0.0F, 20.0F, 5.0F, 0.0F, 20.0F),
-            new Segment(0.0F, 5.0F, 0.0F, -0.0873F, 0.0F, 0.0F, 0.0F, 20.0F, 5.0F, 0.0F, 25.0F),
-            new Segment(0.0F, 5.0F, 0.0F, -0.2182F, 0.0F, 0.0F, 0.0F, 20.0F, 5.0F, 0.0F, 30.0F),
-            new Segment(0.0F, 5.0F, 0.0F, -0.1745F, 0.0F, 0.0F, 0.0F, 20.0F, 5.0F, 0.0F, 35.0F)
-    )));
+    @SuppressWarnings("unused")
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, CogEntity.ID + "_sail_banner_model"), "main");
 
-    @Override
-    protected @NotNull List<Group> getGroups() {
-        return GROUPS;
+    public CogSailBannerModel() {
+        super(createBodyLayer());
+    }
+
+    @SuppressWarnings("unused")
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition meshdefinition = new MeshDefinition();
+        PartDefinition partdefinition = meshdefinition.getRoot();
+
+        PartDefinition CogSailBanner = partdefinition.addOrReplaceChild("CogSailBanner", CubeListBuilder.create(), PartPose.offset(-11.325F, 24.0F, -6.6F));
+
+        PartDefinition segment_0 = CogSailBanner.addOrReplaceChild("segment_0", CubeListBuilder.create().texOffs(3, 3).addBox(0.0F, -4.7F, 0.0F, 0.0F, 5.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(1.55F, -62.2F, -4.4F, 0.0F, 0.0F, 0.7418F));
+
+        PartDefinition segment_1 = segment_0.addOrReplaceChild("segment_1", CubeListBuilder.create().texOffs(3, 3).addBox(0.0F, 0.0F, 0.0F, 0.0F, 5.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.3F, 0.0F, 0.0F, 0.0F, -0.2531F));
+
+        PartDefinition segment_2 = segment_1.addOrReplaceChild("segment_2", CubeListBuilder.create().texOffs(3, 3).addBox(0.0F, 0.0F, 0.0F, 0.0F, 5.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 5.0F, 0.0F, 0.0F, 0.0F, -0.1309F));
+
+        PartDefinition segment_3 = segment_2.addOrReplaceChild("segment_3", CubeListBuilder.create().texOffs(3, 3).addBox(0.0F, 0.0F, 0.0F, 0.0F, 5.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 5.0F, 0.0F, 0.0F, 0.0F, -0.3054F));
+
+        PartDefinition segment_4 = segment_3.addOrReplaceChild("segment_4", CubeListBuilder.create().texOffs(3, 3).addBox(0.0F, 0.0F, 0.0F, 0.0F, 5.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 5.0F, 0.0F, 0.0F, 0.0F, -0.2443F));
+
+        PartDefinition segment_5 = segment_4.addOrReplaceChild("segment_5", CubeListBuilder.create().texOffs(3, 3).addBox(0.0F, 0.0F, 0.0F, 0.0F, 5.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 5.0F, 0.0F, 0.0F, 0.0F, -0.0873F));
+
+        PartDefinition segment_6 = segment_5.addOrReplaceChild("segment_6", CubeListBuilder.create().texOffs(3, 3).addBox(0.0F, 0.0F, 0.0F, 0.0F, 5.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 5.0F, 0.0F, 0.0F, 0.0F, -0.2182F));
+
+        PartDefinition segment_7 = segment_6.addOrReplaceChild("segment_7", CubeListBuilder.create().texOffs(3, 3).addBox(0.0F, 0.0F, 0.0F, 0.0F, 5.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 5.0F, 0.0F, 0.0F, 0.0F, -0.1745F));
+
+        return LayerDefinition.create(meshdefinition, 128, 64);
     }
 
     @Override

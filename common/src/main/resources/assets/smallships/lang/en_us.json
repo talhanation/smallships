@@ -203,9 +203,11 @@
   "gui.smallships.dockyard.repair_hull": "Repair Hull",
   "gui.smallships.dockyard.repair_sails": "Repair Sails",
   "gui.smallships.dockyard.ship_name": "Ship Name",
-  "gui.smallships.dockyard.sail_color": "%s - Sail",
-  "gui.smallships.dockyard.banner_mounted" : "Banner",
-  "gui.smallships.dockyard.banner_hint" : "Sail Banner",
+  "gui.smallships.dockyard.sail_color": "%s Sails",
+  "gui.smallships.dockyard.banner" : "Mast Banner",
+  "gui.smallships.dockyard.banner_hint" : "",
+  "gui.smallships.dockyard.sail_banner" : "Sail Banner",
+  "gui.smallships.dockyard.sail_banner_hint" : "",
   "gui.smallships.dockyard.duration" : "Time: %s",
 
 

@@ -4,7 +4,7 @@ import com.talhanation.smallships.api.client.ShipRenderRegistry;
 import com.talhanation.smallships.client.gui.screens.inventory.DockyardScreen;
 import com.talhanation.smallships.client.gui.screens.inventory.ShipContainerScreen;
 import com.talhanation.smallships.client.model.sail.*;
-import com.talhanation.smallships.client.model.sail.banner.CogSailBannerModel;
+import com.talhanation.smallships.client.model.sail.banner.*;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -32,6 +32,14 @@ public class ClientInitializer {
         ShipRenderRegistry.registerSail(GalleonEntity.class, new GalleonSailModel());
         ShipRenderRegistry.registerSail(CaravelEntity.class, new CaravelSailModel());
 
+        //MAST BANNER
+        ShipRenderRegistry.registerMastBanner(CogEntity.class, new CogMastBannerModel());
+        ShipRenderRegistry.registerMastBanner(GalleyEntity.class, new GalleyMastBannerModel());
+        ShipRenderRegistry.registerMastBanner(DrakkarEntity.class, new DrakkarMastBannerModel());
+
+        //SAIL BANNER
         ShipRenderRegistry.registerSailBanner(CogEntity.class, new CogSailBannerModel());
+        ShipRenderRegistry.registerSailBanner(GalleyEntity.class, new GalleySailBannerModel());
+        ShipRenderRegistry.registerSailBanner(DrakkarEntity.class, new DrakkarSailBannerModel());
     }
 }

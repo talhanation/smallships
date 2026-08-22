@@ -1442,7 +1442,7 @@ public abstract class Ship extends Boat {
     private void stopAgainstObstacle() {
         if (!this.level().isClientSide()) {
             float impactKmh = Kalkuel.getKilometerPerHour(Math.abs(this.getSpeed()));
-            this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), SoundEvents.WOOD_HIT, this.getSoundSource(), 1.6F, 0.6F + 0.2F * this.random.nextFloat());
+            this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 1.6F, 0.6F + 0.2F * this.random.nextFloat());
 
             // Running aground at speed is a ram like any other, against
             // something that cannot be pushed and takes nothing itself. No mass
@@ -1452,7 +1452,7 @@ public abstract class Ship extends Boat {
                 this.ramRearmPos = this.position();
                 this.takeRamHit(RAM_BASE_DAMAGE + (impactKmh - (float) CRASH_MIN_SPEED_KMH) * RAM_DAMAGE_PER_KMH,
                         this.getRamSelfDamageFactor());
-                this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), SoundEvents.WOOD_BREAK, this.getSoundSource(), 2.0F, 0.6F);
+                this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 2.0F, 0.6F);
             }
         }
         // The turn goes with the way. A hull wedged against a cliff that keeps

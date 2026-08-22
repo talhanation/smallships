@@ -10,6 +10,7 @@ import com.talhanation.smallships.api.client.ShipRenderRegistry;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.SailModel;
+import com.talhanation.smallships.client.model.sail.banner.MastBannerModel;
 import com.talhanation.smallships.client.model.sail.banner.SailBannerModel;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
@@ -23,7 +24,6 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
@@ -236,45 +236,21 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         return 0;
     }
 
-    private static final ModelPart bannerModel;
-    static {
-        ModelPart model = BannerRenderer.createBodyLayer().bakeRoot();
-        model.getChild("pole").visible = false;
-        model.getChild("bar").visible = false;
-        bannerModel = model;
-    }
     @SuppressWarnings("unused")
     private void renderBanner(Bannerable bannerShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         ItemStack bannerItemStack = bannerShipEntity.self().getData(Ship.BANNER);
-        if (bannerItemStack.getItem() instanceof BannerItem bannerItem) {
-            poseStack.pushPose();
-            Bannerable.BannerPosition pos = bannerShipEntity.getBannerPosition();
-            poseStack.mulPose(Axis.YP.rotationDegrees(pos.yp));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(pos.zp));
-            poseStack.translate(pos.x, pos.y, pos.z);
-            poseStack.scale(0.5F, 0.5F, 0.5F);
+        if (!(bannerItemStack.getItem() instanceof BannerItem)) return;
 
-            if (SmallShipsConfig.Common.windEnable.get() && SmallShipsConfig.Client.windBannerEnable.get()) {
-                // rotate the banner AROUND ITS OWN POLE (after the translate) so it
-                // streams in the direction the wind blows to. Applied unscaled:
-                // a full mod-360 rotation never causes a visible flip, unlike the
-                // old strength-scaled wrapDegrees offset.
-                float windOffset = net.minecraft.util.Mth.wrapDegrees(ClientWindManager.getDirection(partialTicks) - entityYaw - 180.0F);
-                poseStack.mulPose(Axis.XP.rotationDegrees(windOffset));
-            }
+        MastBannerModel mastBannerModel = ShipRenderRegistry.getMastBanner(bannerShipEntity.self().getClass());
+        if (mastBannerModel == null) return;
 
-            float bannerWaveAngle = bannerShipEntity.getBannerWaveAngle(partialTicks);
-
-            if (!Mth.equal(bannerWaveAngle, 0F)){
-                poseStack.mulPose(Axis.ZP.rotationDegrees(bannerWaveAngle * 0.5F));
-                poseStack.mulPose(Axis.XP.rotationDegrees(bannerWaveAngle));
-            }
-
-            BannerPatternLayers bannerPatternLayers = bannerItemStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
-            DyeColor dyeColor = ((BannerItem)bannerItemStack.getItem()).getColor();
-            BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, bannerModel, ModelBakery.BANNER_BASE, true, dyeColor, bannerPatternLayers);
-            poseStack.popPose();
+        float windOffset = 0.0F;
+        if (SmallShipsConfig.Common.windEnable.get() && SmallShipsConfig.Client.windBannerEnable.get()) {
+            windOffset = Mth.wrapDegrees(ClientWindManager.getDirection(partialTicks) - entityYaw - 180.0F);
         }
+
+        mastBannerModel.setupAnim(windOffset, bannerShipEntity.getBannerWaveAngle(partialTicks));
+        mastBannerModel.render(bannerShipEntity.self(), bannerItemStack, poseStack, multiBufferSource, packedLight);
     }
 
     private static final ShieldModel shieldModel = new ShieldModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.SHIELD));

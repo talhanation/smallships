@@ -2,9 +2,10 @@ package com.talhanation.smallships.client.model.sail.banner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
+import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -21,32 +22,20 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-/**
- * Renders the pattern layers of an applied banner item onto a sail as a flat,
- * segmented 20x40 surface that follows the sail curvature.
- * <p>
- * Subclasses only provide geometry data (taken 1:1 from the Blockbench export:
- * root offset, per-segment pivot, z-rotation and box bounds). All UVs are
- * computed here and projected onto the vanilla banner texture layout
- * (front region (1,1)-(21,41), mirrored back region (22,1)-(42,41) on a 64x64
- * pattern texture), so the applied banner looks exactly like its item, front
- * and back. The Blockbench UVs and any {@code LayerDefinition} baking are
- * intentionally ignored; segments are emitted as raw quads because cube UVs
- * cannot express the banner layout on zero-depth boxes.
- * <p>
- * Layer sequence matches {@code BannerRenderer#renderPatterns}: base cloth
- * texture, then the base dye color, then each {@link BannerPatternLayers.Layer}
- * tinted with its color. All layers share identical vertices, so they stack
- * without z-fighting. {@code RenderType::entityTranslucent} is used instead of
- * the vanilla {@code entityNoOutline} because it renders both faces regardless
- * of winding and preserves the alpha ramps of gradient patterns.
- */
+
 public abstract class SailBannerModel {
     /** Total banner surface size in model pixels, matching the vanilla flag. */
     public static final float BANNER_WIDTH = 20.0F;
     public static final float BANNER_HEIGHT = 40.0F;
+
+    /** Prefix of the part names that make up a banner surface. */
+    private static final String SEGMENT_PREFIX = "segment_";
 
     /** Vanilla banner pattern textures are laid out on a 64x64 sheet. */
     private static final float TEXTURE_SIZE = 64.0F;
@@ -56,38 +45,66 @@ public abstract class SailBannerModel {
     private static final float BACK_U = 22.0F;
     private static final float FLAG_V = 1.0F;
 
-    /** Offset of the front/back quads from the segment plane, in model pixels. */
+    /** Offset of the front/back quads from the strip plane, in model pixels. */
     private static final float SURFACE_OFFSET = 0.05F;
+    /** Tolerance when checking whether a row of the 20x40 layout is full. */
+    private static final float LAYOUT_EPSILON = 0.01F;
 
     /**
-     * One flat strip of the banner surface. Pivot and rotation are relative to
-     * the previous segment in the group (the Blockbench parent), so rotations
-     * accumulate along the chain and the surface bends around the sail.
-     *
-     * @param uStartPx horizontal position of this strip in the 20x40 layout
-     * @param vStartPx vertical position of this strip in the 20x40 layout
+     * Where one strip sits in the 20x40 banner layout, derived from the baked
+     * cube bounds. {@code flatX} tells which axis the strip is flat on: true
+     * means zero depth on X with the width running along Z, false means zero
+     * depth on Z with the width running along X.
      */
-    public record Segment(float pivotX, float pivotY, float pivotZ, float zRot,
-                          float boxX, float boxY, float boxZ,
-                          float widthPx, float heightPx,
-                          float uStartPx, float vStartPx) {
+    private record SegmentLayout(int groupIndex, int segmentIndex, float uStartPx, float vStartPx, float widthPx, float heightPx, boolean flatX) {
+    }
+
+    private record SegmentPose(Matrix4f pose, Matrix3f normal, ModelPart.Cube cube, SegmentLayout layout, boolean mirrorU) {
+    }
+
+    /** A strip before its place in the layout is known, used while baking. */
+    private record RawSegment(int segmentIndex, ModelPart part, ModelPart.Cube cube, float widthPx, float heightPx, boolean flatX) {
+    }
+
+    /** Everything the bake step derives from the part tree. */
+    private record BakedLayout(Map<ModelPart.Cube, SegmentLayout> layouts, List<ModelPart> groupParts, List<List<ModelPart>> segmentParts) {
+    }
+
+    private final ModelPart root;
+    private final Map<ModelPart.Cube, SegmentLayout> layouts;
+    private final List<ModelPart> groupParts;
+    private final List<List<ModelPart>> segmentParts;
+
+    protected SailBannerModel(@NotNull LayerDefinition layerDefinition) {
+        this.root = layerDefinition.bakeRoot();
+        BakedLayout bakedLayout = createLayout(this.root, this.getClass().getSimpleName());
+        this.layouts = bakedLayout.layouts();
+        this.groupParts = bakedLayout.groupParts();
+        this.segmentParts = bakedLayout.segmentParts();
+    }
+
+    /** The baked part tree, for subclasses that want to animate their strips. */
+    protected @NotNull ModelPart getRoot() {
+        return this.root;
+    }
+
+    /** Number of banner surfaces this model holds. */
+    protected int getGroupCount() {
+        return this.groupParts.size();
     }
 
     /**
-     * One complete 20x40 banner surface (e.g. one sail). A model may contain
-     * several groups; every group renders the same banner independently.
-     *
-     * @param mirrorU flips the horizontal texture direction of the whole group
-     *                in case the modeled surface runs opposite to the banner
+     * The node a banner surface hangs from. Rotating it moves the whole
+     * surface around its pivot without touching the strip curvature.
      */
-    public record Group(float rootX, float rootY, float rootZ, boolean mirrorU, List<Segment> segments) {
+    protected @NotNull ModelPart getGroupPart(int groupIndex) {
+        return this.groupParts.get(groupIndex);
     }
 
-    private record SegmentPose(Matrix4f pose, Matrix3f normal, Segment segment, boolean mirrorU) {
+    /** The strips of a banner surface, in the order of their names. */
+    protected @NotNull List<ModelPart> getSegmentParts(int groupIndex) {
+        return this.segmentParts.get(groupIndex);
     }
-
-    /** Geometry data of this sail type, taken from the Blockbench export. */
-    protected abstract @NotNull List<Group> getGroups();
 
     /** Whether a whole banner surface renders, e.g. depending on the sail state. */
     protected boolean isGroupVisible(@NotNull Ship ship, int groupIndex) {
@@ -100,8 +117,17 @@ public abstract class SailBannerModel {
     }
 
     /**
+     * Flips the horizontal texture direction of a surface. The direction of the
+     * width axis is already handled per axis, this is for a surface modeled
+     * against the reading direction of the banner on top of that.
+     */
+    protected boolean isGroupMirrored(int groupIndex) {
+        return false;
+    }
+
+    /**
      * Renders all pattern layers of the given banner item onto the visible
-     * segments. Must be called inside the same pose stack the sail model was
+     * strips. Must be called inside the same pose stack the sail model was
      * rendered in, like {@link ModelPart#render}.
      */
     public void render(@NotNull Ship ship, @NotNull ItemStack bannerStack, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
@@ -120,30 +146,19 @@ public abstract class SailBannerModel {
     }
 
     /**
-     * Walks each group's segment chain once, accumulating the pivot/rotation
-     * transforms, and snapshots the pose of every visible segment. The
-     * snapshots are then reused for every pattern layer so all layers share
-     * identical vertices.
+     * Walks the baked part tree once and snapshots the pose of every visible
+     * strip. The snapshots are then reused for every pattern layer so all
+     * layers share identical vertices.
      */
     private @NotNull List<SegmentPose> collectSegmentPoses(@NotNull Ship ship, @NotNull PoseStack poseStack) {
         List<SegmentPose> segmentPoses = new ArrayList<>();
-        List<Group> groups = this.getGroups();
-        for (int groupIndex = 0; groupIndex < groups.size(); groupIndex++) {
-            Group group = groups.get(groupIndex);
-            if (!this.isGroupVisible(ship, groupIndex)) continue;
-            poseStack.pushPose();
-            poseStack.translate(group.rootX() / 16.0F, group.rootY() / 16.0F, group.rootZ() / 16.0F);
-            List<Segment> segments = group.segments();
-            for (int segmentIndex = 0; segmentIndex < segments.size(); segmentIndex++) {
-                Segment segment = segments.get(segmentIndex);
-                poseStack.translate(segment.pivotX() / 16.0F, segment.pivotY() / 16.0F, segment.pivotZ() / 16.0F);
-                if (segment.zRot() != 0.0F) poseStack.mulPose(Axis.ZP.rotation(segment.zRot()));
-                if (this.isSegmentVisible(ship, groupIndex, segmentIndex)) {
-                    segmentPoses.add(new SegmentPose(new Matrix4f(poseStack.last().pose()), new Matrix3f(poseStack.last().normal()), segment, group.mirrorU()));
-                }
-            }
-            poseStack.popPose();
-        }
+        this.root.visit(poseStack, (pose, path, index, cube) -> {
+            SegmentLayout layout = this.layouts.get(cube);
+            if (layout == null) return;
+            if (!this.isGroupVisible(ship, layout.groupIndex())) return;
+            if (!this.isSegmentVisible(ship, layout.groupIndex(), layout.segmentIndex())) return;
+            segmentPoses.add(new SegmentPose(new Matrix4f(pose.pose()), new Matrix3f(pose.normal()), cube, layout, this.isGroupMirrored(layout.groupIndex())));
+        });
         return segmentPoses;
     }
 
@@ -156,16 +171,23 @@ public abstract class SailBannerModel {
 
     /** Emits the front and back quad of one strip with its UV window of the flag layout. */
     private void emitSegment(@NotNull SegmentPose segmentPose, @NotNull VertexConsumer vertexConsumer, int color, int packedLight) {
-        Segment segment = segmentPose.segment();
-        float uStart = segmentPose.mirrorU() ? BANNER_WIDTH - segment.uStartPx() - segment.widthPx() : segment.uStartPx();
+        SegmentLayout layout = segmentPose.layout();
+        ModelPart.Cube cube = segmentPose.cube();
+        boolean flatX = layout.flatX();
+        // looking at the front of a Z flat surface, from +Z towards -Z, +X runs
+        // to the right and the width axis matches the reading direction of the
+        // banner. On an X flat surface, seen from +X towards -X, +Z runs to the
+        // left instead, so its width axis has to be flipped to read correctly
+        boolean mirrorU = segmentPose.mirrorU() != flatX;
+        float uStart = mirrorU ? BANNER_WIDTH - layout.uStartPx() - layout.widthPx() : layout.uStartPx();
 
-        // front face UVs at z0/z1; back face samples the mirrored back region
-        // so the pattern reads correctly from behind, like a vanilla banner
+        // the back face samples the mirrored back region so the pattern reads
+        // correctly from behind, exactly like a vanilla banner
         float frontU0 = (FRONT_U + uStart) / TEXTURE_SIZE;
-        float frontU1 = (FRONT_U + uStart + segment.widthPx()) / TEXTURE_SIZE;
-        float backU0 = (BACK_U + (BANNER_WIDTH - uStart)) / TEXTURE_SIZE;
-        float backU1 = (BACK_U + (BANNER_WIDTH - uStart - segment.widthPx())) / TEXTURE_SIZE;
-        if (segmentPose.mirrorU()) {
+        float frontU1 = (FRONT_U + uStart + layout.widthPx()) / TEXTURE_SIZE;
+        float backU0 = (BACK_U + BANNER_WIDTH - uStart) / TEXTURE_SIZE;
+        float backU1 = (BACK_U + BANNER_WIDTH - uStart - layout.widthPx()) / TEXTURE_SIZE;
+        if (mirrorU) {
             float swap = frontU0;
             frontU0 = frontU1;
             frontU1 = swap;
@@ -173,44 +195,129 @@ public abstract class SailBannerModel {
             backU0 = backU1;
             backU1 = swap;
         }
-        float v0 = (FLAG_V + segment.vStartPx()) / TEXTURE_SIZE;
-        float v1 = (FLAG_V + segment.vStartPx() + segment.heightPx()) / TEXTURE_SIZE;
+        float v0 = (FLAG_V + layout.vStartPx()) / TEXTURE_SIZE;
+        float v1 = (FLAG_V + layout.vStartPx() + layout.heightPx()) / TEXTURE_SIZE;
 
-        float y0 = segment.boxY() / 16.0F;
-        float y1 = (segment.boxY() + segment.heightPx()) / 16.0F;
-        float z0 = segment.boxZ() / 16.0F;
-        float z1 = (segment.boxZ() + segment.widthPx()) / 16.0F;
-        float xFront = (segment.boxX() + SURFACE_OFFSET) / 16.0F;
-        float xBack = (segment.boxX() - SURFACE_OFFSET) / 16.0F;
+        float y0 = cube.minY;
+        float y1 = cube.maxY;
+        float w0 = flatX ? cube.minZ : cube.minX;
+        float w1 = flatX ? cube.maxZ : cube.maxX;
+        // center of the flat axis, so a strip modeled with a small residual
+        // depth still gets its quads placed symmetrically around the surface
+        float plane = flatX ? (cube.minX + cube.maxX) * 0.5F : (cube.minZ + cube.maxZ) * 0.5F;
 
-        this.emitQuad(segmentPose, vertexConsumer, xFront, y0, y1, z0, z1, frontU0, frontU1, v0, v1, 1.0F, color, packedLight);
-        this.emitQuad(segmentPose, vertexConsumer, xBack, y0, y1, z0, z1, backU0, backU1, v0, v1, -1.0F, color, packedLight);
+        this.emitQuad(segmentPose, vertexConsumer, plane + SURFACE_OFFSET, y0, y1, w0, w1, frontU0, frontU1, v0, v1, 1.0F, color, packedLight);
+        this.emitQuad(segmentPose, vertexConsumer, plane - SURFACE_OFFSET, y0, y1, w0, w1, backU0, backU1, v0, v1, -1.0F, color, packedLight);
     }
 
-    private void emitQuad(@NotNull SegmentPose segmentPose, @NotNull VertexConsumer vertexConsumer, float x, float y0, float y1, float z0, float z1, float u0, float u1, float v0, float v1, float normalX, int color, int packedLight) {
-        Vector3f normal = segmentPose.normal().transform(new Vector3f(normalX, 0.0F, 0.0F));
-        if (normalX > 0.0F) {
-            this.emitVertex(segmentPose.pose(), vertexConsumer, x, y0, z0, u0, v0, normal, color, packedLight);
-            this.emitVertex(segmentPose.pose(), vertexConsumer, x, y1, z0, u0, v1, normal, color, packedLight);
-            this.emitVertex(segmentPose.pose(), vertexConsumer, x, y1, z1, u1, v1, normal, color, packedLight);
-            this.emitVertex(segmentPose.pose(), vertexConsumer, x, y0, z1, u1, v0, normal, color, packedLight);
+    private void emitQuad(@NotNull SegmentPose segmentPose, @NotNull VertexConsumer vertexConsumer, float plane, float y0, float y1, float w0, float w1, float u0, float u1, float v0, float v1, float facing, int color, int packedLight) {
+        boolean flatX = segmentPose.layout().flatX();
+        Vector3f normal = segmentPose.normal().transform(new Vector3f(flatX ? facing : 0.0F, 0.0F, flatX ? 0.0F : facing));
+        if (facing > 0.0F) {
+            this.emitVertex(segmentPose, vertexConsumer, plane, y0, w0, u0, v0, normal, color, packedLight);
+            this.emitVertex(segmentPose, vertexConsumer, plane, y1, w0, u0, v1, normal, color, packedLight);
+            this.emitVertex(segmentPose, vertexConsumer, plane, y1, w1, u1, v1, normal, color, packedLight);
+            this.emitVertex(segmentPose, vertexConsumer, plane, y0, w1, u1, v0, normal, color, packedLight);
         } else {
-            this.emitVertex(segmentPose.pose(), vertexConsumer, x, y0, z1, u1, v0, normal, color, packedLight);
-            this.emitVertex(segmentPose.pose(), vertexConsumer, x, y1, z1, u1, v1, normal, color, packedLight);
-            this.emitVertex(segmentPose.pose(), vertexConsumer, x, y1, z0, u0, v1, normal, color, packedLight);
-            this.emitVertex(segmentPose.pose(), vertexConsumer, x, y0, z0, u0, v0, normal, color, packedLight);
+            this.emitVertex(segmentPose, vertexConsumer, plane, y0, w1, u1, v0, normal, color, packedLight);
+            this.emitVertex(segmentPose, vertexConsumer, plane, y1, w1, u1, v1, normal, color, packedLight);
+            this.emitVertex(segmentPose, vertexConsumer, plane, y1, w0, u0, v1, normal, color, packedLight);
+            this.emitVertex(segmentPose, vertexConsumer, plane, y0, w0, u0, v0, normal, color, packedLight);
         }
     }
 
-    private void emitVertex(@NotNull Matrix4f pose, @NotNull VertexConsumer vertexConsumer, float x, float y, float z, float u, float v, @NotNull Vector3f normal, int color, int packedLight) {
+    private void emitVertex(@NotNull SegmentPose segmentPose, @NotNull VertexConsumer vertexConsumer, float plane, float y, float w, float u, float v, @NotNull Vector3f normal, int color, int packedLight) {
+        boolean flatX = segmentPose.layout().flatX();
+        float x = (flatX ? plane : w) / 16.0F;
+        float z = (flatX ? w : plane) / 16.0F;
         // no fluent chaining here: the SpriteCoordinateExpander returned by
         // Material#buffer leaks its delegate from addVertex, so a chained
         // setUv would bypass the sprite UV remap and sample the whole atlas
-        vertexConsumer.addVertex(pose, x, y, z);
+        vertexConsumer.addVertex(segmentPose.pose(), x, y / 16.0F, z);
         vertexConsumer.setColor(color);
         vertexConsumer.setUv(u, v);
         vertexConsumer.setOverlay(OverlayTexture.NO_OVERLAY);
         vertexConsumer.setLight(packedLight);
         vertexConsumer.setNormal(normal.x(), normal.y(), normal.z());
+    }
+
+    /**
+     * Collects the {@code segment_N} strips of the baked tree and lays them out
+     * over the 20x40 banner area: strips are placed left to right in the order
+     * of their name and wrap into the next row once the row is full. Groups are
+     * indexed by their sorted node names, so the indices handed to the
+     * visibility hooks stay stable regardless of the part traversal order.
+     */
+    private static @NotNull BakedLayout createLayout(@NotNull ModelPart root, @NotNull String modelName) {
+        Map<String, ModelPart> groupPartsByName = new TreeMap<>();
+        Map<String, List<RawSegment>> rawGroups = new TreeMap<>();
+        root.visit(new PoseStack(), (pose, path, index, cube) -> {
+            String[] nodes = path.split("/");
+            int segmentIndex = parseSegmentIndex(nodes[nodes.length - 1]);
+            if (segmentIndex < 0) return;
+            float extentX = cube.maxX - cube.minX;
+            float extentY = cube.maxY - cube.minY;
+            float extentZ = cube.maxZ - cube.minZ;
+            boolean flatX = extentX <= extentZ;
+            String groupName = nodes.length > 2 ? nodes[1] : "";
+            groupPartsByName.putIfAbsent(groupName, resolvePart(root, nodes, nodes.length > 2 ? 1 : 0));
+            rawGroups.computeIfAbsent(groupName, key -> new ArrayList<>())
+                    .add(new RawSegment(segmentIndex, resolvePart(root, nodes, nodes.length - 1), cube, flatX ? extentZ : extentX, extentY, flatX));
+        });
+
+        Map<ModelPart.Cube, SegmentLayout> layouts = new IdentityHashMap<>();
+        List<ModelPart> groupParts = new ArrayList<>();
+        List<List<ModelPart>> segmentParts = new ArrayList<>();
+        for (Map.Entry<String, List<RawSegment>> rawGroup : rawGroups.entrySet()) {
+            List<RawSegment> rawSegments = rawGroup.getValue();
+            rawSegments.sort(Comparator.comparingInt(RawSegment::segmentIndex));
+            List<ModelPart> parts = new ArrayList<>();
+            float u = 0.0F;
+            float v = 0.0F;
+            float rowHeight = 0.0F;
+            for (int segmentIndex = 0; segmentIndex < rawSegments.size(); segmentIndex++) {
+                RawSegment rawSegment = rawSegments.get(segmentIndex);
+                if (u > 0.0F && u + rawSegment.widthPx() > BANNER_WIDTH + LAYOUT_EPSILON) {
+                    u = 0.0F;
+                    v += rowHeight;
+                    rowHeight = 0.0F;
+                }
+                layouts.put(rawSegment.cube(), new SegmentLayout(groupParts.size(), segmentIndex, u, v, rawSegment.widthPx(), rawSegment.heightPx(), rawSegment.flatX()));
+                if (!parts.contains(rawSegment.part())) parts.add(rawSegment.part());
+                u += rawSegment.widthPx();
+                rowHeight = Math.max(rowHeight, rawSegment.heightPx());
+            }
+            float coveredHeight = v + rowHeight;
+            if (Math.abs(coveredHeight - BANNER_HEIGHT) > LAYOUT_EPSILON) {
+                SmallShipsMod.LOGGER.warn("{}: banner surface \"{}\" covers {} of {} pixels in height, the pattern will not line up with the banner item",
+                        modelName, rawGroup.getKey(), coveredHeight, BANNER_HEIGHT);
+            }
+            groupParts.add(groupPartsByName.get(rawGroup.getKey()));
+            segmentParts.add(List.copyOf(parts));
+        }
+        return new BakedLayout(layouts, List.copyOf(groupParts), List.copyOf(segmentParts));
+    }
+
+    private static @NotNull ModelPart resolvePart(@NotNull ModelPart root, String @NotNull [] nodes, int depth) {
+        ModelPart part = root;
+        for (int i = 1; i <= depth; i++) {
+            part = part.getChild(nodes[i]);
+        }
+        return part;
+    }
+
+    /**
+     * Index of a {@code segment_N} part, ignoring any suffix Blockbench appends
+     * to keep names unique across groups ({@code segment_0_2}). Returns -1 for
+     * parts that are not strips of a banner surface.
+     */
+    private static int parseSegmentIndex(@NotNull String name) {
+        if (!name.startsWith(SEGMENT_PREFIX)) return -1;
+        int end = SEGMENT_PREFIX.length();
+        while (end < name.length() && Character.isDigit(name.charAt(end))) {
+            end++;
+        }
+        if (end == SEGMENT_PREFIX.length()) return -1;
+        return Integer.parseInt(name.substring(SEGMENT_PREFIX.length(), end));
     }
 }
