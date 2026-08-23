@@ -37,6 +37,17 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 	private final ModelPart cube_r6;
 	private final ModelPart BannerStick;
 	private final ModelPart mast_oben;
+	private final ModelPart chest_1;
+	private final ModelPart sack0;
+	private final ModelPart sack3;
+	private final ModelPart chest_2;
+	private final ModelPart sack2;
+	private final ModelPart sack;
+	private final ModelPart chest_3;
+	private final ModelPart sack4;
+	private final ModelPart chest_4;
+	private final ModelPart sack5;
+	private final ModelPart sack6;
 
 	public DrakkarModel(ModelPart modelPart) {
 		this.Drakkar = modelPart.getChild("Drakkar");
@@ -63,6 +74,17 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 		this.cube_r6 = this.mast_1.getChild("cube_r6");
 		this.BannerStick = this.Drakkar.getChild("BannerStick");
 		this.mast_oben = this.Drakkar.getChild("mast_oben");
+		this.chest_1 = this.Drakkar.getChild("chest_1");
+		this.sack0 = this.chest_1.getChild("sack0");
+		this.sack3 = this.chest_1.getChild("sack3");
+		this.chest_2 = this.Drakkar.getChild("chest_2");
+		this.sack2 = this.chest_2.getChild("sack2");
+		this.sack = this.chest_2.getChild("sack");
+		this.chest_3 = this.Drakkar.getChild("chest_3");
+		this.sack4 = this.chest_3.getChild("sack4");
+		this.chest_4 = this.Drakkar.getChild("chest_4");
+		this.sack5 = this.chest_4.getChild("sack5");
+		this.sack6 = this.chest_4.getChild("sack6");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -251,6 +273,87 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 				.texOffs(0, 0).addBox(9.0F, -69.0F, 0.0F, 2.0F, 2.0F, 16.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 0).addBox(9.0F, -69.0F, 16.0F, 2.0F, 2.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offset(-12.0F, 0.0F, 0.0F));
 
+		PartDefinition chest_1 = Drakkar.addOrReplaceChild("chest_1", CubeListBuilder.create(), PartPose.offset(1.0F, -14.0F, 2.0F));
+
+		PartDefinition sack0 = chest_1.addOrReplaceChild("sack0", CubeListBuilder.create().texOffs(31, 56).addBox(-1.0F, -5.0F, -2.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(-5.7F, -5.0F, -4.0F, 4.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 56).addBox(0.9F, -11.1F, -3.5F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, -10.0F, -2.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -10.0F, -2.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, -10.0F, -5.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -10.0F, -5.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -5.0F, -2.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(3.0F, -5.0F, -5.0F, 3.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, -5.0F, -5.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(-9.3F, 9.0F, 0.0F));
+
+		PartDefinition sack3 = chest_1.addOrReplaceChild("sack3", CubeListBuilder.create().texOffs(31, 56).addBox(-3.7111F, -4.6F, -3.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, 0.4F, -3.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(0.2889F, 0.4F, -3.0556F, 3.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(0.2889F, -4.6F, -3.0556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, 0.4F, -0.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, -4.6F, -0.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 57).addBox(0.2889F, 0.4F, 0.9444F, 3.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(0.2889F, -4.6F, -0.0556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 56).addBox(-1.8111F, -5.7F, -1.5556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(5.4111F, 5.6F, -0.5444F, -0.3927F, -1.5708F, 0.0F));
+
+		PartDefinition chest_2 = Drakkar.addOrReplaceChild("chest_2", CubeListBuilder.create(), PartPose.offset(17.0F, -14.0F, 0.0F));
+
+		PartDefinition sack2 = chest_2.addOrReplaceChild("sack2", CubeListBuilder.create().texOffs(31, 56).addBox(-1.0F, -5.0F, -2.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 56).addBox(0.9F, -6.1F, -0.5F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -5.0F, 1.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 57).addBox(3.0F, 0.0F, 2.0F, 3.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, -5.0F, 1.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, 0.0F, 1.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -5.0F, -2.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(3.0F, 0.0F, -2.0F, 3.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, 0.0F, -2.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(-71.3F, 4.0F, 8.0F));
+
+		PartDefinition sack = chest_2.addOrReplaceChild("sack", CubeListBuilder.create().texOffs(31, 56).addBox(-3.7111F, -4.6F, -3.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, 0.4F, -3.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(0.2889F, 0.4F, -3.0556F, 3.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(0.2889F, -4.6F, -3.0556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, 0.4F, -0.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, -4.6F, -0.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 57).addBox(0.2889F, 0.4F, 0.9444F, 3.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(0.2889F, -4.6F, -0.0556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 56).addBox(-1.8111F, -5.7F, -1.5556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-68.5889F, 5.6F, 1.4556F, -0.3927F, 0.0F, 0.0F));
+
+		PartDefinition chest_3 = Drakkar.addOrReplaceChild("chest_3", CubeListBuilder.create(), PartPose.offset(17.0F, -14.0F, -4.0F));
+
+		PartDefinition sack4 = chest_3.addOrReplaceChild("sack4", CubeListBuilder.create().texOffs(31, 56).addBox(-3.7111F, -4.6F, -3.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, 0.4F, -3.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(0.2889F, 0.4F, -3.0556F, 3.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(0.2889F, -4.6F, -3.0556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, 0.4F, -0.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-3.7111F, -4.6F, -0.0556F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 57).addBox(0.2889F, 0.4F, 0.9444F, 3.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(0.2889F, -4.6F, -0.0556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 56).addBox(-1.8111F, -5.7F, -1.5556F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-68.5889F, 7.6F, -2.5444F, -0.7418F, 0.0F, 0.0F));
+
+		PartDefinition chest_4 = Drakkar.addOrReplaceChild("chest_4", CubeListBuilder.create().texOffs(30, 55).addBox(21.0F, 4.0F, 3.0F, 4.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(24.0F, 4.0F, 7.0F, 4.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(24.0F, 4.0F, -3.0F, 4.0F, 5.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(13.0F, -14.0F, -4.0F));
+
+		PartDefinition sack5 = chest_4.addOrReplaceChild("sack5", CubeListBuilder.create().texOffs(31, 56).addBox(-1.0F, -5.0F, -2.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 56).addBox(0.9F, -6.1F, -0.5F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -5.0F, 1.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 57).addBox(3.0F, 0.0F, 2.0F, 3.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, -5.0F, 1.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, 0.0F, 1.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -5.0F, -2.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(3.0F, 0.0F, -2.0F, 3.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, 0.0F, -2.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(22.7F, 4.0F, 12.0F));
+
+		PartDefinition sack6 = chest_4.addOrReplaceChild("sack6", CubeListBuilder.create().texOffs(31, 56).addBox(-1.0F, -5.0F, -2.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 56).addBox(0.9F, -6.1F, -0.5F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -5.0F, 1.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(32, 57).addBox(3.0F, 0.0F, 2.0F, 3.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, -5.0F, 1.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, 0.0F, 1.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(3.0F, -5.0F, -2.0F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.0F))
+				.texOffs(30, 55).addBox(3.0F, 0.0F, -2.0F, 3.0F, 5.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(31, 56).addBox(-1.0F, 0.0F, -2.0F, 4.0F, 5.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(22.7F, 4.0F, -7.0F));
+
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
 
@@ -258,10 +361,10 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 	@Override
 	public void setupAnim(DrakkarEntity drakkarEntity, float f, float g, float h, float i, float j) {
 
-		//this.chest_1.visible = drakkarEntity.getInvFillState() >= 15;
-		//this.chest_2.visible = drakkarEntity.getInvFillState() >= 30;
-		//this.chest_3.visible = drakkarEntity.getInvFillState() >= 60;
-		//this.chest_4.visible = drakkarEntity.getInvFillState() >= 90;
+		this.chest_1.visible = drakkarEntity.getInvFillState() >= 15;
+		this.chest_2.visible = drakkarEntity.getInvFillState() >= 30;
+		this.chest_3.visible = drakkarEntity.getInvFillState() >= 60;
+		this.chest_4.visible = drakkarEntity.getInvFillState() >= 90;
 
 		this.steer.yRot = -drakkarEntity.getRotSpeed() * 0.25F;
 
