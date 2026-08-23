@@ -517,8 +517,8 @@ public class DrakkarSailModel extends SailModel {
 
 
 	@Override
-	public void setupAnim(@NotNull Ship drakkar, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		switch (drakkar.getData(Ship.SAIL_STATE)) {
+	public void setupAnim(@NotNull Ship cog, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+		switch (cog.getData(Ship.SAIL_STATE)) {
 			case 0 -> {
 				this.sail_0.visible = true;
 				this.sail_1.visible = false;
@@ -574,6 +574,22 @@ public class DrakkarSailModel extends SailModel {
 				this.sail_3_bottom.visible = false;
 			}
 		}
+
+
+		this.rope_4.visible = sail_0.visible;
+		this.rope_5.visible = sail_0.visible;
+
+		this.rope_7.visible = sail_1_bottom.visible;
+		this.rope_8.visible = sail_1_bottom.visible;
+
+		this.rope_11.visible = sail_2_bottom.visible;
+		this.rope_12.visible = sail_2_bottom.visible;
+
+		this.rope_19.visible = sail_3_bottom.visible;
+		this.rope_20.visible = sail_3_bottom.visible;
+
+		this.rope_16.visible = sail_4.visible;
+		this.rope_15.visible = sail_4.visible;
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class DrakkarMastBannerModel extends MastBannerModel {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
 
-        PartDefinition ModelDrakkarMastBanner = partdefinition.addOrReplaceChild("ModelDrakkarMastBanner", CubeListBuilder.create(), PartPose.offset(0.5F, -58.0F, 0.0F));
+        PartDefinition ModelDrakkarMastBanner = partdefinition.addOrReplaceChild("ModelDrakkarMastBanner", CubeListBuilder.create(), PartPose.offset(0.5F, -69.0F, 0.0F));
 
         PartDefinition cloth = ModelDrakkarMastBanner.addOrReplaceChild("cloth", CubeListBuilder.create(), PartPose.offsetAndRotation(0.5F, 0.0F, 0.0F, 0.0F, 0.0F, -1.5708F));
 

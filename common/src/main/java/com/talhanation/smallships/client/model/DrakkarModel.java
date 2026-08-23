@@ -13,38 +13,56 @@ import org.jetbrains.annotations.NotNull;
 
 public class DrakkarModel extends ShipModel<DrakkarEntity> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DrakkarEntity.ID + "_model"), "main");
-	private final ModelPart root;
-	private final ModelPart drakkar;
-	private final ModelPart chest1;
-	private final ModelPart chest2;
-	private final ModelPart chest3;
-	private final ModelPart chest4;
+	private final ModelPart Drakkar;
+	private final ModelPart deck;
+	private final ModelPart cube_r1;
+	private final ModelPart bottom;
+	private final ModelPart cube_r2;
+	private final ModelPart dragon;
+	private final ModelPart dragon_tail;
+	private final ModelPart cube_r3;
+	private final ModelPart sides;
+	private final ModelPart cube_r4;
+	private final ModelPart cube_r5;
 	private final ModelPart steer;
-	private final ModelPart row_L_1;
-	private final ModelPart row_L_2;
-	private final ModelPart row_L_3;
 	private final ModelPart row_L_4;
+	private final ModelPart row_L_3;
+	private final ModelPart row_L_2;
+	private final ModelPart row_L_1;
 	private final ModelPart row_R_1;
 	private final ModelPart row_R_2;
 	private final ModelPart row_R_3;
 	private final ModelPart row_R_4;
+	private final ModelPart mast_1;
+	private final ModelPart cube_r6;
+	private final ModelPart BannerStick;
+	private final ModelPart mast_oben;
 
 	public DrakkarModel(ModelPart modelPart) {
-		this.root = modelPart;
-		this.drakkar = this.root.getChild("Drakkar");
-		this.chest1 = drakkar.getChild("chest_1");
-		this.chest2 = drakkar.getChild("chest_2");
-		this.chest3 = drakkar.getChild("chest_3");
-		this.chest4 = drakkar.getChild("chest_4");
-		this.steer = drakkar.getChild("steer");
-		this.row_L_1 = drakkar.getChild("row_L_1");
-		this.row_L_2 = drakkar.getChild("row_L_2");
-		this.row_L_3 = drakkar.getChild("row_L_3");
-		this.row_L_4 = drakkar.getChild("row_L_4");
-		this.row_R_1 = drakkar.getChild("row_R_1");
-		this.row_R_2 = drakkar.getChild("row_R_2");
-		this.row_R_3 = drakkar.getChild("row_R_3");
-		this.row_R_4 = drakkar.getChild("row_R_4");
+		this.Drakkar = modelPart.getChild("Drakkar");
+		this.deck = this.Drakkar.getChild("deck");
+		this.cube_r1 = this.deck.getChild("cube_r1");
+		this.bottom = this.Drakkar.getChild("bottom");
+		this.cube_r2 = this.bottom.getChild("cube_r2");
+		this.dragon = this.cube_r2.getChild("dragon");
+		this.dragon_tail = this.cube_r2.getChild("dragon_tail");
+		this.cube_r3 = this.bottom.getChild("cube_r3");
+		this.sides = this.Drakkar.getChild("sides");
+		this.cube_r4 = this.sides.getChild("cube_r4");
+		this.cube_r5 = this.sides.getChild("cube_r5");
+		this.steer = this.Drakkar.getChild("steer");
+		this.row_L_4 = this.Drakkar.getChild("row_L_4");
+		this.row_L_3 = this.Drakkar.getChild("row_L_3");
+		this.row_L_2 = this.Drakkar.getChild("row_L_2");
+		this.row_L_1 = this.Drakkar.getChild("row_L_1");
+		this.row_R_1 = this.Drakkar.getChild("row_R_1");
+		this.row_R_2 = this.Drakkar.getChild("row_R_2");
+		this.row_R_3 = this.Drakkar.getChild("row_R_3");
+		this.row_R_4 = this.Drakkar.getChild("row_R_4");
+		this.mast_1 = this.Drakkar.getChild("mast_1");
+		this.cube_r6 = this.mast_1.getChild("cube_r6");
+		this.BannerStick = this.Drakkar.getChild("BannerStick");
+		this.mast_oben = this.Drakkar.getChild("mast_oben");
 	}
 
 
@@ -241,10 +259,10 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 	@Override
 	public void setupAnim(DrakkarEntity drakkarEntity, float f, float g, float h, float i, float j) {
 
-		this.chest1.visible = drakkarEntity.getInvFillState() >= 15;
-		this.chest2.visible = drakkarEntity.getInvFillState() >= 30;
-		this.chest3.visible = drakkarEntity.getInvFillState() >= 60;
-		this.chest4.visible = drakkarEntity.getInvFillState() >= 90;
+		//this.chest_1.visible = drakkarEntity.getInvFillState() >= 15;
+		//this.chest_2.visible = drakkarEntity.getInvFillState() >= 30;
+		//this.chest_3.visible = drakkarEntity.getInvFillState() >= 60;
+		//this.chest_4.visible = drakkarEntity.getInvFillState() >= 90;
 
 		this.steer.yRot = -drakkarEntity.getRotSpeed() * 0.25F;
 
@@ -261,6 +279,6 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 
 	@Override
 	public @NotNull ModelPart root() {
-		return this.root;
+		return this.Drakkar;
 	}
 }

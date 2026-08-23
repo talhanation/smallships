@@ -82,11 +82,15 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     private static final List<ShipPartEntity.Definition> PARTS = List.of(
-            ShipPartEntity.Definition.hull(-2.65F, 0.0F, 0.0F, 2.8F, 1.6F),//back
+            ShipPartEntity.Definition.hull(-2.3F, 0.0F, 0.0F, 2.8F, 1.6F),//back
             ShipPartEntity.Definition.hull(2.65F, 0.0F, 0.0F, 2.5F, 1.6F),//front
             ShipPartEntity.Definition.hull(0.0F, 0.0F, 0.0F, 3.00F, 1.6F),//center
-            ShipPartEntity.Definition.hull(4.35F, 0.75F, 0.0F, 1.25F, 1.0F),//front ram
-            ShipPartEntity.Definition.mast(-0.275F, 0.0F, 0.3F, 8.5F)//mast
+            ShipPartEntity.Definition.hull(3.80F, 0.0F, 0.0F, 2.5F, 1.6F),//front ram
+
+            ShipPartEntity.Definition.hull(4.75F, 1.5F, 0.0F, 0.75F, 3.0F),//dragon head
+            ShipPartEntity.Definition.hull(-3.5F, 1.5F, 0.0F, 0.75F, 3.0F),//dragon tail
+
+            ShipPartEntity.Definition.mast(-0.1F, 0.0F, 0.3F, 9.0F)//mast
     );
 
     @Override
@@ -109,7 +113,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
             ShipSeat.passenger(11, 2.6F, 0.4F,0.75F),
             ShipSeat.passenger(12, 2.6F, 0.4F,-0.75F),
             ShipSeat.passenger(13, 3.4F, 0.4F,0.75F),
-            ShipSeat.passenger(14, 2.4F, 0.4F,-0.75F)
+            ShipSeat.passenger(14, 3.4F, 0.4F,-0.75F)
             // gunner seats, inboard next to their cannon slot (seat v = -cannon offsetX)
     );
 
