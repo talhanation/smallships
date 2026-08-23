@@ -150,7 +150,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     public double getCannonAimY(){
-        return 1.35D;
+        return 3.0D;
     }
 
     @Override
