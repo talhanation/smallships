@@ -65,7 +65,6 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 		this.mast_oben = this.Drakkar.getChild("mast_oben");
 	}
 
-
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
@@ -196,20 +195,20 @@ public class DrakkarModel extends ShipModel<DrakkarEntity> {
 		PartDefinition steer = Drakkar.addOrReplaceChild("steer", CubeListBuilder.create().texOffs(4, 1).addBox(4.0F, 2.75F, -1.0F, 4.0F, 8.0F, 2.0F, new CubeDeformation(0.0F))
 				.texOffs(4, 1).addBox(0.0F, -0.25F, -1.0F, 4.0F, 11.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(45.75F, -0.75F, 0.0F));
 
-		PartDefinition row_L_4 = Drakkar.addOrReplaceChild("row_L_4", CubeListBuilder.create().texOffs(33, 3).addBox(-10.5F, -0.5F, -28.0F, 5.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-23.5F, -12.0F, -18.0F, 0.2618F, 0.0F, 0.0F));
+		PartDefinition row_L_4 = Drakkar.addOrReplaceChild("row_L_4", CubeListBuilder.create().texOffs(33, 3).addBox(-2.5F, -0.5F, -28.0F, 5.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-31.5F, -12.0F, -18.0F, 0.2618F, 0.0F, 0.0F));
 
 		PartDefinition cube_r7 = row_L_4.addOrReplaceChild("cube_r7", CubeListBuilder.create().texOffs(9, 0).addBox(-11.0F, 18.5F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F))
-				.texOffs(9, 0).addBox(-11.0F, 1.5F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.5F, 9.0F, -23.0F, 1.5708F, 0.0F, 0.0F));
+				.texOffs(9, 0).addBox(-11.0F, 1.5F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(10.5F, 9.0F, -23.0F, 1.5708F, 0.0F, 0.0F));
 
-		PartDefinition row_L_3 = Drakkar.addOrReplaceChild("row_L_3", CubeListBuilder.create().texOffs(33, 3).addBox(-10.5F, -0.5F, -28.0F, 5.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-5.5F, -12.0F, -18.0F, 0.2618F, 0.0F, 0.0F));
+		PartDefinition row_L_3 = Drakkar.addOrReplaceChild("row_L_3", CubeListBuilder.create().texOffs(33, 3).addBox(-2.5F, -0.5F, -28.0F, 5.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-13.5F, -12.0F, -18.0F, 0.2618F, 0.0F, 0.0F));
 
 		PartDefinition cube_r8 = row_L_3.addOrReplaceChild("cube_r8", CubeListBuilder.create().texOffs(9, 0).addBox(-11.0F, 18.5F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F))
-				.texOffs(9, 0).addBox(-11.0F, 1.5F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.5F, 9.0F, -23.0F, 1.5708F, 0.0F, 0.0F));
+				.texOffs(9, 0).addBox(-11.0F, 1.5F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(10.5F, 9.0F, -23.0F, 1.5708F, 0.0F, 0.0F));
 
-		PartDefinition row_L_2 = Drakkar.addOrReplaceChild("row_L_2", CubeListBuilder.create().texOffs(33, 3).addBox(-6.5F, -0.5F, -28.0F, 5.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(9.5F, -12.0F, -18.0F, 0.2618F, 0.0F, 0.0F));
+		PartDefinition row_L_2 = Drakkar.addOrReplaceChild("row_L_2", CubeListBuilder.create().texOffs(33, 3).addBox(-2.5F, -0.5F, -28.0F, 5.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(5.5F, -12.0F, -18.0F, 0.2618F, 0.0F, 0.0F));
 
 		PartDefinition cube_r9 = row_L_2.addOrReplaceChild("cube_r9", CubeListBuilder.create().texOffs(9, 0).addBox(-7.0F, 19.0F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F))
-				.texOffs(9, 0).addBox(-7.0F, 2.0F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.5F, 9.0F, -23.0F, 1.5708F, 0.0F, 0.0F));
+				.texOffs(9, 0).addBox(-7.0F, 2.0F, 8.0F, 1.0F, 17.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(6.5F, 9.0F, -23.0F, 1.5708F, 0.0F, 0.0F));
 
 		PartDefinition row_L_1 = Drakkar.addOrReplaceChild("row_L_1", CubeListBuilder.create().texOffs(33, 3).addBox(-2.5F, -0.5F, -28.0F, 5.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(24.5F, -12.0F, -18.0F, 0.2618F, 0.0F, 0.0F));
 
