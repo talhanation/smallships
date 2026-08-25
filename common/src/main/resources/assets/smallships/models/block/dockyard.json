@@ -1,12 +1,8 @@
 {
-  "parent": "minecraft:block/cube",
-  "textures": {
-    "particle": "smallships:block/dockyard_side",
-    "down": "smallships:block/dockyard_side",
-    "up": "smallships:block/dockyard_top",
-    "north": "smallships:block/dockyard_front",
-    "south": "smallships:block/dockyard_side",
-    "west": "smallships:block/dockyard_side",
-    "east": "smallships:block/dockyard_side"
+  "variants": {
+    "facing=north": { "model": "smallships:block/dockyard" },
+    "facing=east":  { "model": "smallships:block/dockyard" },
+    "facing=south": { "model": "smallships:block/dockyard" },
+    "facing=west":  { "model": "smallships:block/dockyard" }
   }
 }

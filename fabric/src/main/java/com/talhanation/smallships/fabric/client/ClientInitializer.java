@@ -2,13 +2,16 @@ package com.talhanation.smallships.fabric.client;
 
 import com.talhanation.smallships.client.ClientTickHandler;
 import com.talhanation.smallships.client.model.*;
+import com.talhanation.smallships.client.model.block.DockyardBlockModel;
 import com.talhanation.smallships.client.model.projectile.CannonBallModel;
 import com.talhanation.smallships.client.model.projectile.ChainShotModel;
 import com.talhanation.smallships.client.model.projectile.GrapeShotModel;
 import com.talhanation.smallships.client.option.KeyEvent;
 import com.talhanation.smallships.client.option.ModGameOptions;
+import com.talhanation.smallships.client.renderer.block.DockyardBlockRenderer;
 import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.network.fabric.ModPacketsImpl;
+import com.talhanation.smallships.world.block.ModBlockEntityTypes;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.particles.ModParticleProviders;
 import net.fabricmc.api.ClientModInitializer;
@@ -16,6 +19,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
@@ -39,6 +43,8 @@ public class ClientInitializer implements ClientModInitializer {
     }
 
     private void initRendererRegisterRenderers() {
+        BlockEntityRendererRegistry.register(ModBlockEntityTypes.DOCKYARD, DockyardBlockRenderer::new);
+
         EntityRendererRegistry.register(ModEntityTypes.SHIP_PART, ShipPartRenderer::new);
 
         EntityRendererRegistry.register(ModEntityTypes.CANNON_BALL, CannonBallRenderer::new);
@@ -57,6 +63,8 @@ public class ClientInitializer implements ClientModInitializer {
     }
 
     private void initRendererRegisterLayerDefinitions() {
+        EntityModelLayerRegistry.registerModelLayer(DockyardBlockModel.LAYER_LOCATION, DockyardBlockModel::createBodyLayer);
+
         EntityModelLayerRegistry.registerModelLayer(CannonBallModel.LAYER_LOCATION, CannonBallModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(ChainShotModel.LAYER_LOCATION, ChainShotModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(GrapeShotModel.LAYER_LOCATION, GrapeShotModel::createBodyLayer);

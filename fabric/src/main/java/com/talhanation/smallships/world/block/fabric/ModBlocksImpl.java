@@ -23,8 +23,11 @@ public class ModBlocksImpl {
     static {
         register(DockyardBlock.ID, new DockyardBlock(BlockBehaviour.Properties.of()
                 .mapColor(MapColor.WOOD)
-                .strength(2.5F)
-                .sound(SoundType.WOOD)));
+                .strength(3.5F)
+                .sound(SoundType.WOOD)
+                .noCollission()
+            )
+        );
     }
 
     private static void register(String id, Block block) {
