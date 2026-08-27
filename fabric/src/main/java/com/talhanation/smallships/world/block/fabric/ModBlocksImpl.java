@@ -25,7 +25,7 @@ public class ModBlocksImpl {
                 .mapColor(MapColor.WOOD)
                 .strength(3.5F)
                 .sound(SoundType.WOOD)
-                .noCollission()
+                .noOcclusion()
             )
         );
     }
