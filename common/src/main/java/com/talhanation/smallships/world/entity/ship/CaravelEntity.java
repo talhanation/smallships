@@ -19,9 +19,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CaravelEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
     public static final String ID = "caravel";
+
+    /** A small, fine hull, but two full lateen sails to cut and sew. */
+    private static final Map<ShipUpgrade, Integer> UPGRADE_COSTS = Map.of(
+            ShipUpgrade.IRON_SCANTLINGS, 5,
+            ShipUpgrade.COTTON_SAILS, 2,
+            ShipUpgrade.COPPER_PLATING, 4
+    );
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCaravelContainerSize.get();
     public CaravelEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -37,6 +45,11 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
 
     public static CaravelEntity summon(Level level, double d, double e, double f) {
         return new CaravelEntity(level, d, e, f);
+    }
+
+    @Override
+    public Map<ShipUpgrade, Integer> getUpgradeCosts() {
+        return UPGRADE_COSTS;
     }
 
     @Override
@@ -71,6 +84,7 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
             ShipPartEntity.Definition.hull(-3.0F, 0.85F, 0.0F, 2.5F, 1.25F),//middle back above
             ShipPartEntity.Definition.hull(2.5F, 0.0F, 0.0F, 2.5F, 1.25F),//middle front
             ShipPartEntity.Definition.hull(3.5F, 0.0F, 0.0F, 2.0F, 1.25F),//front
+            ShipPartEntity.Definition.hull(4.5F, 1.00F, 0.0F, 0.75F, 1.6F),//front tip
             ShipPartEntity.Definition.mast(2.2F, 0.0F, 0.30F, 10.75F),//front mast
             ShipPartEntity.Definition.mast(-2.0F, 0.0F, 0.30F, 9.5F));//back mast
     @Override

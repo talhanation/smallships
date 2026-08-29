@@ -19,9 +19,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
     public static final String ID = "brigg";
+
+    /** Two fully square rigged masts: by far the largest canvas and a heavy iron bound hull. */
+    private static final Map<ShipUpgrade, Integer> UPGRADE_COSTS = Map.of(
+            ShipUpgrade.IRON_SCANTLINGS, 12,
+            ShipUpgrade.COTTON_SAILS, 4,
+            ShipUpgrade.COPPER_PLATING, 8
+    );
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerBriggContainerSize.get();
 
     public BriggEntity(EntityType<? extends Boat> entityType, Level level) {
@@ -38,6 +46,11 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     public static BriggEntity summon(Level level, double d, double e, double f) {
         return new BriggEntity(level, d, e, f);
+    }
+
+    @Override
+    public Map<ShipUpgrade, Integer> getUpgradeCosts() {
+        return UPGRADE_COSTS;
     }
 
     @Override

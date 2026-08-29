@@ -405,23 +405,25 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         Player player = this.menu.getPlayer();
 
         for (ShipUpgrade upgrade : ShipUpgrade.values()) {
+            // a ship that prices an upgrade at 0 does not get a row for it
+            if (!upgrade.isAvailable(ship)) continue;
             boolean installed = upgrade.isInstalled(ship);
             List<Component> tooltip = new ArrayList<>();
             tooltip.add(Component.translatable(upgrade.getTranslationKey()).withStyle(ChatFormatting.GOLD));
             tooltip.add(Component.translatable(upgrade.getDescriptionTranslationKey()).withStyle(ChatFormatting.GRAY));
             if (installed) {
                 tooltip.add(Component.translatable("gui.smallships.dockyard.refund",
-                        upgrade.getRefundAmount(), upgrade.getCost().getHoverName()).withStyle(ChatFormatting.GREEN));
+                        upgrade.getRefundAmount(ship), upgrade.getCost(ship).getHoverName()).withStyle(ChatFormatting.GREEN));
             } else {
                 tooltip.add(Component.translatable("gui.smallships.dockyard.cost",
-                        upgrade.getCostAmount(), upgrade.getCost().getHoverName()).withStyle(ChatFormatting.YELLOW));
+                        upgrade.getCostAmount(ship), upgrade.getCost(ship).getHoverName()).withStyle(ChatFormatting.YELLOW));
             }
             int upgradeTime = installed ? upgrade.getRemoveTime() : upgrade.getBuildTime();
             tooltip.add(durationLine(upgradeTime));
             this.options.add(new UpgradeOption(
                     new DockyardAction(DockyardAction.Kind.UPGRADE, upgrade.ordinal(), -1, !installed),
-                    upgrade.getCost(), Component.translatable(upgrade.getTranslationKey()),
-                    installed ? ItemStack.EMPTY : upgrade.getCost(), upgradeTime, installed, tooltip));
+                    upgrade.getCost(ship), Component.translatable(upgrade.getTranslationKey()),
+                    installed ? ItemStack.EMPTY : upgrade.getCost(ship), upgradeTime, installed, tooltip));
         }
 
         if (ship instanceof Cannonable cannonable) {

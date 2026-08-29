@@ -1,6 +1,6 @@
 {
   "category.smallships": "Small Ships",
-  "smallships.creative_mode_tab": "Small Ships Mod",
+  "smallships.creative_mode_tab": "SmallShips Mod",
   "key.smallships.ship_sail": "Toggle Sail",
   "key.smallships.higher_ship_sail": "Higher Sail",
   "key.smallships.lower_ship_sail": "Lower Sail",
@@ -105,7 +105,7 @@
 
   "item.smallships.iron_scantlings": "Iron Scantlings",
   "item.smallships.copper_plating": "Copper Plating",
-  "item.smallships.cottn_sails": "Cotton Sails",
+  "item.smallships.cotton_sails": "Cotton Sails",
 
   "tooltip.plane.damage": "Damage: %s %%",
   "tooltip.plane.throttle": "Throttle: %s %%",

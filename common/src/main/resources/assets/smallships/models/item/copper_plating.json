@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "smallships:item/sail"
+    "layer0": "smallships:item/copper_plating"
   }
 }

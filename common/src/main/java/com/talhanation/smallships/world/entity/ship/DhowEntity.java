@@ -19,9 +19,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DhowEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
     public static final String ID = "dhow";
+
+    /** The lightest hull of the mod under the largest lateen sail, and not a nail of iron in it. */
+    private static final Map<ShipUpgrade, Integer> UPGRADE_COSTS = Map.of(
+            ShipUpgrade.IRON_SCANTLINGS, 3,
+            ShipUpgrade.COTTON_SAILS, 2,
+            ShipUpgrade.COPPER_PLATING, 3
+    );
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCogContainerSize.get();
     public DhowEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -41,6 +49,11 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
 
     public boolean isEffectedByCargoPenalty(){
         return false;
+    }
+
+    @Override
+    public Map<ShipUpgrade, Integer> getUpgradeCosts() {
+        return UPGRADE_COSTS;
     }
 
     @Override

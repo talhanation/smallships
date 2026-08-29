@@ -72,8 +72,13 @@ public class ModItemsImpl {
         register("chained_shot", new CannonBallItem(CannonBallItem.Type.CHAINED, (new Item.Properties()).stacksTo(16)));
         register("grape_shot", new CannonBallItem(CannonBallItem.Type.GRAPE, (new Item.Properties()).stacksTo(16)));
         register("fine_grain_powder", new Item(new Item.Properties()));
+
         register("dockyard", new BlockItem(com.talhanation.smallships.world.block.ModBlocks.DOCKYARD, new Item.Properties()));
 
+        register("copper_plating", new Item(new Item.Properties().stacksTo(1)));
+        register("cotton_sails", new Item(new Item.Properties().stacksTo(1)));
+        register("iron_scantlings", new Item(new Item.Properties().stacksTo(1)));
+        
         for (Boat.Type type: Boat.Type.values()) {
             String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
             register(name + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));

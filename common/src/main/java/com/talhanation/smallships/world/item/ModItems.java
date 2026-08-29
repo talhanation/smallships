@@ -18,6 +18,11 @@ public class ModItems {
     public static final Item FINE_GRAIN_POWDER = getItem("fine_grain_powder");
     public static final Item DOCKYARD = getItem("dockyard");
 
+    // materials consumed by the dockyard when a ship upgrade is installed
+    public static final Item IRON_SCANTLINGS = getItem("iron_scantlings");
+    public static final Item COPPER_PLATING = getItem("copper_plating");
+    public static final Item COTTON_SAILS = getItem("cotton_sails");
+
     public static final Map<Boat.Type, Item> COG_ITEMS = new HashMap<>(Boat.Type.values().length);
     public static final Map<Boat.Type, Item> BRIGG_ITEMS = new HashMap<>(Boat.Type.values().length);
     public static final Map<Boat.Type, Item> GALLEY_ITEMS = new HashMap<>(Boat.Type.values().length);

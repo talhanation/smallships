@@ -19,9 +19,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Paddleable, IceBreakable, Seatable, Ability {
     public static final String ID = "drakkar";
+
+    /** Clinker built on thousands of rivets, the single square sail stays modest. */
+    private static final Map<ShipUpgrade, Integer> UPGRADE_COSTS = Map.of(
+            ShipUpgrade.IRON_SCANTLINGS, 5,
+            ShipUpgrade.COTTON_SAILS, 1,
+            ShipUpgrade.COPPER_PLATING, 5
+    );
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerDrakkarContainerSize.get();
 
     private static final List<ShieldPosition> SHIELD_POSITIONS = new ArrayList<>();
@@ -54,6 +62,11 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     public static DrakkarEntity summon(Level level, double d, double e, double f) {
         return new DrakkarEntity(level, d, e, f);
     }
+    @Override
+    public Map<ShipUpgrade, Integer> getUpgradeCosts() {
+        return UPGRADE_COSTS;
+    }
+
     @Override
     public CompoundTag createDefaultAttributes() {
         Attributes attributes = new Attributes();

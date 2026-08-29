@@ -59,6 +59,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
 
@@ -1063,6 +1064,38 @@ public abstract class Ship extends Boat {
         attributes.loadSaveData(this.getData(ATTRIBUTES));
         ShipUpgrade.applyAll(this, attributes);
         return attributes;
+    }
+
+    /**
+     * What one upgrade costs on THIS hull. A galleon needs far more plating
+     * than a dhow, so the price is stated by the ship and not by the upgrade.
+     */
+    private static final Map<ShipUpgrade, Integer> DEFAULT_UPGRADE_COSTS = Map.of(
+            ShipUpgrade.IRON_SCANTLINGS, 4,
+            ShipUpgrade.COTTON_SAILS, 4,
+            ShipUpgrade.COPPER_PLATING, 4
+    );
+
+    /**
+     * @return how many units of its material each upgrade costs on this ship.
+     * Override with a static map of your own; an upgrade left out of the map
+     * falls back to {@link ShipUpgrade#getDefaultCost()}, so a new upgrade
+     * never breaks an existing ship - not even one from an addon.
+     */
+    public Map<ShipUpgrade, Integer> getUpgradeCosts() {
+        return DEFAULT_UPGRADE_COSTS;
+    }
+
+    /**
+     * @return how much material this upgrade costs on this ship, 0 if the ship
+     * does not offer it at all. The config modifier never turns a real price
+     * into 0, so switching an upgrade off stays a decision of the ship.
+     */
+    public int getUpgradeCost(ShipUpgrade upgrade) {
+        int base = this.getUpgradeCosts().getOrDefault(upgrade, upgrade.getDefaultCost());
+        if (base <= 0) return 0;
+        double modifier = SmallShipsConfig.Common.shipUpgradeCostModifier.get() / 100.0D;
+        return Math.max(1, (int) Math.round(base * modifier));
     }
     public void setCannonKeyPressed(boolean b){
         cannonKeyPressed = b;

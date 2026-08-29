@@ -56,6 +56,15 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue shipGeneralCannonDamage;
         public static ForgeConfigSpec.DoubleValue shipGeneralCannonDestruction;
 
+        // Dockyard upgrades
+        public static ForgeConfigSpec.BooleanValue shipUpgradeEnable;
+        public static ForgeConfigSpec.DoubleValue shipUpgradeCostModifier;
+        public static ForgeConfigSpec.DoubleValue shipUpgradeTimeModifier;
+        public static ForgeConfigSpec.DoubleValue shipUpgradeRefundModifier;
+        public static ForgeConfigSpec.DoubleValue shipUpgradeIronScantlingsHealth;
+        public static ForgeConfigSpec.DoubleValue shipUpgradeCottonSailsSpeed;
+        public static ForgeConfigSpec.DoubleValue shipUpgradeCopperPlatingRotation;
+
         // Wind (Feature: Wind)
         public static ForgeConfigSpec.BooleanValue windEnable;
         public static ForgeConfigSpec.DoubleValue windMaxSpeedInfluence;
@@ -253,6 +262,39 @@ public class SmallShipsConfig {
                 .defineInRange("waterAnimalFleeSpeed", 1.5D, 0.0D, 100.0D);
         Common.waterAnimalFleeDistance = builder
                 .defineInRange("waterAnimalFleeDistance", 10.0D, 0.0D, 100.0D);
+
+        builder.pop();
+
+        builder.comment("Upgrades that can be built into a ship at the dockyard. How MUCH material a single upgrade costs is stated by the ship itself, an upgrade priced at 0 there is not offered on that hull at all.");
+        builder.push("Upgrades");
+
+        builder.comment("Can ships be upgraded at the dockyard at all? When off, no upgrade is offered and installed ones stop having any effect.");
+        Common.shipUpgradeEnable = builder
+                .define("shipUpgradeEnable", true);
+
+        builder.comment("Material cost of every upgrade in percent of what the ship asks for. This never drops a cost to zero - an upgrade priced at 0 by the ship stays gone, everything else stays at least 1.");
+        Common.shipUpgradeCostModifier = builder
+                .defineInRange("shipUpgradeCostModifier", 100.0D, 1.0D, 1000.0D);
+
+        builder.comment("Installation and removal time of every upgrade in percent.");
+        Common.shipUpgradeTimeModifier = builder
+                .defineInRange("shipUpgradeTimeModifier", 100.0D, 0.0D, 1000.0D);
+
+        builder.comment("How much material comes back when an upgrade is removed again, in percent of its cost. Upgrades are built into the hull and taking them off is destructive, so this sits far below 100.");
+        Common.shipUpgradeRefundModifier = builder
+                .defineInRange("shipUpgradeRefundModifier", 30.0D, 0.0D, 100.0D);
+
+        builder.comment("Extra hull health from iron scantlings in percent.");
+        Common.shipUpgradeIronScantlingsHealth = builder
+                .defineInRange("shipUpgradeIronScantlingsHealth", 100.0D, 0.0D, 1000.0D);
+
+        builder.comment("Extra maximum speed from cotton sails in percent.");
+        Common.shipUpgradeCottonSailsSpeed = builder
+                .defineInRange("shipUpgradeCottonSailsSpeed", 25.0D, 0.0D, 1000.0D);
+
+        builder.comment("Extra rotation speed and rotation acceleration from copper plating in percent.");
+        Common.shipUpgradeCopperPlatingRotation = builder
+                .defineInRange("shipUpgradeCopperPlatingRotation", 20.0D, 0.0D, 1000.0D);
 
         builder.pop();
 

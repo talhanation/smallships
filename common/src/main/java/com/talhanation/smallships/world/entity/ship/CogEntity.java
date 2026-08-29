@@ -19,9 +19,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CogEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
     public static final String ID = "cog";
+
+    /** A sturdy, nailed trading hull with one plain square sail. */
+    private static final Map<ShipUpgrade, Integer> UPGRADE_COSTS = Map.of(
+            ShipUpgrade.IRON_SCANTLINGS, 4,
+            ShipUpgrade.COTTON_SAILS, 1,
+            ShipUpgrade.COPPER_PLATING, 4
+    );
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCogContainerSize.get();
     public CogEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -37,6 +45,11 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
 
     public static CogEntity summon(Level level, double d, double e, double f) {
         return new CogEntity(level, d, e, f);
+    }
+
+    @Override
+    public Map<ShipUpgrade, Integer> getUpgradeCosts() {
+        return UPGRADE_COSTS;
     }
 
     @Override

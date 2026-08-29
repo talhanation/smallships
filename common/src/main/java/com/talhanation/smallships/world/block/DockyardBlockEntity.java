@@ -260,12 +260,15 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             switch (action.kind()) {
                 case UPGRADE -> {
                     ShipUpgrade upgrade = ShipUpgrade.byOrdinal(action.index());
+                    // checked again on the server: the screen hides the row, but
+                    // the packet must not be trusted to have obeyed it
+                    if (!upgrade.isAvailable(ship)) continue;
                     if (action.install() == upgrade.isInstalled(ship)) continue;
                     if (action.install()) {
-                        costs.add(upgrade.getCost());
+                        costs.add(upgrade.getCost(ship));
                         time += upgrade.getBuildTime();
                     } else {
-                        int refund = upgrade.getRefundAmount();
+                        int refund = upgrade.getRefundAmount(ship);
                         if (refund > 0) refunds.add(new ItemStack(upgrade.getCostItem(), refund));
                         time += upgrade.getRemoveTime();
                     }

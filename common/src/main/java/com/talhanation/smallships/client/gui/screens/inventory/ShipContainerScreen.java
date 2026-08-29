@@ -103,14 +103,15 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         List<Component> tooltip = null;
         int shown = 0;
         for (ShipUpgrade upgrade : upgrades) {
-            // only INSTALLED upgrades are shown
+            // only INSTALLED upgrades that are still offered are shown
             if (!upgrade.isInstalled(this.containerShip)) continue;
+            if (!upgrade.isAvailable(this.containerShip)) continue;
             int boxY = y + shown * 24;
             shown++;
 
             guiGraphics.fill(x, boxY, x + 22, boxY + 22, 0xFF55B14C);
             guiGraphics.fill(x + 1, boxY + 1, x + 21, boxY + 21, 0xFF2B2B2B);
-            guiGraphics.renderItem(upgrade.getCost(), x + 3, boxY + 3);
+            guiGraphics.renderItem(upgrade.getCostIcon(), x + 3, boxY + 3);
 
             if (mouseX >= x && mouseX < x + 22 && mouseY >= boxY && mouseY < boxY + 22) {
                 tooltip = new ArrayList<>();

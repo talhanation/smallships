@@ -12,14 +12,17 @@ import com.talhanation.smallships.client.renderer.block.DockyardBlockRenderer;
 import com.talhanation.smallships.client.renderer.entity.*;
 import com.talhanation.smallships.network.fabric.ModPacketsImpl;
 import com.talhanation.smallships.world.block.ModBlockEntityTypes;
+import com.talhanation.smallships.world.block.ModBlocks;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.particles.ModParticleProviders;
+import com.talhanation.smallships.client.renderer.item.DockyardItemRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
@@ -43,6 +46,10 @@ public class ClientInitializer implements ClientModInitializer {
     }
 
     private void initRendererRegisterRenderers() {
+        BuiltinItemRendererRegistry.INSTANCE.register(
+                ModBlocks.DOCKYARD,
+                (stack, ctx, poseStack, buffer, light, overlay) ->
+                        DockyardItemRenderer.getInstance().renderByItem(stack, ctx, poseStack, buffer, light, overlay));
         BlockEntityRendererRegistry.register(ModBlockEntityTypes.DOCKYARD, DockyardBlockRenderer::new);
 
         EntityRendererRegistry.register(ModEntityTypes.SHIP_PART, ShipPartRenderer::new);

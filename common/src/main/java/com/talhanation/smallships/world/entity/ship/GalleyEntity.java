@@ -19,9 +19,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GalleyEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Paddleable, Seatable, Ability {
     public static final String ID = "galley";
+
+    /** Long, narrow and almost all rowing benches: much timber, but the smallest sail in the fleet. */
+    private static final Map<ShipUpgrade, Integer> UPGRADE_COSTS = Map.of(
+            ShipUpgrade.IRON_SCANTLINGS, 5,
+            ShipUpgrade.COTTON_SAILS, 1,
+            ShipUpgrade.COPPER_PLATING, 4
+    );
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerGalleyContainerSize.get();
 
     public GalleyEntity(EntityType<? extends Boat> entityType, Level level) {
@@ -38,6 +46,11 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
 
     public static GalleyEntity summon(Level level, double d, double e, double f) {
         return new GalleyEntity(level, d, e, f);
+    }
+
+    @Override
+    public Map<ShipUpgrade, Integer> getUpgradeCosts() {
+        return UPGRADE_COSTS;
     }
 
     @Override
@@ -107,7 +120,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     public List<ShipSeat> getSeats() {
         return SEATS;
     }
-    
+
     @Override
     public void waterSplash(){
         Vec3 vector3d = this.getViewVector(0.0F);

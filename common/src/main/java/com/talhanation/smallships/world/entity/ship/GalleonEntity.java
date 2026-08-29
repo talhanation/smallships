@@ -18,9 +18,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GalleonEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
     public static final String ID = "galleon";
+
+    /** The biggest hull of the fleet, four sails and the most plating of all - nothing here is cheap. */
+    private static final Map<ShipUpgrade, Integer> UPGRADE_COSTS = Map.of(
+            ShipUpgrade.IRON_SCANTLINGS, 16,
+            ShipUpgrade.COTTON_SAILS, 8,
+            ShipUpgrade.COPPER_PLATING, 12
+    );
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerGalleonContainerSize.get();
 
     public GalleonEntity(EntityType<? extends Boat> entityType, Level level) {
@@ -37,6 +45,11 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
 
     public static GalleonEntity summon(Level level, double d, double e, double f) {
         return new GalleonEntity(level, d, e, f);
+    }
+
+    @Override
+    public Map<ShipUpgrade, Integer> getUpgradeCosts() {
+        return UPGRADE_COSTS;
     }
 
     @Override
