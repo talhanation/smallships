@@ -42,14 +42,6 @@ public class Attributes {
         }
     }
 
-    public void loadSaveData(CompoundTag tag, Ship shipEntity) { // Workaround because defineSynchedData doesn't work properly (or as I would like it to work: Use the provided 2nd argument as a "default" variable)
-        if (tag.contains("Attributes", 10)) {
-            this.loadSaveData(tag);
-        } else {
-            this.loadSaveData(shipEntity.createDefaultAttributes());
-        }
-    }
-
     @Override
     public String toString() {
         return "Attributes{" +

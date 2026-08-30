@@ -64,7 +64,6 @@ import java.util.Objects;
 import java.util.Stack;
 
 public abstract class Ship extends Boat {
-    public static final EntityDataAccessor<CompoundTag> ATTRIBUTES = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     public static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ROT_SPEED = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Byte> SAIL_STATE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
@@ -288,7 +287,6 @@ public abstract class Ship extends Boat {
 
         builder.define(SPEED, 0.0F);
         builder.define(ROT_SPEED, 0.0F);
-        builder.define(ATTRIBUTES, this.createDefaultAttributes());
         builder.define(FORWARD, false);
         builder.define(BACKWARD, false);
         builder.define(LEFT, false);
@@ -337,14 +335,14 @@ public abstract class Ship extends Boat {
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
 
-        Attributes attributes = new Attributes();
-        attributes.loadSaveData(tag, this);
-        this.setData(ATTRIBUTES, attributes.getSaveData());
-
         if (this instanceof Sailable sailShip) sailShip.readSailShipSaveData(tag);
         if (this instanceof Bannerable bannerShip) bannerShip.readBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.readCannonShipSaveData(tag);
         if (this instanceof Shieldable shieldShip) shieldShip.readShieldShipSaveData(tag);
+
+        // hull damage: vanilla Boat keeps this in synched data only and never
+        // writes it, so a damaged ship used to come back whole after a restart
+        if (tag.contains("HullDamage")) this.setDamage(tag.getFloat("HullDamage"));
 
         this.setSunken(tag.getBoolean("Sunken"));
         this.isLocked = (tag.getBoolean("locked"));
@@ -356,15 +354,12 @@ public abstract class Ship extends Boat {
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
 
-        Attributes attributes = new Attributes();
-        attributes.loadSaveData(this.getData(ATTRIBUTES));
-        attributes.addSaveData(tag);
-
         if (this instanceof Sailable sailShip) sailShip.addSailShipSaveData(tag);
         if (this instanceof Bannerable bannerShip) bannerShip.addBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.addCannonShipSaveData(tag);
         if (this instanceof Shieldable shieldShip) shieldShip.addShieldShipSaveData(tag);
 
+        tag.putFloat("HullDamage", this.getDamage());
         tag.putBoolean("Sunken", isSunken());
         tag.putBoolean("locked", this.isLocked);
         tag.put("Upgrades", this.getData(UPGRADES));
@@ -1059,9 +1054,14 @@ public abstract class Ship extends Boat {
         return Mth.lerp(partialTicks, this.prevWaveAngle, this.waveAngle);
     }
 
+    /**
+     * Read fresh from the config on every call instead of from a copy taken
+     * when the ship was built. That copy was the reason a changed config only
+     * ever reached newly placed ships - now one global setting moves the whole
+     * fleet, loaded chunks included, without a migration or a reset command.
+     */
     public Attributes getAttributes() {
-        Attributes attributes = new Attributes();
-        attributes.loadSaveData(this.getData(ATTRIBUTES));
+        Attributes attributes = this.getConfiguredAttributes().read();
         ShipUpgrade.applyAll(this, attributes);
         return attributes;
     }
@@ -1515,7 +1515,14 @@ public abstract class Ship extends Boat {
     @Override
     public abstract @NotNull Item getDropItem();
     public abstract BiomeModifierType getBiomeModifierType();
-    public abstract CompoundTag createDefaultAttributes();
+
+    /**
+     * @return the config block this ship draws its attributes from. The only
+     * thing a ship still has to say about its attributes - the values live in
+     * the config, the reading is done once for everybody below.
+     */
+    public abstract SmallShipsConfig.ShipAttributes getConfiguredAttributes();
+
 
     /************************************
      * Natural slowdown of the uuid

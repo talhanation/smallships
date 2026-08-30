@@ -7,7 +7,6 @@ import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -54,17 +53,8 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     }
 
     @Override
-    public CompoundTag createDefaultAttributes() {
-        Attributes attributes = new Attributes();
-        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeBriggMaxHealth.get().floatValue();
-        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeBriggMaxSpeed.get().floatValue();
-        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeBriggMaxReverseSpeed.get().floatValue();
-        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeBriggMaxRotationSpeed.get().floatValue();
-        attributes.acceleration = SmallShipsConfig.Common.shipAttributeBriggAcceleration.get().floatValue();
-        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeBriggRotationAcceleration.get().floatValue();
-        CompoundTag tag = new CompoundTag();
-        attributes.addSaveData(tag);
-        return tag;
+    public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
+        return SmallShipsConfig.Common.briggAttributes;
     }
 
     @Override

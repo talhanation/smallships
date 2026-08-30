@@ -7,7 +7,6 @@ import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -57,17 +56,8 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     }
 
     @Override
-    public CompoundTag createDefaultAttributes() {
-        Attributes attributes = new Attributes();
-        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeDhowMaxHealth.get().floatValue();
-        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeDhowMaxSpeed.get().floatValue();
-        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeDhowMaxReverseSpeed.get().floatValue();
-        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeDhowMaxRotationSpeed.get().floatValue();
-        attributes.acceleration = SmallShipsConfig.Common.shipAttributeDhowAcceleration.get().floatValue();
-        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeDhowRotationAcceleration.get().floatValue();
-        CompoundTag tag = new CompoundTag();
-        attributes.addSaveData(tag);
-        return tag;
+    public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
+        return SmallShipsConfig.Common.dhowAttributes;
     }
 
     @Override

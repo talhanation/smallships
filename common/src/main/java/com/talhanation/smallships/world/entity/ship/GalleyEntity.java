@@ -7,7 +7,6 @@ import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -54,17 +53,8 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     }
 
     @Override
-    public CompoundTag createDefaultAttributes() {
-        Attributes attributes = new Attributes();
-        attributes.maxHealth = SmallShipsConfig.Common.shipAttributeGalleyMaxHealth.get().floatValue();
-        attributes.maxSpeed = SmallShipsConfig.Common.shipAttributeGalleyMaxSpeed.get().floatValue();
-        attributes.maxReverseSpeed = SmallShipsConfig.Common.shipAttributeGalleyMaxReverseSpeed.get().floatValue();
-        attributes.maxRotationSpeed = SmallShipsConfig.Common.shipAttributeGalleyMaxRotationSpeed.get().floatValue();
-        attributes.acceleration = SmallShipsConfig.Common.shipAttributeGalleyAcceleration.get().floatValue();
-        attributes.rotationAcceleration = SmallShipsConfig.Common.shipAttributeGalleyRotationAcceleration.get().floatValue();
-        CompoundTag tag = new CompoundTag();
-        attributes.addSaveData(tag);
-        return tag;
+    public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
+        return SmallShipsConfig.Common.galleyAttributes;
     }
 
     @Override
