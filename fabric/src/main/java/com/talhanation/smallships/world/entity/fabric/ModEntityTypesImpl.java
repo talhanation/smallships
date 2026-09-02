@@ -85,7 +85,7 @@ public class ModEntityTypesImpl {
                 .build()));
 
         entries.put(DhowEntity.class, register(DhowEntity.ID, EntityType.Builder.of(DhowEntity::new, MobCategory.MISC)
-                .sized(3.5F, 1.25F)
+                .sized(1.0F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
                 .build()));

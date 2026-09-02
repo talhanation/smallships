@@ -72,29 +72,36 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     }
 
     private static final List<ShipPartEntity.Definition> PARTS = List.of(
-            ShipPartEntity.Definition.hull(-4.0F, 0.0F, 0.0F, 2.0F, 1.25F),//back
-            ShipPartEntity.Definition.hull(-2.5F, 0.0F, 0.0F, 2.5F, 1.25F),//middle back
-            ShipPartEntity.Definition.hull(2.5F, 0.0F, 0.0F, 2.5F, 1.25F),//middle front
-            ShipPartEntity.Definition.hull(3.5F, 0.0F, 0.0F, 2.0F, 1.25F),//front
+            ShipPartEntity.Definition.hull(-4.0F, 1.0F, 0.0F, 2.0F, 0.6F),//back
+            ShipPartEntity.Definition.hull(-2.5F, 0.0F, 0.0F, 2.5F, 1.6F),//middle back
+            ShipPartEntity.Definition.hull(2.5F, 0.0F, 0.0F, 2.5F, 1.6F),//middle front
+            ShipPartEntity.Definition.hull(0.0F, 0.0F, 0.0F, 3.5F, 1.6F),//middle
+            ShipPartEntity.Definition.hull(3.5F, 0.0F, 0.0F, 2.0F, 1.6F),//front
             ShipPartEntity.Definition.mast(2.2F, 0.0F, 0.30F, 8.5F),//front mast
             ShipPartEntity.Definition.mast(-2.3F, 0.0F, 0.30F, 9.5F));//back mast
     @Override
     public List<ShipPartEntity.Definition> getParts() {
         return PARTS;
     }
-
+    static float deck = 0.35F;
     private static final List<ShipSeat> SEATS = java.util.List.of(
-            ShipSeat.driver(0, -3.0F, 0.2F,0.7F),
-            ShipSeat.passenger(1, -3.0F,0.2F, -0.7F),
+            ShipSeat.driver(0, -3.0F, deck + 0.2F,0.7F),
+            ShipSeat.passenger(1, -3.0F,deck + 0.2F, -0.7F),
 
-            ShipSeat.gunner(2, -1.0F, 0.0F,0.8F, 0),
-            ShipSeat.gunner(3, -1.0F, 0.0F,-0.8F, 1),
+            ShipSeat.cannon(2, -2.0F, deck,0.8F, 0),
+            ShipSeat.cannon(3, -2.0F, deck,-0.8F, 1),
 
-            ShipSeat.passenger(4, 0.0F,0.0F, 0.8F),
-            ShipSeat.passenger(5, 0.0F, 0.0F,-0.8F),
+            ShipSeat.gunner(4, -1.0F, deck,0.8F, 0),
+            ShipSeat.gunner(5, -1.0F, deck,-0.8F, 1),
 
-            ShipSeat.gunner(6, 1.5F, 0.0F,0.8F, 2),
-            ShipSeat.gunner(7, 1.5F, 0.0F,-0.8F, 3)
+            ShipSeat.gunner(6, 0.0F,deck, 0.8F, 2),
+            ShipSeat.gunner(7, 0.0F, deck,-0.8F, 3),
+
+            ShipSeat.cannon(8, 1.0F,deck, 0.8F, 2),
+            ShipSeat.cannon(9, 1.0F, deck,-0.8F, 3),
+
+            ShipSeat.passenger(10, 2.0F, deck,0.8F),
+            ShipSeat.passenger(11, 2.0F, deck,-0.8F)
     );
 
     @Override

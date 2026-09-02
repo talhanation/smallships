@@ -36,10 +36,12 @@ public class ClientInitializer {
         ShipRenderRegistry.registerMastBanner(CogEntity.class, new CogMastBannerModel());
         ShipRenderRegistry.registerMastBanner(GalleyEntity.class, new GalleyMastBannerModel());
         ShipRenderRegistry.registerMastBanner(DrakkarEntity.class, new DrakkarMastBannerModel());
+        ShipRenderRegistry.registerMastBanner(DhowEntity.class, new DhowMastBannerModel());
 
         //SAIL BANNER
         ShipRenderRegistry.registerSailBanner(CogEntity.class, new CogSailBannerModel());
         ShipRenderRegistry.registerSailBanner(GalleyEntity.class, new GalleySailBannerModel());
         ShipRenderRegistry.registerSailBanner(DrakkarEntity.class, new DrakkarSailBannerModel());
+        //ShipRenderRegistry.registerMastBanner(DhowEntity.class, new DhowSailBannerModel());
     }
 }

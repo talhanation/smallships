@@ -72,6 +72,26 @@ public class DhowSailModel extends SailModel {
     private final ModelPart cube_r19;
     private final ModelPart cube_r20;
     private final ModelPart cube_r21;
+    private final ModelPart rope_sail_1_4;
+    private final ModelPart cube_r37;
+    private final ModelPart cube_r38;
+    private final ModelPart cube_r39;
+    private final ModelPart rope_sail_1_3;
+    private final ModelPart cube_r25;
+    private final ModelPart cube_r26;
+    private final ModelPart cube_r27;
+    private final ModelPart rope_sail_1_2;
+    private final ModelPart cube_r28;
+    private final ModelPart cube_r29;
+    private final ModelPart cube_r30;
+    private final ModelPart rope_sail_1_1;
+    private final ModelPart cube_r31;
+    private final ModelPart cube_r32;
+    private final ModelPart cube_r33;
+    private final ModelPart rope_sail_1_0;
+    private final ModelPart cube_r34;
+    private final ModelPart cube_r35;
+    private final ModelPart cube_r36;
     private final ModelPart DhowSail_2;
     private final ModelPart sail_2_4;
     private final ModelPart sail_2_4_sail;
@@ -126,6 +146,26 @@ public class DhowSailModel extends SailModel {
     private final ModelPart cube_r3;
     private final ModelPart cube_r4;
     private final ModelPart cube_r5;
+    private final ModelPart rope_sail_2_0;
+    private final ModelPart cube_r22;
+    private final ModelPart cube_r23;
+    private final ModelPart cube_r24;
+    private final ModelPart rope_sail_2_1;
+    private final ModelPart cube_r16;
+    private final ModelPart cube_r17;
+    private final ModelPart cube_r18;
+    private final ModelPart rope_sail_2_2;
+    private final ModelPart cube_r13;
+    private final ModelPart cube_r14;
+    private final ModelPart cube_r15;
+    private final ModelPart rope_sail_2_3;
+    private final ModelPart cube_r10;
+    private final ModelPart cube_r11;
+    private final ModelPart cube_r12;
+    private final ModelPart rope_sail_2_4;
+    private final ModelPart cube_r7;
+    private final ModelPart cube_r8;
+    private final ModelPart cube_r9;
 
     public DhowSailModel() {
         ModelPart root = createBodyLayer().bakeRoot();
@@ -185,6 +225,26 @@ public class DhowSailModel extends SailModel {
         this.cube_r19 = this.rope_1_1.getChild("cube_r19");
         this.cube_r20 = this.rope_1_1.getChild("cube_r20");
         this.cube_r21 = this.rope_1_1.getChild("cube_r21");
+        this.rope_sail_1_4 = this.DhowSail_1.getChild("rope_sail_1_4");
+        this.cube_r37 = this.rope_sail_1_4.getChild("cube_r37");
+        this.cube_r38 = this.rope_sail_1_4.getChild("cube_r38");
+        this.cube_r39 = this.rope_sail_1_4.getChild("cube_r39");
+        this.rope_sail_1_3 = this.DhowSail_1.getChild("rope_sail_1_3");
+        this.cube_r25 = this.rope_sail_1_3.getChild("cube_r25");
+        this.cube_r26 = this.rope_sail_1_3.getChild("cube_r26");
+        this.cube_r27 = this.rope_sail_1_3.getChild("cube_r27");
+        this.rope_sail_1_2 = this.DhowSail_1.getChild("rope_sail_1_2");
+        this.cube_r28 = this.rope_sail_1_2.getChild("cube_r28");
+        this.cube_r29 = this.rope_sail_1_2.getChild("cube_r29");
+        this.cube_r30 = this.rope_sail_1_2.getChild("cube_r30");
+        this.rope_sail_1_1 = this.DhowSail_1.getChild("rope_sail_1_1");
+        this.cube_r31 = this.rope_sail_1_1.getChild("cube_r31");
+        this.cube_r32 = this.rope_sail_1_1.getChild("cube_r32");
+        this.cube_r33 = this.rope_sail_1_1.getChild("cube_r33");
+        this.rope_sail_1_0 = this.DhowSail_1.getChild("rope_sail_1_0");
+        this.cube_r34 = this.rope_sail_1_0.getChild("cube_r34");
+        this.cube_r35 = this.rope_sail_1_0.getChild("cube_r35");
+        this.cube_r36 = this.rope_sail_1_0.getChild("cube_r36");
         this.DhowSail_2 = this.Dhow_Sail.getChild("DhowSail_2");
         this.sail_2_4 = this.DhowSail_2.getChild("sail_2_4");
         this.sail_2_4_sail = this.sail_2_4.getChild("sail_2_4_sail");
@@ -239,7 +299,28 @@ public class DhowSailModel extends SailModel {
         this.cube_r3 = this.rope_2_1.getChild("cube_r3");
         this.cube_r4 = this.rope_2_1.getChild("cube_r4");
         this.cube_r5 = this.rope_2_1.getChild("cube_r5");
+        this.rope_sail_2_0 = this.DhowSail_2.getChild("rope_sail_2_0");
+        this.cube_r22 = this.rope_sail_2_0.getChild("cube_r22");
+        this.cube_r23 = this.rope_sail_2_0.getChild("cube_r23");
+        this.cube_r24 = this.rope_sail_2_0.getChild("cube_r24");
+        this.rope_sail_2_1 = this.DhowSail_2.getChild("rope_sail_2_1");
+        this.cube_r16 = this.rope_sail_2_1.getChild("cube_r16");
+        this.cube_r17 = this.rope_sail_2_1.getChild("cube_r17");
+        this.cube_r18 = this.rope_sail_2_1.getChild("cube_r18");
+        this.rope_sail_2_2 = this.DhowSail_2.getChild("rope_sail_2_2");
+        this.cube_r13 = this.rope_sail_2_2.getChild("cube_r13");
+        this.cube_r14 = this.rope_sail_2_2.getChild("cube_r14");
+        this.cube_r15 = this.rope_sail_2_2.getChild("cube_r15");
+        this.rope_sail_2_3 = this.DhowSail_2.getChild("rope_sail_2_3");
+        this.cube_r10 = this.rope_sail_2_3.getChild("cube_r10");
+        this.cube_r11 = this.rope_sail_2_3.getChild("cube_r11");
+        this.cube_r12 = this.rope_sail_2_3.getChild("cube_r12");
+        this.rope_sail_2_4 = this.DhowSail_2.getChild("rope_sail_2_4");
+        this.cube_r7 = this.rope_sail_2_4.getChild("cube_r7");
+        this.cube_r8 = this.rope_sail_2_4.getChild("cube_r8");
+        this.cube_r9 = this.rope_sail_2_4.getChild("cube_r9");
     }
+
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
@@ -253,26 +334,26 @@ public class DhowSailModel extends SailModel {
         PartDefinition sail_1_4_sail = sail_1_4.addOrReplaceChild("sail_1_4_sail", CubeListBuilder.create().texOffs(64, 9).addBox(-7.569F, -0.7772F, 2.0974F, 6.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(118, 2).addBox(-9.5689F, 0.2228F, 2.0974F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(118, 2).addBox(-10.5689F, 2.2228F, 2.0974F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(64, 9).addBox(-1.5689F, -0.7772F, 2.0974F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(102, 43).addBox(10.431F, -0.7772F, 2.0974F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(64, 9).addBox(-1.569F, -0.7772F, 2.0974F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(102, 43).addBox(10.4311F, -0.7772F, 2.0974F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 9).addBox(22.431F, -0.7772F, 2.0974F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 9).addBox(34.431F, -0.7772F, 2.0974F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 9).addBox(46.431F, -0.7772F, 2.0974F, 7.0F, 4.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(5.9F, -5.1F, -2.9F, -0.0175F, -0.1571F, 0.0F));
 
-        PartDefinition Base2 = sail_1_4_sail.addOrReplaceChild("Base2", CubeListBuilder.create().texOffs(118, 2).addBox(-3.5689F, -4.7383F, 2.0773F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+        PartDefinition Base2 = sail_1_4_sail.addOrReplaceChild("Base2", CubeListBuilder.create().texOffs(118, 2).addBox(-3.569F, -4.7383F, 2.0773F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(72, 4).addBox(-7.569F, -2.7383F, 2.0773F, 4.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 2).addBox(-5.5689F, -4.7383F, 2.0773F, 2.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(64, 9).addBox(-1.5689F, -4.7383F, 2.0773F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(66, 4).addBox(10.431F, -4.7383F, 2.0773F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 2).addBox(-5.569F, -4.7383F, 2.0773F, 2.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(64, 9).addBox(-1.569F, -4.7383F, 2.0773F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(66, 4).addBox(10.4311F, -4.7383F, 2.0773F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 9).addBox(22.431F, -4.7383F, 2.0773F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 9).addBox(34.431F, -4.7383F, 2.0773F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(67, 9).addBox(46.431F, -4.7383F, 2.0773F, 7.0F, 4.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.2F, 0.0F, 0.0873F, 0.0F, 0.0F));
 
-        PartDefinition Base3 = Base2.addOrReplaceChild("Base3", CubeListBuilder.create().texOffs(118, 2).addBox(-0.5689F, -4.6322F, 2.0715F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 2).addBox(-3.5689F, -2.6322F, 2.0715F, 3.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 2).addBox(-2.5689F, -4.6322F, 2.0715F, 2.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(64, 9).addBox(1.4311F, -4.6322F, 2.0715F, 9.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(66, 4).addBox(10.431F, -4.6322F, 2.0715F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+        PartDefinition Base3 = Base2.addOrReplaceChild("Base3", CubeListBuilder.create().texOffs(118, 2).addBox(-0.569F, -4.6322F, 2.0715F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 2).addBox(-3.569F, -2.6322F, 2.0715F, 3.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 2).addBox(-2.569F, -4.6322F, 2.0715F, 2.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(64, 9).addBox(1.431F, -4.6322F, 2.0715F, 9.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(66, 4).addBox(10.4311F, -4.6322F, 2.0715F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 9).addBox(22.431F, -4.6322F, 2.0715F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(66, 4).addBox(34.431F, -4.6322F, 2.0715F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(88, 2).addBox(46.431F, -4.6322F, 2.0715F, 7.0F, 4.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -4.0F, 0.0F, 0.0349F, 0.0F, 0.0F));
@@ -285,40 +366,40 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition Base22 = Base21.addOrReplaceChild("Base22", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, -4.0F, 0.0F, 0.0349F, 0.0F, 0.0F));
 
-        PartDefinition Base23 = Base22.addOrReplaceChild("Base23", CubeListBuilder.create().texOffs(118, 3).addBox(2.4311F, -4.6337F, 2.073F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(-0.5689F, -2.6337F, 2.073F, 3.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(1.4311F, -4.6337F, 2.073F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(91, 54).addBox(4.4311F, -4.6337F, 2.073F, 6.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(87, 53).addBox(10.431F, -4.6337F, 2.073F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+        PartDefinition Base23 = Base22.addOrReplaceChild("Base23", CubeListBuilder.create().texOffs(118, 3).addBox(2.431F, -4.6337F, 2.073F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(-0.569F, -2.6337F, 2.073F, 3.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(1.431F, -4.6337F, 2.073F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(91, 54).addBox(4.431F, -4.6337F, 2.073F, 6.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(87, 53).addBox(10.4311F, -4.6337F, 2.073F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 42).addBox(22.431F, -4.6337F, 2.073F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(77, 41).addBox(34.431F, -4.6337F, 2.073F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(98, 29).addBox(46.431F, -4.6337F, 2.073F, 7.0F, 4.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -4.0F, 0.0F, -0.0087F, 0.0F, 0.0F));
 
-        PartDefinition Base24 = Base23.addOrReplaceChild("Base24", CubeListBuilder.create().texOffs(118, 3).addBox(4.4311F, -3.6352F, 2.0744F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(5.4311F, -4.6352F, 2.0744F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(3.4311F, -2.6352F, 2.0744F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(108, 34).addBox(6.4311F, -4.6352F, 2.0744F, 4.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(102, 42).addBox(10.431F, -4.6352F, 2.0744F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+        PartDefinition Base24 = Base23.addOrReplaceChild("Base24", CubeListBuilder.create().texOffs(118, 3).addBox(4.431F, -3.6352F, 2.0744F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(5.431F, -4.6352F, 2.0744F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(3.431F, -2.6352F, 2.0744F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(108, 34).addBox(6.431F, -4.6352F, 2.0744F, 4.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(102, 42).addBox(10.4311F, -4.6352F, 2.0744F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(102, 47).addBox(22.431F, -4.6352F, 2.0744F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(99, 28).addBox(34.431F, -4.6352F, 2.0744F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(94, 29).addBox(46.431F, -4.6352F, 2.0744F, 7.0F, 4.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -4.0F, 0.0F, -0.0087F, 0.0F, 0.0F));
 
-        PartDefinition Base25 = Base24.addOrReplaceChild("Base25", CubeListBuilder.create().texOffs(118, 3).addBox(8.431F, -3.5292F, 2.0686F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(6.4311F, -1.5292F, 2.0686F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(9.431F, -4.5292F, 2.0686F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(8.431F, -4.5292F, 2.0686F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(9.431F, -5.5292F, 2.0686F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(7.431F, -2.5292F, 2.0686F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(94, 42).addBox(10.431F, -4.5292F, 2.0686F, 4.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(87, 53).addBox(14.431F, -4.5292F, 2.0686F, 8.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+        PartDefinition Base25 = Base24.addOrReplaceChild("Base25", CubeListBuilder.create().texOffs(118, 3).addBox(8.4311F, -3.5292F, 2.0686F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(6.431F, -1.5292F, 2.0686F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(9.4311F, -4.5292F, 2.0686F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(8.4311F, -4.5292F, 2.0686F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(9.4311F, -5.5292F, 2.0686F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(7.4311F, -2.5292F, 2.0686F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(94, 42).addBox(10.4311F, -4.5292F, 2.0686F, 4.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(87, 53).addBox(14.4311F, -4.5292F, 2.0686F, 8.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(74, 36).addBox(22.431F, -4.5292F, 2.0686F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(81, 39).addBox(34.431F, -4.5292F, 2.0686F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(79, 20).addBox(46.431F, -4.5292F, 2.0686F, 7.0F, 4.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -4.0F, 0.0F, 0.0349F, 0.0F, 0.0F));
 
-        PartDefinition Base26 = Base25.addOrReplaceChild("Base26", CubeListBuilder.create().texOffs(118, 3).addBox(11.431F, -3.4249F, 2.064F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(12.431F, -4.4249F, 2.064F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(10.431F, -2.4249F, 2.064F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(66, 52).addBox(13.431F, -4.4249F, 2.064F, 4.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+        PartDefinition Base26 = Base25.addOrReplaceChild("Base26", CubeListBuilder.create().texOffs(118, 3).addBox(11.4311F, -3.4249F, 2.064F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(12.4311F, -4.4249F, 2.064F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(10.4311F, -2.4249F, 2.064F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(66, 52).addBox(13.4311F, -4.4249F, 2.064F, 4.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(70, 25).addBox(17.431F, -4.4249F, 2.064F, 5.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(102, 8).addBox(22.431F, -4.4249F, 2.064F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(102, 16).addBox(34.431F, -4.4249F, 2.064F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
@@ -349,9 +430,9 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition Base45 = Base44.addOrReplaceChild("Base45", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, -4.0F, 0.0F, 0.0262F, 0.0F, 0.0F));
 
-        PartDefinition Base46 = Base45.addOrReplaceChild("Base46", CubeListBuilder.create().texOffs(118, 3).addBox(14.431F, -3.4249F, 2.064F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(15.431F, -4.4249F, 2.064F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(13.431F, -2.4249F, 2.064F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+        PartDefinition Base46 = Base45.addOrReplaceChild("Base46", CubeListBuilder.create().texOffs(118, 3).addBox(14.4311F, -3.4249F, 2.064F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(15.4311F, -4.4249F, 2.064F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(13.4311F, -2.4249F, 2.064F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(118, 23).addBox(16.431F, -4.4249F, 2.064F, 4.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(118, 3).addBox(20.431F, -4.4249F, 2.064F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(87, 6).addBox(22.431F, -4.4249F, 2.064F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
@@ -456,7 +537,7 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition Base76 = Base75.addOrReplaceChild("Base76", CubeListBuilder.create().texOffs(118, 3).addBox(45.431F, -2.4249F, 2.0614F, 2.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(90, 24).addBox(47.431F, -4.4249F, 2.0614F, 6.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(118, 3).addBox(51.4311F, -8.4249F, 2.0614F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(118, 3).addBox(51.431F, -8.4249F, 2.0614F, 2.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(118, 3).addBox(49.431F, -7.4249F, 2.0614F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(118, 3).addBox(48.431F, -5.4249F, 2.0614F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -4.0F, 0.0F));
 
@@ -470,7 +551,7 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition sail_1_0_sail = sail_1_0.addOrReplaceChild("sail_1_0_sail", CubeListBuilder.create(), PartPose.offsetAndRotation(4.3333F, 1.0F, 0.0F, 0.0F, 0.0F, -0.7418F));
 
-        PartDefinition cube_r7 = sail_1_0_sail.addOrReplaceChild("cube_r7", CubeListBuilder.create().texOffs(71, 13).addBox(-30.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
+        PartDefinition cube_r40 = sail_1_0_sail.addOrReplaceChild("cube_r40", CubeListBuilder.create().texOffs(71, 13).addBox(-30.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(71, 41).addBox(-14.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(71, 31).addBox(-22.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(102, 1).addBox(-38.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
@@ -498,6 +579,71 @@ public class DhowSailModel extends SailModel {
         PartDefinition cube_r20 = rope_1_1.addOrReplaceChild("cube_r20", CubeListBuilder.create().texOffs(0, 0).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0175F, -24.2653F, -1.8477F, 0.0F, 0.0F, -2.3562F));
 
         PartDefinition cube_r21 = rope_1_1.addOrReplaceChild("cube_r21", CubeListBuilder.create().texOffs(10, 0).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0175F, -12.2653F, -1.8477F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_1_4 = DhowSail_1.addOrReplaceChild("rope_sail_1_4", CubeListBuilder.create(), PartPose.offsetAndRotation(38.9468F, -5.6F, -2.9651F, -2.2055F, 0.4045F, -3.1183F));
+
+        PartDefinition cube_r37 = rope_sail_1_4.addOrReplaceChild("cube_r37", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 4.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r38 = rope_sail_1_4.addOrReplaceChild("cube_r38", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r39 = rope_sail_1_4.addOrReplaceChild("cube_r39", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_1_3 = DhowSail_1.addOrReplaceChild("rope_sail_1_3", CubeListBuilder.create(), PartPose.offsetAndRotation(38.9468F, -5.6F, -2.9651F, -2.4237F, 0.4045F, -3.1183F));
+
+        PartDefinition cube_r25 = rope_sail_1_3.addOrReplaceChild("cube_r25", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 8.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r26 = rope_sail_1_3.addOrReplaceChild("cube_r26", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r27 = rope_sail_1_3.addOrReplaceChild("cube_r27", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_1_2 = DhowSail_1.addOrReplaceChild("rope_sail_1_2", CubeListBuilder.create(), PartPose.offsetAndRotation(38.9468F, -5.6F, -2.9651F, -2.6724F, 0.4045F, -3.1183F));
+
+        PartDefinition cube_r28 = rope_sail_1_2.addOrReplaceChild("cube_r28", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(54.5F, -0.5F, -17.5F, 3.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r29 = rope_sail_1_2.addOrReplaceChild("cube_r29", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r30 = rope_sail_1_2.addOrReplaceChild("cube_r30", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_1_1 = DhowSail_1.addOrReplaceChild("rope_sail_1_1", CubeListBuilder.create(), PartPose.offsetAndRotation(38.9468F, -5.6F, -2.9651F, -2.8469F, 0.4045F, -3.1183F));
+
+        PartDefinition cube_r31 = rope_sail_1_1.addOrReplaceChild("cube_r31", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(54.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r32 = rope_sail_1_1.addOrReplaceChild("cube_r32", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r33 = rope_sail_1_1.addOrReplaceChild("cube_r33", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_1_0 = DhowSail_1.addOrReplaceChild("rope_sail_1_0", CubeListBuilder.create(), PartPose.offsetAndRotation(38.9468F, -5.6F, -2.9651F, -3.0651F, 0.4045F, -3.1183F));
+
+        PartDefinition cube_r34 = rope_sail_1_0.addOrReplaceChild("cube_r34", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(54.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(69.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(84.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r35 = rope_sail_1_0.addOrReplaceChild("cube_r35", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r36 = rope_sail_1_0.addOrReplaceChild("cube_r36", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
 
         PartDefinition DhowSail_2 = Dhow_Sail.addOrReplaceChild("DhowSail_2", CubeListBuilder.create(), PartPose.offsetAndRotation(-3.0F, -14.0F, 24.0F, 0.0F, -2.1817F, 0.0F));
 
@@ -579,7 +725,7 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition sail_2_3_bottom = sail_2_3.addOrReplaceChild("sail_2_3_bottom", CubeListBuilder.create(), PartPose.offsetAndRotation(14.4632F, -13.7947F, 0.1047F, 0.0F, -0.0436F, 0.0F));
 
-        PartDefinition cube_r8 = sail_2_3_bottom.addOrReplaceChild("cube_r8", CubeListBuilder.create().texOffs(66, 28).addBox(60.9385F, -11.676F, -3.1522F, 3.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
+        PartDefinition cube_r41 = sail_2_3_bottom.addOrReplaceChild("cube_r41", CubeListBuilder.create().texOffs(66, 28).addBox(60.9385F, -11.676F, -3.1522F, 3.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
                 .texOffs(88, 8).addBox(50.9385F, -11.676F, -3.1522F, 10.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
                 .texOffs(78, 24).addBox(40.9385F, -11.676F, -3.1522F, 10.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
                 .texOffs(97, 19).addBox(30.9385F, -11.676F, -3.1522F, 10.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
@@ -640,7 +786,7 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition sail_2_2_bottom = sail_2_2.addOrReplaceChild("sail_2_2_bottom", CubeListBuilder.create(), PartPose.offsetAndRotation(15.2632F, -24.8947F, -1.1953F, 0.0F, -0.0436F, 0.0F));
 
-        PartDefinition cube_r9 = sail_2_2_bottom.addOrReplaceChild("cube_r9", CubeListBuilder.create().texOffs(76, 33).addBox(53.9385F, -16.676F, -3.1522F, 10.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
+        PartDefinition cube_r42 = sail_2_2_bottom.addOrReplaceChild("cube_r42", CubeListBuilder.create().texOffs(76, 33).addBox(53.9385F, -16.676F, -3.1522F, 10.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 23).addBox(43.9385F, -16.676F, -3.1522F, 10.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 23).addBox(33.9385F, -16.676F, -3.1522F, 10.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(64, 23).addBox(22.9385F, -16.676F, -3.1522F, 11.0F, 5.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-18.7509F, 9.8947F, -2.2001F, 0.0F, -0.1309F, 0.0F));
@@ -715,7 +861,7 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition sail_2_1_bottom = sail_2_1.addOrReplaceChild("sail_2_1_bottom", CubeListBuilder.create(), PartPose.offsetAndRotation(22.2632F, -32.8947F, -3.1953F, 0.0F, -0.0436F, 0.0F));
 
-        PartDefinition cube_r10 = sail_2_1_bottom.addOrReplaceChild("cube_r10", CubeListBuilder.create().texOffs(81, 19).addBox(49.9385F, -23.676F, -3.1522F, 8.0F, 6.0F, 6.0F, new CubeDeformation(0.0F))
+        PartDefinition cube_r43 = sail_2_1_bottom.addOrReplaceChild("cube_r43", CubeListBuilder.create().texOffs(81, 19).addBox(49.9385F, -23.676F, -3.1522F, 8.0F, 6.0F, 6.0F, new CubeDeformation(0.0F))
                 .texOffs(68, 43).addBox(39.9385F, -23.676F, -3.1522F, 10.0F, 6.0F, 6.0F, new CubeDeformation(0.0F))
                 .texOffs(88, 52).addBox(29.9385F, -23.676F, -3.1522F, 10.0F, 6.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-18.7509F, 9.8947F, -2.2001F, 0.0F, -0.1309F, 0.0F));
 
@@ -723,7 +869,7 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition sail_2_0_sail = sail_2_0.addOrReplaceChild("sail_2_0_sail", CubeListBuilder.create(), PartPose.offsetAndRotation(4.3333F, 1.0F, 0.0F, 0.0F, 0.0F, -0.7418F));
 
-        PartDefinition cube_r11 = sail_2_0_sail.addOrReplaceChild("cube_r11", CubeListBuilder.create().texOffs(71, 13).addBox(-30.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
+        PartDefinition cube_r44 = sail_2_0_sail.addOrReplaceChild("cube_r44", CubeListBuilder.create().texOffs(71, 13).addBox(-30.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(71, 41).addBox(-14.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(71, 31).addBox(-22.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(102, 1).addBox(-38.0F, -2.0F, -1.0F, 8.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
@@ -750,8 +896,73 @@ public class DhowSailModel extends SailModel {
 
         PartDefinition cube_r5 = rope_2_1.addOrReplaceChild("cube_r5", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.0332F, -19.7273F, -1.7355F, 0.0F, 0.0F, -2.3562F));
 
+        PartDefinition rope_sail_2_0 = DhowSail_2.addOrReplaceChild("rope_sail_2_0", CubeListBuilder.create(), PartPose.offsetAndRotation(23.2F, -8.0F, -1.6F, -3.069F, 0.1519F, -2.9252F));
+
+        PartDefinition cube_r22 = rope_sail_2_0.addOrReplaceChild("cube_r22", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(54.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(69.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(84.5F, -0.5F, -17.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r23 = rope_sail_2_0.addOrReplaceChild("cube_r23", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r24 = rope_sail_2_0.addOrReplaceChild("cube_r24", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_2_1 = DhowSail_2.addOrReplaceChild("rope_sail_2_1", CubeListBuilder.create(), PartPose.offsetAndRotation(23.2F, -8.0F, -1.6F, -2.8797F, 0.1535F, -2.9428F));
+
+        PartDefinition cube_r16 = rope_sail_2_1.addOrReplaceChild("cube_r16", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(54.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r17 = rope_sail_2_1.addOrReplaceChild("cube_r17", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r18 = rope_sail_2_1.addOrReplaceChild("cube_r18", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_2_2 = DhowSail_2.addOrReplaceChild("rope_sail_2_2", CubeListBuilder.create(), PartPose.offsetAndRotation(23.2F, -8.0F, -1.6F, -2.7038F, 0.1512F, -2.9343F));
+
+        PartDefinition cube_r13 = rope_sail_2_2.addOrReplaceChild("cube_r13", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r14 = rope_sail_2_2.addOrReplaceChild("cube_r14", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r15 = rope_sail_2_2.addOrReplaceChild("cube_r15", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_2_3 = DhowSail_2.addOrReplaceChild("rope_sail_2_3", CubeListBuilder.create(), PartPose.offsetAndRotation(23.2F, -8.0F, -1.6F, -2.4799F, 0.1343F, -2.8937F));
+
+        PartDefinition cube_r10 = rope_sail_2_3.addOrReplaceChild("cube_r10", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(39.5F, -0.5F, -17.5F, 5.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r11 = rope_sail_2_3.addOrReplaceChild("cube_r11", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r12 = rope_sail_2_3.addOrReplaceChild("cube_r12", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition rope_sail_2_4 = DhowSail_2.addOrReplaceChild("rope_sail_2_4", CubeListBuilder.create(), PartPose.offsetAndRotation(23.2F, -8.0F, -1.6F, -2.2416F, 0.1189F, -2.8723F));
+
+        PartDefinition cube_r7 = rope_sail_2_4.addOrReplaceChild("cube_r7", CubeListBuilder.create().texOffs(3, 24).addBox(24.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(12.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 24).addBox(1.5F, -0.5F, -17.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, 1.1928F, 17.2126F, 0.0F, 0.0F, -1.5708F));
+
+        PartDefinition cube_r8 = rope_sail_2_4.addOrReplaceChild("cube_r8", CubeListBuilder.create().texOffs(2, 2).addBox(-8.75F, -8.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -32.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
+        PartDefinition cube_r9 = rope_sail_2_4.addOrReplaceChild("cube_r9", CubeListBuilder.create().texOffs(12, 2).addBox(-8.5F, -8.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.1643F, -20.8072F, 0.2126F, 0.0F, 0.0F, -2.3562F));
+
         return LayerDefinition.create(meshdefinition, 128, 64);
     }
+
+
     @Override
     public void setupAnim(@NotNull Ship dhow, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         switch (dhow.getData(Ship.SAIL_STATE)) {
@@ -856,22 +1067,21 @@ public class DhowSailModel extends SailModel {
             }
         }
 
-    /*
-        this.rope_4.visible = sail_0.visible;
-        this.rope_5.visible = sail_0.visible;
 
-        this.rope_7.visible = sail_1_bottom.visible;
-        this.rope_8.visible = sail_1_bottom.visible;
+        this.rope_sail_1_0.visible = sail_1_0.visible;
+        this.rope_sail_2_0.visible = sail_2_0.visible;
 
-        this.rope_11.visible = sail_2_bottom.visible;
-        this.rope_12.visible = sail_2_bottom.visible;
+        this.rope_sail_1_1.visible = sail_1_1_bottom.visible;
+        this.rope_sail_2_1.visible = sail_2_1_bottom.visible;
 
-        this.rope_19.visible = sail_3_bottom.visible;
-        this.rope_20.visible = sail_3_bottom.visible;
+        this.rope_sail_1_2.visible = sail_1_2_bottom.visible;
+        this.rope_sail_2_2.visible = sail_2_2_bottom.visible;
 
-        this.rope_16.visible = sail_4.visible;
-        this.rope_15.visible = sail_4.visible;
-      */
+        this.rope_sail_1_3.visible = sail_1_3_bottom.visible;
+        this.rope_sail_2_3.visible = sail_2_3_bottom.visible;
+
+        this.rope_sail_1_4.visible = sail_1_4.visible;
+        this.rope_sail_2_4.visible = sail_2_4.visible;
 
     }
 
