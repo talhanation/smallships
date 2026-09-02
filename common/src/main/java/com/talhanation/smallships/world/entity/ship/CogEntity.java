@@ -29,7 +29,7 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
             ShipUpgrade.COTTON_SAILS, 1,
             ShipUpgrade.COPPER_PLATING, 4
     );
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCogContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerCogContainerSize.get();
     public CogEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
@@ -53,18 +53,18 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
 
     @Override
     public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
-        return SmallShipsConfig.Common.cogAttributes;
+        return SmallShipsConfig.Server.cogAttributes;
     }
 
     @Override
     public @NotNull Item getDropItem() {
-        if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.COG_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierCogBiome.get();
+        return SmallShipsConfig.Server.shipModifierCogBiome.get();
     }
 
     /**

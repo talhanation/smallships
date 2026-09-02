@@ -1,6 +1,6 @@
 package com.talhanation.smallships.mixin.controlling;
 
-import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -27,7 +27,7 @@ public abstract class BoatMixin {
      */
     @Inject(method = "clampRotation", at = @At("HEAD"), cancellable = true)
     private void smallships$skipRotationClampForShips(Entity entity, CallbackInfo ci) {
-        if (((Boat)(Object)this) instanceof Ship && SmallShipsConfig.Common.shipGeneralCameraFreeLook.get()) {
+        if (((Boat)(Object)this) instanceof Ship && SyncedServerConfig.cameraFreeLook()) {
             ci.cancel();
         }
     }

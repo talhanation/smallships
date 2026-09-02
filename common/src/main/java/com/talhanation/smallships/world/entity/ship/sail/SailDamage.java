@@ -91,13 +91,13 @@ public final class SailDamage {
      */
     public static boolean canTakeDamage(Ship ship) {
         return ship instanceof Sailable
-                && SmallShipsConfig.Common.sailDamageEnable.get()
+                && SmallShipsConfig.Server.sailDamageEnable.get()
                 && getHealth(ship) > 0.0F;
     }
 
     public static void applyCannonHit(Ship ship, float sailDamage) {
         if (!(ship instanceof Sailable)) return;
-        if (!SmallShipsConfig.Common.sailDamageEnable.get()) return;
+        if (!SmallShipsConfig.Server.sailDamageEnable.get()) return;
         if (ship.level().isClientSide()) return;
         if (sailDamage <= 0.0F) return;
 
@@ -119,7 +119,7 @@ public final class SailDamage {
      * 1.0 above half the pool, 0.75 at or below it, 0.0 at 0.
      */
     public static float getSpeedFactor(Ship ship) {
-        if (!SmallShipsConfig.Common.sailDamageEnable.get()) return 1.0F;
+        if (!SmallShipsConfig.Server.sailDamageEnable.get()) return 1.0F;
         return switch (getState(ship)) {
             case INTACT -> 1.0F;
             case TORN -> 0.75F;
@@ -138,7 +138,7 @@ public final class SailDamage {
         if (getHealth(ship) >= getMaxHealth(ship)) return false;
 
         ItemStack item = player.getItemInHand(interactionHand);
-        int cost = SmallShipsConfig.Common.sailRepairWoolAmount.get();
+        int cost = SmallShipsConfig.Server.sailRepairWoolAmount.get();
         if (!item.is(ItemTags.WOOL) || item.getCount() < cost) return false;
 
         if (!player.isCreative()) item.shrink(cost);

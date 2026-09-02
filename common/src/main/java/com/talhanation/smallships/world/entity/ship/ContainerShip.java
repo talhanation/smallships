@@ -371,6 +371,6 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
      */
     public float getContainerModifier() {
         float fillPercent = Mth.clamp(this.getContainerFillState(), 0, 100) / 100.0F;
-        return SmallShipsConfig.Common.shipGeneralContainerModifier.get().floatValue() * fillPercent;
+        return SmallShipsConfig.Server.shipGeneralContainerModifier.get().floatValue() * fillPercent;
     }
 }

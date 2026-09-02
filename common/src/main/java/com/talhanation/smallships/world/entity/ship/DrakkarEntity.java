@@ -29,7 +29,7 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
             ShipUpgrade.COTTON_SAILS, 1,
             ShipUpgrade.COPPER_PLATING, 5
     );
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerDrakkarContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerDrakkarContainerSize.get();
 
     private static final List<ShieldPosition> SHIELD_POSITIONS = new ArrayList<>();
 
@@ -68,18 +68,18 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
 
     @Override
     public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
-        return SmallShipsConfig.Common.drakkarAttributes;
+        return SmallShipsConfig.Server.drakkarAttributes;
     }
 
     @Override
     public @NotNull Item getDropItem() {
-        if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.DRAKKAR_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierDrakkarBiome.get();
+        return SmallShipsConfig.Server.shipModifierDrakkarBiome.get();
     }
 
     private static final List<ShipPartEntity.Definition> PARTS = List.of(

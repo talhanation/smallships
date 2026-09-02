@@ -61,7 +61,7 @@ public interface Shieldable extends Ability {
     }
 
     default float getDamageModifier() {
-        return (float) (1.0F - getShields().size() * SmallShipsConfig.Common.shipGeneralShieldDamageReduction.get()/100F);
+        return (float) (1.0F - getShields().size() * SmallShipsConfig.Server.shipGeneralShieldDamageReduction.get()/100F);
     }
 
    default boolean interactShield(Player player, InteractionHand interactionHand) {

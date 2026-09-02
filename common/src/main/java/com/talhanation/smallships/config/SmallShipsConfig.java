@@ -15,21 +15,27 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.function.Consumer;
 
 public class SmallShipsConfig {
-    public static final ForgeConfigSpec COMMON_SPEC;
+    /** Filled while the spec is built, so a snapshot can walk every ship. */
+    private static final Map<String, ShipAttributes> ATTRIBUTE_BLOCKS = new LinkedHashMap<>();
+
+    public static final ForgeConfigSpec SERVER_SPEC;
     public static final ForgeConfigSpec CLIENT_SPEC;
 
     public static int CLIENT_SCHEMATIC_VERSION = 3;
-    public static int COMMON_SCHEMATIC_VERSION = 6;
+    public static int SERVER_SCHEMATIC_VERSION = 6;
 
     static {
-        ForgeConfigSpec.Builder commonConfigBuilder = new ForgeConfigSpec.Builder();
+        ForgeConfigSpec.Builder serverConfigBuilder = new ForgeConfigSpec.Builder();
         ForgeConfigSpec.Builder clientConfigBuilder = new ForgeConfigSpec.Builder();
-        setupCommonConfig(commonConfigBuilder);
+        setupServerConfig(serverConfigBuilder);
         setupClientConfig(clientConfigBuilder);
-        COMMON_SPEC = commonConfigBuilder.build();
+        SERVER_SPEC = serverConfigBuilder.build();
         CLIENT_SPEC = clientConfigBuilder.build();
     }
 
@@ -44,6 +50,7 @@ public class SmallShipsConfig {
      * an attribute is one line here and none in the ships.
      */
     public record ShipAttributes(
+            String key,
             ForgeConfigSpec.DoubleValue maxHealth,
             ForgeConfigSpec.DoubleValue maxSpeed,
             ForgeConfigSpec.DoubleValue maxReverseSpeed,
@@ -51,8 +58,17 @@ public class SmallShipsConfig {
             ForgeConfigSpec.DoubleValue acceleration,
             ForgeConfigSpec.DoubleValue rotationAcceleration) {
 
-        /** Reads the values that are in effect right now into a fresh set. */
+        /**
+         * The values in effect right now: on a client connected to a server
+         * that is what the server sent, everywhere else the local file.
+         */
         public Attributes read() {
+            Attributes synced = SyncedServerConfig.attributes(this.key);
+            return synced != null ? synced : this.readLocal();
+        }
+
+        /** Straight from the local config file, ignoring any snapshot. */
+        public Attributes readLocal() {
             Attributes attributes = new Attributes();
             attributes.maxHealth = this.maxHealth.get().floatValue();
             attributes.maxSpeed = this.maxSpeed.get().floatValue();
@@ -72,16 +88,28 @@ public class SmallShipsConfig {
                                                    double maxHealth, double maxSpeed, double maxReverseSpeed,
                                                    double maxRotationSpeed, double acceleration,
                                                    double rotationAcceleration) {
-        return new ShipAttributes(
+        ShipAttributes attributes = new ShipAttributes(
+                prefix,
                 builder.defineInRange(prefix + "MaxHealth", maxHealth, 1.0D, 10000.0D),
                 builder.defineInRange(prefix + "MaxSpeed", maxSpeed, 0.0D, 100.0D),
                 builder.defineInRange(prefix + "MaxReverseSpeed", maxReverseSpeed, 0.0D, 100.0D),
                 builder.defineInRange(prefix + "MaxRotationSpeed", maxRotationSpeed, 0.0D, 100.0D),
                 builder.defineInRange(prefix + "Acceleration", acceleration, 0.0D, 100.0D),
                 builder.defineInRange(prefix + "RotationAcceleration", rotationAcceleration, 0.0D, 100.0D));
+        ATTRIBUTE_BLOCKS.put(prefix, attributes);
+        return attributes;
     }
 
-    public static class Common {
+    /** Every attribute block that was defined, keyed by its config prefix. */
+    public static Map<String, ShipAttributes> attributeBlocks() {
+        return Collections.unmodifiableMap(ATTRIBUTE_BLOCKS);
+    }
+
+    /**
+     * Everything the world runs on. Lives per world under serverconfig/ and is
+     * the same for everyone playing on it - a client never gets a say here.
+     */
+    public static class Server {
         public static ForgeConfigSpec.ConfigValue<Integer> schematicVersion;
 
         public static ForgeConfigSpec.IntValue shipGeneralSailCooldown;
@@ -163,7 +191,6 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeRadius;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeSpeed;
         public static ForgeConfigSpec.DoubleValue waterAnimalFleeDistance;
-        public static ForgeConfigSpec.BooleanValue smallshipsItemGroupEnable;
     }
 
     public static class Client {
@@ -178,10 +205,11 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.ConfigValue<Integer> windParticlesAmount;
         public static ForgeConfigSpec.BooleanValue windBannerEnable;
         public static ForgeConfigSpec.ConfigValue<Integer> shipModSpeedUnit;
+        public static ForgeConfigSpec.BooleanValue smallshipsItemGroupEnable;
     }
 
 
-    private static void setupCommonConfig(ForgeConfigSpec.Builder builder) {
+    private static void setupServerConfig(ForgeConfigSpec.Builder builder) {
         ArrayList<String> MOUNT_BLACKLIST = new ArrayList<>(
                 Arrays.asList("minecraft:ender_dragon", "minecraft:wither", "minecraft:wither", "minecraft:ghast", "minecraft:warden", "minecraft:ravager", "alexmobs:cachalot_whale"));
         ArrayList<String> DRIVER_ENTITIES = new ArrayList<>(
@@ -189,7 +217,7 @@ public class SmallShipsConfig {
         ArrayList<String> DOCKYARD_BUILDABLE_SHIPS = new ArrayList<>();
 
         builder.comment(" This holds the schematic version for internal purposes. DO NOT TOUCH!");
-        Common.schematicVersion = builder.define("schematicVersion", COMMON_SCHEMATIC_VERSION);
+        Server.schematicVersion = builder.define("schematicVersion", SERVER_SCHEMATIC_VERSION);
 
         builder.comment(" This category holds configs that define uuid behaviour.");
         builder.push("Ship");
@@ -198,66 +226,66 @@ public class SmallShipsConfig {
         builder.push("General");
 
         builder.comment("The cool-down for sails when increasing or decreasing sail state.");
-        Common.shipGeneralSailCooldown = builder
+        Server.shipGeneralSailCooldown = builder
                 .defineInRange("shipGeneralSailCooldown", 30, 0, 1000);
 
         builder.comment("The damage that is delivered to entities on collision with a cruising uuid. Set 0 to disable feature.");
-        Common.shipGeneralCollisionDamage = builder
+        Server.shipGeneralCollisionDamage = builder
                 .defineInRange("shipGeneralCollisionDamage", 7.5D, 0.0D, 100.0D);
 
         builder.comment("Should entities be pushed on collision with a cruising uuid?");
-        Common.shipGeneralCollisionKnockBack = builder
+        Server.shipGeneralCollisionKnockBack = builder
                 .define("shipGeneralCollisionKnockBack", true);
 
         builder.comment("Should the uuid item be dropped when the uuid is fully damaged?");
-        Common.shipGeneralDoItemDrop = builder
+        Server.shipGeneralDoItemDrop = builder
                 .define("shipGeneralDoItemDrop", true);
 
         builder.comment("General speed modifiers for ships.");
         builder.push("Modifier");
 
         builder.comment("Maximum speed penalty for a filled container in percent.");
-        Common.shipGeneralContainerModifier = builder
+        Server.shipGeneralContainerModifier = builder
                 .defineInRange("shipGeneralContainerModifier", 10.0D, -500.0D, 500.0D);
 
         builder.comment("Speed penalty per cannon in percent.");
-        Common.shipGeneralCannonModifier = builder
+        Server.shipGeneralCannonModifier = builder
                 .defineInRange("shipGeneralCannonModifier", 2.5D, -500.0D, 500.0D);
 
         builder.comment("Speed bonus for a paddle uuid while paddling in percent.");
-        Common.shipGeneralPaddlingModifier = builder
+        Server.shipGeneralPaddlingModifier = builder
                 .defineInRange("shipGeneralPaddlingModifier", 35.0D, -500.0D, 500.0D);
 
         builder.comment("Maximum speed bonus and penalty depending on the uuid biome type in percent.");
-        Common.shipGeneralBiomeModifier = builder
+        Server.shipGeneralBiomeModifier = builder
                 .defineInRange("shipGeneralBiomeModifier", 20.0D, 0.0D, 500.0D);
 
         builder.comment("Damage reduction per shield in percent.");
-        Common.shipGeneralShieldDamageReduction = builder
+        Server.shipGeneralShieldDamageReduction = builder
                 .defineInRange("shipGeneralShieldDamageReduction", 3.0D, -500.0D, 500.0D);
 
         builder.comment("Time in minutes in which sunken ships will despawn.");
-        Common.shipGeneralDespawnTimeSunken = builder
+        Server.shipGeneralDespawnTimeSunken = builder
                 .defineInRange("shipGeneralDespawnTimeSunken", 15.0D, 0.0D, 600.0D);
 
         builder.comment("Entities in this list won't be able to mount a uuid, for example: [\"minecraft:creeper\", \"minecraft:sheep\", ...]");
-        Common.mountBlackList = builder
+        Server.mountBlackList = builder
                 .define("mountBlackList", MOUNT_BLACKLIST);
 
         builder.comment("Non player entities that are allowed to take the helm, for example: [\"recruits:captain\", ...]. Everything else can only be taken aboard as a passenger or a gunner.");
-        Common.driverEntities = builder
+        Server.driverEntities = builder
                 .define("driverEntities", DRIVER_ENTITIES);
 
         builder.comment("Ships that can be built at the dockyard, for example: [\"smallships:cog\", \"smallships:galley\", \"myaddon:longship\"]. An EMPTY list allows every registered ship, so ships added by addons are accepted without touching this config.");
-        Common.dockyardBuildableShips = builder
+        Server.dockyardBuildableShips = builder
                 .define("dockyardBuildableShips", DOCKYARD_BUILDABLE_SHIPS);
 
         builder.comment("Amount of damage a cannonball does on hit.");
-        Common.shipGeneralCannonDamage = builder
+        Server.shipGeneralCannonDamage = builder
                 .defineInRange("shipGeneralCannonDamage", 25.0D, 0.0D, 100.0D);
 
         builder.comment("Amount of destruction a cannonball does when hit the ground.");
-        Common.shipGeneralCannonDestruction = builder
+        Server.shipGeneralCannonDestruction = builder
                 .defineInRange("shipGeneralCannonDestruction", 1.0D, 0.0D, 100.0D);
 
         builder.pop();
@@ -265,11 +293,11 @@ public class SmallShipsConfig {
         builder.comment("This category holds configs that define behaviour of fleeing water animals.");
         builder.push("Fleeing Water Animals");
 
-        Common.waterAnimalFleeRadius = builder
+        Server.waterAnimalFleeRadius = builder
                 .defineInRange("waterAnimalFleeRadius", 15.0D, 0.0D, 100.0D);
-        Common.waterAnimalFleeSpeed = builder
+        Server.waterAnimalFleeSpeed = builder
                 .defineInRange("waterAnimalFleeSpeed", 1.5D, 0.0D, 100.0D);
-        Common.waterAnimalFleeDistance = builder
+        Server.waterAnimalFleeDistance = builder
                 .defineInRange("waterAnimalFleeDistance", 10.0D, 0.0D, 100.0D);
 
         builder.pop();
@@ -278,32 +306,32 @@ public class SmallShipsConfig {
         builder.push("Upgrades");
 
         builder.comment("Can ships be upgraded at the dockyard at all? When off, no upgrade is offered and installed ones stop having any effect.");
-        Common.shipUpgradeEnable = builder
+        Server.shipUpgradeEnable = builder
                 .define("shipUpgradeEnable", true);
 
         builder.comment("Material cost of every upgrade in percent of what the ship asks for. This never drops a cost to zero - an upgrade priced at 0 by the ship stays gone, everything else stays at least 1.");
-        Common.shipUpgradeCostModifier = builder
+        Server.shipUpgradeCostModifier = builder
                 .defineInRange("shipUpgradeCostModifier", 100.0D, 1.0D, 1000.0D);
 
         builder.comment("Installation and removal time of every upgrade in percent.");
-        Common.shipUpgradeTimeModifier = builder
+        Server.shipUpgradeTimeModifier = builder
                 .defineInRange("shipUpgradeTimeModifier", 100.0D, 0.0D, 1000.0D);
 
         builder.comment("How much material comes back when an upgrade is removed again, in percent of its cost. Upgrades are built into the hull and taking them off is destructive, so this sits far below 100.");
-        Common.shipUpgradeRefundModifier = builder
+        Server.shipUpgradeRefundModifier = builder
                 .defineInRange("shipUpgradeRefundModifier", 30.0D, 0.0D, 100.0D);
 
         builder.comment("Extra hull health from iron scantlings in percent.");
-        Common.shipUpgradeIronScantlingsHealth = builder
-                .defineInRange("shipUpgradeIronScantlingsHealth", 100.0D, 0.0D, 1000.0D);
+        Server.shipUpgradeIronScantlingsHealth = builder
+                .defineInRange("shipUpgradeIronScantlingsHealth", 100.0D, 0.0D, 1453.0D);
 
         builder.comment("Extra maximum speed from cotton sails in percent.");
-        Common.shipUpgradeCottonSailsSpeed = builder
-                .defineInRange("shipUpgradeCottonSailsSpeed", 25.0D, 0.0D, 1000.0D);
+        Server.shipUpgradeCottonSailsSpeed = builder
+                .defineInRange("shipUpgradeCottonSailsSpeed", 10.0D, 0.0D, 1453.0D);
 
         builder.comment("Extra rotation speed and rotation acceleration from copper plating in percent.");
-        Common.shipUpgradeCopperPlatingRotation = builder
-                .defineInRange("shipUpgradeCopperPlatingRotation", 20.0D, 0.0D, 1000.0D);
+        Server.shipUpgradeCopperPlatingRotation = builder
+                .defineInRange("shipUpgradeCopperPlatingRotation", 20.0D, 0.0D, 1453.0D);
 
         builder.pop();
 
@@ -315,8 +343,8 @@ public class SmallShipsConfig {
         builder.comment("Default attributes for the Cog. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
-        Common.cogAttributes = defineAttributes(builder, "shipAttributeCog",
-                400.0D, 28.0D, 0.1D, 4.0D, 0.010D, 0.7D);
+        Server.cogAttributes = defineAttributes(builder, "shipAttributeCog",
+                400.0D, 27.0D, 0.1D, 4.0D, 0.010D, 0.7D);
 
         builder.pop();
 
@@ -324,7 +352,7 @@ public class SmallShipsConfig {
         builder.push("Container");
 
         builder.comment("Set container size for the Cog (value must be divisible by 9 and bigger than 0).");
-        Common.shipContainerCogContainerSize = builder
+        Server.shipContainerCogContainerSize = builder
                 .define("shipContainerCogContainerSize", 108, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
@@ -333,7 +361,7 @@ public class SmallShipsConfig {
         builder.push("Modifier");
 
         builder.comment("Specify biome type for the Cog. Can be NONE, COLD, NEUTRAL, or WARM");
-        Common.shipModifierCogBiome = builder
+        Server.shipModifierCogBiome = builder
                 .defineEnum("shipModifierCogBiome", Ship.BiomeModifierType.COLD);
 
         builder.pop();
@@ -346,7 +374,7 @@ public class SmallShipsConfig {
         builder.comment("Default attributes for the Brigg. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
-        Common.briggAttributes = defineAttributes(builder, "shipAttributeBrigg",
+        Server.briggAttributes = defineAttributes(builder, "shipAttributeBrigg",
                 500.0D, 30.0D, 0.1D, 3.0D, 0.010D, 0.55D);
 
         builder.pop();
@@ -355,7 +383,7 @@ public class SmallShipsConfig {
         builder.push("Container");
 
         builder.comment("Set container size for the Brigg (value must be divisible by 9 and bigger than 0).");
-        Common.shipContainerBriggContainerSize = builder
+        Server.shipContainerBriggContainerSize = builder
                 .define("shipContainerBriggContainerSize", 162, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
@@ -364,7 +392,7 @@ public class SmallShipsConfig {
         builder.push("Modifier");
 
         builder.comment("Specify biome type for the Brigg. Can be NONE, COLD, NEUTRAL, or WARM");
-        Common.shipModifierBriggBiome = builder
+        Server.shipModifierBriggBiome = builder
                 .defineEnum("shipModifierBriggBiome", Ship.BiomeModifierType.COLD);
 
         builder.pop();
@@ -377,7 +405,7 @@ public class SmallShipsConfig {
         builder.comment("Default attributes for the Galley. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
-        Common.galleyAttributes = defineAttributes(builder, "shipAttributeGalley",
+        Server.galleyAttributes = defineAttributes(builder, "shipAttributeGalley",
                 200.0D, 35.0D, 0.1D, 5.0D, 0.010D, 1.00D);
 
         builder.pop();
@@ -387,7 +415,7 @@ public class SmallShipsConfig {
         builder.push("Container");
 
         builder.comment("Set container size for the Galley (value must be divisible by 9 and bigger than 0).");
-        Common.shipContainerGalleyContainerSize = builder
+        Server.shipContainerGalleyContainerSize = builder
                 .define("shipContainerGalleyContainerSize", 54, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
@@ -396,7 +424,7 @@ public class SmallShipsConfig {
         builder.push("Modifier");
 
         builder.comment("Specify biome type for the Galley. Can be NONE, COLD, NEUTRAL, or WARM");
-        Common.shipModifierGalleyBiome = builder
+        Server.shipModifierGalleyBiome = builder
                 .defineEnum("shipModifierGalleyBiome", Ship.BiomeModifierType.WARM);
 
         builder.pop();
@@ -407,8 +435,8 @@ public class SmallShipsConfig {
         builder.comment("Default attributes for the Drakkar. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
-        Common.drakkarAttributes = defineAttributes(builder, "shipAttributeDrakkar",
-                200.0D, 30.0D, 0.1D, 5.0D, 0.010D, 1.00D);
+        Server.drakkarAttributes = defineAttributes(builder, "shipAttributeDrakkar",
+                200.0D, 28.0D, 0.1D, 5.0D, 0.010D, 1.00D);
 
         builder.pop();
 
@@ -416,7 +444,7 @@ public class SmallShipsConfig {
         builder.push("Container");
 
         builder.comment("Set container size for the Drakkar (value must be divisible by 9 and bigger than 0).");
-        Common.shipContainerDrakkarContainerSize = builder
+        Server.shipContainerDrakkarContainerSize = builder
                 .define("shipContainerDrakkarContainerSize", 54, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
@@ -425,7 +453,7 @@ public class SmallShipsConfig {
         builder.push("Modifier");
 
         builder.comment("Specify biome type for the Drakkar. Can be NONE, COLD, NEUTRAL, or WARM");
-        Common.shipModifierDrakkarBiome = builder
+        Server.shipModifierDrakkarBiome = builder
                 .defineEnum("shipModifierDrakkarBiome", Ship.BiomeModifierType.COLD);
 
         builder.pop();
@@ -438,8 +466,8 @@ public class SmallShipsConfig {
         builder.comment("Default attributes for the Galleon. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
-        Common.galleonAttributes = defineAttributes(builder, "shipAttributeGalleon",
-                700.0D, 30.0D, 0.1D, 3.3D, 0.007D, 1.00D);
+        Server.galleonAttributes = defineAttributes(builder, "shipAttributeGalleon",
+                700.0D, 25.0D, 0.1D, 3.3D, 0.007D, 1.00D);
 
         builder.pop();
 
@@ -448,7 +476,7 @@ public class SmallShipsConfig {
         builder.push("Container");
 
         builder.comment("Set container size for the Galleon (value must be divisible by 9 and bigger than 0).");
-        Common.shipContainerGalleonContainerSize = builder
+        Server.shipContainerGalleonContainerSize = builder
                 .define("shipContainerGalleyContainerSize", 216, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
@@ -457,7 +485,7 @@ public class SmallShipsConfig {
         builder.push("Modifier");
 
         builder.comment("Specify biome type for the Galleon. Can be NONE, COLD, NEUTRAL, or WARM");
-        Common.shipModifierGalleonBiome = builder
+        Server.shipModifierGalleonBiome = builder
                 .defineEnum("shipModifierGalleonBiome", Ship.BiomeModifierType.NEUTRAL);
 
         builder.pop();
@@ -470,8 +498,8 @@ public class SmallShipsConfig {
         builder.comment("Default attributes for the Dhow. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
-        Common.dhowAttributes = defineAttributes(builder, "shipAttributeDhow",
-                200.0D, 45.0D, 0.1D, 4.5D, 0.010D, 1.00D);
+        Server.dhowAttributes = defineAttributes(builder, "shipAttributeDhow",
+                200.0D, 32.0D, 0.1D, 4.5D, 0.010D, 1.00D);
 
         builder.pop();
 
@@ -480,7 +508,7 @@ public class SmallShipsConfig {
         builder.push("Container");
 
         builder.comment("Set container size for the Galleon (value must be divisible by 9 and bigger than 0).");
-        Common.shipContainerDhowContainerSize = builder
+        Server.shipContainerDhowContainerSize = builder
                 .define("shipContainerDhowContainerSize", 135, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
@@ -489,7 +517,7 @@ public class SmallShipsConfig {
         builder.push("Modifier");
 
         builder.comment("Specify biome type for the Dhow. Can be NONE, COLD, NEUTRAL, or WARM");
-        Common.shipModifierDhowBiome = builder
+        Server.shipModifierDhowBiome = builder
                 .defineEnum("shipModifierDhowBiome", Ship.BiomeModifierType.WARM);
 
         builder.pop();
@@ -502,8 +530,8 @@ public class SmallShipsConfig {
         builder.comment("Default attributes for the Caravel. Speed in km/h, Health in default mc health points");
         builder.push("Attributes");
 
-        Common.caravelAttributes = defineAttributes(builder, "shipAttributeCaravel",
-                250.0D, 42.0D, 0.1D, 4.75D, 0.010D, 1.00D);
+        Server.caravelAttributes = defineAttributes(builder, "shipAttributeCaravel",
+                250.0D, 32.0D, 0.1D, 4.75D, 0.010D, 1.00D);
 
         builder.pop();
 
@@ -512,7 +540,7 @@ public class SmallShipsConfig {
         builder.push("Container");
 
         builder.comment("Set container size for the Galleon (value must be divisible by 9 and bigger than 0).");
-        Common.shipContainerCaravelContainerSize = builder
+        Server.shipContainerCaravelContainerSize = builder
                 .define("shipContainerCaravelContainerSize", 81, e -> e instanceof Integer i && i % 9 == 0 && i > 0);
 
         builder.pop();
@@ -521,7 +549,7 @@ public class SmallShipsConfig {
         builder.push("Modifier");
 
         builder.comment("Specify biome type for the Caravel. Can be NONE, COLD, NEUTRAL, or WARM");
-        Common.shipModifierCaravelBiome = builder
+        Server.shipModifierCaravelBiome = builder
                 .defineEnum("shipModifierCaravelBiome", Ship.BiomeModifierType.NEUTRAL);
 
         builder.pop();
@@ -533,31 +561,31 @@ public class SmallShipsConfig {
         builder.push("Wind");
 
         builder.comment("Enable the wind feature. Wind changes direction and strength at random intervals and affects sailing ships.");
-        Common.windEnable = builder
+        Server.windEnable = builder
                 .define("windEnable", true);
 
         builder.comment("Maximum speed influence of the wind: 0.2 = up to +20% with full tailwind and up to -20% with full headwind.");
-        Common.windMaxSpeedInfluence = builder
+        Server.windMaxSpeedInfluence = builder
                 .defineInRange("windMaxSpeedInfluence", 0.33D, 0.0D, 1.0D);
 
         builder.comment("Minimum time between wind changes in seconds.");
-        Common.windChangeIntervalMin = builder
+        Server.windChangeIntervalMin = builder
                 .define("windChangeIntervalMin", 120);
 
         builder.comment("Maximum time between wind changes in seconds.");
-        Common.windChangeIntervalMax = builder
+        Server.windChangeIntervalMax = builder
                 .define("windChangeIntervalMax", 600);
 
         builder.comment("Time in seconds the wind takes to smoothly transition to a new direction/strength.");
-        Common.windTransitionTime = builder
+        Server.windTransitionTime = builder
                 .define("windTransitionTime", 45);
 
         builder.comment("Minimum wind strength while raining.");
-        Common.windRainMinStrength = builder
+        Server.windRainMinStrength = builder
                 .defineInRange("windRainMinStrength", 0.4D, 0.0D, 1.0D);
 
         builder.comment("Minimum wind strength while thundering.");
-        Common.windStormMinStrength = builder
+        Server.windStormMinStrength = builder
                 .defineInRange("windStormMinStrength", 0.7D, 0.0D, 1.0D);
 
         builder.pop();
@@ -566,11 +594,11 @@ public class SmallShipsConfig {
         builder.push("SailDamage");
 
         builder.comment("Enable the sail damage system. Sails have 100 hitpoints; cannon hits transfer a part of their damage to the sails.");
-        Common.sailDamageEnable = builder
+        Server.sailDamageEnable = builder
                 .define("sailDamageEnable", true);
 
         builder.comment("Amount of wool needed to repair the sails by hand.");
-        Common.sailRepairWoolAmount = builder
+        Server.sailRepairWoolAmount = builder
                 .define("sailRepairWoolAmount", 6);
 
         builder.pop();
@@ -579,7 +607,7 @@ public class SmallShipsConfig {
         builder.push("Camera");
 
         builder.comment("Allow a full 360 degree view for ship passengers (disables the vanilla boat rotation clamp).");
-        Common.shipGeneralCameraFreeLook = builder
+        Server.shipGeneralCameraFreeLook = builder
                 .define("shipGeneralCameraFreeLook", true);
 
         builder.pop();
@@ -588,12 +616,12 @@ public class SmallShipsConfig {
         builder.push("VanillaBoats");
 
         builder.comment("Slow down vanilla boats (makes smallships ships more attractive).");
-        Common.vanillaBoatSlowdownEnable = builder
+        Server.vanillaBoatSlowdownEnable = builder
                 .define("vanillaBoatSlowdownEnable", true);
 
-        builder.comment("Speed factor for vanilla boats: 0.5 = 50% slower.");
-        Common.vanillaBoatSpeedFactor = builder
-                .defineInRange("vanillaBoatSpeedFactor", 0.75D, 0.05D, 1.0D);
+        builder.comment("Speed factor for vanilla boats: 0.25 = 75% slower.");
+        Server.vanillaBoatSpeedFactor = builder
+                .defineInRange("vanillaBoatSpeedFactor", 0.25D, 0.05D, 1.0D);
 
         builder.pop();
 
@@ -670,7 +698,7 @@ public class SmallShipsConfig {
         builder.push("General");
 
         builder.comment("Enable smallships creative tab in the creative inventory (only takes effect after restart).");
-        Common.smallshipsItemGroupEnable = builder
+        Client.smallshipsItemGroupEnable = builder
                 .define("smallshipsItemGroupEnable", true);
 
         builder.pop();
@@ -679,27 +707,27 @@ public class SmallShipsConfig {
     public static boolean updateConfig(ModConfigWrapper config) {
         int oldSchematicVersion = getSchematicVersion(config);
         boolean hasBeenUpdated = switch (config.getType()) {
-            case COMMON -> updateConfig(config, commonSchematicUpdater);
+            case SERVER -> updateConfig(config, serverSchematicUpdater);
             case CLIENT -> updateConfig(config, clientSchematicUpdater);
-            case SERVER -> false;
+            case COMMON -> false;
         };
         int newSchematicVersion = getSchematicVersion(config);
         if (hasBeenUpdated) SmallShipsMod.LOGGER.warn("Updated config values of {} from schematic version {} to {}!", config.getFileName(), oldSchematicVersion, newSchematicVersion);
         return hasBeenUpdated;
     }
 
-    private static final List<Consumer<ModConfigWrapper>> commonSchematicUpdater = new ArrayList<>();
+    private static final List<Consumer<ModConfigWrapper>> serverSchematicUpdater = new ArrayList<>();
     static {
-        commonSchematicUpdater.add(config -> {
-            resetEntry(config, Common.shipGeneralContainerModifier);
-            resetEntry(config, Common.shipGeneralPaddlingModifier);
-            resetEntry(config, Common.briggAttributes.maxSpeed());
-            resetEntry(config, Common.briggAttributes.maxRotationSpeed());
-            resetEntry(config, Common.briggAttributes.rotationAcceleration());
-            resetEntry(config, Common.galleyAttributes.maxSpeed());
-            resetEntry(config, Common.cogAttributes.maxSpeed());
-            resetEntry(config, Common.cogAttributes.maxRotationSpeed());
-            resetEntry(config, Common.cogAttributes.rotationAcceleration());
+        serverSchematicUpdater.add(config -> {
+            resetEntry(config, Server.shipGeneralContainerModifier);
+            resetEntry(config, Server.shipGeneralPaddlingModifier);
+            resetEntry(config, Server.briggAttributes.maxSpeed());
+            resetEntry(config, Server.briggAttributes.maxRotationSpeed());
+            resetEntry(config, Server.briggAttributes.rotationAcceleration());
+            resetEntry(config, Server.galleyAttributes.maxSpeed());
+            resetEntry(config, Server.cogAttributes.maxSpeed());
+            resetEntry(config, Server.cogAttributes.maxRotationSpeed());
+            resetEntry(config, Server.cogAttributes.rotationAcceleration());
         });
         // To make a config update add a new element like the above to the schematic Updater field (don't ever change the order!) and don't forget to increment the default schematicVersion the setup method
     }

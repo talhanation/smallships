@@ -21,6 +21,7 @@ import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.client.wind.ClientWindManager;
 import net.minecraft.world.phys.Vec3;
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.config.SyncedServerConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -245,7 +246,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         if (mastBannerModel == null) return;
 
         float windOffset = 0.0F;
-        if (SmallShipsConfig.Common.windEnable.get() && SmallShipsConfig.Client.windBannerEnable.get()) {
+        if (SyncedServerConfig.windEnable() && SmallShipsConfig.Client.windBannerEnable.get()) {
             windOffset = Mth.wrapDegrees(ClientWindManager.getDirection(partialTicks) - entityYaw - 180.0F);
         }
 

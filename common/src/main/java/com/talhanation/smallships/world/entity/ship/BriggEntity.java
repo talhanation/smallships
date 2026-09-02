@@ -29,7 +29,7 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
             ShipUpgrade.COTTON_SAILS, 4,
             ShipUpgrade.COPPER_PLATING, 8
     );
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerBriggContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerBriggContainerSize.get();
 
     public BriggEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -54,18 +54,18 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
 
     @Override
     public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
-        return SmallShipsConfig.Common.briggAttributes;
+        return SmallShipsConfig.Server.briggAttributes;
     }
 
     @Override
     public @NotNull Item getDropItem() {
-        if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.BRIGG_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierBriggBiome.get();
+        return SmallShipsConfig.Server.shipModifierBriggBiome.get();
     }
 
     /**

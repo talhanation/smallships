@@ -1,8 +1,7 @@
 package com.talhanation.smallships.world.entity.ship;
 
-import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.world.item.ModItems;
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,23 +23,38 @@ public enum ShipUpgrade {
     IRON_SCANTLINGS("IronScantlings", () -> ModItems.IRON_SCANTLINGS, 4, 45 * 20) {
         @Override
         public void apply(Attributes attributes) {
-            attributes.maxHealth *= 1.0F + percentOf(SmallShipsConfig.Common.shipUpgradeIronScantlingsHealth);
+            attributes.maxHealth *= 1.0F + percentOf(SyncedServerConfig.ironScantlingsHealth());
+        }
+
+        @Override
+        public double getEffectPercent() {
+            return SyncedServerConfig.ironScantlingsHealth();
         }
     },
     /** +25% ship speed */
     COTTON_SAILS("CottonSails", () -> ModItems.COTTON_SAILS, 4, 30 * 20) {
         @Override
         public void apply(Attributes attributes) {
-            attributes.maxSpeed *= 1.0F + percentOf(SmallShipsConfig.Common.shipUpgradeCottonSailsSpeed);
+            attributes.maxSpeed *= 1.0F + percentOf(SyncedServerConfig.cottonSailsSpeed());
+        }
+
+        @Override
+        public double getEffectPercent() {
+            return SyncedServerConfig.cottonSailsSpeed();
         }
     },
     /** +20% maneuverability */
     COPPER_PLATING("CopperPlating", () -> ModItems.COPPER_PLATING, 4, 30 * 20) {
         @Override
         public void apply(Attributes attributes) {
-            float factor = 1.0F + percentOf(SmallShipsConfig.Common.shipUpgradeCopperPlatingRotation);
+            float factor = 1.0F + percentOf(SyncedServerConfig.copperPlatingRotation());
             attributes.maxRotationSpeed *= factor;
             attributes.rotationAcceleration *= factor;
+        }
+
+        @Override
+        public double getEffectPercent() {
+            return SyncedServerConfig.copperPlatingRotation();
         }
     };
 
@@ -93,13 +107,13 @@ public enum ShipUpgrade {
         return scaleTime(this.buildTime);
     }
 
-    /** Reads a percent config value as a plain factor, 25.0 -> 0.25. */
-    private static float percentOf(ForgeConfigSpec.DoubleValue value) {
-        return value.get().floatValue() / 100.0F;
+    /** Reads a percent value as a plain factor, 25.0 -> 0.25. */
+    private static float percentOf(double percent) {
+        return (float) (percent / 100.0D);
     }
 
     private static int scaleTime(int ticks) {
-        double modifier = SmallShipsConfig.Common.shipUpgradeTimeModifier.get() / 100.0D;
+        double modifier = SyncedServerConfig.upgradeTimeModifier() / 100.0D;
         return Math.max(0, (int) Math.round(ticks * modifier));
     }
 
@@ -110,7 +124,7 @@ public enum ShipUpgrade {
      * every upgrade off every hull at once.
      */
     public boolean isAvailable(Ship ship) {
-        return SmallShipsConfig.Common.shipUpgradeEnable.get() && this.getCostAmount(ship) > 0;
+        return SyncedServerConfig.upgradeEnable() && this.getCostAmount(ship) > 0;
     }
 
     /**
@@ -118,7 +132,7 @@ public enum ShipUpgrade {
      * plating is unriveted. Only a part of the material survives it.
      */
     public static float getRefundFraction() {
-        return percentOf(SmallShipsConfig.Common.shipUpgradeRefundModifier);
+        return percentOf(SyncedServerConfig.upgradeRefundModifier());
     }
 
     /**
@@ -146,6 +160,19 @@ public enum ShipUpgrade {
 
     /** Applies this upgrade's modifier to the given attributes. */
     public abstract void apply(Attributes attributes);
+
+    /**
+     * How strong this upgrade currently is, in percent. The description in the
+     * tooltip used to spell the number out in the language file, so it kept
+     * promising +100% while the config had long said something else.
+     */
+    public abstract double getEffectPercent();
+
+    /** The same number as text, without a pointless ".0" on whole values. */
+    public String getEffectPercentText() {
+        double percent = this.getEffectPercent();
+        return percent == Math.rint(percent) ? String.valueOf((long) percent) : String.valueOf(percent);
+    }
 
     /* ---------------- installed state on a ship ---------------- */
 

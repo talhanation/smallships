@@ -29,7 +29,7 @@ public class ModItemsImpl {
     }
 
     static {
-        if (SmallShipsConfig.Common.smallshipsItemGroupEnable.get()) {
+        if (SmallShipsConfig.Client.smallshipsItemGroupEnable.get()) {
             //CUSTOM CREATIVE MENU TAB
             ResourceKey<CreativeModeTab> creativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "creative_mode_tab"));
 

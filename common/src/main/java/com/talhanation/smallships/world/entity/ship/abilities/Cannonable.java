@@ -39,6 +39,10 @@ public interface Cannonable extends Ability {
 
     /* ---------------- cannon slots (dockyard mounting) ---------------- */
 
+    default boolean isEffectedByCannonPenalty(){
+        return true;
+    }
+
     /** @return true if the given cannon slot is occupied. */
     default boolean isCannonInSlot(int slot) {
         return self().getData(Ship.CANNON_SLOTS).getBoolean("S" + slot);
@@ -201,7 +205,7 @@ public interface Cannonable extends Ability {
     }
 
     default float getCannonModifier() {
-        return this.getCannonCount() * SmallShipsConfig.Common.shipGeneralCannonModifier.get().floatValue();
+        return this.getCannonCount() * SmallShipsConfig.Server.shipGeneralCannonModifier.get().floatValue();
     }
 
     /**

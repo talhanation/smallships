@@ -196,7 +196,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
         if (!this.level().isClientSide()) {
             boolean doesSpreadFire = false;
 
-            if(!isInWater()) this.level().explode(this.getOwner(), getX(), getY(), getZ(), SmallShipsConfig.Common.shipGeneralCannonDestruction.get().floatValue() * this.getBallType().damageMultiplier, doesSpreadFire, Level.ExplosionInteraction.MOB);
+            if(!isInWater()) this.level().explode(this.getOwner(), getX(), getY(), getZ(), SmallShipsConfig.Server.shipGeneralCannonDestruction.get().floatValue() * this.getBallType().damageMultiplier, doesSpreadFire, Level.ExplosionInteraction.MOB);
             this.remove(RemovalReason.KILLED);
         }
     }
@@ -272,7 +272,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
             if (hitEntity instanceof Ship) return;
 
             float damageMultiplier = hitEntity instanceof LivingEntity ? this.getBallType().livingDamageMultiplier : this.getBallType().damageMultiplier;
-            hitEntity.hurt(this.damageSources().thrown(this, ownerEntity), SmallShipsConfig.Common.shipGeneralCannonDamage.get().floatValue() * damageMultiplier);
+            hitEntity.hurt(this.damageSources().thrown(this, ownerEntity), SmallShipsConfig.Server.shipGeneralCannonDamage.get().floatValue() * damageMultiplier);
         }
     }
 

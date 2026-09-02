@@ -28,7 +28,7 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
             ShipUpgrade.COTTON_SAILS, 8,
             ShipUpgrade.COPPER_PLATING, 12
     );
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerGalleonContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerGalleonContainerSize.get();
 
     public GalleonEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -42,6 +42,11 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
         this.zo = f;
     }
 
+    @Override
+    public boolean isEffectedByCannonPenalty() {
+        return false;
+    }
+
     public static GalleonEntity summon(Level level, double d, double e, double f) {
         return new GalleonEntity(level, d, e, f);
     }
@@ -53,7 +58,7 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
 
     @Override
     public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
-        return SmallShipsConfig.Common.galleonAttributes;
+        return SmallShipsConfig.Server.galleonAttributes;
     }
 
     @Override
@@ -63,13 +68,13 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
 
     @Override
     public @NotNull Item getDropItem() {
-        if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.GALLEON_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierGalleonBiome.get();
+        return SmallShipsConfig.Server.shipModifierGalleonBiome.get();
     }
 
     private static final List<ShipSeat> SEATS = List.of(

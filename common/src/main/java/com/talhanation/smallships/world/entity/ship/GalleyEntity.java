@@ -29,7 +29,7 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
             ShipUpgrade.COTTON_SAILS, 1,
             ShipUpgrade.COPPER_PLATING, 4
     );
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerGalleyContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerGalleyContainerSize.get();
 
     public GalleyEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
@@ -54,18 +54,18 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
 
     @Override
     public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
-        return SmallShipsConfig.Common.galleyAttributes;
+        return SmallShipsConfig.Server.galleyAttributes;
     }
 
     @Override
     public @NotNull Item getDropItem() {
-        if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.GALLEY_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierGalleyBiome.get();
+        return SmallShipsConfig.Server.shipModifierGalleyBiome.get();
     }
 
     /**

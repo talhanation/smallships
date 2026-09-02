@@ -10,7 +10,7 @@ public interface Paddleable extends Ability {
     }
 
     default float getPaddlingModifier() {
-        return self().isForward()? SmallShipsConfig.Common.shipGeneralPaddlingModifier.get().floatValue() : 0.0F;
+        return self().isForward()? SmallShipsConfig.Server.shipGeneralPaddlingModifier.get().floatValue() : 0.0F;
     }
 
     default void controlBoatPaddleShip() {

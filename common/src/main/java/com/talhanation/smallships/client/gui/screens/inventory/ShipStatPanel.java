@@ -6,6 +6,7 @@ import com.talhanation.smallships.world.entity.ship.Attributes;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.IceBreakable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
@@ -161,6 +162,12 @@ public class ShipStatPanel {
             // that is what makes one type worth building over another
             if (!(displayShip instanceof ContainerShip containerShip) || !containerShip.isEffectedByCargoPenalty()) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_cargo_penalty");
+            }
+            if (!(displayShip instanceof Cannonable containerShip) || !containerShip.isEffectedByCannonPenalty()) {
+                line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_cannon_penalty");
+            }
+            if (displayShip instanceof IceBreakable iceBreakable) {
+                line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.ice_breaker");
             }
             if (displayShip.getRamSelfDamageFactor() < 1.0F) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.ramming");

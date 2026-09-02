@@ -1,6 +1,7 @@
 package com.talhanation.smallships.client.wind;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.wind.Wind;
 import net.minecraft.client.Minecraft;
@@ -22,7 +23,7 @@ public class WindEffects {
 
     public static void tick(Minecraft minecraft) {
         if (minecraft.level == null || minecraft.isPaused()) return;
-        if (!SmallShipsConfig.Common.windEnable.get() || !SmallShipsConfig.Client.windParticlesEnable.get()) return;
+        if (!SyncedServerConfig.windEnable() || !SmallShipsConfig.Client.windParticlesEnable.get()) return;
 
         Wind wind = ClientWindManager.getWind();
         if (wind.strength() < 0.15F) return;

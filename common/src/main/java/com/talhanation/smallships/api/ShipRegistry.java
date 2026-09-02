@@ -106,7 +106,7 @@ public final class ShipRegistry {
      */
     public static boolean isBuildable(@Nullable ShipType shipType) {
         if (shipType == null) return false;
-        List<String> whiteList = SmallShipsConfig.Common.dockyardBuildableShips.get();
+        List<String> whiteList = SmallShipsConfig.Server.dockyardBuildableShips.get();
         if (whiteList.isEmpty()) return true;
         return whiteList.contains(shipType.getId().toString());
     }
@@ -116,7 +116,7 @@ public final class ShipRegistry {
      * order. Unknown ids in the config are reported once and skipped.
      */
     public static List<ShipType> getBuildable() {
-        List<String> whiteList = SmallShipsConfig.Common.dockyardBuildableShips.get();
+        List<String> whiteList = SmallShipsConfig.Server.dockyardBuildableShips.get();
         List<ShipType> buildable = new ArrayList<>();
         for (ShipType shipType : getAll()) {
             if (isBuildable(shipType)) buildable.add(shipType);

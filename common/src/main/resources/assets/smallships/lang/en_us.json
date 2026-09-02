@@ -139,12 +139,15 @@
   "gui.smallships.dockyard.cost": "Cost: %sx %s",
   "gui.smallships.dockyard.click_install": "Click to install",
   "gui.smallships.dockyard.click_remove": "Click to remove",
+
+  "gui.smallships.upgrade.iron_scantlings.description": "+%s%% durability",
+  "gui.smallships.upgrade.copper_plating.description": "+%s%% maneuverability",
+  "gui.smallships.upgrade.cotton_sails.description": "+%s%% ship speed",
+
   "gui.smallships.upgrade.iron_scantlings": "Iron Scantlings",
-  "gui.smallships.upgrade.iron_scantlings.description": "+100% durability",
   "gui.smallships.upgrade.cotton_sails": "Cotton Sails",
-  "gui.smallships.upgrade.cotton_sails.description": "+25% ship speed",
   "gui.smallships.upgrade.copper_plating": "Copper Plating",
-  "gui.smallships.upgrade.copper_plating.description": "+20% maneuverability",
+
   "key.smallships.cannon_aim": "Aim Ship Cannons (hold)",
   "key.smallships.cannon_barrel_up": "Raise Cannon Barrel",
   "key.smallships.cannon_barrel_down": "Lower Cannon Barrel",
@@ -194,7 +197,6 @@
   "gui.smallships.dockyard.stat.penalty_cargo": "Cargo Penalty",
   "gui.smallships.dockyard.stat.penalty_cannons": "Cannon Penalty",
   "gui.smallships.dockyard.stat.penalty_biome": "Biome Penalty",
-  "gui.smallships.dockyard.stat.ramming": "No Ramming Damage",
 
   "gui.smallships.dockyard.apply": "Apply",
   "gui.smallships.dockyard.total_cost": "Total Cost:",
@@ -210,9 +212,11 @@
   "gui.smallships.dockyard.sail_banner_hint" : "",
   "gui.smallships.dockyard.duration" : "Time: %s",
 
-
   "gui.smallships.dockyard.stat.no_cargo_penalty" : "No Cargo Penalty",
   "gui.smallships.dockyard.stat.no_cannon_penalty" : "No Cannon Penalty",
+  "gui.smallships.dockyard.stat.ice_breaker" : "Ice Breaker",
+  "gui.smallships.dockyard.stat.ramming": "No Ramming Damage",
+
   "gui.smallships.dockyard.about.smallships.cog": "The Cog: The cog has a single square sail and is a classic North Sea merchant ship. It is moderately reliant on tailwinds. It remains the clear benchmark for beginners.",
   "gui.smallships.dockyard.about.smallships.brigg": "The Brigg: This ship has two masts and a mixed rig. Historically, it is known for being fast and maneuverable. It has the flattest profile of all ships. It is neither strong nor weak in any specific area, making it a true all-rounder.",
   "gui.smallships.dockyard.about.smallships.galley": "The galley has lateen sails and oars. Oar propulsion acts as its wind protection, resulting in moderate sail stats. Its focus on crosswinds suits coastal traffic.",

@@ -1,6 +1,6 @@
 package com.talhanation.smallships.mixin.vanillaboat;
 
-import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,7 +34,7 @@ public abstract class BoatSpeedMixin {
     @org.spongepowered.asm.mixin.Unique
     private float smallships$getSpeedFactor() {
         if (((Boat) (Object) this) instanceof Ship) return 1.0F;
-        if (!SmallShipsConfig.Common.vanillaBoatSlowdownEnable.get()) return 1.0F;
-        return SmallShipsConfig.Common.vanillaBoatSpeedFactor.get().floatValue();
+        if (!SyncedServerConfig.vanillaBoatSlowdownEnable()) return 1.0F;
+        return (float) SyncedServerConfig.vanillaBoatSpeedFactor();
     }
 }

@@ -29,7 +29,7 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
             ShipUpgrade.COTTON_SAILS, 2,
             ShipUpgrade.COPPER_PLATING, 4
     );
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Common.shipContainerCaravelContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerCaravelContainerSize.get();
     public CaravelEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
@@ -53,18 +53,18 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
 
     @Override
     public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
-        return SmallShipsConfig.Common.caravelAttributes;
+        return SmallShipsConfig.Server.caravelAttributes;
     }
 
     @Override
     public @NotNull Item getDropItem() {
-        if (!SmallShipsConfig.Common.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
         return ModItems.CARAVEL_ITEMS.get(this.getVariant());
     }
 
     @Override
     public BiomeModifierType getBiomeModifierType() {
-        return SmallShipsConfig.Common.shipModifierCaravelBiome.get();
+        return SmallShipsConfig.Server.shipModifierCaravelBiome.get();
     }
 
     private static final List<ShipPartEntity.Definition> PARTS = List.of(

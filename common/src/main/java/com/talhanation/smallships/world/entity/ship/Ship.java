@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship;
 
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -260,7 +261,7 @@ public abstract class Ship extends Boat {
         }
 
         if(isSunken()){
-            if(++this.sunkenTime > SmallShipsConfig.Common.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
+            if(++this.sunkenTime > SmallShipsConfig.Server.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
             else this.setDeltaMovement (getDeltaMovement().x, - 0.2D, getDeltaMovement().z);
         }
         else {
@@ -389,7 +390,7 @@ public abstract class Ship extends Boat {
 
     @Override
     public boolean canAddPassenger(Entity entity) {
-        return super.canAddPassenger(entity) && !(entity instanceof Ship) && !SmallShipsConfig.Common.mountBlackList.get().contains(entity.getEncodeId()) && !this.isLocked() && this.getPassengers().size() < this.getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && this.hasFreeSeatFor(entity);
+        return super.canAddPassenger(entity) && !(entity instanceof Ship) && !SmallShipsConfig.Server.mountBlackList.get().contains(entity.getEncodeId()) && !this.isLocked() && this.getPassengers().size() < this.getMaxPassengers() && !entity.isPassenger() && entity.getBbWidth() < this.getBbWidth() && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && this.hasFreeSeatFor(entity);
     }
 
     /**
@@ -413,7 +414,7 @@ public abstract class Ship extends Boat {
         if (this.isInDockyardWork()) return false;
         if (entity instanceof Player) return true;
         String id = entity.getEncodeId();
-        return id != null && SmallShipsConfig.Common.driverEntities.get().contains(id);
+        return id != null && SmallShipsConfig.Server.driverEntities.get().contains(id);
     }
 
     /**
@@ -621,7 +622,7 @@ public abstract class Ship extends Boat {
      * proportionally, because the ship offers the wind less area to grab.
      */
     public float getWindModifier() {
-        if (!SmallShipsConfig.Common.windEnable.get()) return 1.0F;
+        if (!SyncedServerConfig.windEnable()) return 1.0F;
         if (!(this instanceof Sailable sailable)) return 1.0F;
 
         float sailFactor = sailable.getSailState() / 4.0F;
@@ -760,7 +761,7 @@ public abstract class Ship extends Boat {
 
         BlockPos pos = new BlockPos((int)this.getX(), (int)this.getY(), (int)this.getZ());
         int tmp = this.getCommandSenderWorld().getBiome(pos).value().getWaterColor();
-        float modifier = SmallShipsConfig.Common.shipGeneralBiomeModifier.get().floatValue();
+        float modifier = SmallShipsConfig.Server.shipGeneralBiomeModifier.get().floatValue();
 
         boolean coldBiomes = tmp < 4100000;
         boolean warmBiomes = tmp > 4300000;
@@ -1094,7 +1095,7 @@ public abstract class Ship extends Boat {
     public int getUpgradeCost(ShipUpgrade upgrade) {
         int base = this.getUpgradeCosts().getOrDefault(upgrade, upgrade.getDefaultCost());
         if (base <= 0) return 0;
-        double modifier = SmallShipsConfig.Common.shipUpgradeCostModifier.get() / 100.0D;
+        double modifier = SyncedServerConfig.upgradeCostModifier() / 100.0D;
         return Math.max(1, (int) Math.round(base * modifier));
     }
     public void setCannonKeyPressed(boolean b){
@@ -1546,7 +1547,7 @@ public abstract class Ship extends Boat {
 
     private void updateWaterMobs() {
         if(!this.getCommandSenderWorld().isClientSide()){
-            double radius = SmallShipsConfig.Common.waterAnimalFleeRadius.get();
+            double radius = SmallShipsConfig.Server.waterAnimalFleeRadius.get();
             List<WaterAnimal> waterAnimals = this.level().getEntitiesOfClass(WaterAnimal.class, new AABB(getX() - radius, getY() - radius, getZ() - radius, getX() + radius, getY() + radius, getZ() + radius));
             for (WaterAnimal waterAnimal : waterAnimals) {
                 if(this.tickCount % 20 == 0) fleeEntity(waterAnimal);
@@ -1555,8 +1556,8 @@ public abstract class Ship extends Boat {
     }
 
     private void fleeEntity(Mob entity) {
-        double fleeDistance = SmallShipsConfig.Common.waterAnimalFleeDistance.get();
-        double fleeSpeed = SmallShipsConfig.Common.waterAnimalFleeSpeed.get();
+        double fleeDistance = SmallShipsConfig.Server.waterAnimalFleeDistance.get();
+        double fleeSpeed = SmallShipsConfig.Server.waterAnimalFleeSpeed.get();
         Vec3 vecBoat = new Vec3(getX(), getY(), getZ());
         Vec3 vecEntity = new Vec3(entity.getX(), entity.getY(), entity.getZ());
         Vec3 fleeDir = vecEntity.subtract(vecBoat);
@@ -1619,7 +1620,7 @@ public abstract class Ship extends Boat {
     }
 
     private void updateCollision(boolean isCruising){
-        if(isCruising && canDoKnockBack() && SmallShipsConfig.Common.shipGeneralCollisionKnockBack.get()) {
+        if(isCruising && canDoKnockBack() && SmallShipsConfig.Server.shipGeneralCollisionKnockBack.get()) {
             AABB boundingBox = this.getBoundingBox().inflate(2.25, 1.25, 2.25).move(0.0, -2.0, 0.0);
             List<Entity> list = this.level().getEntities(this, boundingBox, EntitySelector.pushableBy(this));
             for(Entity entity: list) {
@@ -1644,7 +1645,7 @@ public abstract class Ship extends Boat {
             if(this.getControllingPassenger() .getTeam() != null && this.getControllingPassenger() .getTeam().isAlliedTo(entity.getTeam()) && !this.getControllingPassenger() .getTeam().isAllowFriendlyFire()) return;
 
             if (canDoCollisionDamage() && speed > 0.1F) {
-                float damage = speed * SmallShipsConfig.Common.shipGeneralCollisionDamage.get().floatValue();
+                float damage = speed * SmallShipsConfig.Server.shipGeneralCollisionDamage.get().floatValue();
                 if(damage > 0) entity.hurt(this.getCommandSenderWorld().damageSources().mobAttack(this.getControllingPassenger()), damage);
             }
         }

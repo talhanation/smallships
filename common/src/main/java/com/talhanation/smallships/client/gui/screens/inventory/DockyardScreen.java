@@ -410,7 +410,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             boolean installed = upgrade.isInstalled(ship);
             List<Component> tooltip = new ArrayList<>();
             tooltip.add(Component.translatable(upgrade.getTranslationKey()).withStyle(ChatFormatting.GOLD));
-            tooltip.add(Component.translatable(upgrade.getDescriptionTranslationKey()).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable(upgrade.getDescriptionTranslationKey(), upgrade.getEffectPercentText()).withStyle(ChatFormatting.GRAY));
             if (installed) {
                 tooltip.add(Component.translatable("gui.smallships.dockyard.refund",
                         upgrade.getRefundAmount(ship), upgrade.getCost(ship).getHoverName()).withStyle(ChatFormatting.GREEN));
@@ -511,7 +511,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             List<Component> tooltip = new ArrayList<>();
             tooltip.add(Component.translatable(nameKey).withStyle(ChatFormatting.GOLD));
             tooltip.add(mounted.getHoverName().copy().withStyle(ChatFormatting.GRAY));
-            tooltip.add(Component.translatable("gui.smallships.dockyard.banner_mounted").withStyle(ChatFormatting.GRAY));
+
             tooltip.add(durationLine(DockyardBlockEntity.STYLE_TIME));
             this.options.add(new UpgradeOption(
                     new DockyardAction(kind, 0, -1, false),
@@ -1282,7 +1282,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
      * "about to be installed" stay distinguishable even though both are green.
      */
     private class UpgradeList extends AbstractSelectionList<UpgradeList.Entry> {
-        private static final int ROW_HEIGHT = 22;
+        private static final int ROW_HEIGHT = 25;
         /** see MaterialList.ROW_INSET - the rows are centered, not left aligned */
         private static final int ROW_INSET = 12;
         private static final int SCROLLBAR_LANE = 8;
@@ -1395,9 +1395,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                         : (selected ? FRAME_INSTALLED : FRAME_EMPTY);
 
                 int rowHeight = height - 2;
-                if (selected) guiGraphics.fill(left, top, left + width, top + rowHeight, 0x33FFFFFF);
-                else if (hovering) guiGraphics.fill(left, top, left + width, top + rowHeight, 0x22FFFFFF);
-                GuiCompat.frame(guiGraphics, left, top, width, rowHeight, frame);
+                if (selected) guiGraphics.fill(left, top, left + width, top + rowHeight + 2, 0x33FFFFFF);
+                else if (hovering) guiGraphics.fill(left, top, left + width, top + rowHeight + 1, 0x22FFFFFF);
+                GuiCompat.frame(guiGraphics, left, top, width, rowHeight + 2, frame);
 
                 guiGraphics.renderItem(this.option.icon, left + 2, top + 2);
                 guiGraphics.drawString(DockyardScreen.this.font,

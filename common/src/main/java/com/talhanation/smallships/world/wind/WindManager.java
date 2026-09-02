@@ -72,7 +72,7 @@ public class WindManager extends SavedData {
         if (level.getGameTime() % 200L == 0L) {
             this.broadcast(level);
         }
-        if (!SmallShipsConfig.Common.windEnable.get()) return;
+        if (!SmallShipsConfig.Server.windEnable.get()) return;
 
         if (this.transitionTicks > 0) {
             float progress = 1.0F / this.transitionTicks;
@@ -101,17 +101,17 @@ public class WindManager extends SavedData {
         // strength is biased towards medium winds, storms raise the minimum
         float roll = (level.random.nextFloat() + level.random.nextFloat()) * 0.5F;
         if (level.isThundering()) {
-            roll = Math.max(roll, SmallShipsConfig.Common.windStormMinStrength.get().floatValue());
+            roll = Math.max(roll, SmallShipsConfig.Server.windStormMinStrength.get().floatValue());
         } else if (level.isRaining()) {
-            roll = Math.max(roll, SmallShipsConfig.Common.windRainMinStrength.get().floatValue());
+            roll = Math.max(roll, SmallShipsConfig.Server.windRainMinStrength.get().floatValue());
         }
         this.targetStrength = Mth.clamp(roll, 0.0F, 1.0F);
 
-        this.transitionDuration = SmallShipsConfig.Common.windTransitionTime.get() * 20;
+        this.transitionDuration = SmallShipsConfig.Server.windTransitionTime.get() * 20;
         this.transitionTicks = this.transitionDuration;
 
-        int minInterval = SmallShipsConfig.Common.windChangeIntervalMin.get() * 20;
-        int maxInterval = SmallShipsConfig.Common.windChangeIntervalMax.get() * 20;
+        int minInterval = SmallShipsConfig.Server.windChangeIntervalMin.get() * 20;
+        int maxInterval = SmallShipsConfig.Server.windChangeIntervalMax.get() * 20;
         this.nextChangeTicks = minInterval + level.random.nextInt(Math.max(1, maxInterval - minInterval));
 
         this.setDirty();
@@ -140,7 +140,7 @@ public class WindManager extends SavedData {
     }
 
     public Wind getWind() {
-        if (!SmallShipsConfig.Common.windEnable.get()) return Wind.CALM;
+        if (!SmallShipsConfig.Server.windEnable.get()) return Wind.CALM;
         return new Wind(this.currentDirection, this.currentStrength);
     }
 
