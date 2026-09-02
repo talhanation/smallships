@@ -29,7 +29,7 @@ public class ChainShotRenderer extends EntityRenderer<ChainShotEntity>{
     public void render(@NotNull ChainShotEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         poseStack.scale(0.75F, 0.75F, 0.75F);
-        poseStack.translate(0.0D, -1.0D,0.0D);
+        poseStack.translate(0.0D, 0.0D,0.0D);
         poseStack.mulPose(Axis.YP.rotationDegrees((entity.tickCount + partialTicks) * SPIN_DEGREES_PER_TICK));
         VertexConsumer vertexConsumer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entity)));
         this.model.renderToBuffer(poseStack, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 0xFFFFFF);
