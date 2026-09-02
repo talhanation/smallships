@@ -3,6 +3,12 @@ package com.talhanation.smallships.client.gui.screens.inventory;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.math.Kalkuel;
+import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.network.packet.ServerboundShipDetachPacket;
+import com.talhanation.smallships.world.block.DockyardBlockEntity;
+import com.talhanation.smallships.world.dockyard.DockyardAction;
+import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
@@ -19,6 +25,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMenu> {
     private static final ResourceLocation RESOURCE_LOCATION = ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/gui/ship_inventory.png" );
@@ -33,6 +41,33 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     private final int offset = 40;
     private int origLeftPos;
     private int origTopPos;
+
+    /* ---------------- detach panel ---------------- */
+
+    /** box size and pitch of the fittings panel left of the window */
+    private static final int FITTING_BOX = 22;
+    private static final int FITTING_PITCH = 24;
+    /**
+     * A galleon carries ten guns plus two banners. In one column that is
+     * taller than the whole screen, so the panel grows in two.
+     */
+    private static final int FITTING_COLUMNS = 2;
+
+    /** one removable fitting of the ship, rebuilt every frame */
+    private record Fitting(DockyardAction.Kind kind, int index, ItemStack icon, Component name, int time) {
+    }
+
+    /**
+     * The fitting the button went down on, null while nothing is held.
+     *
+     * Compared by kind and index only, never with equals: a Fitting carries an
+     * ItemStack, and ItemStack has no value equality. The cannon icon is a new
+     * stack on every frame, so record equality declared the held gun "gone"
+     * one frame after it was grabbed and no cannon could ever be taken off.
+     */
+    @Nullable private Fitting held;
+    /** when the hold started, in milliseconds */
+    private long heldSince;
 
     public ShipContainerScreen(ShipContainerMenu shipContainerMenu, Inventory inventory, Component component) {
         super(shipContainerMenu, inventory, component);
@@ -51,6 +86,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderUpgradePanel(guiGraphics, mouseX, mouseY);
+        this.renderFittingPanel(guiGraphics, mouseX, mouseY);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -116,12 +152,204 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
             if (mouseX >= x && mouseX < x + 22 && mouseY >= boxY && mouseY < boxY + 22) {
                 tooltip = new ArrayList<>();
                 tooltip.add(Component.translatable(upgrade.getTranslationKey()).withStyle(ChatFormatting.GOLD));
-                tooltip.add(Component.translatable(upgrade.getDescriptionTranslationKey()).withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.translatable(upgrade.getDescriptionTranslationKey(),
+                        upgrade.getEffectPercentText()).withStyle(ChatFormatting.GRAY));
             }
         }
         if (tooltip != null) {
             guiGraphics.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
         }
+    }
+
+    /**
+     * Everything bolted onto the ship that can come back off: the mounted guns
+     * and the two banners. They sit LEFT of the window, opposite the upgrade
+     * column, because an upgrade is built into the hull and stays put while
+     * these can be taken off right here.
+     *
+     * @return the fittings in the order they are drawn, guns first
+     */
+    private List<Fitting> getFittings() {
+        List<Fitting> fittings = new ArrayList<>();
+        if (this.containerShip instanceof Cannonable cannonable) {
+            for (int slot = 0; slot < cannonable.getTotalCannonSlots(); slot++) {
+                if (!cannonable.isCannonInSlot(slot)) continue;
+                Cannonable.CannonPosition position = cannonable.getCannonPosition(slot);
+                boolean starboard = position != null && position.isRightSided;
+                Component name = Component.translatable("gui.smallships.dockyard.cannon_slot", slot + 1,
+                        Component.translatable(starboard ? "gui.smallships.dockyard.starboard" : "gui.smallships.dockyard.port"));
+                fittings.add(new Fitting(DockyardAction.Kind.CANNON, slot,
+                        new ItemStack(ModItems.CANNON), name, DockyardBlockEntity.CANNON_TIME));
+            }
+        }
+        ItemStack banner = this.containerShip.getData(Ship.BANNER);
+        if (!banner.isEmpty()) {
+            fittings.add(new Fitting(DockyardAction.Kind.BANNER, 0, banner,
+                    Component.translatable("gui.smallships.dockyard.banner"), DockyardBlockEntity.STYLE_TIME));
+        }
+        ItemStack sailBanner = this.containerShip.getData(Ship.SAIL_BANNER);
+        if (!sailBanner.isEmpty()) {
+            fittings.add(new Fitting(DockyardAction.Kind.SAIL_BANNER, 0, sailBanner,
+                    Component.translatable("gui.smallships.dockyard.sail_banner"), DockyardBlockEntity.STYLE_TIME));
+        }
+        return fittings;
+    }
+
+    private int fittingPanelX() {
+        return this.leftPos - 4 - FITTING_COLUMNS * FITTING_PITCH;
+    }
+
+    private int fittingBoxX(int i) {
+        return this.fittingPanelX() + (i % FITTING_COLUMNS) * FITTING_PITCH;
+    }
+
+    private int fittingBoxY(int i) {
+        return this.topPos + 20 + (i / FITTING_COLUMNS) * FITTING_PITCH;
+    }
+
+    /** @return the fitting under the cursor, or null. */
+    @Nullable
+    private Fitting fittingAt(double mouseX, double mouseY) {
+        List<Fitting> fittings = this.getFittings();
+        for (int i = 0; i < fittings.size(); i++) {
+            int x = this.fittingBoxX(i);
+            int y = this.fittingBoxY(i);
+            if (mouseX >= x && mouseX < x + FITTING_BOX && mouseY >= y && mouseY < y + FITTING_BOX) {
+                return fittings.get(i);
+            }
+        }
+        return null;
+    }
+
+    /** @return how far the current hold has come, 0 to 1. */
+    private float heldProgress() {
+        if (this.held == null) return 0.0F;
+        long required = Math.max(1L, this.held.time() * 50L);
+        return Mth.clamp((net.minecraft.Util.getMillis() - this.heldSince) / (float) required, 0.0F, 1.0F);
+    }
+
+    private boolean isHeld(@Nullable Fitting fitting) {
+        return fitting != null && this.held != null
+                && this.held.kind() == fitting.kind() && this.held.index() == fitting.index();
+    }
+
+    private void cancelHold() {
+        this.held = null;
+    }
+
+    /** Sends the removal and stops the hold. */
+    private void completeHold() {
+        Fitting fitting = this.held;
+        if (fitting == null) return;
+        this.cancelHold();
+        ModPackets.clientSendPacket(new ServerboundShipDetachPacket(
+                this.containerShip.getId(), fitting.kind().ordinal(), fitting.index()));
+        if (this.minecraft != null) {
+            this.minecraft.getSoundManager().play(
+                    net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                            net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0F));
+        }
+    }
+
+    /**
+     * The bar filling up is the action - the player does not have to let go for
+     * it to happen, and holding on past the end does nothing more.
+     */
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        if (this.held != null && this.heldProgress() >= 1.0F) this.completeHold();
+    }
+
+    private void renderFittingPanel(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        List<Fitting> fittings = this.getFittings();
+        // the ship is on the stocks: the dockyard is working on it, nobody
+        // pulls a gun off it in the meantime
+        boolean locked = this.containerShip.isInDockyardWork();
+        if (locked) this.cancelHold();
+
+        // a fitting that vanished while it was held (somebody else took it)
+        // must not keep counting down
+        if (this.held != null) {
+            boolean stillThere = false;
+            for (Fitting fitting : fittings) {
+                if (this.isHeld(fitting)) stillThere = true;
+            }
+            if (!stillThere) this.cancelHold();
+        }
+
+        List<Component> tooltip = null;
+        for (int i = 0; i < fittings.size(); i++) {
+            Fitting fitting = fittings.get(i);
+            int x = this.fittingBoxX(i);
+            int y = this.fittingBoxY(i);
+            boolean hovering = mouseX >= x && mouseX < x + FITTING_BOX && mouseY >= y && mouseY < y + FITTING_BOX;
+            boolean holding = this.isHeld(fitting);
+
+            guiGraphics.fill(x, y, x + FITTING_BOX, y + FITTING_BOX, holding ? 0xFFD9453D : 0xFF6E6E78);
+            guiGraphics.fill(x + 1, y + 1, x + FITTING_BOX - 1, y + FITTING_BOX - 1, 0xFF2B2B2B);
+            guiGraphics.renderItem(fitting.icon(), x + 3, y + 3);
+
+            if (holding) {
+                // the bar runs along the bottom edge of the icon, so the icon
+                // itself stays readable while it fills
+                float progress = this.heldProgress();
+                int barWidth = (int) ((FITTING_BOX - 4) * progress);
+                guiGraphics.fill(x + 2, y + FITTING_BOX - 5, x + FITTING_BOX - 2, y + FITTING_BOX - 2, 0xFF15151A);
+                if (barWidth > 0) {
+                    guiGraphics.fill(x + 2, y + FITTING_BOX - 5, x + 2 + barWidth, y + FITTING_BOX - 2, 0xFF55B14C);
+                }
+            }
+
+            if (hovering) {
+                tooltip = new ArrayList<>();
+                tooltip.add(fitting.name().copy().withStyle(ChatFormatting.GOLD));
+                tooltip.add((locked
+                        ? Component.translatable("gui.smallships.ship.detach_busy")
+                        : Component.translatable("gui.smallships.ship.detach_hint", formatDuration(fitting.time())))
+                        .withStyle(ChatFormatting.GRAY));
+            }
+        }
+        if (tooltip != null) {
+            guiGraphics.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
+        }
+    }
+
+    /** Work time as the player reads a clock, same wording as the dockyard. */
+    private static String formatDuration(int ticks) {
+        int seconds = Math.max(1, Mth.ceil(ticks / 20.0F));
+        if (seconds < 60) return seconds + "s";
+        return seconds / 60 + ":" + String.format("%02d", seconds % 60) + " min";
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && !this.containerShip.isInDockyardWork()) {
+            Fitting fitting = this.fittingAt(mouseX, mouseY);
+            if (fitting != null) {
+                this.held = fitting;
+                this.heldSince = net.minecraft.Util.getMillis();
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    /**
+     * Letting go before the bar is full aborts. The whole point of the hold is
+     * that a slip of the mouse cannot cost a cannon.
+     */
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0) this.cancelHold();
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    /** Dragging the cursor off the box aborts the hold as well. */
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.held != null && !this.isHeld(this.fittingAt(mouseX, mouseY))) this.cancelHold();
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override

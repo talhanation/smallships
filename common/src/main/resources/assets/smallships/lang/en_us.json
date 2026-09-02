@@ -148,6 +148,8 @@
   "gui.smallships.upgrade.cotton_sails": "Cotton Sails",
   "gui.smallships.upgrade.copper_plating": "Copper Plating",
 
+  "gui.smallships.ship.detach_hint": "Press and hold to remove",
+
   "key.smallships.cannon_aim": "Aim Ship Cannons (hold)",
   "key.smallships.cannon_barrel_up": "Raise Cannon Barrel",
   "key.smallships.cannon_barrel_down": "Lower Cannon Barrel",
@@ -214,6 +216,7 @@
 
   "gui.smallships.dockyard.stat.no_cargo_penalty" : "No Cargo Penalty",
   "gui.smallships.dockyard.stat.no_cannon_penalty" : "No Cannon Penalty",
+  "gui.smallships.dockyard.stat.no_biome_penalty" : "No Biome Penalty",
   "gui.smallships.dockyard.stat.ice_breaker" : "Ice Breaker",
   "gui.smallships.dockyard.stat.ramming": "No Ramming Damage",
 

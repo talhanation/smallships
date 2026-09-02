@@ -28,6 +28,7 @@ public class ModPackets {
         registerNonPacket(ClientboundWindPacket.TYPE, ClientboundWindPacket.CODEC, ModPacket.Side.CLIENTBOUND);
         registerNonPacket(ClientboundDockyardRecipesPacket.TYPE, ClientboundDockyardRecipesPacket.CODEC, ModPacket.Side.CLIENTBOUND);
         registerNonPacket(ClientboundConfigSyncPacket.TYPE, ClientboundConfigSyncPacket.CODEC, ModPacket.Side.CLIENTBOUND);
+        registerNonPacket(ServerboundShipDetachPacket.TYPE, ServerboundShipDetachPacket.CODEC, ModPacket.Side.SERVERBOUND);
 
     }
 

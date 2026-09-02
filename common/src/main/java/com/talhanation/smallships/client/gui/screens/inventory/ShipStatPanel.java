@@ -166,6 +166,9 @@ public class ShipStatPanel {
             if (!(displayShip instanceof Cannonable containerShip) || !containerShip.isEffectedByCannonPenalty()) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_cannon_penalty");
             }
+            if (displayShip.getBiomeModifierType() == Ship.BiomeModifierType.NONE || displayShip.getBiomeModifierType() == Ship.BiomeModifierType.NEUTRAL) {
+                line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_biome_penalty");
+            }
             if (displayShip instanceof IceBreakable iceBreakable) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.ice_breaker");
             }
