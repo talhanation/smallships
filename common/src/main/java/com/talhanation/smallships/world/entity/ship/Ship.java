@@ -135,6 +135,14 @@ public abstract class Ship extends Boat {
      * none of that, so a lesser knock already tells on the timbers.
      */
     private static final double CRASH_MIN_SPEED_KMH = 20.0D;
+    /**
+     * Below this a hull is only leaning against something. A ship warping
+     * itself into a jetty used to bang once per stop, however slowly it drifted
+     * in, which is exactly when nothing should be heard at all.
+     */
+    private static final float HIT_SOUND_MIN_KMH = 4.0F;
+    /** the speed at which a collision is as loud as it gets */
+    private static final float HIT_SOUND_FULL_KMH = 20.0F;
     /** damage every ram that counts deals, before the weight split */
     private static final float RAM_BASE_DAMAGE = 7.0F;
     /** further damage per km/h of closing speed above the threshold */
@@ -1360,7 +1368,7 @@ public abstract class Ship extends Boat {
         this.ramRearmPos = this.position();
         other.ramRearmPos = other.position();
 
-        this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 2.0F, 0.5F + 0.2F * this.random.nextFloat());
+        this.playCollisionSound((float) closingKmh, 2.0F, 0.5F + 0.2F * this.random.nextFloat());
 
         // A ram bow only spares the hull that is DRIVING the hit - being rammed
         // costs every ship the same, whatever its stem is built like.
@@ -1504,7 +1512,7 @@ public abstract class Ship extends Boat {
     private void stopAgainstObstacle() {
         if (!this.level().isClientSide()) {
             float impactKmh = Kalkuel.getKilometerPerHour(Math.abs(this.getSpeed()));
-            this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 1.6F, 0.6F + 0.2F * this.random.nextFloat());
+            this.playCollisionSound(impactKmh, 1.6F, 0.6F + 0.2F * this.random.nextFloat());
 
             // Running aground at speed is a ram like any other, against
             // something that cannot be pushed and takes nothing itself. No mass
@@ -1514,10 +1522,7 @@ public abstract class Ship extends Boat {
                 this.ramRearmPos = this.position();
                 this.takeRamHit(RAM_BASE_DAMAGE + (impactKmh - (float) CRASH_MIN_SPEED_KMH) * RAM_DAMAGE_PER_KMH,
                         this.getRamSelfDamageFactor());
-                this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 2.0F, 0.6F);
-            }
-            else{
-                //this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SOFT_HIT, this.getSoundSource(), 2.0F, 0.6F);
+                this.playCollisionSound(impactKmh, 2.0F, 0.6F);
             }
         }
         // The turn goes with the way. A hull wedged against a cliff that keeps
@@ -1615,7 +1620,7 @@ public abstract class Ship extends Boat {
             // Projectiles play their own impact sound at the point they struck -
             // see AbstractCannonBall#onHitEntity. Playing it a second time from
             // here would double up on every hull hit that happens to be heavy.
-            if (f > 10) {
+            if (f > 10 && !damageSource.is(DamageTypeTags.IS_PROJECTILE)) {
                 this.level().playSound(null, this.getX(), this.getY() + 4, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
 
@@ -1669,6 +1674,18 @@ public abstract class Ship extends Boat {
     //Reflection Method
     public boolean canDoCollisionDamage(){
         return true;
+    }
+
+    /**
+     * Impact noise, scaled by how hard the hit actually was. A hull that is
+     * barely moving makes no sound at all - the bang belongs to the speed, not
+     * to the fact that two things touched.
+     */
+    private void playCollisionSound(float impactKmh, float maxVolume, float pitch) {
+        if (impactKmh < HIT_SOUND_MIN_KMH) return;
+        float loudness = Mth.clamp(impactKmh / HIT_SOUND_FULL_KMH, 0.0F, 1.0F);
+        this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(),
+                ModSoundTypes.SHIP_HIT, this.getSoundSource(), maxVolume * loudness, pitch);
     }
 
     private void collisionDamage(Entity entity, float speed) {
