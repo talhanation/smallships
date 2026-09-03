@@ -26,6 +26,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -404,9 +405,16 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
 
     /* ---------------- repair ---------------- */
 
+    /** hull points one unit of 4 planks and 1 iron nugget puts back */
+    public static final float HULL_HP_PER_UNIT = 10.0F;
+    /** sail points one wool block puts back */
+    public static final float SAIL_HP_PER_WOOL = 5.0F;
+
     /**
-     * Dynamic repair costs: the more hull damage, the more planks and iron
-     * nuggets are needed; damaged sails need wool by the same rule.
+     * Repair costs, priced off the MISSING points rather than off a share of
+     * the maximum: a big hull with a scratch used to cost the same as a small
+     * one with the same scratch, and a small one that was nearly gone got off
+     * far too cheaply.
      *
      * Both halves are asked for separately, because the screen offers them as
      * two buttons and each has to show only what IT costs.
@@ -414,16 +422,18 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     public static List<DockyardRecipe.Ingredient> getRepairCosts(Ship ship, boolean hull, boolean sails) {
         List<DockyardRecipe.Ingredient> costs = new ArrayList<>();
         if (hull) {
-            float hullFraction = Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth);
-            if (hullFraction > 0.0F) {
-                costs.add(DockyardRecipe.Ingredient.of(ItemTags.PLANKS, 2 + (int) Math.ceil(hullFraction * 22.0F)));
-                costs.add(DockyardRecipe.Ingredient.of(Items.IRON_NUGGET, 1 + (int) Math.ceil(hullFraction * 11.0F)));
+            float missing = Math.min(ship.getDamage(), ship.getAttributes().maxHealth);
+            int units = Mth.ceil(missing / HULL_HP_PER_UNIT);
+            if (units > 0) {
+                costs.add(DockyardRecipe.Ingredient.of(ItemTags.PLANKS, units * 4));
+                costs.add(DockyardRecipe.Ingredient.of(Items.IRON_NUGGET, units));
             }
         }
         if (sails) {
-            float sailFraction = 1.0F - SailDamage.getHealth(ship) / SailDamage.getMaxHealth(ship);
-            if (sailFraction > 0.0F) {
-                costs.add(DockyardRecipe.Ingredient.of(ItemTags.WOOL, 1 + (int) Math.ceil(sailFraction * 7.0F)));
+            float missing = SailDamage.getMaxHealth(ship) - SailDamage.getHealth(ship);
+            int wool = Mth.ceil(missing / SAIL_HP_PER_WOOL);
+            if (wool > 0) {
+                costs.add(DockyardRecipe.Ingredient.of(ItemTags.WOOL, wool));
             }
         }
         return costs;
