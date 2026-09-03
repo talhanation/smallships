@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.entity.ship.sail;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -11,6 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Central handler for the sail damage system.
@@ -35,6 +37,11 @@ public final class SailDamage {
     public static final float HEALTH_PER_SAIL = 100.0F;
     /** share of the pool at or below which the canvas is rendered torn */
     public static final float TORN_FRACTION = 0.5F;
+    /**
+     * How far a patch job with needle and thread gets the canvas. Anything
+     * beyond that needs new cloth: either the full bolt of wool, or a dockyard.
+     */
+    public static final float PATCH_LIMIT = 0.33F;
 
     /**
      * @return the full sail health of this ship: {@link #HEALTH_PER_SAIL} for
@@ -106,9 +113,14 @@ public final class SailDamage {
         setHealth(ship, after);
 
         if (after <= 0.0F && before > 0.0F) {
-            ship.level().playSound(null, ship.getX(), ship.getY() + 4, ship.getZ(), SoundEvents.WOOL_BREAK, SoundSource.NEUTRAL, 3.0F, 0.6F);
-        } else if (after <= getTornThreshold(ship) && before > getTornThreshold(ship)) {
-            ship.level().playSound(null, ship.getX(), ship.getY() + 4, ship.getZ(), SoundEvents.WOOL_HIT, SoundSource.NEUTRAL, 3.0F, 0.7F);
+
+            ship.level().playSound(null, ship.getX(), ship.getY() + 4, ship.getZ(),
+                    ModSoundTypes.SAIL_HIT, SoundSource.NEUTRAL, 3.0F, 0.9F + ship.level().random.nextFloat() * 0.2F);
+        }
+        else if (after <= getTornThreshold(ship) && before > getTornThreshold(ship)) {
+            ship.level().playSound(null, ship.getX(), ship.getY() + 4, ship.getZ(),
+                    ModSoundTypes.SAIL_HIT, SoundSource.NEUTRAL, 3.0F, 0.9F + ship.level().random.nextFloat() * 0.2F);
+
         }
     }
 
@@ -144,6 +156,40 @@ public final class SailDamage {
         if (!player.isCreative()) item.shrink(cost);
         repair(ship);
         ship.level().playSound(player, ship.getX(), ship.getY() + 4, ship.getZ(), SoundEvents.WOOL_PLACE, ship.getSoundSource(), 10.0F, 1.0F);
+        return true;
+    }
+
+    /**
+     * Patch repair: right click the ship with a string in hand and an iron
+     * nugget somewhere in the inventory - needle and thread. It only ever gets
+     * the canvas back to {@link #PATCH_LIMIT}; a sail that is more than a third
+     * gone needs new cloth, not another seam.
+     */
+    public static boolean interactPatch(Ship ship, Player player, InteractionHand interactionHand) {
+        if (!(ship instanceof Sailable)) return false;
+
+        float limit = getMaxHealth(ship) * PATCH_LIMIT;
+        if (getHealth(ship) >= limit) return false;
+
+        ItemStack item = player.getItemInHand(interactionHand);
+        if (!item.is(Items.STRING)) return false;
+        if (!player.getInventory().hasAnyMatching(stack -> stack.is(Items.IRON_NUGGET))) return false;
+
+        if (!player.isCreative()) {
+            item.shrink(1);
+            for (int i = 0; i < player.getInventory().getContainerSize(); ++i) {
+                ItemStack stack = player.getInventory().getItem(i);
+                if (stack.is(Items.IRON_NUGGET)) {
+                    stack.shrink(1);
+                    break;
+                }
+            }
+        }
+
+        float repaired = 5.0F + ship.level().random.nextInt(5);
+        setHealth(ship, Math.min(limit, getHealth(ship) + repaired));
+        ship.level().playSound(player, ship.getX(), ship.getY() + 4, ship.getZ(),
+                SoundEvents.WOOL_PLACE, ship.getSoundSource(), 6.0F, 1.2F);
         return true;
     }
 

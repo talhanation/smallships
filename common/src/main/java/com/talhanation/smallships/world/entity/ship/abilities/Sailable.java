@@ -91,8 +91,10 @@ public interface Sailable extends Ability {
     }
 
     default boolean interactSail(Player player, InteractionHand interactionHand) {
-        // sail repair with wool has priority over dyeing
+        // sail repair has priority over dyeing: new cloth first, then the
+        // needle and thread patch
         if (SailDamage.interactRepair(self(), player, interactionHand)) return true;
+        if (SailDamage.interactPatch(self(), player, interactionHand)) return true;
 
         ItemStack item = player.getItemInHand(interactionHand);
         if (item.getItem() instanceof DyeItem dyeItem) {

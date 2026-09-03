@@ -8,6 +8,8 @@ public class ModSoundTypes {
     public static final SoundEvent SAIL_PULL = getSoundType("sail_pull");
     public static final SoundEvent CANNON_SHOT = getSoundType("cannon_shot");
     public static final SoundEvent SHIP_HIT = getSoundType("ship_hit");
+    public static final SoundEvent SAIL_HIT = getSoundType("sail_hit");
+    public static final SoundEvent SOFT_HIT = getSoundType("soft_hit");
 
     @ExpectPlatform
     public static SoundEvent getSoundType(String id) {

@@ -70,5 +70,57 @@
         "stream": true
       }
     ]
+  },
+  "sail_hit":{
+    "category": "entity",
+    "subtitle": "subtitles.smallships.sail_hit",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship/sail_hit_1",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/sail_hit_2",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/sail_hit_3",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/sail_hit_4",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/sail_hit_5",
+        "stream": true
+      }
+    ]
+  },
+  "soft_hit":{
+    "category": "entity",
+    "subtitle": "subtitles.smallships.soft_hit",
+    "sounds": [
+      {
+        "name": "smallships:entity/ship/soft_hit_1",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/soft_hit_2",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/soft_hit_3",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/soft_hit_4",
+        "stream": true
+      },
+      {
+        "name": "smallships:entity/ship/soft_hit_5",
+        "stream": true
+      }
+    ]
   }
 }

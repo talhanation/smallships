@@ -252,15 +252,14 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
                 // the canvas. Which one you hit is now the players' decision.
                 if (hitMast) {
                     SailDamage.applyCannonHit(shipHitEntity, shipDamage * ballType.sailFactor);
+                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
+                            ModSoundTypes.SAIL_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
                 } else {
                     shipHitEntity.hurt(this.damageSources().thrown(this, ownerEntity), shipDamage * ballType.hullFactor);
+                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
+                            ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+
                 }
-                // The impact sound belongs to the BALL, not to the hull damage.
-                // Ship#hurt only plays it above 10 damage, and once hullFactor
-                // and sailFactor split a shot up, a hit rarely reaches that -
-                // a mast hit never called hurt at all, so it stayed silent.
-                this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
-                        ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
                 if(ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;

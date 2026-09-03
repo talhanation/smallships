@@ -858,10 +858,23 @@ public abstract class Ship extends Boat {
         return false;
     }
 
-    private boolean interactIronNuggets(@NotNull Player player){
-        if (this.getDamage() > 0 && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
+    /**
+     * How far a repair with nothing but nuggets and planks gets the hull. What
+     * a crew can do at sea is patch the worst of it - putting a shot up ship
+     * back into full trim is a dockyard job, and the limit is what keeps the
+     * dockyard worth sailing to.
+     */
+    public static final float HAND_REPAIR_LIMIT = 0.66F;
 
-            this.repairShip((5 + this.level().random.nextInt(5)));
+    /** @return the damage a hand repair cannot go below. */
+    public float getHandRepairFloor() {
+        return this.getAttributes().maxHealth * (1.0F - HAND_REPAIR_LIMIT);
+    }
+
+    private boolean interactIronNuggets(@NotNull Player player){
+        if (this.getDamage() > this.getHandRepairFloor() && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
+
+            this.repairShipByHand((5 + this.level().random.nextInt(5)));
 
             if(!player.isCreative()){
                 player.getMainHandItem().shrink(1);
@@ -880,9 +893,24 @@ public abstract class Ship extends Boat {
         return false;
     }
 
-    public void repairShip(int repairAmount){
+    /**
+     * Hand repair, stops at {@link #getHandRepairFloor()}. The dockyard uses
+     * {@link #repairShip(int)} and is not bound by it.
+     */
+    public void repairShipByHand(int repairAmount){
+        float floor = this.getHandRepairFloor();
+        float newDamage = Math.max(floor, this.getDamage() - repairAmount);
+        this.playRepairSound();
+        this.setDamage(newDamage);
+    }
+
+    private void playRepairSound(){
         this.getCommandSenderWorld().playSound(null, this.getX(), this.getY() + 1, this.getZ(), SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * this.getCommandSenderWorld().getRandom().nextFloat());
         this.getCommandSenderWorld().playSound(null, this.getX(), this.getY() + 2, this.getZ(), SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * this.getCommandSenderWorld().getRandom().nextFloat());
+    }
+
+    public void repairShip(int repairAmount){
+        this.playRepairSound();
 
         float newDamage = this.getDamage() - repairAmount;
         if(newDamage < 0) newDamage = 0;
@@ -1488,6 +1516,9 @@ public abstract class Ship extends Boat {
                         this.getRamSelfDamageFactor());
                 this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 2.0F, 0.6F);
             }
+            else{
+                //this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(), ModSoundTypes.SOFT_HIT, this.getSoundSource(), 2.0F, 0.6F);
+            }
         }
         // The turn goes with the way. A hull wedged against a cliff that keeps
         // swinging looks like it is grinding its way free, and the rotation
@@ -1584,7 +1615,7 @@ public abstract class Ship extends Boat {
             // Projectiles play their own impact sound at the point they struck -
             // see AbstractCannonBall#onHitEntity. Playing it a second time from
             // here would double up on every hull hit that happens to be heavy.
-            if (f > 10 && !damageSource.is(DamageTypeTags.IS_PROJECTILE)) {
+            if (f > 10) {
                 this.level().playSound(null, this.getX(), this.getY() + 4, this.getZ(), ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
 

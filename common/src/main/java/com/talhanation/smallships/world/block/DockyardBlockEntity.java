@@ -488,7 +488,11 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         ship.setDockyardWork(false);
 
         if (this.repairHull) ship.setDamage(0.0F);
-        if (this.repairSails) SailDamage.repair(ship);
+        if (this.repairSails) {
+            SailDamage.repair(ship);
+            // new canvas going on, heard next to the hammering of the hull work
+            level.playSound(null, pos, SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
         level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.4F);
         this.targetShipUUID = null;
     }
