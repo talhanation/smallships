@@ -2,25 +2,21 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "isi",
-    "ppp",
-    "lpl"
+    "SPS",
+    "I#W",
+    "LBL"
   ],
   "key": {
-    "i": {
-      "item": "minecraft:iron_ingot"
-    },
-    "s": {
-      "item": "smallships:sail"
-    },
-    "p": {
-      "tag": "minecraft:planks"
-    },
-    "l": {
-      "tag": "minecraft:logs"
-    }
+    "P": { "item": "minecraft:paper" },
+    "W": { "item": "minecraft:white_wool" },
+    "L": { "item": "minecraft:lead" },
+    "S": { "item": "minecraft:string" },
+    "B": { "item": "minecraft:barrel" },
+    "I": { "item": "minecraft:iron_ingot" },
+    "#": { "item": "minecraft:crafting_table" }
   },
   "result": {
-    "id": "smallships:dockyard"
+    "id": "smallships:dockyard",
+    "count": 1
   }
 }
