@@ -3,10 +3,13 @@ package com.talhanation.smallships.world.entity.forge;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
+import com.talhanation.smallships.world.entity.projectile.ChainShotEntity;
+import com.talhanation.smallships.world.entity.projectile.GrapeShotEntity;
 import com.talhanation.smallships.world.entity.ship.BriggEntity;
 import com.talhanation.smallships.world.entity.ship.CogEntity;
 import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
 import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -27,6 +30,14 @@ public class ModEntityTypesImpl {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, SmallShipsMod.MOD_ID);
 
     static {
+        entries.put(ShipPartEntity.class, ENTITY_TYPES.register(ShipPartEntity.ID,
+                () -> EntityType.Builder.of(ShipPartEntity::factory, MobCategory.MISC)
+                        .sized(0.25F, 0.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(ShipPartEntity.ID)));
+
         entries.put(CannonBallEntity.class, ENTITY_TYPES.register(CannonBallEntity.ID,
                 () -> EntityType.Builder.of(CannonBallEntity::factory, MobCategory.MISC)
                         .sized(0.25F, 0.25F)
@@ -34,6 +45,22 @@ public class ModEntityTypesImpl {
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
                         .build(CannonBallEntity.ID)));
+
+        entries.put(GrapeShotEntity.class, ENTITY_TYPES.register(GrapeShotEntity.ID,
+                () -> EntityType.Builder.of(GrapeShotEntity::factory, MobCategory.MISC)
+                        .sized(0.25F, 0.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(GrapeShotEntity.ID)));
+
+        entries.put(ChainShotEntity.class, ENTITY_TYPES.register(ChainShotEntity.ID,
+                () -> EntityType.Builder.of(ChainShotEntity::factory, MobCategory.MISC)
+                        .sized(0.25F, 0.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(ChainShotEntity.ID)));
 
         entries.put(GroundCannonEntity.class, ENTITY_TYPES.register(GroundCannonEntity.ID,
                 () -> EntityType.Builder.of(GroundCannonEntity::factory, MobCategory.MISC)

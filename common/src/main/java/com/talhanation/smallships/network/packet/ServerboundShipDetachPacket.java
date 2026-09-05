@@ -5,6 +5,7 @@ import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.dockyard.DockyardAction;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
+import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,8 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Takes a single cannon or banner off a ship straight from its inventory
- * screen, without sailing back to a dockyard for it.
+ * Takes a single cannon, shield or banner off a ship straight from its
+ * inventory screen, without sailing back to a dockyard for it.
  *
  * Only removal travels this way. Fitting something needs the material, the
  * price and the whole job queue of the dockyard - taking a gun back off is the
@@ -63,6 +64,15 @@ public record ServerboundShipDetachPacket(int shipId, int kind, int index) imple
                 if (!cannonable.isCannonInSlot(this.index)) return;
                 cannonable.setCannonInSlot(this.index, false);
                 giveBack(serverPlayer, new ItemStack(ModItems.CANNON));
+            }
+            case SHIELD -> {
+                if (!(ship instanceof Shieldable shieldable)) return;
+                if (this.index < 0 || this.index >= shieldable.getTotalShieldSlots()) return;
+                ItemStack shield = shieldable.getShieldInSlot(this.index);
+                if (shield.isEmpty()) return;
+                shieldable.setShieldInSlot(this.index, ItemStack.EMPTY);
+                // hung on, never built in: it comes back whole, heraldry and all
+                giveBack(serverPlayer, shield.copy());
             }
             case BANNER -> {
                 ItemStack banner = ship.getData(Ship.BANNER);

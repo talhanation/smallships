@@ -115,8 +115,8 @@ public class ShipStatPanel {
                             : String.valueOf(cannonable.getTotalCannonSlots()));
         } else if (displayShip instanceof Shieldable shieldable) {
             line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.shields",
-                    ship instanceof Shieldable dockedShields ? dockedShields.getShields().size() + "/" + shieldable.getMaxShieldsPerSide() * 2
-                            : String.valueOf(shieldable.getMaxShieldsPerSide() * 2));
+                    ship instanceof Shieldable dockedShields ? dockedShields.getShieldCount() + "/" + shieldable.getTotalShieldSlots()
+                            : String.valueOf(shieldable.getTotalShieldSlots()));
         }
         if (displayShip instanceof ContainerShip containerShip) {
             line = value(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.cargo",

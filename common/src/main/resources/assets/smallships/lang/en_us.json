@@ -139,6 +139,7 @@
   "gui.smallships.dockyard.cost": "Cost: %sx %s",
   "gui.smallships.dockyard.click_install": "Click to install",
   "gui.smallships.dockyard.click_remove": "Click to remove",
+  "gui.smallships.dockyard.shield_slot": "Shield Slot %s",
 
   "gui.smallships.upgrade.iron_scantlings.description": "+%s%% durability",
   "gui.smallships.upgrade.copper_plating.description": "+%s%% maneuverability",
@@ -148,7 +149,7 @@
   "gui.smallships.upgrade.cotton_sails": "Cotton Sails",
   "gui.smallships.upgrade.copper_plating": "Copper Plating",
 
-  "gui.smallships.ship.detach_hint": "Press and hold to remove",
+  "gui.smallships.ship.detach_hint": "Click and Hold to remove",
 
   "key.smallships.cannon_aim": "Aim Ship Cannons (hold)",
   "key.smallships.cannon_barrel_up": "Raise Cannon Barrel",

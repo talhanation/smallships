@@ -162,10 +162,10 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     /**
-     * Everything bolted onto the ship that can come back off: the mounted guns
-     * and the two banners. They sit LEFT of the window, opposite the upgrade
-     * column, because an upgrade is built into the hull and stays put while
-     * these can be taken off right here.
+     * Everything bolted onto the ship that can come back off: the mounted guns,
+     * the shields on the reling and the two banners. They sit LEFT of the
+     * window, opposite the upgrade column, because an upgrade is built into the
+     * hull and stays put while these can be taken off right here.
      *
      * @return the fittings in the order they are drawn, guns first
      */
@@ -180,6 +180,21 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
                         Component.translatable(starboard ? "gui.smallships.dockyard.starboard" : "gui.smallships.dockyard.port"));
                 fittings.add(new Fitting(DockyardAction.Kind.CANNON, slot,
                         new ItemStack(ModItems.CANNON), name, DockyardBlockEntity.CANNON_TIME));
+            }
+        }
+        if (this.containerShip instanceof Shieldable shieldable) {
+            for (int slot = 0; slot < shieldable.getTotalShieldSlots(); slot++) {
+                ItemStack shield = shieldable.getShieldInSlot(slot);
+                if (shield.isEmpty()) continue;
+                Shieldable.ShieldPosition position = shieldable.getShieldPosition(slot);
+                boolean starboard = position != null && position.isRightSided;
+                Component name = Component.translatable("gui.smallships.dockyard.shield_slot", slot + 1,
+                        Component.translatable(starboard ? "gui.smallships.dockyard.starboard" : "gui.smallships.dockyard.port"));
+                // the icon is the shield ITSELF, not a stand in: two shields on
+                // the same hull can carry different heraldry, and the panel is
+                // where the player picks which of them comes down
+                fittings.add(new Fitting(DockyardAction.Kind.SHIELD, slot,
+                        shield, name, DockyardBlockEntity.SHIELD_TIME));
             }
         }
         ItemStack banner = this.containerShip.getData(Ship.BANNER);
@@ -370,8 +385,8 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
             currentAttachment = cannonable.getCannonCount();
         }
         else if (this.containerShip instanceof Shieldable shieldable){
-            maxAttachment =  shieldable.getMaxShieldsPerSide() * 2;
-            currentAttachment = shieldable.getShields().size();
+            maxAttachment =  shieldable.getTotalShieldSlots();
+            currentAttachment = shieldable.getShieldCount();
         }
 
         // The ship inventory is the quick glance: how beaten up is she, in one

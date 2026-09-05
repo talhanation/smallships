@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.block;
 
 import com.talhanation.smallships.api.ShipRegistry;
 import com.talhanation.smallships.api.ShipType;
+import com.talhanation.smallships.compat.ShieldRegistry;
 import com.talhanation.smallships.world.dockyard.DockyardAction;
 import com.talhanation.smallships.world.dockyard.DockyardRecipe;
 import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
@@ -11,6 +12,7 @@ import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.item.ModItems;
@@ -47,8 +49,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -103,6 +107,12 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     @Nullable private String pendingDyeColor;
     private ItemStack pendingBanner = ItemStack.EMPTY;
     private ItemStack pendingSailBanner = ItemStack.EMPTY;
+    /**
+     * The shields of the running job, anchor point -> what goes there. A
+     * shield is not interchangeable the way a cannon is, so the item cannot be
+     * rebuilt from the action alone once the material has been taken.
+     */
+    private final Map<Integer, ItemStack> pendingShields = new HashMap<>();
     /** REPAIR task data */
     private boolean repairHull;
     private boolean repairSails;
@@ -252,11 +262,19 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         // was claimed at all
         boolean bannerSet = false;
         boolean sailBannerSet = false;
+        // anchor points this batch has already spoken for, so two shields queued
+        // in one run do not both aim for the same spot on the reling
+        Map<Integer, ItemStack> shields = new HashMap<>();
+        Set<Integer> strippedShieldSlots = new HashSet<>();
         int time = 0;
 
         for (DockyardAction action : actions) {
             // the same row twice would be paid for twice and then cancel itself
             if (!seen.add(action.key())) continue;
+            // a shield install leaves the client without an anchor point; the
+            // one the server picks is written back into the action so that
+            // finishModify still knows where the thing goes
+            DockyardAction resolved = action;
 
             switch (action.kind()) {
                 case UPGRADE -> {
@@ -283,6 +301,29 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                     if (action.install()) costs.add(new ItemStack(ModItems.CANNON));
                     else refunds.add(new ItemStack(ModItems.CANNON));
                     time += CANNON_TIME;
+                }
+                case SHIELD -> {
+                    if (!(ship instanceof Shieldable shieldable)) continue;
+                    if (action.install()) {
+                        ItemStack source = this.itemAt(player, action.inventorySlot());
+                        // what counts as a shield is the registrys' business, so a
+                        // shield from another mod goes up like the vanilla one
+                        if (!ShieldRegistry.isShield(source)) continue;
+                        int slot = this.freeShieldSlot(shieldable, shields.keySet());
+                        if (slot < 0) continue;
+                        shields.put(slot, source.copyWithCount(1));
+                        costs.add(source.copyWithCount(1));
+                        resolved = new DockyardAction(action.kind(), slot, action.inventorySlot(), true);
+                    } else {
+                        int slot = action.index();
+                        if (slot < 0 || slot >= shieldable.getTotalShieldSlots()) continue;
+                        if (!shieldable.isShieldInSlot(slot)) continue;
+                        if (!strippedShieldSlots.add(slot)) continue;
+                        // hung on, never built in: it always comes back whole,
+                        // heraldry and all
+                        refunds.add(shieldable.getShieldInSlot(slot).copyWithCount(1));
+                    }
+                    time += SHIELD_TIME;
                 }
                 case BANNER, SAIL_BANNER -> {
                     if (!(ship instanceof Bannerable)) continue;
@@ -328,7 +369,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                     time += STYLE_TIME;
                 }
             }
-            accepted.add(action);
+            accepted.add(resolved);
         }
 
         if (accepted.isEmpty()) return;
@@ -346,6 +387,8 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.pendingDyeColor = dyeColor;
         this.pendingBanner = banner;
         this.pendingSailBanner = sailBanner;
+        this.pendingShields.clear();
+        this.pendingShields.putAll(shields);
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
         ship.setDockyardWork(true);
@@ -358,6 +401,21 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     public static final int CANNON_TIME = 10 * 20;
     /** work time of a banner or dye job in ticks */
     public static final int STYLE_TIME = 8 * 20;
+    /** work time of hanging one shield on the reling or taking it off, in ticks */
+    public static final int SHIELD_TIME = 5 * 20;
+
+    /**
+     * @param claimed anchor points another row of the same batch has already
+     *                taken, which are not free any more even though the ship
+     *                still reports them as empty
+     * @return the lowest anchor point still to be had, or -1 if the reling is full
+     */
+    private int freeShieldSlot(Shieldable shieldable, Set<Integer> claimed) {
+        for (int slot = 0; slot < shieldable.getTotalShieldSlots(); slot++) {
+            if (!shieldable.isShieldInSlot(slot) && !claimed.contains(slot)) return slot;
+        }
+        return -1;
+    }
 
     private void finishModify(Level level, BlockPos pos) {
         if (this.targetShipUUID == null || !(level instanceof ServerLevel serverLevel)) return;
@@ -376,6 +434,13 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                 }
                 case CANNON -> {
                     if (ship instanceof Cannonable cannonable) cannonable.setCannonInSlot(action.index(), action.install());
+                }
+                case SHIELD -> {
+                    if (ship instanceof Shieldable shieldable) {
+                        ItemStack shield = this.pendingShields.get(action.index());
+                        shieldable.setShieldInSlot(action.index(),
+                                action.install() && shield != null ? shield.copy() : ItemStack.EMPTY);
+                    }
                 }
                 case BANNER -> ship.setData(Ship.BANNER, this.pendingBanner.copy());
                 case SAIL_BANNER -> ship.setData(Ship.SAIL_BANNER, this.pendingSailBanner.copy());
@@ -400,6 +465,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.pendingDyeColor = null;
         this.pendingBanner = ItemStack.EMPTY;
         this.pendingSailBanner = ItemStack.EMPTY;
+        this.pendingShields.clear();
         this.targetShipUUID = null;
     }
 
@@ -664,6 +730,16 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             if (!refund.isEmpty()) refunds.add(refund.save(provider));
         }
         tag.put("PendingRefunds", refunds);
+
+        ListTag shields = new ListTag();
+        for (Map.Entry<Integer, ItemStack> entry : this.pendingShields.entrySet()) {
+            if (entry.getValue().isEmpty()) continue;
+            CompoundTag shield = new CompoundTag();
+            shield.putInt("Slot", entry.getKey());
+            shield.put("Item", entry.getValue().save(provider));
+            shields.add(shield);
+        }
+        tag.put("PendingShields", shields);
     }
 
     @Override
@@ -692,6 +768,15 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         ListTag refunds = tag.getList("PendingRefunds", 10);
         for (int i = 0; i < refunds.size(); i++) {
             ItemStack.parse(provider, refunds.getCompound(i)).ifPresent(this.pendingRefunds::add);
+        }
+
+        this.pendingShields.clear();
+        ListTag shields = tag.getList("PendingShields", 10);
+        for (int i = 0; i < shields.size(); i++) {
+            CompoundTag shield = shields.getCompound(i);
+            int slot = shield.getInt("Slot");
+            ItemStack.parse(provider, shield.getCompound("Item"))
+                    .ifPresent(itemStack -> this.pendingShields.put(slot, itemStack));
         }
     }
 }

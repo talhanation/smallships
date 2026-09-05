@@ -15,9 +15,12 @@ import net.minecraft.network.codec.StreamCodec;
  * but never get anything for free.
  *
  * @param index         UPGRADE: the {@link com.talhanation.smallships.world.entity.ship.ShipUpgrade}
- *                      ordinal. CANNON: the cannon slot. Unused otherwise.
- * @param inventorySlot BANNER / SAIL_COLOR: the player inventory slot the item
- *                      comes from. -1 when nothing is taken from the inventory.
+ *                      ordinal. CANNON: the cannon slot. SHIELD: the anchor
+ *                      point when taking one off, -1 when hanging one up -
+ *                      the server picks the anchor point then. Unused otherwise.
+ * @param inventorySlot BANNER / SAIL_COLOR / SHIELD: the player inventory slot
+ *                      the item comes from. -1 when nothing is taken from the
+ *                      inventory.
  * @param install       true = add it to the ship, false = take it off again
  */
 public record DockyardAction(Kind kind, int index, int inventorySlot, boolean install) {
@@ -27,6 +30,12 @@ public record DockyardAction(Kind kind, int index, int inventorySlot, boolean in
         UPGRADE,
         /** a cannon on one specific carriage slot */
         CANNON,
+        /**
+         * a shield on one anchor point of the reling. Unlike a cannon a shield
+         * is not interchangeable - each one carries its own heraldry - so the
+         * row has to name the item, not just the slot.
+         */
+        SHIELD,
         /** the ship banner - it doubles as the sail banner, there is only one */
         BANNER,
         /** the device projected onto the canvas, a separate piece of work */

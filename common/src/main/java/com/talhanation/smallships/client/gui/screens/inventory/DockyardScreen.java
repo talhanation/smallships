@@ -12,6 +12,7 @@ import com.talhanation.smallships.network.packet.ServerboundDockyardBuildPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardRenamePacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardRepairPacket;
 import com.talhanation.smallships.world.block.DockyardBlockEntity;
+import com.talhanation.smallships.compat.ShieldRegistry;
 import com.talhanation.smallships.world.dockyard.DockyardAction;
 import com.talhanation.smallships.world.dockyard.DockyardRecipe;
 import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
@@ -20,6 +21,7 @@ import com.talhanation.smallships.world.entity.ship.ShipUpgrade;
 import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
+import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.ChatFormatting;
@@ -448,6 +450,10 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             }
         }
 
+        if (ship instanceof Shieldable shieldable) {
+            this.addShieldOptions(player, shieldable);
+        }
+
         if (ship instanceof Bannerable) {
             // two independent jobs: the colours on the staff and the device
             // painted onto the canvas
@@ -489,6 +495,68 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             return true;
         });
         this.upgradeList.rebuild(this.options);
+    }
+
+    /**
+     * Adds the rows for the shields along the reling.
+     *
+     * Taking one off is offered PER ANCHOR POINT, because shields are not
+     * interchangeable the way cannons are - each one carries its own heraldry,
+     * and the player has to be able to say which of them comes back.
+     *
+     * Hanging one up is offered per distinct shield in the inventory and names
+     * no anchor point at all: the dockyard fills them from the bow, the way a
+     * crew would. The rows only show up while there is a free point left, so a
+     * batch can never queue a shield that has nowhere to go.
+     */
+    private void addShieldOptions(@Nullable Player player, Shieldable shieldable) {
+        for (int slot = 0; slot < shieldable.getTotalShieldSlots(); slot++) {
+            ItemStack mounted = shieldable.getShieldInSlot(slot);
+            if (mounted.isEmpty()) continue;
+            Shieldable.ShieldPosition position = shieldable.getShieldPosition(slot);
+            boolean starboard = position != null && position.isRightSided;
+            Component name = Component.translatable("gui.smallships.dockyard.shield_slot", slot + 1,
+                    Component.translatable(starboard ? "gui.smallships.dockyard.starboard" : "gui.smallships.dockyard.port"));
+            List<Component> tooltip = new ArrayList<>();
+            tooltip.add(name.copy().withStyle(ChatFormatting.GOLD));
+            tooltip.add(mounted.getHoverName().copy().withStyle(ChatFormatting.GRAY));
+            // a shield is hung on, never built in: it always comes back whole
+            tooltip.add(Component.translatable("gui.smallships.dockyard.refund", 1,
+                    mounted.getHoverName()).withStyle(ChatFormatting.GREEN));
+            tooltip.add(durationLine(DockyardBlockEntity.SHIELD_TIME));
+            this.options.add(new UpgradeOption(
+                    new DockyardAction(DockyardAction.Kind.SHIELD, slot, -1, false),
+                    mounted.copyWithCount(1), name, ItemStack.EMPTY,
+                    DockyardBlockEntity.SHIELD_TIME, true, tooltip));
+        }
+
+        if (player == null || shieldable.getFreeShieldSlot() < 0) return;
+
+        Component name = Component.translatable("gui.smallships.dockyard.shield");
+        List<ItemStack> seen = new ArrayList<>();
+        var items = player.getInventory().items;
+        for (int slot = 0; slot < items.size() && seen.size() < 8; slot++) {
+            ItemStack stack = items.get(slot);
+            if (!ShieldRegistry.isShield(stack)) continue;
+            boolean duplicate = false;
+            for (ItemStack other : seen) {
+                if (ItemStack.isSameItemSameComponents(other, stack)) duplicate = true;
+            }
+            if (duplicate) continue;
+            seen.add(stack);
+
+            List<Component> tooltip = new ArrayList<>();
+            tooltip.add(name.copy().withStyle(ChatFormatting.GOLD));
+            tooltip.add(stack.getHoverName().copy().withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("gui.smallships.dockyard.shield_hint").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("gui.smallships.dockyard.cost", 1,
+                    stack.getHoverName()).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(durationLine(DockyardBlockEntity.SHIELD_TIME));
+            this.options.add(new UpgradeOption(
+                    new DockyardAction(DockyardAction.Kind.SHIELD, -1, slot, true),
+                    stack.copyWithCount(1), name, stack.copyWithCount(1),
+                    DockyardBlockEntity.SHIELD_TIME, false, tooltip));
+        }
     }
 
     /**
@@ -557,13 +625,21 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         if (ship instanceof Cannonable cannonable) {
             for (int slot = 0; slot < cannonable.getTotalCannonSlots(); slot++) builder.append(cannonable.isCannonInSlot(slot) ? '1' : '0');
         }
+        if (ship instanceof Shieldable shieldable) {
+            // occupancy only, not the items: reading a shield out means parsing
+            // it, and this runs far more often than the rebuild it guards. A
+            // shield can only be swapped by first taking the old one off, so the
+            // occupancy always moves when the rows have to
+            for (int slot = 0; slot < shieldable.getTotalShieldSlots(); slot++) builder.append(shieldable.isShieldInSlot(slot) ? '1' : '0');
+        }
         builder.append(ship.getData(Ship.SAIL_COLOR));
         builder.append(ship.getData(Ship.BANNER).getHoverName().getString());
         builder.append(ship.getData(Ship.SAIL_BANNER).getHoverName().getString());
         Player player = this.menu.getPlayer();
         if (player != null) {
             for (ItemStack stack : player.getInventory().items) {
-                if (stack.getItem() instanceof BannerItem || stack.getItem() instanceof DyeItem || stack.is(ModItems.CANNON)) {
+                if (stack.getItem() instanceof BannerItem || stack.getItem() instanceof DyeItem
+                        || stack.is(ModItems.CANNON) || ShieldRegistry.isShield(stack)) {
                     builder.append(stack.getHoverName().getString()).append(stack.getCount()).append(',');
                 }
             }

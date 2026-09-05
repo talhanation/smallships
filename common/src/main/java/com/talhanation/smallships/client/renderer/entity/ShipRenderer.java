@@ -7,21 +7,22 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.api.client.ShipRenderRegistry;
+import com.talhanation.smallships.client.cannon.CannonAimHandler;
+import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.client.model.sail.banner.MastBannerModel;
 import com.talhanation.smallships.client.model.sail.banner.SailBannerModel;
-import com.talhanation.smallships.world.entity.cannon.ShipCannon;
-import com.talhanation.smallships.world.entity.ship.*;
-import com.talhanation.smallships.world.entity.ship.abilities.*;
-import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
-import com.talhanation.smallships.client.cannon.CannonAimHandler;
-import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.client.wind.ClientWindManager;
-import net.minecraft.world.phys.Vec3;
+import com.talhanation.smallships.compat.ShieldRegistry;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.config.SyncedServerConfig;
+import com.talhanation.smallships.world.entity.cannon.ShipCannon;
+import com.talhanation.smallships.world.entity.ship.Attributes;
+import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.abilities.*;
+import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -41,8 +42,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -255,35 +256,80 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     }
 
     private static final ShieldModel shieldModel = new ShieldModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.SHIELD));
+
+    /**
+     * Draws the shields hung along the reling.
+     *
+     * The anchor points are untouched, they are the same ShieldPosition list the
+     * vanilla shields have always been placed on. What changed is that WHAT hangs
+     * there is looked up in the {@link ShieldRegistry}: a vanilla shield keeps
+     * going through the vanilla ShieldModel with its banner layers, anything a
+     * compat layer recognises is handed to the item renderer so the mod that owns
+     * it draws its own model, texture and heraldry.
+     *
+     * The stacks are parsed per frame rather than cached. Ten shields on a hull
+     * is a handful of codec reads and the ship is only drawn when it is on
+     * screen - if a fleet ever makes this show up in a profile, the place to cache
+     * is here, keyed on the synched tag, not in the entity.
+     */
     @SuppressWarnings("unused")
     private void renderShields(Shieldable shieldShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        for(byte i = 0; i < shieldShipEntity.getShields().size(); i++){
-            ItemStack shieldItemStack = shieldShipEntity.getShields().get(i);
-            if(shieldItemStack.is(Items.SHIELD)){
-                poseStack.pushPose();
-                Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
-                poseStack.translate(pos.x, pos.y, pos.z);
-                poseStack.scale(0.8F, -0.8F, -0.8F);
-                if (pos.isRightSided) poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-                poseStack.mulPose(Axis.XP.rotationDegrees(20.0F));
-                poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-                //Taken from BlockEntityWithoutLevelRenderer
-                BannerPatternLayers bannerPatternLayers = shieldItemStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
-                DyeColor dyeColor = shieldItemStack.get(DataComponents.BASE_COLOR);
-                boolean flag = !bannerPatternLayers.layers().isEmpty() || dyeColor != null;
-                Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
+        for (int i = 0; i < shieldShipEntity.getTotalShieldSlots(); i++) {
+            ItemStack shieldItemStack = shieldShipEntity.getShieldInSlot(i);
+            if (shieldItemStack.isEmpty()) continue;
+            ShieldRegistry.ShieldEntry entry = ShieldRegistry.get(shieldItemStack);
+            if (entry == null) continue;
+            Shieldable.ShieldPosition pos = shieldShipEntity.getShieldPosition(i);
+            if (pos == null) continue;
 
-                VertexConsumer vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, shieldItemStack.hasFoil()));
+            poseStack.pushPose();
+            poseStack.translate(pos.x, pos.y, pos.z);
+            // the side flip comes before the offset so that a positive offset
+            // pushes a shield outboard on BOTH sides instead of through the deck
+            // on one of them
+            if (pos.isRightSided) poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+            poseStack.translate(entry.offsetX(), entry.offsetY(), entry.offsetZ());
+            // the ship itself is drawn Y flipped, so everything hung on it flips back
+            poseStack.scale(entry.scale(), -entry.scale(), -entry.scale());
+            poseStack.mulPose(Axis.XP.rotationDegrees(entry.pitch()));
+            poseStack.mulPose(Axis.YP.rotationDegrees(entry.yaw()));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(entry.roll()));
 
-                if (flag) {
-                    BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, Objects.requireNonNullElse(dyeColor, DyeColor.WHITE), bannerPatternLayers, shieldItemStack.hasFoil());
-                } else {
-                    shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
-                }
-                shieldModel.handle().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
-                poseStack.popPose();
+            if (entry.vanillaShieldModel()) {
+                renderVanillaShield(shieldItemStack, poseStack, multiBufferSource, packedLight);
+            } else {
+                renderShieldItem(shieldShipEntity, shieldItemStack, entry.displayContext(), i, poseStack, multiBufferSource, packedLight);
             }
+            poseStack.popPose();
         }
+    }
+
+    /** The vanilla shield, unchanged. Taken from BlockEntityWithoutLevelRenderer. */
+    private void renderVanillaShield(ItemStack shieldItemStack, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        BannerPatternLayers bannerPatternLayers = shieldItemStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
+        DyeColor dyeColor = shieldItemStack.get(DataComponents.BASE_COLOR);
+        boolean flag = !bannerPatternLayers.layers().isEmpty() || dyeColor != null;
+        Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
+
+        VertexConsumer vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, shieldItemStack.hasFoil()));
+
+        if (flag) {
+            BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, Objects.requireNonNullElse(dyeColor, DyeColor.WHITE), bannerPatternLayers, shieldItemStack.hasFoil());
+        } else {
+            shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+        }
+        shieldModel.handle().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+    }
+
+    /**
+     * A shield from another mod, drawn by that mods' own item model. The seed is
+     * derived from ship and slot so a model with random variants does not flicker
+     * from frame to frame.
+     */
+    private void renderShieldItem(Shieldable shieldShipEntity, ItemStack shieldItemStack, ItemDisplayContext displayContext, int slot, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        Ship ship = shieldShipEntity.self();
+        Minecraft.getInstance().getItemRenderer().renderStatic(shieldItemStack, displayContext, packedLight,
+                OverlayTexture.NO_OVERLAY, poseStack, multiBufferSource, ship.level(), ship.getId() * 31 + slot);
     }
 
 
