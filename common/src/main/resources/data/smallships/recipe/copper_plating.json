@@ -3,23 +3,20 @@
   "category": "equipment",
   "group": "smallships_upgrade",
   "pattern": [
-    "WWW",
-    "WLW",
-    "WSW"
+    " I ",
+    "IBI",
+    " I "
   ],
   "key": {
-    "W": {
-      "item": "minecraft:white_wool"
+    "I": {
+      "item": "minecraft:copper_ingot"
     },
-    "L": {
-      "item": "minecraft:lead"
-    },
-    "S": {
-      "item": "minecraft:string"
+    "B": {
+      "item": "minecraft:copper_block"
     }
   },
   "result": {
-    "id": "smallships:cotton_sails",
+    "id": "smallships:copper_plating",
     "count": 1
   }
 }
