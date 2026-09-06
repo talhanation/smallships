@@ -486,7 +486,7 @@ public class SmallShipsConfig {
 
         builder.comment("Specify biome type for the Galleon. Can be NONE, COLD, NEUTRAL, or WARM");
         Server.shipModifierGalleonBiome = builder
-                .defineEnum("shipModifierGalleonBiome", Ship.BiomeModifierType.NEUTRAL);
+                .defineEnum("shipModifierGalleonBiome", Ship.BiomeModifierType.NONE);
 
         builder.pop();
         builder.pop();
@@ -550,7 +550,7 @@ public class SmallShipsConfig {
 
         builder.comment("Specify biome type for the Caravel. Can be NONE, COLD, NEUTRAL, or WARM");
         Server.shipModifierCaravelBiome = builder
-                .defineEnum("shipModifierCaravelBiome", Ship.BiomeModifierType.NEUTRAL);
+                .defineEnum("shipModifierCaravelBiome", Ship.BiomeModifierType.NONE);
 
         builder.pop();
         builder.pop();

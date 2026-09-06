@@ -468,7 +468,7 @@ public abstract class Ship extends Boat {
         // hard ceiling for everything below.
         float speedPenalty =
                 (1 + (this.getBiomeModifier()/100)) *
-                        (1 - (this instanceof Cannonable cannonShip? cannonShip.getCannonModifier()/100 : 0.0F)) *
+                        (1 - (this instanceof Cannonable cannonShip && cannonShip.isEffectedByCannonPenalty() ? cannonShip.getCannonModifier()/100 : 0.0F)) *
                         (1 - (this instanceof ContainerShip containerShip && containerShip.isEffectedByCargoPenalty() ? containerShip.getContainerModifier()/100 : 0.0F));
 
         this.maxSpeed = toTickSpeed(attributes.maxSpeed) * speedPenalty;

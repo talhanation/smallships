@@ -7,22 +7,23 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.api.client.ShipRenderRegistry;
-import com.talhanation.smallships.client.cannon.CannonAimHandler;
-import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.model.ShipModel;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.client.model.sail.banner.MastBannerModel;
 import com.talhanation.smallships.client.model.sail.banner.SailBannerModel;
-import com.talhanation.smallships.client.wind.ClientWindManager;
-import com.talhanation.smallships.compat.ShieldRegistry;
-import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
-import com.talhanation.smallships.world.entity.ship.Attributes;
-import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.client.cannon.CannonAimHandler;
+import com.talhanation.smallships.client.cannon.CannonTrajectory;
+import com.talhanation.smallships.client.model.CannonModel;
+import com.talhanation.smallships.client.wind.ClientWindManager;
+import com.talhanation.smallships.compat.ShieldRegistry;
+import net.minecraft.world.phys.Vec3;
+import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.config.SyncedServerConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -42,8 +43,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -197,9 +198,13 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 poseStack.scale(1.0F / 1.3F, 1.0F / 1.3F, 1.0F / 1.3F);
                 VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
                 float previewSpeed = CannonTrajectory.CANNON_SPEED * cannonShipEntity.getShotSpeedMultiplier(true);
+                // start the arc at the muzzle instead of at the mounting point on
+                // the deck. The offset comes back in the scale the MODEL is drawn
+                // at, so the 1.3 the line is drawn at has to be divided out again
+                Vec3 muzzle = CannonModel.getMuzzleOffset(aimAngle).scale(1.3D);
                 // the line fades out towards its far end instead of being cut at
                 // the water surface, so no fluid lookup is needed here
-                CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculateLocal(aimAngle, previewSpeed));
+                CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculateLocal(aimAngle, previewSpeed, muzzle));
                 poseStack.popPose();
             }
 

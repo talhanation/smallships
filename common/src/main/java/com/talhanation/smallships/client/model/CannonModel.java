@@ -10,6 +10,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class CannonModel extends EntityModel<Ship> {
@@ -17,6 +18,52 @@ public class CannonModel extends EntityModel<Ship> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "cannon_model"), "main");
     private final ModelPart Cannon;
     private final ModelPart Lauf;
+
+    /* ---------------- barrel geometry ---------------- */
+
+    /**
+     * The trunnions, in model units relative to the model root: the point the
+     * barrel pitches around. Cannon sits at (0, 26.4, -2), Lauf hangs under it
+     * at (0.5, -13.4, -2) - the sum of the two.
+     *
+     * These live here rather than in the renderer because they ARE the model:
+     * move a part in Blockbench and this is the one place that has to follow.
+     */
+    public static final float TRUNNION_X = 0.5F;
+    public static final float TRUNNION_Y = 13.0F;
+    public static final float TRUNNION_Z = -4.0F;
+    /**
+     * Trunnions to the muzzle band in model units - the ring of four strips at
+     * z = -18 in Lauf, the last thing on the barrel before open air.
+     */
+    public static final float BARREL_LENGTH = 18.0F;
+    /** the scale the model is drawn at, see the renderers */
+    public static final float MODEL_SCALE = 0.6F;
+
+    /**
+     * Where the barrel ends, as an offset from the origin of the cannon pose.
+     *
+     * The result is in BLOCKS and in the same frame the model is drawn in, so a
+     * caller drawing at a different scale has to divide that scale out again.
+     *
+     * Note this is the VISIBLE muzzle. The ball itself spawns further out, at
+     * {@code Cannon.getBarrelEndPointLocal()} - 1.2 blocks from the trunnions
+     * against 0.675 here. Both sit on the same axis, so a line drawn from here
+     * still runs along the real flight path; it simply starts at the metal
+     * instead of half a block in front of it.
+     *
+     * @param aimAngle barrel elevation in degrees, positive = up, the same
+     *                 value {@link #setLaufPitch} is fed the negative of
+     */
+    public static Vec3 getMuzzleOffset(float aimAngle) {
+        double angle = Math.toRadians(aimAngle);
+        // the barrel points down -Z and y grows DOWNWARDS in model space, which
+        // is why raising the muzzle SUBTRACTS from y
+        return new Vec3(TRUNNION_X,
+                TRUNNION_Y - BARREL_LENGTH * Math.sin(angle),
+                TRUNNION_Z - BARREL_LENGTH * Math.cos(angle))
+                .scale(MODEL_SCALE / 16.0D);
+    }
 
     public CannonModel() {
         ModelPart root = createBodyLayer().bakeRoot();

@@ -151,9 +151,13 @@ public class ShipStatPanel {
                 line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_cargo",
                         1.0F - containerShip.getContainerModifier() / 100.0F);
             }
-            if (ship instanceof Cannonable cannonShip) {
+            if (ship instanceof Cannonable cannonShip  && cannonShip.isEffectedByCannonPenalty()) {
                 line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_cannons",
                         1.0F - cannonShip.getCannonModifier() / 100.0F);
+            }
+            if (ship instanceof Shieldable shieldable) {
+                line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.shields",
+                        shieldable.getDamageModifier()* -1);
             }
             line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_biome",
                     1.0F + ship.getBiomeModifier() / 100.0F);
@@ -163,14 +167,17 @@ public class ShipStatPanel {
             if (!(displayShip instanceof ContainerShip containerShip) || !containerShip.isEffectedByCargoPenalty()) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_cargo_penalty");
             }
-            if (!(displayShip instanceof Cannonable containerShip) || !containerShip.isEffectedByCannonPenalty()) {
+            if ((displayShip instanceof Cannonable cannonable)  && !cannonable.isEffectedByCannonPenalty()) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_cannon_penalty");
             }
-            if (displayShip.getBiomeModifierType() == Ship.BiomeModifierType.NONE || displayShip.getBiomeModifierType() == Ship.BiomeModifierType.NEUTRAL) {
+            if (displayShip.getBiomeModifierType() == Ship.BiomeModifierType.NONE) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.no_biome_penalty");
             }
             if (displayShip instanceof IceBreakable iceBreakable) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.ice_breaker");
+            }
+            if (displayShip instanceof Shieldable shieldable) {
+                line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.shields");
             }
             if (displayShip.getRamSelfDamageFactor() < 1.0F) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.ramming");

@@ -782,12 +782,12 @@ public class GalleonModel extends ShipModel<GalleonEntity> {
 
 		this.steer.yRot = -galleonEntity.getRotSpeed() * 0.25F;
 
-		this.lid_left_1.zRot = galleonEntity.isCannonInSlot(5) ? -30F : 0F;
-		this.lid_left_2.zRot = galleonEntity.isCannonInSlot(7) ? -30F : 0F;
-		this.lid_left_3.zRot = galleonEntity.isCannonInSlot(9) ? -30F : 0F;
-		this.lid_right_1.zRot = galleonEntity.isCannonInSlot(4) ? 30F : 0F;
-		this.lid_right_2.zRot = galleonEntity.isCannonInSlot(6) ? 30F : 0F;
-		this.lid_right_3.zRot = galleonEntity.isCannonInSlot(8) ? 30F : 0F;
+		this.lid_left_1.zRot = galleonEntity.isCannonInSlot(5) ? 40F : 0F;
+		this.lid_left_2.zRot = galleonEntity.isCannonInSlot(7) ? 40F : 0F;
+		this.lid_left_3.zRot = galleonEntity.isCannonInSlot(9) ? 40F : 0F;
+		this.lid_right_1.zRot = galleonEntity.isCannonInSlot(4) ? -40F : 0F;
+		this.lid_right_2.zRot = galleonEntity.isCannonInSlot(6) ? -40F : 0F;
+		this.lid_right_3.zRot = galleonEntity.isCannonInSlot(8) ? -40F : 0F;
 	}
 
 	@Override

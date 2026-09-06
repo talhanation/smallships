@@ -74,19 +74,35 @@ public class CannonTrajectory {
      * @param speed    initial projectile speed
      */
     public static List<Vec3> calculateLocal(float aimAngle, float speed) {
+        return calculateLocal(aimAngle, speed, Vec3.ZERO);
+    }
+
+    /**
+     * As above, but starting at a given point of the cannon pose instead of at
+     * its origin.
+     *
+     * The origin of that pose is the mounting point on the deck, roughly half a
+     * block below and behind the muzzle, so a line starting there visibly grew
+     * out of the carriage rather than out of the barrel. Callers pass the
+     * muzzle from {@code CannonModel.getMuzzleOffset}, scaled into whatever
+     * frame they are drawing in.
+     *
+     * @param start where the line begins, in the frame it is drawn in
+     */
+    public static List<Vec3> calculateLocal(float aimAngle, float speed, Vec3 start) {
         List<Vec3> points = new ArrayList<>();
 
         double yShootVec = Math.toRadians(aimAngle);
         Vec3 direction = new Vec3(0.0D, yShootVec, 1.0D).normalize().scale(-1.0D);
         Vec3 velocity = direction.scale(speed);
-        Vec3 pos = Vec3.ZERO;
+        Vec3 pos = start;
 
         for (int i = 0; i < MAX_STEPS; i++) {
             points.add(pos);
             // cannonball physics in the mirrored frame: drag 0.99, gravity +0.06
             pos = pos.add(velocity);
             velocity = velocity.scale(0.99D).add(0.0D, 0.06D, 0.0D);
-            if (pos.y > MAX_DROP) break;
+            if (pos.y > start.y + MAX_DROP) break;
         }
         return points;
     }
