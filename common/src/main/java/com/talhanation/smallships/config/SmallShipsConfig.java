@@ -344,7 +344,7 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Server.cogAttributes = defineAttributes(builder, "shipAttributeCog",
-                400.0D, 27.0D, 0.1D, 4.0D, 0.010D, 0.7D);
+                400.0D, 27.0D, 0.1D, 4.0D, 0.010D, 0.750D);
 
         builder.pop();
 
@@ -375,7 +375,7 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Server.briggAttributes = defineAttributes(builder, "shipAttributeBrigg",
-                500.0D, 30.0D, 0.1D, 3.0D, 0.010D, 0.55D);
+                500.0D, 30.0D, 0.1D, 3.0D, 0.010D, 0.6D);
 
         builder.pop();
 
@@ -406,7 +406,7 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Server.galleyAttributes = defineAttributes(builder, "shipAttributeGalley",
-                200.0D, 35.0D, 0.1D, 5.0D, 0.010D, 1.00D);
+                200.0D, 35.0D, 0.1D, 5.0D, 0.010D, 0.90D);
 
         builder.pop();
 
@@ -436,7 +436,7 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Server.drakkarAttributes = defineAttributes(builder, "shipAttributeDrakkar",
-                200.0D, 28.0D, 0.1D, 5.0D, 0.010D, 1.00D);
+                200.0D, 28.0D, 0.1D, 5.0D, 0.010D, 0.750D);
 
         builder.pop();
 
@@ -467,7 +467,7 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Server.galleonAttributes = defineAttributes(builder, "shipAttributeGalleon",
-                700.0D, 25.0D, 0.1D, 3.3D, 0.007D, 1.00D);
+                700.0D, 25.0D, 0.1D, 1.5D, 0.007D, 0.5D);
 
         builder.pop();
 
@@ -499,7 +499,7 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Server.dhowAttributes = defineAttributes(builder, "shipAttributeDhow",
-                200.0D, 32.0D, 0.1D, 4.5D, 0.010D, 1.00D);
+                200.0D, 32.0D, 0.1D, 4.5D, 0.010D, 0.750D);
 
         builder.pop();
 
@@ -531,7 +531,7 @@ public class SmallShipsConfig {
         builder.push("Attributes");
 
         Server.caravelAttributes = defineAttributes(builder, "shipAttributeCaravel",
-                250.0D, 32.0D, 0.1D, 4.75D, 0.010D, 1.00D);
+                250.0D, 32.0D, 0.1D, 4.75D, 0.010D, 0.750D);
 
         builder.pop();
 

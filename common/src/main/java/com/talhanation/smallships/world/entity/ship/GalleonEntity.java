@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.entity.ship;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
@@ -30,6 +31,80 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
     );
     private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerGalleonContainerSize.get();
 
+    private static final List<ShipPartEntity.Definition> PARTS = List.of(
+            ShipPartEntity.Definition.hull(1.75F, -1.5F, 0.0F, 5.0F, 4.0F),//middle1
+            ShipPartEntity.Definition.hull(-1.75F, -1.5F, 0.0F, 5.0F, 4.0F),//middle2
+            ShipPartEntity.Definition.hull(0.0F, -1.5F, 0.0F, 5.0F, 4.0F),//middle2
+
+            ShipPartEntity.Definition.hull(-4.5F, -1.5F, 1.0F, 2.5F, 4.5F),//back parts
+            ShipPartEntity.Definition.hull(-4.5F, -1.5F, -1.0F, 2.5F, 4.5F),//back parts
+
+            ShipPartEntity.Definition.hull(4.8F, -1.5F, 1.0F, 2.5F, 4.5F),//front parts
+            ShipPartEntity.Definition.hull(4.8F, -1.5F, -1.0F, 2.5F, 4.5F),//front parts
+
+            ShipPartEntity.Definition.hull(6.5F, 0.0F, 0.0F, 1.0F, 3.0F),//front small
+
+            ShipPartEntity.Definition.mast(4.2F, 0.0F, 0.30F, 12.8F),//front mast
+            ShipPartEntity.Definition.mast(-0.2F, 0.0F, 0.30F, 15.25F), //middle mast
+            ShipPartEntity.Definition.mast(-4.6F, 0.0F, 0.30F, 11.0F)//back mast
+    );
+
+    @Override
+    public List<ShipPartEntity.Definition> getParts() {
+        return PARTS;
+    }
+    private static final float seatHeight = 1.35F;
+    float x = -1.9F;
+    private static final List<ShipSeat> SEATS = List.of(
+            ShipSeat.driver(0, -4.75F, seatHeight + 0.4F,1.0F),
+            ShipSeat.passenger(1, -4.0F,seatHeight + 0.4F, 0.0F),
+            ShipSeat.passenger(2, -4.75F,seatHeight + 0.4F, -1.0F),
+
+            ShipSeat.passenger(3, -3.0F, seatHeight, 1.5F),
+            ShipSeat.passenger(4, -3.0F, seatHeight, 0.5F),
+            ShipSeat.passenger(5, -3.0F, seatHeight, -0.5F),
+            ShipSeat.passenger(6, -3.0F, seatHeight,-1.5F),
+
+            ShipSeat.passenger(7, -2.0F, seatHeight, 1.5F),
+            ShipSeat.passenger(8, -2.0F, seatHeight, 0.5F),
+            ShipSeat.passenger(9, -2.0F, seatHeight, -0.5F),
+            ShipSeat.passenger(10, -2.0F, seatHeight,-1.5F),
+
+            ShipSeat.cannon(11, -1.0F, seatHeight,1.5F, 0),
+            ShipSeat.gunner(12, -1.0F,seatHeight, 0.5F, 0),
+            ShipSeat.gunner(13, -1.0F, seatHeight,-0.5F, 1),
+            ShipSeat.cannon(14, -1.0F, seatHeight,-1.5F, 1),
+
+            ShipSeat.passenger(15, 0.0F, seatHeight, 1.5F),
+            ShipSeat.passenger(16, 0.0F, seatHeight, 0.5F),
+            ShipSeat.passenger(17, 0.0F, seatHeight, -0.5F),
+            ShipSeat.passenger(18, 0.0F, seatHeight,-1.5F),
+
+            ShipSeat.cannon(19, 1.0F, seatHeight,1.5F, 2),
+            ShipSeat.gunner(20, 1.0F, seatHeight, 0.5F, 2),
+            ShipSeat.gunner(21, 1.0F, seatHeight,-0.5F, 3),
+            ShipSeat.cannon(22, 1.0F, seatHeight,-1.5F, 3),
+
+            ShipSeat.passenger(23, 2.0F, seatHeight, 1.5F),
+            ShipSeat.passenger(24, 2.0F, seatHeight, 0.5F),
+            ShipSeat.passenger(25, 2.0F, seatHeight, -0.5F),
+            ShipSeat.passenger(26, 2.0F, seatHeight,-1.5F),
+
+            ShipSeat.passenger(27, 3.0F, seatHeight, 1.5F),
+            ShipSeat.passenger(28, 3.0F, seatHeight, 0.5F),
+            ShipSeat.passenger(29, 3.0F, seatHeight, -0.5F),
+            ShipSeat.passenger(30, 3.0F, seatHeight,-1.5F),
+
+            ShipSeat.passenger(31, 4.0F, seatHeight + 0.4F,1.0F),
+            ShipSeat.passenger(32, 4.75F,seatHeight + 0.4F, 0.0F),
+            ShipSeat.passenger(33, 4.0F,seatHeight + 0.4F, -1.0F)
+    );
+
+
+    @Override
+    public List<ShipSeat> getSeats() {
+        return SEATS;
+    }
     public GalleonEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
@@ -77,32 +152,6 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
         return SmallShipsConfig.Server.shipModifierGalleonBiome.get();
     }
 
-    private static final List<ShipSeat> SEATS = List.of(
-            ShipSeat.driver(0, -3.0F, 0.0F,0.0F),
-            ShipSeat.passenger(1, -1.5F,0.0F, 0.75F),
-            ShipSeat.passenger(2, -1.5F,0.0F, -0.75F),
-            ShipSeat.passenger(3, 2.5F,0.0F, 0.0F),
-            ShipSeat.passenger(4, -1.5F,0.0F, 0.75F),
-            ShipSeat.passenger(5, -1.5F,0.0F, -0.75F),
-            ShipSeat.passenger(6, 2.5F, 0.0F,0.0F),
-            ShipSeat.passenger(7, -1.5F, 0.0F,0.75F),
-            ShipSeat.passenger(8, -1.5F,0.0F, -0.75F),
-            ShipSeat.passenger(9, 2.5F, 0.0F,0.0F),
-            ShipSeat.passenger(8, -1.5F, 0.0F,-0.75F),
-            ShipSeat.passenger(9, 2.5F,0.0F, 0.0F),
-
-            ShipSeat.gunner(4, -1.4F, 0.0F,0.45F, 6),
-            ShipSeat.gunner(5, -1.4F, 0.0F,-0.45F, 7),
-            ShipSeat.gunner(6, 0.1F, 0.0F,0.5F, 8),
-            ShipSeat.gunner(7, 0.1F, 0.0F,-0.5F, 9)
-    );
-
-
-    @Override
-    public List<ShipSeat> getSeats() {
-        return SEATS;
-    }
-
     @Override
     public void waterSplash(){
         Vec3 vector3d = this.getViewVector(0.0F);
@@ -142,20 +191,20 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
      **/
     public CannonPosition getCannonPosition(int index){
         List<CannonPosition> positionList = new ArrayList<>();
-        CannonPosition pos1 = new CannonPosition(1.4, -2, 0.75, true);
-        CannonPosition pos2 = new CannonPosition(1.4, -2, 0.75, false);
+        CannonPosition pos1 = new CannonPosition(0.7, 1.0, 1.5, true);
+        CannonPosition pos2 = new CannonPosition(0.7, 1.0, 1.5, false);
 
-        CannonPosition pos3 = new CannonPosition(-0.1, -2, 0.85, true);
-        CannonPosition pos4 = new CannonPosition(-0.1, -2, 0.85, false);
+        CannonPosition pos3 = new CannonPosition(-1.05, 1.0, 1.5, true);
+        CannonPosition pos4 = new CannonPosition(-1.05, 1.0, 1.5, false);
 
-        CannonPosition pos5 = new CannonPosition(-1.2, -2, 0.75, true);
-        CannonPosition pos6 = new CannonPosition(-1.2, -2, 0.75, false);
+        CannonPosition pos5 = new CannonPosition(1.6, 0.1, 1.2, true);
+        CannonPosition pos6 = new CannonPosition(1.6, 0.1, 1.2, false);
 
-        CannonPosition pos7 = new CannonPosition(1.4, 1, 0.75, true);
-        CannonPosition pos8 = new CannonPosition(1.4, 1, 0.75, false);
+        CannonPosition pos7 = new CannonPosition(-0.2, 0.1, 1.5, true);
+        CannonPosition pos8 = new CannonPosition(-0.2, 0.1, 1.5, false);
 
-        CannonPosition pos9 = new CannonPosition(-1.2, 1, 0.75, true);
-        CannonPosition pos10 = new CannonPosition(-1.2, 1, 0.75, false);
+        CannonPosition pos9 = new CannonPosition(-1.9F, 0.1, 1.2, true);
+        CannonPosition pos10 = new CannonPosition(-1.9F, 0.1, 1.2, false);
 
         positionList.add(pos1);
         positionList.add(pos2);
@@ -172,7 +221,7 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
     }
 
     public double getCannonAimY(){
-        return 1.35D;
+        return 4.5D;
     }
 
     @Override

@@ -77,7 +77,7 @@ public class DhowSailBannerModel extends SailBannerModel {
 				return segment == 0;
 			}
 			case 2 -> {
-				return segment == 0 || segment == 1 || segment == 2;
+				return segment == 0 || segment == 1 || segment == 2 || segment == 3;
 			}
 			case 3 -> {
 				return segment == 0 || segment == 1 || segment == 2 || segment == 3 || segment == 4;
