@@ -24,7 +24,7 @@ import java.util.List;
  * inside the main mod.
  *
  * <pre>
- * ShipRegistry.register(ShipType.builder(ResourceLocation.fromNamespaceAndPath("myaddon", "longship"), LongshipEntity::summon)
+ * ShipRegistry.register(ShipType.builder(new ResourceLocation("myaddon", "longship"), LongshipEntity::summon)
  *         .buildTime(110 * 20)
  *         .ingredient(ItemTags.PLANKS, 112)
  *         .ingredient(Items.WHITE_WOOL, 20)

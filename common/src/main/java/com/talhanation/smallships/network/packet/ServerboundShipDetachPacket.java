@@ -8,13 +8,11 @@ import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import com.talhanation.smallships.world.item.ModItems;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Takes a single cannon, shield or banner off a ship straight from its
@@ -29,17 +27,22 @@ import org.jetbrains.annotations.NotNull;
  * a cannon overboard. Everything that matters is checked again here.
  */
 public record ServerboundShipDetachPacket(int shipId, int kind, int index) implements ModPacket {
-    public static final Type<ServerboundShipDetachPacket> TYPE = new Type<>(ModPackets.id("server_ship_detach"));
+    public static final ResourceLocation ID = ModPackets.id("server_ship_detach");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundShipDetachPacket> CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, ServerboundShipDetachPacket::shipId,
-            ByteBufCodecs.VAR_INT, ServerboundShipDetachPacket::kind,
-            ByteBufCodecs.VAR_INT, ServerboundShipDetachPacket::index,
-            ServerboundShipDetachPacket::new);
+    public static ServerboundShipDetachPacket read(FriendlyByteBuf buf) {
+        return new ServerboundShipDetachPacket(buf.readVarInt(), buf.readVarInt(), buf.readVarInt());
+    }
 
     @Override
-    public @NotNull Type<ServerboundShipDetachPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(this.shipId);
+        buf.writeVarInt(this.kind);
+        buf.writeVarInt(this.index);
     }
 
     @Override

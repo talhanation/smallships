@@ -291,53 +291,53 @@ public abstract class Ship extends Boat {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
 
-        builder.define(SPEED, 0.0F);
-        builder.define(ROT_SPEED, 0.0F);
-        builder.define(FORWARD, false);
-        builder.define(BACKWARD, false);
-        builder.define(LEFT, false);
-        builder.define(RIGHT, false);
-        builder.define(SUNKEN, false);
-        builder.define(DOCKYARD_WORK, false);
-        builder.define(IMPULSE_X, 0.0F);
-        builder.define(IMPULSE_Z, 0.0F);
+        this.entityData.define(SPEED, 0.0F);
+        this.entityData.define(ROT_SPEED, 0.0F);
+        this.entityData.define(FORWARD, false);
+        this.entityData.define(BACKWARD, false);
+        this.entityData.define(LEFT, false);
+        this.entityData.define(RIGHT, false);
+        this.entityData.define(SUNKEN, false);
+        this.entityData.define(DOCKYARD_WORK, false);
+        this.entityData.define(IMPULSE_X, 0.0F);
+        this.entityData.define(IMPULSE_Z, 0.0F);
 
         // Sailable
-        builder.define(SAIL_STATE, (byte) 0);
-        builder.define(Ship.SAIL_COLOR, SailModel.Color.WHITE.toString());
+        this.entityData.define(SAIL_STATE, (byte) 0);
+        this.entityData.define(Ship.SAIL_COLOR, SailModel.Color.WHITE.toString());
 
         // Bannerable
-        builder.define(Ship.BANNER, ItemStack.EMPTY);
-        builder.define(Ship.SAIL_BANNER, ItemStack.EMPTY);
+        this.entityData.define(Ship.BANNER, ItemStack.EMPTY);
+        this.entityData.define(Ship.SAIL_BANNER, ItemStack.EMPTY);
 
         // Cannonable
-        builder.define(Ship.CANNON_POWER, 4.0F);
-        builder.define(Ship.CANNON_COUNT, (byte) 0);
+        this.entityData.define(Ship.CANNON_POWER, 4.0F);
+        this.entityData.define(Ship.CANNON_COUNT, (byte) 0);
 
         // Shieldable
-        builder.define(Ship.SHIELD_DATA, new CompoundTag());
+        this.entityData.define(Ship.SHIELD_DATA, new CompoundTag());
 
         // Cannon aim (Better Cannon Gameplay)
-        builder.define(Ship.CANNON_AIM, new CompoundTag());
+        this.entityData.define(Ship.CANNON_AIM, new CompoundTag());
 
         // Sail damage
         // The real maximum, not a placeholder. getParts is a static list per
         // ship class, so it answers correctly even this early - and a two masted
         // hull seeded with one sails' worth would sit exactly ON the torn
         // threshold and show up with shredded canvas the moment it is built.
-        builder.define(Ship.SAIL_HEALTH, SailDamage.getMaxHealth(this));
+        this.entityData.define(Ship.SAIL_HEALTH, SailDamage.getMaxHealth(this));
 
         // Dockyard upgrades
-        builder.define(Ship.UPGRADES, new CompoundTag());
+        this.entityData.define(Ship.UPGRADES, new CompoundTag());
 
         // Cannon slots
-        builder.define(Ship.CANNON_SLOTS, new CompoundTag());
+        this.entityData.define(Ship.CANNON_SLOTS, new CompoundTag());
 
         // Seat assignments
-        builder.define(Ship.SEAT_ASSIGNMENTS, new CompoundTag());
+        this.entityData.define(Ship.SEAT_ASSIGNMENTS, new CompoundTag());
     }
 
     @Override

@@ -26,7 +26,7 @@ public class ModSoundTypesImpl {
     }
 
     private static SoundEvent register (String id) {
-        ResourceLocation location = ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id);
+        ResourceLocation location = new ResourceLocation(SmallShipsMod.MOD_ID, id);
         return Registry.register(BuiltInRegistries.SOUND_EVENT, location, SoundEvent.createVariableRangeEvent(location));
     }
 }

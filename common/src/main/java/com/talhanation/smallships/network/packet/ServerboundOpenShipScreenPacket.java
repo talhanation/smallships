@@ -4,25 +4,30 @@ import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
-import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public record ServerboundOpenShipScreenPacket(UUID ship, int pageIndex) implements ModPacket {
-    public static final Type<ServerboundOpenShipScreenPacket> TYPE = new Type<>(ModPackets.id("server_open_ship_screen"));
+    public static final ResourceLocation ID = ModPackets.id("server_open_ship_screen");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundOpenShipScreenPacket> CODEC = StreamCodec.composite(UUIDUtil.STREAM_CODEC, ServerboundOpenShipScreenPacket::ship, ByteBufCodecs.INT, ServerboundOpenShipScreenPacket::pageIndex, ServerboundOpenShipScreenPacket::new);
+    public static ServerboundOpenShipScreenPacket read(FriendlyByteBuf buf) {
+        return new ServerboundOpenShipScreenPacket(buf.readUUID(), buf.readInt());
+    }
 
     @Override
-    public @NotNull Type<ServerboundOpenShipScreenPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeUUID(this.ship);
+        buf.writeInt(this.pageIndex);
     }
 
     @Override

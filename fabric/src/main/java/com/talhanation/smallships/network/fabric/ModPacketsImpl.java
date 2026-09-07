@@ -3,34 +3,24 @@ package com.talhanation.smallships.network.fabric;
 import com.talhanation.smallships.network.ModPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class ModPacketsImpl {
-    private static final List<CustomPacketPayload.Type<ModPacket>> clientReceivers = new ArrayList<>();
-    private static final List<CustomPacketPayload.Type<ModPacket>> serverReceivers = new ArrayList<>();
+    private static final Map<ResourceLocation, ModPacket.Reader> clientReceivers = new HashMap<>();
+    private static final Map<ResourceLocation, ModPacket.Reader> serverReceivers = new HashMap<>();
 
-    public static void registerPacket(CustomPacketPayload.Type<ModPacket> type, StreamCodec<RegistryFriendlyByteBuf, ModPacket> codec, ModPacket.Side side) {
+    public static void registerPacket(ResourceLocation id, ModPacket.Side side, ModPacket.Reader reader) {
         switch (side) {
-            case ModPacket.Side.CLIENTBOUND -> {
-                PayloadTypeRegistry.playS2C().register(type, codec);
-
-                clientReceivers.add(type);
-            }
-            case ModPacket.Side.SERVERBOUND -> {
-                PayloadTypeRegistry.playC2S().register(type, codec);
-
-                serverReceivers.add(type);
-            }
+            case CLIENTBOUND -> clientReceivers.put(id, reader);
+            case SERVERBOUND -> serverReceivers.put(id, reader);
         }
     }
 
@@ -40,16 +30,22 @@ public class ModPacketsImpl {
     }
 
     public static void registerServerReceivers() {
-        for (CustomPacketPayload.Type<ModPacket> type : serverReceivers) {
-            ServerPlayNetworking.registerGlobalReceiver(type, (packet, context) -> {
-                Player player = context.player();
-                packet.handler(player);
+        for (Map.Entry<ResourceLocation, ModPacket.Reader> entry : serverReceivers.entrySet()) {
+            ModPacket.Reader reader = entry.getValue();
+            ServerPlayNetworking.registerGlobalReceiver(entry.getKey(), (server, player, handler, buf, responseSender) -> {
+                // the buffer is only valid on the network thread, so it has to be
+                // read out here - only the finished packet crosses over to the
+                // main thread
+                ModPacket packet = reader.read(buf);
+                server.execute(() -> packet.handler(player));
             });
         }
     }
 
     public static void serverSendPacket(ServerPlayer player, ModPacket packet) {
-        ServerPlayNetworking.send(player, packet);
+        FriendlyByteBuf buf = PacketByteBufs.create();
+        packet.write(buf);
+        ServerPlayNetworking.send(player, packet.id(), buf);
     }
 
     @Environment(EnvType.CLIENT)

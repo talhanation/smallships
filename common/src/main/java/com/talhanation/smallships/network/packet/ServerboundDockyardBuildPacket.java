@@ -6,14 +6,11 @@ import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.block.DockyardBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Sent when the player presses the build button in the dockyard screen.
@@ -23,17 +20,22 @@ import org.jetbrains.annotations.NotNull;
  * starting the build.
  */
 public record ServerboundDockyardBuildPacket(BlockPos pos, ResourceLocation shipTypeId, int woodTypeOrdinal) implements ModPacket {
-    public static final Type<ServerboundDockyardBuildPacket> TYPE = new Type<>(ModPackets.id("server_dockyard_build"));
+    public static final ResourceLocation ID = ModPackets.id("server_dockyard_build");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundDockyardBuildPacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, ServerboundDockyardBuildPacket::pos,
-            ResourceLocation.STREAM_CODEC, ServerboundDockyardBuildPacket::shipTypeId,
-            ByteBufCodecs.VAR_INT, ServerboundDockyardBuildPacket::woodTypeOrdinal,
-            ServerboundDockyardBuildPacket::new);
+    public static ServerboundDockyardBuildPacket read(FriendlyByteBuf buf) {
+        return new ServerboundDockyardBuildPacket(buf.readBlockPos(), buf.readResourceLocation(), buf.readVarInt());
+    }
 
     @Override
-    public @NotNull Type<ServerboundDockyardBuildPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeBlockPos(this.pos);
+        buf.writeResourceLocation(this.shipTypeId);
+        buf.writeVarInt(this.woodTypeOrdinal);
     }
 
     @Override

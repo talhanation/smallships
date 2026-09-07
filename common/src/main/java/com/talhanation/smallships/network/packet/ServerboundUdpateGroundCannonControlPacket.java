@@ -3,28 +3,30 @@ package com.talhanation.smallships.network.packet;
 import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 
 public record ServerboundUdpateGroundCannonControlPacket(boolean forward, boolean backward, boolean left, boolean right, boolean aiming) implements ModPacket {
-    public static final Type<ServerboundUdpateGroundCannonControlPacket> TYPE = new Type<>(ModPackets.id("server_update_ground_cannon_control"));
+    public static final ResourceLocation ID = ModPackets.id("server_update_ground_cannon_control");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundUdpateGroundCannonControlPacket>
-            CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::forward,
-            ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::backward,
-            ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::left,
-            ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::right,
-            ByteBufCodecs.BOOL, ServerboundUdpateGroundCannonControlPacket::aiming,
-            ServerboundUdpateGroundCannonControlPacket::new);
+    public static ServerboundUdpateGroundCannonControlPacket read(FriendlyByteBuf buf) {
+        return new ServerboundUdpateGroundCannonControlPacket(buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean());
+    }
 
     @Override
-    public @NotNull Type<ServerboundUdpateGroundCannonControlPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeBoolean(this.forward);
+        buf.writeBoolean(this.backward);
+        buf.writeBoolean(this.left);
+        buf.writeBoolean(this.right);
+        buf.writeBoolean(this.aiming);
     }
 
 

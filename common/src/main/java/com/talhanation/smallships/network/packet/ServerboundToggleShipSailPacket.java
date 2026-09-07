@@ -4,19 +4,25 @@ import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 public record ServerboundToggleShipSailPacket() implements ModPacket {
-    public static final Type<ServerboundToggleShipSailPacket> TYPE = new Type<>(ModPackets.id("server_toggle_ship_sail"));
+    public static final ResourceLocation ID = ModPackets.id("server_toggle_ship_sail");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundToggleShipSailPacket> CODEC = StreamCodec.unit(new ServerboundToggleShipSailPacket());
+    public static ServerboundToggleShipSailPacket read(FriendlyByteBuf buf) {
+        return new ServerboundToggleShipSailPacket();
+    }
 
     @Override
-    public @NotNull Type<ServerboundToggleShipSailPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    /** Carries nothing - the press itself is the whole message. */
+    @Override
+    public void write(FriendlyByteBuf buf) {
     }
 
     @Override

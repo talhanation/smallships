@@ -21,8 +21,8 @@ public interface Shieldable extends Ability {
     default void tickShieldShip() {
     }
 
-    default void defineShieldShipSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(Ship.SHIELD_DATA, new CompoundTag());
+    default void defineShieldShipSynchedData(SynchedEntityData entityData) {
+        entityData.define(Ship.SHIELD_DATA, new CompoundTag());
     }
 
     /* ---------------- shield slots ---------------- */

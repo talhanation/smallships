@@ -25,6 +25,7 @@ import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -77,7 +78,7 @@ import java.util.Set;
  */
 public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
-    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/gui/dockyard.png");
+    private static final ResourceLocation BACKGROUND = new ResourceLocation(SmallShipsMod.MOD_ID, "textures/gui/dockyard.png");
     /** the window sits in the top left corner of a 512x512 sheet */
     private static final int TEXTURE_SIZE = 512;
 
@@ -466,7 +467,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
 
         if (ship instanceof Sailable && player != null) {
-            String currentColor = ship.getData(Ship.SAIL_COLOR);
+            String currentColor = ship.getData(Ship.SAIL_red, green, blue, alpha);
             Set<String> seenColors = new LinkedHashSet<>();
             var items = player.getInventory().items;
             for (int slot = 0; slot < items.size() && seenColors.size() < 16; slot++) {
@@ -540,7 +541,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             if (!ShieldRegistry.isShield(stack)) continue;
             boolean duplicate = false;
             for (ItemStack other : seen) {
-                if (ItemStack.isSameItemSameComponents(other, stack)) duplicate = true;
+                if (ItemStack.isSameItemSameTags(other, stack)) duplicate = true;
             }
             if (duplicate) continue;
             seen.add(stack);
@@ -596,7 +597,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             if (!(stack.getItem() instanceof BannerItem)) continue;
             boolean duplicate = false;
             for (ItemStack other : seen) {
-                if (ItemStack.isSameItemSameComponents(other, stack)) duplicate = true;
+                if (ItemStack.isSameItemSameTags(other, stack)) duplicate = true;
             }
             if (duplicate) continue;
             seen.add(stack);
@@ -658,16 +659,16 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
     private boolean canAffordRowSelection() {
         Player player = this.menu.getPlayer();
-        if (player == null || player.hasInfiniteMaterials()) return true;
+        if (player == null || player.isCreative()) return true;
         List<ItemStack> costs = this.getSelectionCosts();
         for (ItemStack cost : costs) {
             int required = 0;
             for (ItemStack other : costs) {
-                if (ItemStack.isSameItemSameComponents(cost, other)) required += other.getCount();
+                if (ItemStack.isSameItemSameTags(cost, other)) required += other.getCount();
             }
             int owned = 0;
             for (ItemStack stack : player.getInventory().items) {
-                if (ItemStack.isSameItemSameComponents(stack, cost)) owned += stack.getCount();
+                if (ItemStack.isSameItemSameTags(stack, cost)) owned += stack.getCount();
             }
             if (owned < required) return false;
         }
@@ -1020,7 +1021,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                     this.active, this.selected || this.isHoveredOrFocused());
             int textColor = !this.active ? 0xFF6E6E6E : (this.selected ? 0xFFFFFFFF : 0xFFCCCCCC);
             guiGraphics.drawCenteredString(net.minecraft.client.Minecraft.getInstance().font, this.getMessage(),
-                    this.getX() + this.getWidth() / 2, this.getY() + (this.getHeight() - 8) / 2, textColor);
+                    this.getX() + this.getWidth() / 2, this.getY() + (this.getHeight() - 8) / 2, textred, green, blue, alpha);
         }
     }
 
@@ -1257,7 +1258,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         private ItemStack hoveredStack = ItemStack.EMPTY;
 
         protected MaterialList(int x, int y, int width, int height) {
-            super(net.minecraft.client.Minecraft.getInstance(), width, height, y, ROW_HEIGHT);
+            super(Minecraft.getInstance(), width, height, y, ROW_HEIGHT);
             this.setX(x);
             this.centerListVertically = false;
         }
@@ -1318,6 +1319,11 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             this.hoveredStack = ItemStack.EMPTY;
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        }
+
+        @Override
+        public void updateNarration(NarrationElementOutput narrationElementOutput) {
+
         }
 
         private class Entry extends AbstractSelectionList.Entry<Entry> {

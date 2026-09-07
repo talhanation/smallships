@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DrakkarSailModel extends SailModel {
 	@SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DrakkarEntity.ID + "_sail_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, DrakkarEntity.ID + "_sail_model"), "main");
 
 	private final ModelPart DrakkarSail;
 	private final ModelPart sail_4;
@@ -593,7 +593,7 @@ public class DrakkarSailModel extends SailModel {
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		DrakkarSail.render(poseStack, buffer, packedLight, packedOverlay, color);
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+		DrakkarSail.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 }

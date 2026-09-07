@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class GalleonModel extends ShipModel<GalleonEntity> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleonEntity.ID + "_model"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, GalleonEntity.ID + "_model"), "main");
 	private final ModelPart Galleon;
 	private final ModelPart lid_left_1;
 	private final ModelPart lid_left_2;

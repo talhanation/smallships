@@ -46,7 +46,7 @@ public class CannonPoofParticles extends CompoundParticles {
             if (this.color == null) {
                 this.level.addParticle(ParticleTypes.POOF, pos.x, pos.y, pos.z, v.x, v.y, v.z);
             } else {
-                Color color = new Color(this.color);
+                Color color = new Color(this.red, green, blue, alpha);
                 this.level.addParticle(new CustomPoofParticleOptions(color.getAsVector3f()), pos.x, pos.y, pos.z, v.x, v.y, v.z);
             }
         }
@@ -67,7 +67,7 @@ public class CannonPoofParticles extends CompoundParticles {
             if (this.color == null) {
                 this.level.addParticle(ParticleTypes.POOF, pos.x, pos.y, pos.z, v.x, v.y, v.z);
             } else {
-                Color color = new Color(this.color);
+                Color color = new Color(this.red, green, blue, alpha);
                 this.level.addParticle(new CustomPoofParticleOptions(color.getAsVector3f()), pos.x, pos.y, pos.z, v.x, v.y, v.z);
             }
         }

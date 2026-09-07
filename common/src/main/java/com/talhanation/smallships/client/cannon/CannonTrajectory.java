@@ -129,12 +129,14 @@ public class CannonTrajectory {
             Vec3 p2 = points.get(i + 1);
             Vec3 normal = p2.subtract(p1).normalize();
 
-            vertexConsumer.addVertex(pose, (float) p1.x, (float) p1.y, (float) p1.z)
-                    .setColor(255, 255, 255, alpha1)
-                    .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
-            vertexConsumer.addVertex(pose, (float) p2.x, (float) p2.y, (float) p2.z)
-                    .setColor(255, 255, 255, alpha2)
-                    .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
+            vertexConsumer.vertex(pose.pose(), (float) p1.x, (float) p1.y, (float) p1.z)
+                    .color(255, 255, 255, alpha1)
+                    .normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z)
+                    .endVertex();
+            vertexConsumer.vertex(pose.pose(), (float) p2.x, (float) p2.y, (float) p2.z)
+                    .color(255, 255, 255, alpha2)
+                    .normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z)
+                    .endVertex();
         }
     }
 

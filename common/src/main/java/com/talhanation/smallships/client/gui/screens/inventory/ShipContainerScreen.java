@@ -29,7 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMenu> {
-    private static final ResourceLocation RESOURCE_LOCATION = ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/gui/ship_inventory.png" );
+    private static final ResourceLocation RESOURCE_LOCATION = new ResourceLocation(SmallShipsMod.MOD_ID,"textures/gui/ship_inventory.png" );
     public static final int FONT_COLOR = 4210752;
     /** centre of the gap between the two page buttons, in menu local coordinates */
     private static final int PAGE_LABEL_X = 142;
@@ -83,7 +83,7 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderUpgradePanel(guiGraphics, mouseX, mouseY);
         this.renderFittingPanel(guiGraphics, mouseX, mouseY);

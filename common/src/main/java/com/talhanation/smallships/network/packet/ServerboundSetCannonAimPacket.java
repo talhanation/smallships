@@ -4,12 +4,10 @@ import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Seatable;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Sets the cannon aim.
@@ -18,19 +16,26 @@ import org.jetbrains.annotations.NotNull;
  * to that slot (gunner).
  */
 public record ServerboundSetCannonAimPacket(int entityId, int cannonSlot, boolean rightSide, float angle, float rotation) implements ModPacket {
-    public static final Type<ServerboundSetCannonAimPacket> TYPE = new Type<>(ModPackets.id("server_set_cannon_aim"));
+    public static final ResourceLocation ID = ModPackets.id("server_set_cannon_aim");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundSetCannonAimPacket> CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, ServerboundSetCannonAimPacket::entityId,
-            ByteBufCodecs.VAR_INT, ServerboundSetCannonAimPacket::cannonSlot,
-            ByteBufCodecs.BOOL, ServerboundSetCannonAimPacket::rightSide,
-            ByteBufCodecs.FLOAT, ServerboundSetCannonAimPacket::angle,
-            ByteBufCodecs.FLOAT, ServerboundSetCannonAimPacket::rotation,
-            ServerboundSetCannonAimPacket::new);
+    public static ServerboundSetCannonAimPacket read(FriendlyByteBuf buf) {
+        return new ServerboundSetCannonAimPacket(buf.readVarInt(), buf.readVarInt(), buf.readBoolean(), buf.readFloat(), buf.readFloat());
+    }
 
     @Override
-    public @NotNull Type<ServerboundSetCannonAimPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(this.entityId);
+        // stays a plain VarInt because the broadside marker is -1, and writeVarInt
+        // encodes that faithfully even if it spends five bytes on it
+        buf.writeVarInt(this.cannonSlot);
+        buf.writeBoolean(this.rightSide);
+        buf.writeFloat(this.angle);
+        buf.writeFloat(this.rotation);
     }
 
     @Override

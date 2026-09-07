@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class DhowModel extends ShipModel<DhowEntity> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DhowEntity.ID + "_model"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, DhowEntity.ID + "_model"), "main");
 	private final ModelPart ModelDhow;
 	private final ModelPart bottom;
 	private final ModelPart bone3;

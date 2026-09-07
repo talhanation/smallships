@@ -3,12 +3,10 @@ package com.talhanation.smallships.world.dockyard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
@@ -34,18 +32,28 @@ import java.util.List;
  */
 public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
 
-    public static final StreamCodec<ByteBuf, DockyardRecipe> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, DockyardRecipe::buildTime,
-            Ingredient.STREAM_CODEC.apply(ByteBufCodecs.list()), DockyardRecipe::ingredients,
-            DockyardRecipe::new);
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(this.buildTime);
+        buf.writeCollection(this.ingredients, (out, ingredient) -> ingredient.write(out));
+    }
+
+    public static DockyardRecipe read(FriendlyByteBuf buf) {
+        int buildTime = buf.readVarInt();
+        return new DockyardRecipe(buildTime, buf.readList(Ingredient::read));
+    }
 
     /** A single required material: either a tag (planks) or a concrete item. */
     public record Ingredient(TagKey<Item> tag, Item item, int amount) {
 
-        public static final StreamCodec<ByteBuf, Ingredient> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.STRING_UTF8, Ingredient::toNetworkKey,
-                ByteBufCodecs.VAR_INT, Ingredient::amount,
-                Ingredient::fromNetworkKey);
+        public void write(FriendlyByteBuf buf) {
+            buf.writeUtf(this.toNetworkKey());
+            buf.writeVarInt(this.amount);
+        }
+
+        public static Ingredient read(FriendlyByteBuf buf) {
+            String key = buf.readUtf();
+            return fromNetworkKey(key, buf.readVarInt());
+        }
 
         public static Ingredient of(TagKey<Item> tag, int amount) {
             return new Ingredient(tag, null, amount);
@@ -88,9 +96,9 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
 
         private static Ingredient fromNetworkKey(String key, int amount) {
             if (key.startsWith("#")) {
-                return new Ingredient(TagKey.create(Registries.ITEM, ResourceLocation.parse(key.substring(1))), null, amount);
+                return new Ingredient(TagKey.create(Registries.ITEM, new ResourceLocation(key.substring(1))), null, amount);
             }
-            return new Ingredient(null, BuiltInRegistries.ITEM.get(ResourceLocation.parse(key)), amount);
+            return new Ingredient(null, BuiltInRegistries.ITEM.get(new ResourceLocation(key)), amount);
         }
 
         /**
@@ -106,11 +114,11 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
             if (amount <= 0) throw new IllegalArgumentException("count must be positive");
 
             if (json.has("tag")) {
-                ResourceLocation tagId = ResourceLocation.parse(json.get("tag").getAsString());
+                ResourceLocation tagId = new ResourceLocation(json.get("tag").getAsString());
                 return of(TagKey.create(Registries.ITEM, tagId), amount);
             }
             if (json.has("item")) {
-                ResourceLocation itemId = ResourceLocation.parse(json.get("item").getAsString());
+                ResourceLocation itemId = new ResourceLocation(json.get("item").getAsString());
                 if (!BuiltInRegistries.ITEM.containsKey(itemId)) throw new IllegalArgumentException("Unknown item " + itemId);
                 return of(BuiltInRegistries.ITEM.get(itemId), amount);
             }

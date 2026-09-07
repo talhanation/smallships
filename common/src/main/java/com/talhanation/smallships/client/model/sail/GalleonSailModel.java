@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class GalleonSailModel extends SailModel {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, BriggEntity.ID + "_sail_model"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, BriggEntity.ID + "_sail_model"), "main");
 	private final ModelPart GalleonSail;
 	private final ModelPart rope_1;
 	private final ModelPart cube_r81;
@@ -1604,7 +1604,7 @@ public class GalleonSailModel extends SailModel {
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
 		GalleonSail.render(poseStack, buffer, packedLight, packedOverlay);
 	}
 }

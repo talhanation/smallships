@@ -83,14 +83,14 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
 
-        builder.define(CONTAINER_SIZE, this.originalContainerSize);
-        builder.define(ROWS, (byte) 6);
-        builder.define(PAGES, (byte) 1);
-        builder.define(PAGE_INDEX, (byte) 0);
-        builder.define(CONTAINER_FILL_STATE, (byte) 0);
+        this.entityData.define(CONTAINER_SIZE, this.originalContainerSize);
+        this.entityData.define(ROWS, (byte) 6);
+        this.entityData.define(PAGES, (byte) 1);
+        this.entityData.define(PAGE_INDEX, (byte) 0);
+        this.entityData.define(CONTAINER_FILL_STATE, (byte) 0);
     }
 
     @Override
@@ -231,7 +231,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public void readChestVehicleSaveData(@NotNull CompoundTag tag, HolderLookup.Provider levelRegistry) {
         this.clearItemStacks();
         if (tag.contains("LootTable", 8)) {
-            this.setLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(tag.getString("LootTable"))));
+            this.setLootTable(ResourceKey.create(Registries.LOOT_TABLE, new ResourceLocation(tag.getString("LootTable"))));
             this.setLootTableSeed(tag.getLong("LootTableSeed"));
         } else {
             ContainerUtility.loadAllItems(tag, this.getItemStacks(), levelRegistry);

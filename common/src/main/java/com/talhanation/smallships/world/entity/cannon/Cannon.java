@@ -8,6 +8,7 @@ import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -81,7 +82,7 @@ public class Cannon {
     }
 
     public void setPitch(float pitch) {
-        this.pitch = Math.clamp(pitch, this.pitchBoundUp, this.pitchBoundDown);
+        this.pitch = Mth.clamp(pitch, this.pitchBoundUp, this.pitchBoundDown);
     }
 
     public Vector3d getForward() {
@@ -192,7 +193,7 @@ public class Cannon {
 
     private void playReloadedSound() {
         if (this.level.isClientSide()) return;
-        this.owner.playSoundAt(SoundEvents.ARMOR_EQUIP_NETHERITE.value(), 2, 1);
+        this.owner.playSoundAt(SoundEvents.ARMOR_EQUIP_NETHERITE, 2, 1);
     }
 
     private void playCannonShotSound() {

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class GalleyModel extends ShipModel<GalleyEntity> {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_model"), "main");
     private final ModelPart Galley;
     private final ModelPart deck;
     private final ModelPart cube_r1;

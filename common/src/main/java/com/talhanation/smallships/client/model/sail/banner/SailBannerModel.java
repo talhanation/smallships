@@ -2,6 +2,7 @@ package com.talhanation.smallships.client.model.sail.banner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.geom.ModelPart;
@@ -12,9 +13,14 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BannerBlockEntity;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
@@ -136,15 +142,31 @@ public abstract class SailBannerModel {
         List<SegmentPose> segmentPoses = this.collectSegmentPoses(ship, poseStack);
         if (segmentPoses.isEmpty()) return;
 
-        BannerPatternLayers patternLayers = bannerStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
+        // 1.20.1 keeps the heraldry in the BlockEntityTag NBT instead of a data
+        // component. createPatterns folds the base colour in as the first entry
+        // of the list, so there is no separate base layer to draw here - the
+        // loop below already covers it.
+        List<Pair<Holder<BannerPattern>, DyeColor>> patterns =
+                BannerBlockEntity.createPatterns(bannerItem.getColor(), BannerBlockEntity.getItemPatterns(bannerStack));
 
         this.renderLayer(segmentPoses, ModelBakery.BANNER_BASE, bufferSource, 0xFFFFFFFF, packedLight);
-        this.renderLayer(segmentPoses, Sheets.BANNER_BASE, bufferSource, bannerItem.getColor().getTextureDiffuseColor(), packedLight);
-        for (BannerPatternLayers.Layer layer : patternLayers.layers()) {
-            this.renderLayer(segmentPoses, Sheets.getBannerMaterial(layer.pattern()), bufferSource, layer.color().getTextureDiffuseColor(), packedLight);
+        for (Pair<Holder<BannerPattern>, DyeColor> layer : patterns) {
+            int color = packColor(layer.getSecond());
+            layer.getFirst().unwrapKey().map(Sheets::getBannerMaterial).ifPresent(material ->
+                    this.renderLayer(segmentPoses, material, bufferSource, color, packedLight));
         }
     }
-
+    /**
+     * DyeColor hands out its texture colour as three floats in 1.20.1 while the
+     * vertex emitter wants one packed ARGB value.
+     */
+    private static int packColor(@NotNull DyeColor dyeColor) {
+        float[] rgb = dyeColor.getTextureDiffuseColors();
+        return 0xFF000000
+                | ((int) (rgb[0] * 255.0F) << 16)
+                | ((int) (rgb[1] * 255.0F) << 8)
+                | (int) (rgb[2] * 255.0F);
+    }
     /**
      * Walks the baked part tree once and snapshots the pose of every visible
      * strip. The snapshots are then reused for every pattern layer so all
@@ -231,14 +253,15 @@ public abstract class SailBannerModel {
         float x = (flatX ? plane : w) / 16.0F;
         float z = (flatX ? w : plane) / 16.0F;
         // no fluent chaining here: the SpriteCoordinateExpander returned by
-        // Material#buffer leaks its delegate from addVertex, so a chained
-        // setUv would bypass the sprite UV remap and sample the whole atlas
-        vertexConsumer.addVertex(segmentPose.pose(), x, y / 16.0F, z);
-        vertexConsumer.setColor(color);
-        vertexConsumer.setUv(u, v);
-        vertexConsumer.setOverlay(OverlayTexture.NO_OVERLAY);
-        vertexConsumer.setLight(packedLight);
-        vertexConsumer.setNormal(normal.x(), normal.y(), normal.z());
+        // Material#buffer leaks its delegate from vertex, so a chained
+        // uv would bypass the sprite UV remap and sample the whole atlas
+        vertexConsumer.vertex(segmentPose.pose(), x, y / 16.0F, z);
+        vertexConsumer.color(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color), FastColor.ARGB32.alpha(color));
+        vertexConsumer.uv(u, v);
+        vertexConsumer.overlayCoords(OverlayTexture.NO_OVERLAY);
+        vertexConsumer.uv2(packedLight);
+        vertexConsumer.normal(normal.x(), normal.y(), normal.z());
+        vertexConsumer.endVertex();
     }
 
     /**

@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public class ModParticleTypesImpl extends ModParticleTypes {
     public static @NotNull <T extends ParticleOptions> Supplier<ParticleType<T>> register(String string, ParticleType<T> particleType) {
-        ParticleType<T> type = Registry.register(BuiltInRegistries.PARTICLE_TYPE, ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, string), particleType);
+        ParticleType<T> type = Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation(SmallShipsMod.MOD_ID, string), particleType);
         return () -> type;
     }
 }

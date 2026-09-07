@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DrakkarSailBannerModel extends SailBannerModel {
     @SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DrakkarEntity.ID + "_sail_banner_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, DrakkarEntity.ID + "_sail_banner_model"), "main");
 
     public DrakkarSailBannerModel() {
         super(createBodyLayer());

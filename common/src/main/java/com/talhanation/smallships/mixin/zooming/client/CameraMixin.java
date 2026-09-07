@@ -198,9 +198,12 @@ public abstract class CameraMixin implements CameraZoomAccess {
      * that was already clamped against a wall, which is how the camera ended up
      * inside terrain. Scaling what goes in makes vanilla probe the full distance
      * we want and clamp it itself.
+     *
+     * The whole camera is double based in 1.20.1 - Camera#move and getMaxZoom
+     * only became float in the later versions.
      */
-    @ModifyArg(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"), index = 0)
-    private float smallships$shipZoomDistance(float original) {
+    @ModifyArg(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(D)D"), index = 0)
+    private double smallships$shipZoomDistance(double original) {
         if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return original;
         if (this.getEntity().getVehicle() instanceof Ship && !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
             return original * Math.max(MIN_ZOOM_FACTOR, this.smallships$getShipZoomData() - 4.0F);

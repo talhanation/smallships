@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class GalleySailModel extends SailModel {
     @SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_sail_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_sail_model"), "main");
     private final ModelPart GalleySail;
     private final ModelPart sail_4;
     private final ModelPart sail_4_sail;
@@ -477,7 +477,7 @@ public class GalleySailModel extends SailModel {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-        GalleySail.render(poseStack, buffer, packedLight, packedOverlay, color);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+        GalleySail.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 }

@@ -21,9 +21,9 @@ import net.minecraft.resources.ResourceLocation;
  */
 public final class GuiCompat {
 
-    private static final ResourceLocation BUTTON = ResourceLocation.withDefaultNamespace("widget/button");
-    private static final ResourceLocation BUTTON_DISABLED = ResourceLocation.withDefaultNamespace("widget/button_disabled");
-    private static final ResourceLocation BUTTON_HIGHLIGHTED = ResourceLocation.withDefaultNamespace("widget/button_highlighted");
+    private static final ResourceLocation BUTTON = new ResourceLocation("widget/button");
+    private static final ResourceLocation BUTTON_DISABLED = new ResourceLocation("widget/button_disabled");
+    private static final ResourceLocation BUTTON_HIGHLIGHTED = new ResourceLocation("widget/button_highlighted");
 
     private GuiCompat() {
     }
@@ -51,10 +51,10 @@ public final class GuiCompat {
      * A one pixel frame in the given ARGB color. Kept here next to the button
      * face because the two are always drawn as a pair on the upgrade rows.
      */
-    public static void frame(GuiGraphics guiGraphics, int x, int y, int width, int height, int color) {
-        guiGraphics.fill(x, y, x + width, y + 1, color);
-        guiGraphics.fill(x, y + height - 1, x + width, y + height, color);
-        guiGraphics.fill(x, y + 1, x + 1, y + height - 1, color);
-        guiGraphics.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
+    public static void frame(GuiGraphics guiGraphics, int x, int y, int width, int height, float red, float green, float blue, float alpha){
+        guiGraphics.fill(x, y, x + width, y + 1, red, green, blue, alpha);
+        guiGraphics.fill(x, y + height - 1, x + width, y + height, red, green, blue, alpha);
+        guiGraphics.fill(x, y + 1, x + 1, y + height - 1, red, green, blue, alpha);
+        guiGraphics.fill(x + width - 1, y + 1, x + width, y + height - 1, red, green, blue, alpha);
     }
 }

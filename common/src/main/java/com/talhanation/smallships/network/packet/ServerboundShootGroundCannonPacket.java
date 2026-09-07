@@ -4,19 +4,28 @@ import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 /* placeholder bool, I am not a fabric dev, I came from 1.12,
 I don't know if there is a way to register packets without payload...*/
 public record ServerboundShootGroundCannonPacket(boolean placeholder) implements ModPacket {
-    public static final Type<ServerboundShootGroundCannonPacket> TYPE = new Type<>(ModPackets.id("server_shoot_ground_cannon"));
+    public static final ResourceLocation ID = ModPackets.id("server_shoot_ground_cannon");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundShootGroundCannonPacket> CODEC =
-            StreamCodec.composite(ByteBufCodecs.BOOL, ServerboundShootGroundCannonPacket::placeholder, ServerboundShootGroundCannonPacket::new);
+    public static ServerboundShootGroundCannonPacket read(FriendlyByteBuf buf) {
+        return new ServerboundShootGroundCannonPacket(buf.readBoolean());
+    }
+
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeBoolean(this.placeholder);
+    }
 
     @Override
     public void handler(Player player) {
@@ -28,10 +37,5 @@ public record ServerboundShootGroundCannonPacket(boolean placeholder) implements
     @Override
     public Side side() {
         return Side.SERVERBOUND;
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
     }
 }

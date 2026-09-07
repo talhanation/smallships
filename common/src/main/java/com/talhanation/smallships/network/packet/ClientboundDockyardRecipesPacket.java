@@ -4,12 +4,9 @@ import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.dockyard.DockyardRecipe;
 import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,17 +17,20 @@ import java.util.Map;
  * match what the server will actually charge.
  */
 public record ClientboundDockyardRecipesPacket(Map<ResourceLocation, DockyardRecipe> recipes) implements ModPacket {
-    public static final Type<ClientboundDockyardRecipesPacket> TYPE = new Type<>(ModPackets.id("client_dockyard_recipes"));
+    public static final ResourceLocation ID = ModPackets.id("client_dockyard_recipes");
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, Map<ResourceLocation, DockyardRecipe>> RECIPE_MAP_CODEC =
-            ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, DockyardRecipe.STREAM_CODEC);
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundDockyardRecipesPacket> CODEC =
-            RECIPE_MAP_CODEC.map(ClientboundDockyardRecipesPacket::new, ClientboundDockyardRecipesPacket::recipes);
+    public static ClientboundDockyardRecipesPacket read(FriendlyByteBuf buf) {
+        return new ClientboundDockyardRecipesPacket(buf.readMap(HashMap::new, FriendlyByteBuf::readResourceLocation, DockyardRecipe::read));
+    }
 
     @Override
-    public @NotNull Type<ClientboundDockyardRecipesPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeMap(this.recipes, FriendlyByteBuf::writeResourceLocation, (out, recipe) -> recipe.write(out));
     }
 
     @Override

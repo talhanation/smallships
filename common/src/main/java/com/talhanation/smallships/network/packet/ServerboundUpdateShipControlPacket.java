@@ -3,27 +3,28 @@ package com.talhanation.smallships.network.packet;
 import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.Ship;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 public record ServerboundUpdateShipControlPacket(boolean forward, boolean backward, boolean left, boolean right) implements ModPacket {
-    public static final Type<ServerboundUpdateShipControlPacket> TYPE = new Type<>(ModPackets.id("server_update_ship_control"));
+    public static final ResourceLocation ID = ModPackets.id("server_update_ship_control");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundUpdateShipControlPacket>
-            CODEC = StreamCodec.composite(ByteBufCodecs.BOOL,
-            ServerboundUpdateShipControlPacket::forward,
-            ByteBufCodecs.BOOL,
-            ServerboundUpdateShipControlPacket::backward, ByteBufCodecs.BOOL,
-            ServerboundUpdateShipControlPacket::left, ByteBufCodecs.BOOL,
-            ServerboundUpdateShipControlPacket::right,
-            ServerboundUpdateShipControlPacket::new);
+    public static ServerboundUpdateShipControlPacket read(FriendlyByteBuf buf) {
+        return new ServerboundUpdateShipControlPacket(buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean());
+    }
 
     @Override
-    public @NotNull Type<ServerboundUpdateShipControlPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeBoolean(this.forward);
+        buf.writeBoolean(this.backward);
+        buf.writeBoolean(this.left);
+        buf.writeBoolean(this.right);
     }
 
     @Override

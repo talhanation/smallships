@@ -1,9 +1,7 @@
 package com.talhanation.smallships.world.dockyard;
 
-import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 
 /**
  * One operation the player queued up in the modify tab.
@@ -49,12 +47,18 @@ public record DockyardAction(Kind kind, int index, int inventorySlot, boolean in
         }
     }
 
-    public static final StreamCodec<ByteBuf, DockyardAction> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, action -> action.kind().ordinal(),
-            ByteBufCodecs.VAR_INT, DockyardAction::index,
-            ByteBufCodecs.VAR_INT, DockyardAction::inventorySlot,
-            ByteBufCodecs.BOOL, DockyardAction::install,
-            (kind, index, inventorySlot, install) -> new DockyardAction(Kind.byOrdinal(kind), index, inventorySlot, install));
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(this.kind.ordinal());
+        buf.writeVarInt(this.index);
+        buf.writeVarInt(this.inventorySlot);
+        buf.writeBoolean(this.install);
+    }
+
+    public static DockyardAction read(FriendlyByteBuf buf) {
+        // byOrdinal wraps instead of throwing, so a bad ordinal off the wire
+        // lands on a valid kind and gets rejected by the handler validation
+        return new DockyardAction(Kind.byOrdinal(buf.readVarInt()), buf.readVarInt(), buf.readVarInt(), buf.readBoolean());
+    }
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();

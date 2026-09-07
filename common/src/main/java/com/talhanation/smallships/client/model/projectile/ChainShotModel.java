@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ChainShotModel extends EntityModel<ChainShotEntity> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "model_chainshot"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, "model_chainshot"), "main");
 	private final ModelPart ChainShot;
 	private final ModelPart cannonball;
 	private final ModelPart chain;
@@ -69,7 +69,7 @@ public class ChainShotModel extends EntityModel<ChainShotEntity> {
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		ChainShot.render(poseStack, buffer, packedLight, packedOverlay, color);
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+		ChainShot.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 }

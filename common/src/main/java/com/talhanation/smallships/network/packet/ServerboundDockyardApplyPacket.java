@@ -5,12 +5,10 @@ import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.block.DockyardBlockEntity;
 import com.talhanation.smallships.world.dockyard.DockyardAction;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -23,16 +21,22 @@ import java.util.List;
  * gets to say WHAT it wants, never what it costs.
  */
 public record ServerboundDockyardApplyPacket(BlockPos pos, List<DockyardAction> actions) implements ModPacket {
-    public static final Type<ServerboundDockyardApplyPacket> TYPE = new Type<>(ModPackets.id("server_dockyard_apply"));
+    public static final ResourceLocation ID = ModPackets.id("server_dockyard_apply");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundDockyardApplyPacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, ServerboundDockyardApplyPacket::pos,
-            DockyardAction.STREAM_CODEC.apply(ByteBufCodecs.list()), ServerboundDockyardApplyPacket::actions,
-            ServerboundDockyardApplyPacket::new);
+    public static ServerboundDockyardApplyPacket read(FriendlyByteBuf buf) {
+        BlockPos pos = buf.readBlockPos();
+        return new ServerboundDockyardApplyPacket(pos, buf.readList(DockyardAction::read));
+    }
 
     @Override
-    public @NotNull Type<ServerboundDockyardApplyPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeBlockPos(this.pos);
+        buf.writeCollection(this.actions, (out, action) -> action.write(out));
     }
 
     @Override

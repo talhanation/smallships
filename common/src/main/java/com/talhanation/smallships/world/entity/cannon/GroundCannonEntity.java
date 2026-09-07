@@ -124,20 +124,20 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
      */
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(UUID, Optional.empty());
-        builder.define(DYE, "");
-        builder.define(FORWARD, false);
-        builder.define(BACKWARD, false);
-        builder.define(LEFT, false);
-        builder.define(RIGHT, false);
-        builder.define(BARREL_UP, false);
-        builder.define(BARREL_DOWN, false);
-        builder.define(AIMING, false);
-        builder.define(RECENTERING, false);
-        builder.define(CARRIAGE_YAW, 0.0F);
-        builder.define(SPEED, 0F);
-        builder.define(HEALTH, 100F);
+    protected void defineSynchedData() {
+        this.entityData.define(UUID, Optional.empty());
+        this.entityData.define(DYE, "");
+        this.entityData.define(FORWARD, false);
+        this.entityData.define(BACKWARD, false);
+        this.entityData.define(LEFT, false);
+        this.entityData.define(RIGHT, false);
+        this.entityData.define(BARREL_UP, false);
+        this.entityData.define(BARREL_DOWN, false);
+        this.entityData.define(AIMING, false);
+        this.entityData.define(RECENTERING, false);
+        this.entityData.define(CARRIAGE_YAW, 0.0F);
+        this.entityData.define(SPEED, 0F);
+        this.entityData.define(HEALTH, 100F);
     }
 
     public Optional<UUID> getEntityInBarrelUUID() {
@@ -332,7 +332,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
                 float carriageYaw = this.getCarriageYaw();
                 float recentered = Mth.approachDegrees(this.getYRot(), carriageYaw, RECENTER_YAW_SPEED);
                 this.setYRot(Mth.wrapDegrees(recentered));
-                this.setXRot(Math.clamp(Mth.approachDegrees(this.getXRot(), 0.0F, RECENTER_PITCH_SPEED), PITCH_MIN, PITCH_MAX));
+                this.setXRot(Mth.clamp(Mth.approachDegrees(this.getXRot(), 0.0F, RECENTER_PITCH_SPEED), PITCH_MIN, PITCH_MAX));
 
                 if (Math.abs(Mth.degreesDifference(this.getYRot(), carriageYaw)) <= RECENTER_EPSILON) {
                     this.setYRot(Mth.wrapDegrees(carriageYaw));
@@ -350,7 +350,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             // NOTE: no early return here - the movement block below must still run,
             // otherwise the cannon keeps its old delta movement and coasts while aiming.
             else if (this.isAiming()) {
-                float targetPitch = Math.clamp(driver.getXRot(), PITCH_MIN, PITCH_MAX);
+                float targetPitch = Mth.clamp(driver.getXRot(), PITCH_MIN, PITCH_MAX);
                 this.setYRot(Mth.wrapDegrees(driver.getYRot()));
                 this.setXRot(targetPitch);
 
@@ -383,7 +383,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
                 if (isBarrelDown()) {
                     xRot += BARREL_PITCH_SPEED;
                 }
-                xRot = Math.clamp(xRot, PITCH_MIN, PITCH_MAX);
+                xRot = Mth.clamp(xRot, PITCH_MIN, PITCH_MAX);
 
                 this.setXRot(xRot);
                 this.setYRot(newYRot);
@@ -722,7 +722,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     @Override
     public void consumeCannonBall() {
         Entity driver = this.getDriver();
-        if (driver == null || (driver instanceof LivingEntity livingDriver && livingDriver.hasInfiniteMaterials())) return;
+        if (driver == null || (driver instanceof Player player && player.isCreative())) return;
 
         if (driver instanceof ICannonBallSource container) {
             container.consumeCannonBall();
@@ -743,7 +743,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
      */
     public boolean consumeFineGrainPowder() {
         if (this.getDriver() instanceof Player player) {
-            if (player.hasInfiniteMaterials()) return false;
+            if (player.isCreative()) return false;
             for (ItemStack itemstack : player.getInventory().items) {
                 if (itemstack.is(ModItems.FINE_GRAIN_POWDER)) {
                     itemstack.shrink(1);
@@ -766,7 +766,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
      */
     public boolean hasFineGrainPowder() {
         if (this.getDriver() instanceof Player player) {
-            if (player.hasInfiniteMaterials()) return false;
+            if (player.isCreative()) return false;
             for (ItemStack itemStack : player.getInventory().items) {
                 if (itemStack.is(ModItems.FINE_GRAIN_POWDER)) return true;
             }
@@ -999,12 +999,12 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     @Override
     public @NotNull NonNullList<ItemStack> getItemStacks() {
-        return this.inventory.getItems();
+        return this.inventory.get;
     }
 
     @Override
     public void clearItemStacks() {
-        this.inventory.getItems().clear();
+        this.inventory.removeAllItems();
     }
 
     @Override

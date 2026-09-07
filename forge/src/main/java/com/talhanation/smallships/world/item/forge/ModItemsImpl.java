@@ -33,8 +33,8 @@ public class ModItemsImpl {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, SmallShipsMod.MOD_ID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SmallShipsMod.MOD_ID);
-    public static final RegistryObject<CreativeModeTab> customCreativeModeTab = CREATIVE_MODE_TABS.register(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", "."), () -> CreativeModeTab.builder()
-            .title(Component.translatable(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", ".")))
+    public static final RegistryObject<CreativeModeTab> customCreativeModeTab = CREATIVE_MODE_TABS.register(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", "."), () -> CreativeModeTab.builder()
+            .title(Component.translatable(new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab").toString().replace(":", ".")))
             .icon(() -> new ItemStack(ModItems.CANNON))
             .build());
 

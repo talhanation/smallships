@@ -445,7 +445,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                 case BANNER -> ship.setData(Ship.BANNER, this.pendingBanner.copy());
                 case SAIL_BANNER -> ship.setData(Ship.SAIL_BANNER, this.pendingSailBanner.copy());
                 case SAIL_COLOR -> {
-                    if (this.pendingDyeColor != null) ship.setData(Ship.SAIL_COLOR, this.pendingDyeColor);
+                    if (this.pendingDyeColor != null) ship.setData(Ship.SAIL_COLOR, this.pendingDyered, green, blue, alpha);
                 }
             }
         }
@@ -715,7 +715,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("WoodType", this.woodTypeOrdinal);
         tag.putBoolean("RepairHull", this.repairHull);
         tag.putBoolean("RepairSails", this.repairSails);
-        if (this.pendingDyeColor != null) tag.putString("PendingDyeColor", this.pendingDyeColor);
+        if (this.pendingDyeColor != null) tag.putString("PendingDyeColor", this.pendingDyered, green, blue, alpha);
         if (!this.pendingBanner.isEmpty()) tag.put("PendingBanner", this.pendingBanner.save(provider));
         if (!this.pendingSailBanner.isEmpty()) tag.put("PendingSailBanner", this.pendingSailBanner.save(provider));
         if (this.spawnSpot != null) tag.putLong("SpawnSpot", this.spawnSpot.asLong());

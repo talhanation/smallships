@@ -3,9 +3,7 @@ package com.talhanation.smallships.config;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ClientboundConfigSyncPacket;
 import com.talhanation.smallships.world.entity.ship.Attributes;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,55 +57,61 @@ public final class SyncedServerConfig {
             boolean cameraFreeLook) {
     }
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, Attributes> ATTRIBUTES_CODEC = StreamCodec.of(
-            (buf, attributes) -> {
-                buf.writeFloat(attributes.maxHealth);
-                buf.writeFloat(attributes.maxSpeed);
-                buf.writeFloat(attributes.maxReverseSpeed);
-                buf.writeFloat(attributes.maxRotationSpeed);
-                buf.writeFloat(attributes.acceleration);
-                buf.writeFloat(attributes.rotationAcceleration);
-            },
-            buf -> {
-                Attributes attributes = new Attributes();
-                attributes.maxHealth = buf.readFloat();
-                attributes.maxSpeed = buf.readFloat();
-                attributes.maxReverseSpeed = buf.readFloat();
-                attributes.maxRotationSpeed = buf.readFloat();
-                attributes.acceleration = buf.readFloat();
-                attributes.rotationAcceleration = buf.readFloat();
-                return attributes;
-            });
+    private static void writeAttributes(FriendlyByteBuf buf, Attributes attributes) {
+        buf.writeFloat(attributes.maxHealth);
+        buf.writeFloat(attributes.maxSpeed);
+        buf.writeFloat(attributes.maxReverseSpeed);
+        buf.writeFloat(attributes.maxRotationSpeed);
+        buf.writeFloat(attributes.acceleration);
+        buf.writeFloat(attributes.rotationAcceleration);
+    }
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, Snapshot> STREAM_CODEC = StreamCodec.of(
-            (buf, snapshot) -> {
-                ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ATTRIBUTES_CODEC)
-                        .encode(buf, (HashMap<String, Attributes>) snapshot.shipAttributes());
-                buf.writeBoolean(snapshot.upgradeEnable());
-                buf.writeDouble(snapshot.upgradeCostModifier());
-                buf.writeDouble(snapshot.upgradeTimeModifier());
-                buf.writeDouble(snapshot.upgradeRefundModifier());
-                buf.writeDouble(snapshot.ironScantlingsHealth());
-                buf.writeDouble(snapshot.cottonSailsSpeed());
-                buf.writeDouble(snapshot.copperPlatingRotation());
-                buf.writeBoolean(snapshot.windEnable());
-                buf.writeBoolean(snapshot.vanillaBoatSlowdownEnable());
-                buf.writeDouble(snapshot.vanillaBoatSpeedFactor());
-                buf.writeBoolean(snapshot.cameraFreeLook());
-            },
-            buf -> new Snapshot(
-                    ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ATTRIBUTES_CODEC).decode(buf),
-                    buf.readBoolean(),
-                    buf.readDouble(),
-                    buf.readDouble(),
-                    buf.readDouble(),
-                    buf.readDouble(),
-                    buf.readDouble(),
-                    buf.readDouble(),
-                    buf.readBoolean(),
-                    buf.readBoolean(),
-                    buf.readDouble(),
-                    buf.readBoolean()));
+    private static Attributes readAttributes(FriendlyByteBuf buf) {
+        Attributes attributes = new Attributes();
+        attributes.maxHealth = buf.readFloat();
+        attributes.maxSpeed = buf.readFloat();
+        attributes.maxReverseSpeed = buf.readFloat();
+        attributes.maxRotationSpeed = buf.readFloat();
+        attributes.acceleration = buf.readFloat();
+        attributes.rotationAcceleration = buf.readFloat();
+        return attributes;
+    }
+
+    public static void writeSnapshot(FriendlyByteBuf buf, Snapshot snapshot) {
+        buf.writeMap(snapshot.shipAttributes(), FriendlyByteBuf::writeUtf, SyncedServerConfig::writeAttributes);
+        buf.writeBoolean(snapshot.upgradeEnable());
+        buf.writeDouble(snapshot.upgradeCostModifier());
+        buf.writeDouble(snapshot.upgradeTimeModifier());
+        buf.writeDouble(snapshot.upgradeRefundModifier());
+        buf.writeDouble(snapshot.ironScantlingsHealth());
+        buf.writeDouble(snapshot.cottonSailsSpeed());
+        buf.writeDouble(snapshot.copperPlatingRotation());
+        buf.writeBoolean(snapshot.windEnable());
+        buf.writeBoolean(snapshot.vanillaBoatSlowdownEnable());
+        buf.writeDouble(snapshot.vanillaBoatSpeedFactor());
+        buf.writeBoolean(snapshot.cameraFreeLook());
+    }
+
+    /**
+     * The reads have to stay in this order - the record constructor evaluates
+     * its arguments left to right, which is what keeps them lined up with
+     * writeSnapshot above.
+     */
+    public static Snapshot readSnapshot(FriendlyByteBuf buf) {
+        return new Snapshot(
+                buf.readMap(HashMap::new, FriendlyByteBuf::readUtf, SyncedServerConfig::readAttributes),
+                buf.readBoolean(),
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readBoolean(),
+                buf.readBoolean(),
+                buf.readDouble(),
+                buf.readBoolean());
+    }
 
     /** Reads the current server config into a snapshot ready to be sent. */
     public static Snapshot capture() {

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class DhowSailModel extends SailModel {
     // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
     @SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DhowEntity.ID + "_sail_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, DhowEntity.ID + "_sail_model"), "main");
     private final ModelPart Dhow_Sail;
     private final ModelPart DhowSail_1;
     private final ModelPart sail_1_4;
@@ -1086,7 +1086,7 @@ public class DhowSailModel extends SailModel {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-        Dhow_Sail.render(poseStack, buffer, packedLight, packedOverlay, color);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+        Dhow_Sail.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 }

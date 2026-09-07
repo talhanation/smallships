@@ -3,42 +3,34 @@ package com.talhanation.smallships.network;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.network.packet.*;
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 public class ModPackets {
     public static void registerPackets() {
-        registerNonPacket(ServerboundOpenShipScreenPacket.TYPE, ServerboundOpenShipScreenPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundToggleShipSailPacket.TYPE, ServerboundToggleShipSailPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundShootShipCannonPacket.TYPE, ServerboundShootShipCannonPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundShootGroundCannonPacket.TYPE, ServerboundShootGroundCannonPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundEnterCannonBarrelPacket.TYPE, ServerboundEnterCannonBarrelPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundSetSailStatePacket.TYPE, ServerboundSetSailStatePacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundUpdateShipControlPacket.TYPE, ServerboundUpdateShipControlPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundUdpateGroundCannonControlPacket.TYPE, ServerboundUdpateGroundCannonControlPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundOpenCannonScreenPacket.TYPE, ServerboundOpenCannonScreenPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundSetCannonAimPacket.TYPE, ServerboundSetCannonAimPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundDockyardBuildPacket.TYPE, ServerboundDockyardBuildPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundDockyardApplyPacket.TYPE, ServerboundDockyardApplyPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundDockyardRenamePacket.TYPE, ServerboundDockyardRenamePacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ServerboundDockyardRepairPacket.TYPE, ServerboundDockyardRepairPacket.CODEC, ModPacket.Side.SERVERBOUND);
-        registerNonPacket(ClientboundWindPacket.TYPE, ClientboundWindPacket.CODEC, ModPacket.Side.CLIENTBOUND);
-        registerNonPacket(ClientboundDockyardRecipesPacket.TYPE, ClientboundDockyardRecipesPacket.CODEC, ModPacket.Side.CLIENTBOUND);
-        registerNonPacket(ClientboundConfigSyncPacket.TYPE, ClientboundConfigSyncPacket.CODEC, ModPacket.Side.CLIENTBOUND);
-        registerNonPacket(ServerboundShipDetachPacket.TYPE, ServerboundShipDetachPacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerPacket(ServerboundOpenShipScreenPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundOpenShipScreenPacket::read);
+        registerPacket(ServerboundToggleShipSailPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundToggleShipSailPacket::read);
+        registerPacket(ServerboundShootShipCannonPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundShootShipCannonPacket::read);
+        registerPacket(ServerboundShootGroundCannonPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundShootGroundCannonPacket::read);
+        registerPacket(ServerboundEnterCannonBarrelPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundEnterCannonBarrelPacket::read);
+        registerPacket(ServerboundSetSailStatePacket.ID, ModPacket.Side.SERVERBOUND, ServerboundSetSailStatePacket::read);
+        registerPacket(ServerboundUpdateShipControlPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundUpdateShipControlPacket::read);
+        registerPacket(ServerboundUdpateGroundCannonControlPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundUdpateGroundCannonControlPacket::read);
+        registerPacket(ServerboundOpenCannonScreenPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundOpenCannonScreenPacket::read);
+        registerPacket(ServerboundSetCannonAimPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundSetCannonAimPacket::read);
+        registerPacket(ServerboundDockyardBuildPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundDockyardBuildPacket::read);
+        registerPacket(ServerboundDockyardApplyPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundDockyardApplyPacket::read);
+        registerPacket(ServerboundDockyardRenamePacket.ID, ModPacket.Side.SERVERBOUND, ServerboundDockyardRenamePacket::read);
+        registerPacket(ServerboundDockyardRepairPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundDockyardRepairPacket::read);
+        registerPacket(ClientboundWindPacket.ID, ModPacket.Side.CLIENTBOUND, ClientboundWindPacket::read);
+        registerPacket(ClientboundDockyardRecipesPacket.ID, ModPacket.Side.CLIENTBOUND, ClientboundDockyardRecipesPacket::read);
+        registerPacket(ClientboundConfigSyncPacket.ID, ModPacket.Side.CLIENTBOUND, ClientboundConfigSyncPacket::read);
+        registerPacket(ServerboundShipDetachPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundShipDetachPacket::read);
 
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends ModPacket> void registerNonPacket(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, ModPacket.Side side) {
-        registerPacket((CustomPacketPayload.Type<ModPacket>)type, (StreamCodec<RegistryFriendlyByteBuf, ModPacket>)codec, side);
     }
 
     @ExpectPlatform
-    public static void registerPacket(CustomPacketPayload.Type<ModPacket> type, StreamCodec<RegistryFriendlyByteBuf, ModPacket> codec, ModPacket.Side side) {
+    public static void registerPacket(ResourceLocation id, ModPacket.Side side, ModPacket.Reader reader) {
         throw new AssertionError();
     }
 
@@ -52,8 +44,7 @@ public class ModPackets {
         throw new AssertionError();
     }
 
-    @SuppressWarnings("SameParameterValue")
     public static ResourceLocation id(String id) {
-        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id);
+        return new ResourceLocation(SmallShipsMod.MOD_ID, id);
     }
 }

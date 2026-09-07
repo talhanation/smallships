@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class GrapeShotModel extends EntityModel<GrapeShotEntity> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "grapeshotmodel"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, "grapeshotmodel"), "main");
 	private final ModelPart GrapeShot;
 	private final ModelPart cannonball;
 
@@ -45,7 +45,7 @@ public class GrapeShotModel extends EntityModel<GrapeShotEntity> {
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		GrapeShot.render(poseStack, buffer, packedLight, packedOverlay, color);
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+		GrapeShot.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 }

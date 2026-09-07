@@ -27,7 +27,7 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(GroundCannonEntity entity) {
-        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/cannon/ship_cannon.png");
+        return new ResourceLocation(SmallShipsMod.MOD_ID, "textures/entity/cannon/ship_cannon.png");
     }
 
     @Override
@@ -87,7 +87,7 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
         model.setLaufPitch(pitch);
 
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entitySolid(texture));
-        model.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+        model.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
         poseStack.popPose();
     }

@@ -31,7 +31,7 @@ public class ModBlocksImpl {
     }
 
     private static void register(String id, Block block) {
-        entries.put(id, register(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id), block));
+        entries.put(id, register(new ResourceLocation(SmallShipsMod.MOD_ID, id), block));
     }
 
     private static Block register(ResourceLocation id, Block block) {

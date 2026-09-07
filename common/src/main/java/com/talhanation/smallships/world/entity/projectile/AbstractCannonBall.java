@@ -61,9 +61,9 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(BALL_TYPE, CannonBallItem.Type.BALL.id);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(BALL_TYPE, CannonBallItem.Type.BALL.id);
     }
 
     public CannonBallItem.Type getBallType() {

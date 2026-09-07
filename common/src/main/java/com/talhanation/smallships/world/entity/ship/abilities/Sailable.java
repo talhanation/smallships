@@ -100,7 +100,7 @@ public interface Sailable extends Ability {
         if (item.getItem() instanceof DyeItem dyeItem) {
             String color = dyeItem.getDyeColor().getName();
             if (color.equals(self().getData(Ship.SAIL_COLOR))) return false;
-            self().setData(Ship.SAIL_COLOR, color);
+            self().setData(Ship.SAIL_COLOR, red, green, blue, alpha);
             if (!player.isCreative()) item.shrink(1);
             self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.5F);
             return true;

@@ -27,7 +27,7 @@ public class Color {
         this.a = a;
     }
 
-    public Color(int color) {
+    public Color(float red, float green, float blue, float alpha){
         this(color, true);
     }
 
@@ -86,7 +86,7 @@ public class Color {
         return this;
     }
 
-    public Color set(int color) {
+    public Color set(float red, float green, float blue, float alpha){
         return this.set(color, true);
     }
 

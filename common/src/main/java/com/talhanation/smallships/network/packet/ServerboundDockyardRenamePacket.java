@@ -5,13 +5,11 @@ import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.block.DockyardBlockEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Sent when the name field in the dockyard modify tab loses focus.
@@ -21,19 +19,24 @@ import org.jetbrains.annotations.NotNull;
  * empty name clears the custom name and the ship falls back to its type name.
  */
 public record ServerboundDockyardRenamePacket(BlockPos pos, String name) implements ModPacket {
-    public static final Type<ServerboundDockyardRenamePacket> TYPE = new Type<>(ModPackets.id("server_dockyard_rename"));
+    public static final ResourceLocation ID = ModPackets.id("server_dockyard_rename");
 
     /** same limit the name field enforces client side */
     public static final int MAX_NAME_LENGTH = 21;
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundDockyardRenamePacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, ServerboundDockyardRenamePacket::pos,
-            ByteBufCodecs.stringUtf8(MAX_NAME_LENGTH), ServerboundDockyardRenamePacket::name,
-            ServerboundDockyardRenamePacket::new);
+    public static ServerboundDockyardRenamePacket read(FriendlyByteBuf buf) {
+        return new ServerboundDockyardRenamePacket(buf.readBlockPos(), buf.readUtf(MAX_NAME_LENGTH));
+    }
 
     @Override
-    public @NotNull Type<ServerboundDockyardRenamePacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeBlockPos(this.pos);
+        buf.writeUtf(this.name, MAX_NAME_LENGTH);
     }
 
     @Override

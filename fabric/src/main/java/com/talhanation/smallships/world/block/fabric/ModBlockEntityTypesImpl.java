@@ -23,7 +23,7 @@ public class ModBlockEntityTypesImpl {
 
     static {
         entries.put(DockyardBlock.ID, Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DockyardBlock.ID),
+                new ResourceLocation(SmallShipsMod.MOD_ID, DockyardBlock.ID),
                 BlockEntityType.Builder.of(DockyardBlockEntity::new, ModBlocks.DOCKYARD).build(null)));
     }
 }

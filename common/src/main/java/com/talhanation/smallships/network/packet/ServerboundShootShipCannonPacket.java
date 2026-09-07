@@ -4,27 +4,30 @@ import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Seatable;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * cannonSlot = -1: driver volley (sets the cannon key state, existing behavior).
  * cannonSlot >= 0: a gunner fires his single mapped cannon.
  */
 public record ServerboundShootShipCannonPacket(boolean trigger, int cannonSlot) implements ModPacket {
-    public static final Type<ServerboundShootShipCannonPacket> TYPE = new Type<>(ModPackets.id("server_shoot_ship_cannon"));
+    public static final ResourceLocation ID = ModPackets.id("server_shoot_ship_cannon");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundShootShipCannonPacket> CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL, ServerboundShootShipCannonPacket::trigger,
-            ByteBufCodecs.VAR_INT, ServerboundShootShipCannonPacket::cannonSlot,
-            ServerboundShootShipCannonPacket::new);
+    public static ServerboundShootShipCannonPacket read(FriendlyByteBuf buf) {
+        return new ServerboundShootShipCannonPacket(buf.readBoolean(), buf.readVarInt());
+    }
 
     @Override
-    public @NotNull Type<ServerboundShootShipCannonPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeBoolean(this.trigger);
+        buf.writeVarInt(this.cannonSlot);
     }
 
     @Override

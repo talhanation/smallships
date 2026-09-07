@@ -32,7 +32,7 @@ public class GrapeShotRenderer extends EntityRenderer<GrapeShotEntity>{
         poseStack.translate(0.0D, -1.0D,0.0D);
         poseStack.mulPose(Axis.YP.rotationDegrees((entity.tickCount + partialTicks) * SPIN_DEGREES_PER_TICK));
         VertexConsumer vertexConsumer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entity)));
-        this.model.renderToBuffer(poseStack, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 0xFFFFFF);
+        this.model.renderToBuffer(poseStack, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn);
     }
@@ -45,7 +45,7 @@ public class GrapeShotRenderer extends EntityRenderer<GrapeShotEntity>{
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull GrapeShotEntity entity) {
-        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID,"textures/entity/cannon/cannon_ball.png");
+        return new ResourceLocation(SmallShipsMod.MOD_ID,"textures/entity/cannon/cannon_ball.png");
     }
 
 }

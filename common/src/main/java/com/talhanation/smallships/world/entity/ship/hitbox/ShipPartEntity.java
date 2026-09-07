@@ -201,14 +201,14 @@ public class ShipPartEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        builder.define(PARENT_ID, -1);
-        builder.define(LOCAL_V, 0.0F);
-        builder.define(LOCAL_Y, 0.0F);
-        builder.define(LOCAL_H, 0.0F);
-        builder.define(PART_WIDTH, 1.0F);
-        builder.define(PART_HEIGHT, 1.0F);
-        builder.define(MAST, false);
+    protected void defineSynchedData() {
+        this.entityData.define(PARENT_ID, -1);
+        this.entityData.define(LOCAL_V, 0.0F);
+        this.entityData.define(LOCAL_Y, 0.0F);
+        this.entityData.define(LOCAL_H, 0.0F);
+        this.entityData.define(PART_WIDTH, 1.0F);
+        this.entityData.define(PART_HEIGHT, 1.0F);
+        this.entityData.define(MAST, false);
     }
 
     @Override

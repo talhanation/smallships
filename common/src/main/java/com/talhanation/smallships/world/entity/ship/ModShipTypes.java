@@ -161,6 +161,6 @@ public class ModShipTypes {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, path);
+        return new ResourceLocation(SmallShipsMod.MOD_ID, path);
     }
 }

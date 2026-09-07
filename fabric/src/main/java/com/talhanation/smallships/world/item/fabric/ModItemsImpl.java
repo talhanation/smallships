@@ -31,7 +31,7 @@ public class ModItemsImpl {
     static {
         if (SmallShipsConfig.Client.smallshipsItemGroupEnable.get()) {
             //CUSTOM CREATIVE MENU TAB
-            ResourceKey<CreativeModeTab> creativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "creative_mode_tab"));
+            ResourceKey<CreativeModeTab> creativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(SmallShipsMod.MOD_ID, "creative_mode_tab"));
 
             CreativeModeTab customCreativeModeTab = FabricItemGroup.builder()
                     .title(Component.translatable(creativeModeTab.location().toString().replace(":", ".")))
@@ -92,7 +92,7 @@ public class ModItemsImpl {
     }
 
     private static void register(String id, Item item) {
-        entries.put(id, register(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, id), item));
+        entries.put(id, register(new ResourceLocation(SmallShipsMod.MOD_ID, id), item));
     }
 
     private static Item register(ResourceLocation id, Item item) {

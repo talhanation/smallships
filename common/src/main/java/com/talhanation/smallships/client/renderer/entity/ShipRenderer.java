@@ -21,6 +21,11 @@ import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.wind.ClientWindManager;
 import com.talhanation.smallships.compat.ShieldRegistry;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.entity.BannerBlockEntity;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.phys.Vec3;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.config.SyncedServerConfig;
@@ -36,19 +41,14 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.BannerItem;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -70,7 +70,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
     protected abstract ShipModel<T> createBoatModel(EntityRendererProvider.Context context, Boat.Type type);
 
     protected ResourceLocation getTextureLocation(Boat.Type type) {
-        return ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
+        return new ResourceLocation(SmallShipsMod.MOD_ID, "textures/entity/ship/" + ShipRenderer.getNameFromType(type) + ".png");
     }
 
     @Override
@@ -131,7 +131,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
 
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(shipModel.renderType(resourceLocation));
-        shipModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+        shipModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
 
         super.render(shipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
@@ -219,7 +219,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                     ? RenderType.entityTranslucent(cannonShipEntity.getTextureLocation())
                     : RenderType.entitySolid(cannonShipEntity.getTextureLocation()));
             cannonModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY,
-                    ghost ? GHOST_COLOR : 0xFFFFFFFF);
+                    ghost ? GHOST_COLOR : 1.0F, 1.0F, 1.0F, 1.0F);
 
             poseStack.popPose();
         }
@@ -311,19 +311,23 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     /** The vanilla shield, unchanged. Taken from BlockEntityWithoutLevelRenderer. */
     private void renderVanillaShield(ItemStack shieldItemStack, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
-        BannerPatternLayers bannerPatternLayers = shieldItemStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
-        DyeColor dyeColor = shieldItemStack.get(DataComponents.BASE_COLOR);
-        boolean flag = !bannerPatternLayers.layers().isEmpty() || dyeColor != null;
+        CompoundTag blockEntityTag = shieldItemStack.getTagElement("BlockEntityTag");
+        boolean flag = blockEntityTag != null;
         Material material = flag ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
 
         VertexConsumer vertexConsumer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(multiBufferSource, shieldModel.renderType(material.atlasLocation()), true, shieldItemStack.hasFoil()));
 
         if (flag) {
-            BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, Objects.requireNonNullElse(dyeColor, DyeColor.WHITE), bannerPatternLayers, shieldItemStack.hasFoil());
+            // no BASE_COLOR component in 1.20.1: the base colour sits in the same
+            // BlockEntityTag and createPatterns folds it in as the first layer
+            List<Pair<Holder<BannerPattern>, DyeColor>> patterns = BannerBlockEntity.createPatterns(
+                    Objects.requireNonNullElse(ShieldItem.getColor(shieldItemStack), DyeColor.WHITE),
+                    BannerBlockEntity.getItemPatterns(shieldItemStack));
+            BannerRenderer.renderPatterns(poseStack, multiBufferSource, packedLight, OverlayTexture.NO_OVERLAY, shieldModel.plate(), material, false, patterns, shieldItemStack.hasFoil());
         } else {
-            shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+            shieldModel.plate().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         }
-        shieldModel.handle().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+        shieldModel.handle().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     /**
@@ -360,7 +364,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         SailModel.Color sailColor = SailModel.getSailColor(sailShipEntity.self().getData(Ship.SAIL_COLOR));
         ResourceLocation sailTexture = sailState == SailDamage.State.TORN ? sailColor.damagedLocation : sailColor.location;
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutoutNoCull(sailTexture));
-        sailModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+        sailModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @SuppressWarnings({"unused", "unchecked"})

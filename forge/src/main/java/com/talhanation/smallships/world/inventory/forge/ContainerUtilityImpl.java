@@ -13,11 +13,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class ContainerUtilityImpl {
     public static void openShipMenu(Player player, ContainerShip containerShip) {
-        ((ServerPlayer) player).openMenu(new MenuProvider() {
+        NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
             @Override
             public @NotNull Component getDisplayName() {
                 return containerShip.getName();
@@ -28,11 +29,11 @@ public class ContainerUtilityImpl {
                 return new ShipContainerMenu(ModMenuTypes.SHIP_CONTAINER, syncId, inventory, containerShip);
             }
             }, buf -> buf.writeUUID(containerShip.getUUID()));
-
+        );
     }
 
     public static void openCannonMenu(Player player, GroundCannonEntity cannonEntity) {
-        ((ServerPlayer) player).openMenu(new MenuProvider() {
+        NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
             @Override
             public @NotNull Component getDisplayName() {
                 return cannonEntity.getName();

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class CogSailModel extends SailModel {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	@SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, CogEntity.ID + "_sail_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, CogEntity.ID + "_sail_model"), "main");
 
 	private final ModelPart CogSail;
 	private final ModelPart sail_4;
@@ -602,7 +602,7 @@ public class CogSailModel extends SailModel {
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-		CogSail.render(poseStack, buffer, packedLight, packedOverlay, color);
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+		CogSail.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 }

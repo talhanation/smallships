@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CannonModel extends EntityModel<Ship> {
     @SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "cannon_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, "cannon_model"), "main");
     private final ModelPart Cannon;
     private final ModelPart Lauf;
 
@@ -208,7 +208,7 @@ public class CannonModel extends EntityModel<Ship> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-        Cannon.render(poseStack, buffer, packedLight, packedOverlay, color);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+        Cannon.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 }

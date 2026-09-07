@@ -99,10 +99,11 @@ public class WindLineParticle extends TextureSheetParticle {
     }
 
     private void emit(VertexConsumer buffer, Vector3f corner, float px, float py, float pz, float u, float v, int light) {
-        buffer.addVertex(px + corner.x(), py + corner.y(), pz + corner.z())
-                .setUv(u, v)
-                .setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-                .setLight(light);
+        buffer.vertex(px + corner.x(), py + corner.y(), pz + corner.z())
+                .uv(u, v)
+                .color(this.rCol, this.gCol, this.bCol, this.alpha)
+                .uv2(light)
+                .endVertex();
     }
 
 

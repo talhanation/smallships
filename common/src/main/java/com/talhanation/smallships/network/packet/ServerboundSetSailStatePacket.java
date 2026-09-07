@@ -3,20 +3,25 @@ package com.talhanation.smallships.network.packet;
 import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 public record ServerboundSetSailStatePacket(byte state) implements ModPacket {
-    public static final Type<ServerboundSetSailStatePacket> TYPE = new Type<>(ModPackets.id("server_set_sail_state"));
+    public static final ResourceLocation ID = ModPackets.id("server_set_sail_state");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundSetSailStatePacket> CODEC = StreamCodec.composite(ByteBufCodecs.BYTE, ServerboundSetSailStatePacket::state, ServerboundSetSailStatePacket::new);
+    public static ServerboundSetSailStatePacket read(FriendlyByteBuf buf) {
+        return new ServerboundSetSailStatePacket(buf.readByte());
+    }
 
     @Override
-    public @NotNull Type<ServerboundSetSailStatePacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeByte(this.state);
     }
 
     @Override

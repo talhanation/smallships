@@ -15,9 +15,9 @@ import net.minecraft.resources.ResourceLocation;
 
 public class DockyardBlockModel {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath("smallships", "dockyard"), "main");
+			new ResourceLocation("smallships", "dockyard"), "main");
 	public static final ResourceLocation TEXTURE =
-			ResourceLocation.fromNamespaceAndPath("smallships", "textures/block/dockyard.png");
+			new ResourceLocation("smallships", "textures/block/dockyard.png");
 
 	private final ModelPart dockyardBlock;
 	private final ModelPart block;

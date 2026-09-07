@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class GalleyMastBannerModel extends MastBannerModel {
     @SuppressWarnings("unused")
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_mast_banner_model"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, GalleyEntity.ID + "_mast_banner_model"), "main");
 
     public GalleyMastBannerModel() {
         super(createBodyLayer());

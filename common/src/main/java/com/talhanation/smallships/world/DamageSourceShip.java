@@ -8,8 +8,8 @@ import net.minecraft.world.damagesource.DamageType;
 
 public class DamageSourceShip {
 
-    public static final ResourceKey<DamageType> DAMAGE_SHIP_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "ship_hit"));
+    public static final ResourceKey<DamageType> DAMAGE_SHIP_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(SmallShipsMod.MOD_ID, "ship_hit"));
 
-    public static final ResourceKey<DamageType> DAMAGE_CANNON_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, "cannon_ball"));
+    public static final ResourceKey<DamageType> DAMAGE_CANNON_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(SmallShipsMod.MOD_ID, "cannon_ball"));
 
 }

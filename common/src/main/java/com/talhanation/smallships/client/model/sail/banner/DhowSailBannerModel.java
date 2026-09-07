@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DhowSailBannerModel extends SailBannerModel {
 	@SuppressWarnings("unused")
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DhowEntity.ID + "_sail_banner_model"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(SmallShipsMod.MOD_ID, DhowEntity.ID + "_sail_banner_model"), "main");
 
 	public DhowSailBannerModel() {
 		super(createBodyLayer());

@@ -3,10 +3,9 @@ package com.talhanation.smallships.network.packet;
 import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Hands the server config values a client needs over on join. Without it a
@@ -14,14 +13,20 @@ import org.jetbrains.annotations.NotNull;
  * which on a server is simply somebody else's setting.
  */
 public record ClientboundConfigSyncPacket(SyncedServerConfig.Snapshot snapshot) implements ModPacket {
-    public static final Type<ClientboundConfigSyncPacket> TYPE = new Type<>(ModPackets.id("client_config_sync"));
+    public static final ResourceLocation ID = ModPackets.id("client_config_sync");
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundConfigSyncPacket> CODEC =
-            SyncedServerConfig.STREAM_CODEC.map(ClientboundConfigSyncPacket::new, ClientboundConfigSyncPacket::snapshot);
+    public static ClientboundConfigSyncPacket read(FriendlyByteBuf buf) {
+        return new ClientboundConfigSyncPacket(SyncedServerConfig.readSnapshot(buf));
+    }
 
     @Override
-    public @NotNull Type<ClientboundConfigSyncPacket> type() {
-        return TYPE;
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        SyncedServerConfig.writeSnapshot(buf, this.snapshot);
     }
 
     @Override

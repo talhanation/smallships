@@ -31,7 +31,7 @@ import java.util.Map;
 public class DockyardRecipeManager extends SimpleJsonResourceReloadListener {
 
     public static final String DIRECTORY = "dockyard_recipes";
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SmallShipsMod.MOD_ID, DIRECTORY);
+    public static final ResourceLocation ID = new ResourceLocation(SmallShipsMod.MOD_ID, DIRECTORY);
     private static final Gson GSON = new Gson();
 
     /** replaced atomically, never mutated in place */

@@ -65,7 +65,9 @@ public abstract class EntityMixin implements IMixinEntity, ICannonProjectile {
         thisEntity.setDeltaMovement(direction.x, direction.y, direction.z);
         thisEntity.hasImpulse = true;
         if (thisEntity instanceof Player player) {
-            player.startAutoSpinAttack(40, 8.0F, null);
+            // 1.20.1 has only the tick count, the riptide damage and stack
+            // parameters came with 1.21
+            player.startAutoSpinAttack(40);
         }
         thisEntity.hurtMarked = true;
     }
