@@ -7,7 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class ChainShotEntity extends AbstractCannonBall {
-    public static final String ID = "cannon_ball";
+    public static final String ID = "chain_shot";
 
     public static ChainShotEntity factory(EntityType<? extends AbstractCannonBall> entityType, Level level) {
         return new ChainShotEntity(entityType, level);
