@@ -8,6 +8,7 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.neoforge.SmallshipsModNeoForge;
 import com.talhanation.smallships.network.ModPacket;
 import com.talhanation.smallships.network.ModPackets;
+import com.talhanation.smallships.world.entity.ship.ModShipTypes;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.item.neoforge.ModItemsImpl;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,6 +42,8 @@ public class CommonModBus {
     @SubscribeEvent
     static void init(FMLCommonSetupEvent event) {
         event.enqueueWork(ModPackets::registerPackets);
+        // ship types need the configs, which neoforge loads after mod construction
+        event.enqueueWork(ModShipTypes::init);
     }
 
     @SubscribeEvent
@@ -61,17 +64,22 @@ public class CommonModBus {
             }
         } else {
             //VANILLA CREATIVE MENU TAB
-            if (getCreativeModeTab.apply(CreativeModeTabs.COLORED_BLOCKS).equals(event.getTab())) {
-            } else if (getCreativeModeTab.apply(CreativeModeTabs.COMBAT).equals(event.getTab())) {
+            if (getCreativeModeTab.apply(CreativeModeTabs.COMBAT).equals(event.getTab())) {
                 event.insertAfter(new ItemStack(Items.CROSSBOW), new ItemStack(ModItems.CANNON_BALL), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 event.insertAfter(new ItemStack(Items.CROSSBOW), new ItemStack(ModItems.CANNON), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.insertAfter(new ItemStack(ModItems.CANNON_BALL), new ItemStack(ModItems.CHAINED_SHOT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.insertAfter(new ItemStack(ModItems.CHAINED_SHOT), new ItemStack(ModItems.GRAPE_SHOT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.insertAfter(new ItemStack(ModItems.GRAPE_SHOT), new ItemStack(ModItems.FINE_GRAIN_POWDER), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             } else if (getCreativeModeTab.apply(CreativeModeTabs.TOOLS_AND_UTILITIES).equals(event.getTab())) {
+                event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DOCKYARD), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 for (Boat.Type type: Boat.Type.values()) {
                     event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.BRIGG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.GALLEY_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DHOW_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DRAKKAR_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-
+                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.GALLEON_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.CARAVEL_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 }
             }
         }

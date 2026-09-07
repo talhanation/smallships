@@ -1,15 +1,14 @@
 package com.talhanation.smallships.world.item.neoforge;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.block.ModBlocks;
+import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.item.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,17 +34,29 @@ public class ModItemsImpl {
             .build());
 
     static {
-        register("sail", () -> new SailItem((new Item.Properties()).stacksTo(16)));
-
         register("cannon", () -> new CannonItem((new Item.Properties()).stacksTo(1)));
         register("cannon_ball", () -> new CannonBallItem((new Item.Properties()).stacksTo(16)));
+        register("chained_shot", () -> new CannonBallItem(CannonBallItem.Type.CHAINED, (new Item.Properties()).stacksTo(16)));
+        register("grape_shot", () -> new CannonBallItem(CannonBallItem.Type.GRAPE, (new Item.Properties()).stacksTo(16)));
+        register("fine_grain_powder", () -> new Item(new Item.Properties()));
+
+        // the block item stays plain here - neoforge takes the dockyard item
+        // renderer through RegisterClientExtensionsEvent in ClientModBus
+        register("dockyard", () -> new BlockItem(ModBlocks.DOCKYARD, new Item.Properties()));
+
+        register("copper_plating", () -> new Item(new Item.Properties().stacksTo(1)));
+        register("cotton_sails", () -> new Item(new Item.Properties().stacksTo(1)));
+        register("iron_scantlings", () -> new Item(new Item.Properties().stacksTo(1)));
 
         for (Boat.Type type: Boat.Type.values()) {
             String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
             register(name + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + DhowEntity.ID,  () -> new DhowItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + DrakkarEntity.ID,  () -> new DrakkarItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + GalleonEntity.ID,  () -> new GalleonItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + CaravelEntity.ID,  () -> new CaravelItem(type, new Item.Properties().stacksTo(1)));
         }
     }
 

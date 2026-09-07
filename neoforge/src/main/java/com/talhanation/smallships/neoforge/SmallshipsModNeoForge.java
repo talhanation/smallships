@@ -2,7 +2,12 @@ package com.talhanation.smallships.neoforge;
 
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.neoforge.events.CommandEvents;
+import com.talhanation.smallships.neoforge.events.DataPackEvents;
 import com.talhanation.smallships.neoforge.events.PassengerEvents;
+import com.talhanation.smallships.neoforge.events.WindEvents;
+import com.talhanation.smallships.world.block.neoforge.ModBlockEntityTypesImpl;
+import com.talhanation.smallships.world.block.neoforge.ModBlocksImpl;
 import com.talhanation.smallships.world.entity.neoforge.ModEntityTypesImpl;
 import com.talhanation.smallships.world.inventory.neoforge.ModMenuTypesImpl;
 import com.talhanation.smallships.world.item.neoforge.ModItemsImpl;
@@ -25,11 +30,16 @@ public class SmallshipsModNeoForge {
 
         ModItemsImpl.ITEMS.register(modEventBus);
         if (hasCustomItemGroup) ModItemsImpl.CREATIVE_MODE_TABS.register(modEventBus);
+        ModBlocksImpl.BLOCKS.register(modEventBus);
+        ModBlockEntityTypesImpl.BLOCK_ENTITY_TYPES.register(modEventBus);
         ModEntityTypesImpl.ENTITY_TYPES.register(modEventBus);
         ModMenuTypesImpl.MENU_TYPES.register(modEventBus);
         ModSoundTypesImpl.SOUND_EVENTS.register(modEventBus);
         ModParticleTypesImpl.PARTICLE_TYPES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(new PassengerEvents());
+        NeoForge.EVENT_BUS.register(new DataPackEvents());
+        NeoForge.EVENT_BUS.register(new WindEvents());
+        NeoForge.EVENT_BUS.register(new CommandEvents());
     }
 }

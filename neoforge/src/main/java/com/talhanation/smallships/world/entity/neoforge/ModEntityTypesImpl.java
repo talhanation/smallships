@@ -3,10 +3,10 @@ package com.talhanation.smallships.world.entity.neoforge;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.entity.projectile.ChainShotEntity;
+import com.talhanation.smallships.world.entity.projectile.GrapeShotEntity;
+import com.talhanation.smallships.world.entity.ship.*;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -28,7 +28,29 @@ public class ModEntityTypesImpl {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, SmallShipsMod.MOD_ID);
 
     static {
+        // The size here is only the placeholder until the synched data arrives -
+        // every part overrides getDimensions from its own width and height.
+        // updateInterval is deliberately high: a part recomputes its position
+        // from its ship on both sides every tick, so position packets are pure
+        // overhead, and a Brigg alone carries five of these.
+        // noSummon keeps players from spawning a parentless part by command.
+        entries.put(ShipPartEntity.class, register(ShipPartEntity.ID, EntityType.Builder.of(ShipPartEntity::factory, MobCategory.MISC)
+                .sized(1.0F, 1.0F)
+                .noSummon()
+                .clientTrackingRange(20)
+                .updateInterval(Integer.MAX_VALUE)));
+
         entries.put(CannonBallEntity.class, register(CannonBallEntity.ID, EntityType.Builder.of(CannonBallEntity::factory, MobCategory.MISC)
+                .sized(0.25F, 0.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)));
+
+        entries.put(ChainShotEntity.class, register(ChainShotEntity.ID, EntityType.Builder.of(ChainShotEntity::factory, MobCategory.MISC)
+                .sized(1.00F, 0.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)));
+
+        entries.put(GrapeShotEntity.class, register(GrapeShotEntity.ID, EntityType.Builder.of(GrapeShotEntity::factory, MobCategory.MISC)
                 .sized(0.25F, 0.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)));
@@ -39,7 +61,7 @@ public class ModEntityTypesImpl {
                 .updateInterval(10)));
 
         entries.put(CogEntity.class, register(CogEntity.ID, EntityType.Builder.of(CogEntity::new, MobCategory.MISC)
-                .sized(3.5F, 1.25F)
+                .sized(1.0F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)));
 
@@ -53,7 +75,22 @@ public class ModEntityTypesImpl {
                 .clientTrackingRange(20)
                 .updateInterval(10)));
 
+        entries.put(DhowEntity.class, register(DhowEntity.ID, EntityType.Builder.of(DhowEntity::new, MobCategory.MISC)
+                .sized(1.0F, 1.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)));
+
         entries.put(DrakkarEntity.class, register(DrakkarEntity.ID, EntityType.Builder.of(DrakkarEntity::new, MobCategory.MISC)
+                .sized(3.5F, 1.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)));
+
+        entries.put(GalleonEntity.class, register(GalleonEntity.ID, EntityType.Builder.of(GalleonEntity::new, MobCategory.MISC)
+                .sized(3.5F, 1.25F)
+                .clientTrackingRange(20)
+                .updateInterval(10)));
+
+        entries.put(CaravelEntity.class, register(CaravelEntity.ID, EntityType.Builder.of(CaravelEntity::new, MobCategory.MISC)
                 .sized(3.5F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)));

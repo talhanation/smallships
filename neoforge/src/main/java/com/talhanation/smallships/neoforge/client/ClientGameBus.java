@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 
 @SuppressWarnings("ALL")
@@ -14,5 +15,10 @@ public class ClientGameBus {
     static void initRegisterInputEvents(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
         com.talhanation.smallships.client.option.KeyEvent.onKeyInput(client);
+    }
+
+    @SubscribeEvent
+    static void onClientTick(ClientTickEvent.Post event) {
+        com.talhanation.smallships.client.ClientTickHandler.onClientTick(Minecraft.getInstance());
     }
 }

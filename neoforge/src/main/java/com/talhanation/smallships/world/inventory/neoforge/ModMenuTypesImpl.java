@@ -1,8 +1,10 @@
 package com.talhanation.smallships.world.inventory.neoforge;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -34,6 +36,10 @@ public class ModMenuTypesImpl {
                 () -> IMenuTypeExtension.create((IContainerFactory<AbstractContainerMenu>) (i, inv, buf) ->
                         Objects.requireNonNull(ModMenuTypes.groundCannonContainerMenuTypeSupplier(i, inv, buf.readUUID()))
                 ))
+        );
+
+        entries.put("dockyard", MENU_TYPES.register("dockyard",
+                () -> new MenuType<>(DockyardMenu::new, FeatureFlags.VANILLA_SET))
         );
     }
 }

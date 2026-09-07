@@ -24,6 +24,8 @@ public class ModSoundTypesImpl {
         entries.put("sail_pull", register("sail_pull"));
         entries.put("cannon_shot", register("cannon_shot"));
         entries.put("ship_hit", register("ship_hit"));
+        entries.put("sail_hit", register("sail_hit"));
+        entries.put("soft_hit", register("soft_hit"));
     }
 
     private static DeferredHolder<SoundEvent, SoundEvent> register (String id) {
