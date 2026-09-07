@@ -1,19 +1,40 @@
 package com.talhanation.smallships.world.particles.cannon;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.DyeColor;
 
+import java.util.Locale;
+
 public class DyedCannonShootOptions implements ParticleOptions {
-    public static final StreamCodec<RegistryFriendlyByteBuf, DyedCannonShootOptions> STREAM_CODEC;
-    public static final MapCodec<DyedCannonShootOptions> MAP_CODEC;
+    public static final Codec<DyedCannonShootOptions> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(Codec.STRING.fieldOf("dyeColor").forGetter(DyedCannonShootOptions::getDyeColorName))
+                    .apply(instance, DyedCannonShootOptions::new));
+
+    /**
+     * The colour travels as its serialized name, exactly as before. An unknown
+     * or empty name maps to a null DyeColor, which is a legal state here - the
+     * particle then falls back to the undyed smoke.
+     */
+    public static final Deserializer<DyedCannonShootOptions> DESERIALIZER = new Deserializer<>() {
+        @Override
+        public DyedCannonShootOptions fromCommand(ParticleType<DyedCannonShootOptions> particleType, StringReader reader) throws CommandSyntaxException {
+            reader.expect(' ');
+            return new DyedCannonShootOptions(reader.readUnquotedString());
+        }
+
+        @Override
+        public DyedCannonShootOptions fromNetwork(ParticleType<DyedCannonShootOptions> particleType, FriendlyByteBuf buf) {
+            return new DyedCannonShootOptions(buf.readUtf());
+        }
+    };
 
     private final DyeColor dyeColor;
 
@@ -33,17 +54,19 @@ public class DyedCannonShootOptions implements ParticleOptions {
         return this.dyeColor() == null ? "" : this.dyeColor().getSerializedName();
     }
 
-    static {
-        STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.STRING_UTF8, DyedCannonShootOptions::getDyeColorName,
-                DyedCannonShootOptions::new);
-        MAP_CODEC = RecordCodecBuilder.mapCodec((instance) ->
-                instance.group(Codec.STRING.fieldOf("dyeColor").forGetter(DyedCannonShootOptions::getDyeColorName))
-                        .apply(instance, DyedCannonShootOptions::new));
-    }
-
     @Override
     public ParticleType<?> getType() {
         return ModParticleTypes.DYED_CANNON_SHOOT.get();
+    }
+
+    @Override
+    public void writeToNetwork(FriendlyByteBuf buf) {
+        buf.writeUtf(this.getDyeColorName());
+    }
+
+    @Override
+    public String writeToString() {
+        return String.format(Locale.ROOT, "%s %s",
+                BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()), this.getDyeColorName());
     }
 }

@@ -49,13 +49,22 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
     public boolean wasShot = false;
     public int counter = 0;
 
+    /**
+     * 1.20.1 has no accelerationPower field on AbstractHurtingProjectile - this is
+     * the value it defaults to in the later versions, kept as a constant so the
+     * muzzle velocity stays identical.
+     */
+    private static final double ACCELERATION_POWER = 0.1;
+
     public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, Level world) {
         super(type, world);
         this.noCulling = true;
     }
 
     public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, LivingEntity owner, double d1, double d2, double d3, Level world) {
-        super(type, owner, new Vec3(d1, d2, d3), world);
+        // 1.20.1 AbstractHurtingProjectile takes the three components, the Vec3
+        // overload came later
+        super(type, owner, d1, d2, d3, world);
         this.moveTo(d1, d2, d3, this.getYRot(), this.getXRot());
         this.noCulling = true;
     }
@@ -83,7 +92,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
 
     @Override
     public void shootAndSpawn(Cannon cannon, Vector3d startPos, Vector3f direction, float cannonSpeedMultiplier, float cannonAccuracy, Entity shooter) {
-        Vector3f deltaMovement = direction.normalize().mul((float) this.accelerationPower);
+        Vector3f deltaMovement = direction.normalize().mul((float) ACCELERATION_POWER);
         this.setOwner(shooter);
         this.moveTo(startPos.x, startPos.y, startPos.z, this.getYRot(), this.getXRot());
         this.reapplyPosition();
@@ -264,7 +273,7 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {
                 if(ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(hitEntity) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
 
-                this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE.value(), this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+                this.level().playSound(null, this.getX(), this.getY() + 4 , this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
             }
 
             // ships were already dealt with above, by hull or by rigging

@@ -76,7 +76,7 @@ public record ShipSeat(int id, float v, float y, float h, SeatType type, int map
      * comes from the entity dimensions, the seats' own y is added on top of it.
      */
     public Vec3 getAttachmentPoint(Ship ship, EntityDimensions dimensions) {
-        return new Vec3(this.v, dimensions.height() - 0.1 + this.y, this.h)
+        return new Vec3(this.v, dimensions.height - 0.1 + this.y, this.h)
                 .yRot(-ship.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
     }
 

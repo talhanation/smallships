@@ -3,7 +3,6 @@ package com.talhanation.smallships.world.wind;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ClientboundWindPacket;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,12 +31,13 @@ public class WindManager extends SavedData {
     private int nextChangeTicks = 100;
 
     public static WindManager get(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(new Factory<>(WindManager::new, WindManager::load, null), DATA_NAME);
+        // 1.20.1 has no SavedData.Factory - loader first, then the supplier
+        return level.getDataStorage().computeIfAbsent(WindManager::load, WindManager::new, DATA_NAME);
     }
 
     public WindManager() {}
 
-    public static WindManager load(CompoundTag tag, HolderLookup.Provider provider) {
+    public static WindManager load(CompoundTag tag) {
         WindManager manager = new WindManager();
         manager.currentDirection = tag.getFloat("CurrentDirection");
         manager.currentStrength = tag.getFloat("CurrentStrength");
@@ -50,7 +50,7 @@ public class WindManager extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
         tag.putFloat("CurrentDirection", this.currentDirection);
         tag.putFloat("CurrentStrength", this.currentStrength);
         tag.putFloat("TargetDirection", this.targetDirection);

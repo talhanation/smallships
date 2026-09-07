@@ -20,7 +20,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -37,7 +37,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +65,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     private static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> HEALTH = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.FLOAT);
     @Nullable
-    private ResourceKey<LootTable> lootTable;
+    private ResourceLocation lootTable;
     private long lootTableSeed;
     private final Cannon cannon = new Cannon(this);
     public float maxSpeedInKmH = 7F;// 7km/h
@@ -163,7 +162,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     public void addAdditionalSaveData(CompoundTag tag) {
         CompoundTag compoundTag = new CompoundTag();
         if(inventory != null && !inventory.getItem(0).isEmpty()){
-            inventory.getItem(0).save(this.registryAccess(), compoundTag);
+            // 1.20.1 writes item nbt without a registry context
+            inventory.getItem(0).save(compoundTag);
 
             tag.put("Inventory", compoundTag);
         }
@@ -175,7 +175,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         if(tag.contains("Inventory")){
-            inventory.setItem(0, ItemStack.parse(this.registryAccess(), tag.getCompound("Inventory")).orElse(ItemStack.EMPTY));
+            inventory.setItem(0, ItemStack.of(tag.getCompound("Inventory")));
         }
         if (tag.contains("Dye")) {
             this.setDye(DyeColor.byName(tag.getString("Dye"), null));
@@ -233,6 +233,24 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         this.testEntityIntersection();
 
         recalculateBoundingBox();
+    }
+
+    /**
+     * 1.20.1 has no Entity#applyGravity, so the fall is done here.
+     *
+     * Careful when comparing against the 1.21 branch: Entity#getGravity returns
+     * 0 for anything that does not override it, and this class never did - so
+     * applyGravity() was a no-op there and the carriage only ever sat on the
+     * ground it was placed on. GRAVITY below keeps that behaviour. If the gun
+     * is supposed to fall when the block under it is mined, this is the one
+     * number to change (a minecart uses 0.04).
+     */
+    private static final double GRAVITY = 0.0D;
+
+    protected void applyGravity() {
+        if (GRAVITY != 0.0D && !this.isNoGravity()) {
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -GRAVITY, 0.0D));
+        }
     }
 
     public void recalculateBoundingBox() {
@@ -648,14 +666,24 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         }
     }
 
+    /**
+     * 1.20.1 has no getPassengerAttachmentPoint, the vehicle places its riders
+     * itself. Deliberately WITHOUT getMyRidingOffset: both of these points are
+     * exact positions on the gun - the muzzle and the spot behind the barrel -
+     * and a second offset on top would push the rider off them.
+     */
     @Override
-    protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions entityDimensions, float f) {
+    public void positionRider(Entity entity) {
+        if (!this.hasPassenger(entity)) return;
+
+        Vec3 attachment;
         if (this.getPassengerInBarrel() == entity) {
             Vector3d endPoint = this.cannon.getBarrelEndPointLocal();
-            return new Vec3(endPoint.x, endPoint.y, endPoint.z);
+            attachment = new Vec3(endPoint.x, endPoint.y, endPoint.z);
         } else {
-            return this.getBarrelPassengerAttachmentPoint();
+            attachment = this.getBarrelPassengerAttachmentPoint();
         }
+        entity.setPos(this.getX() + attachment.x, this.getY() + attachment.y, this.getZ() + attachment.z);
     }
 
     protected Vec3 getBarrelPassengerAttachmentPoint() {
@@ -977,13 +1005,15 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     }
 
     //IContainerEntity Stuff//
+    // 1.20.1 ContainerEntity works with a plain ResourceLocation, the
+    // ResourceKey<LootTable> overload only exists from 1.21 on
     @Override
-    public @Nullable ResourceKey<LootTable> getLootTable() {
+    public @Nullable ResourceLocation getLootTable() {
         return this.lootTable;
     }
 
     @Override
-    public void setLootTable(@Nullable ResourceKey<LootTable> lootTable) {
+    public void setLootTable(@Nullable ResourceLocation lootTable) {
         this.lootTable = lootTable;
     }
 
@@ -999,7 +1029,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     @Override
     public @NotNull NonNullList<ItemStack> getItemStacks() {
-        return this.inventory.get;
+        return this.inventory.items;
     }
 
     @Override

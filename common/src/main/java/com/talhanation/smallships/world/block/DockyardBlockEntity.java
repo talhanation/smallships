@@ -17,7 +17,6 @@ import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -445,7 +444,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                 case BANNER -> ship.setData(Ship.BANNER, this.pendingBanner.copy());
                 case SAIL_BANNER -> ship.setData(Ship.SAIL_BANNER, this.pendingSailBanner.copy());
                 case SAIL_COLOR -> {
-                    if (this.pendingDyeColor != null) ship.setData(Ship.SAIL_COLOR, this.pendingDyered, green, blue, alpha);
+                    if (this.pendingDyeColor != null) ship.setData(Ship.SAIL_COLOR, this.pendingDyeColor);
                 }
             }
         }
@@ -586,11 +585,11 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
      * amounts are summed per item first.
      */
     private boolean canAfford(Player player, List<ItemStack> costs) {
-        if (player.hasInfiniteMaterials()) return true;
+        if (player.isCreative()) return true;
         for (ItemStack cost : costs) {
             int required = 0;
             for (ItemStack other : costs) {
-                if (ItemStack.isSameItemSameComponents(cost, other)) required += other.getCount();
+                if (ItemStack.isSameItemSameTags(cost, other)) required += other.getCount();
             }
             if (this.countItem(player, cost) < required) return false;
         }
@@ -600,18 +599,18 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     private int countItem(Player player, ItemStack cost) {
         int count = 0;
         for (ItemStack stack : player.getInventory().items) {
-            if (ItemStack.isSameItemSameComponents(stack, cost)) count += stack.getCount();
+            if (ItemStack.isSameItemSameTags(stack, cost)) count += stack.getCount();
         }
         return count;
     }
 
     private void consume(Player player, List<ItemStack> costs) {
-        if (player.hasInfiniteMaterials()) return;
+        if (player.isCreative()) return;
         for (ItemStack cost : costs) {
             int remaining = cost.getCount();
             for (ItemStack stack : player.getInventory().items) {
                 if (remaining <= 0) break;
-                if (!ItemStack.isSameItemSameComponents(stack, cost)) continue;
+                if (!ItemStack.isSameItemSameTags(stack, cost)) continue;
                 int take = Math.min(remaining, stack.getCount());
                 stack.shrink(take);
                 remaining -= take;
@@ -706,8 +705,8 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     /* ---------------- save data ---------------- */
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("Task", this.task.id);
         tag.putInt("Progress", this.progress);
         tag.putInt("TotalTime", this.totalTime);
@@ -715,9 +714,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("WoodType", this.woodTypeOrdinal);
         tag.putBoolean("RepairHull", this.repairHull);
         tag.putBoolean("RepairSails", this.repairSails);
-        if (this.pendingDyeColor != null) tag.putString("PendingDyeColor", this.pendingDyered, green, blue, alpha);
-        if (!this.pendingBanner.isEmpty()) tag.put("PendingBanner", this.pendingBanner.save(provider));
-        if (!this.pendingSailBanner.isEmpty()) tag.put("PendingSailBanner", this.pendingSailBanner.save(provider));
+        if (this.pendingDyeColor != null) tag.putString("PendingDyeColor", this.pendingDyeColor);
+        if (!this.pendingBanner.isEmpty()) tag.put("PendingBanner", this.pendingBanner.save(new CompoundTag()));
+        if (!this.pendingSailBanner.isEmpty()) tag.put("PendingSailBanner", this.pendingSailBanner.save(new CompoundTag()));
         if (this.spawnSpot != null) tag.putLong("SpawnSpot", this.spawnSpot.asLong());
         if (this.targetShipUUID != null) tag.putUUID("TargetShip", this.targetShipUUID);
 
@@ -727,7 +726,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
 
         ListTag refunds = new ListTag();
         for (ItemStack refund : this.pendingRefunds) {
-            if (!refund.isEmpty()) refunds.add(refund.save(provider));
+            if (!refund.isEmpty()) refunds.add(refund.save(new CompoundTag()));
         }
         tag.put("PendingRefunds", refunds);
 
@@ -736,15 +735,16 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             if (entry.getValue().isEmpty()) continue;
             CompoundTag shield = new CompoundTag();
             shield.putInt("Slot", entry.getKey());
-            shield.put("Item", entry.getValue().save(provider));
+            shield.put("Item", entry.getValue().save(new CompoundTag()));
             shields.add(shield);
         }
         tag.put("PendingShields", shields);
     }
 
+    // 1.20.1 has no loadAdditional, a block entity reads straight in load
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
         this.task = Task.byId(tag.getInt("Task"));
         this.progress = tag.getInt("Progress");
         this.totalTime = tag.getInt("TotalTime");
@@ -754,9 +754,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.repairSails = tag.getBoolean("RepairSails");
         this.pendingDyeColor = tag.contains("PendingDyeColor") ? tag.getString("PendingDyeColor") : null;
         this.pendingBanner = tag.contains("PendingBanner")
-                ? ItemStack.parse(provider, tag.getCompound("PendingBanner")).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
+                ? ItemStack.of(tag.getCompound("PendingBanner")) : ItemStack.EMPTY;
         this.pendingSailBanner = tag.contains("PendingSailBanner")
-                ? ItemStack.parse(provider, tag.getCompound("PendingSailBanner")).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
+                ? ItemStack.of(tag.getCompound("PendingSailBanner")) : ItemStack.EMPTY;
         this.spawnSpot = tag.contains("SpawnSpot") ? BlockPos.of(tag.getLong("SpawnSpot")) : null;
         this.targetShipUUID = tag.hasUUID("TargetShip") ? tag.getUUID("TargetShip") : null;
 
@@ -767,7 +767,8 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.pendingRefunds.clear();
         ListTag refunds = tag.getList("PendingRefunds", 10);
         for (int i = 0; i < refunds.size(); i++) {
-            ItemStack.parse(provider, refunds.getCompound(i)).ifPresent(this.pendingRefunds::add);
+            ItemStack refund = ItemStack.of(refunds.getCompound(i));
+            if (!refund.isEmpty()) this.pendingRefunds.add(refund);
         }
 
         this.pendingShields.clear();
@@ -775,8 +776,8 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         for (int i = 0; i < shields.size(); i++) {
             CompoundTag shield = shields.getCompound(i);
             int slot = shield.getInt("Slot");
-            ItemStack.parse(provider, shield.getCompound("Item"))
-                    .ifPresent(itemStack -> this.pendingShields.put(slot, itemStack));
+            ItemStack itemStack = ItemStack.of(shield.getCompound("Item"));
+            if (!itemStack.isEmpty()) this.pendingShields.put(slot, itemStack);
         }
     }
 }

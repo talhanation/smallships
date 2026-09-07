@@ -1,14 +1,12 @@
 package com.talhanation.smallships.world.particles;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.talhanation.smallships.world.particles.cannon.DyedCannonShootOptions;
 import com.talhanation.smallships.world.particles.custom.CustomPoofParticleOptions;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -25,9 +23,9 @@ public class ModParticleTypes {
     static {
         CANNON_SHOOT = register("basic_cannon_shoot");
         DYED_CANNON_SHOOT = register("dyed_cannon_shoot",
-                DyedCannonShootOptions.MAP_CODEC, DyedCannonShootOptions.STREAM_CODEC);
+                DyedCannonShootOptions.CODEC, DyedCannonShootOptions.DESERIALIZER);
         COLORED_POOF = register("colored_poof",
-                CustomPoofParticleOptions.MAP_CODEC, CustomPoofParticleOptions.STREAM_CODEC);
+                CustomPoofParticleOptions.CODEC, CustomPoofParticleOptions.DESERIALIZER);
         CANNON_BALL_SHOOT = register("cannon_ball_shoot");
         CANNON_BALL_SHOOT_FINE = register("cannon_ball_shoot_fine");
         WIND_LINE = register("wind_line");
@@ -43,18 +41,18 @@ public class ModParticleTypes {
         return (Supplier<SimpleParticleType>) (Supplier<?>) register(id, type);
     }
 
+    /**
+     * 1.20.1 splits what later versions put into two codecs: the Codec covers
+     * json and the /particle command, the Deserializer is handed to the
+     * ParticleType constructor and does the network side.
+     */
     public static <T extends ParticleOptions> Supplier<ParticleType<T>> register(String string,
-                                                                                 final MapCodec<T> codecSupplier,
-                                                                                 final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodecSupplier) {
-        ParticleType<T> type = new ParticleType<>(false) {
+                                                                                 final Codec<T> codec,
+                                                                                 final ParticleOptions.Deserializer<T> deserializer) {
+        ParticleType<T> type = new ParticleType<>(false, deserializer) {
             @Override
-            public @NotNull MapCodec<T> codec() {
-                return codecSupplier;
-            }
-
-            @Override
-            public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
-                return streamCodecSupplier;
+            public @NotNull Codec<T> codec() {
+                return codec;
             }
         };
         return register(string, type);

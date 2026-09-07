@@ -21,19 +21,20 @@ public class ContainerUtility {
         throw new AssertionError();
     }
 
-    public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> itemStacks, HolderLookup.Provider levelRegistry) {
+    public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> itemStacks) {
         ListTag listTag = tag.getList("Items", 10);
 
         for (int i = 0; i < listTag.size(); ++i) {
             CompoundTag compoundTag = listTag.getCompound(i);
             short slot = compoundTag.getShort("Slot");
             if (slot < itemStacks.size()) {
-                itemStacks.set(slot, ItemStack.parse(levelRegistry, compoundTag).orElse(ItemStack.EMPTY));
+                ItemStack stack = ItemStack.of(compoundTag);
+                itemStacks.set(slot, stack.isEmpty() ? ItemStack.EMPTY : stack);
             }
         }
     }
 
-    public static void saveAllItems(CompoundTag tag, NonNullList<ItemStack> itemStacks, HolderLookup.Provider levelRegistry) {
+    public static void saveAllItems(CompoundTag tag, NonNullList<ItemStack> itemStacks) {
         ListTag listTag = new ListTag();
 
         for (int i = 0; i < itemStacks.size(); ++i) {
@@ -41,7 +42,7 @@ public class ContainerUtility {
             if (!itemStack.isEmpty()) {
                 CompoundTag compoundTag = new CompoundTag();
                 compoundTag.putShort("Slot", (short) i);
-                listTag.add(itemStack.save(levelRegistry, compoundTag));
+                listTag.add(itemStack.save(compoundTag));
             }
         }
 

@@ -6,24 +6,25 @@ import com.talhanation.smallships.world.inventory.GroundCannonContainerMenu;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
+/**
+ * 1.20.1 has no typed screen opening data - the factory writes into a raw
+ * FriendlyByteBuf and the ExtendedScreenHandlerType reads it back on the other
+ * side, so the UUID travels by hand instead of through a StreamCodec.
+ */
 public class ContainerUtilityImpl {
     public static void openShipMenu(Player player, ContainerShip containerShip) {
-        player.openMenu(new ExtendedScreenHandlerFactory<ContainerUtilityImpl.ContainerMenuData>() {
+        player.openMenu(new ExtendedScreenHandlerFactory() {
             @Override
-            public ContainerUtilityImpl.ContainerMenuData getScreenOpeningData(ServerPlayer player) {
-                return new ContainerUtilityImpl.ContainerMenuData(containerShip.getUUID());
+            public void writeScreenOpeningData(ServerPlayer serverPlayer, FriendlyByteBuf buf) {
+                buf.writeUUID(containerShip.getUUID());
             }
 
             @Override
@@ -39,10 +40,10 @@ public class ContainerUtilityImpl {
     }
 
     public static void openCannonMenu(Player player, GroundCannonEntity groundCannonEntity) {
-        player.openMenu(new ExtendedScreenHandlerFactory<ContainerUtilityImpl.ContainerMenuData>() {
+        player.openMenu(new ExtendedScreenHandlerFactory() {
             @Override
-            public ContainerUtilityImpl.ContainerMenuData getScreenOpeningData(ServerPlayer player) {
-                return new ContainerUtilityImpl.ContainerMenuData(groundCannonEntity.getUUID());
+            public void writeScreenOpeningData(ServerPlayer serverPlayer, FriendlyByteBuf buf) {
+                buf.writeUUID(groundCannonEntity.getUUID());
             }
 
             @Override
@@ -55,9 +56,5 @@ public class ContainerUtilityImpl {
                 return groundCannonEntity.getName();
             }
         });
-    }
-
-    public record ContainerMenuData(UUID ship) {
-        public static final StreamCodec<RegistryFriendlyByteBuf, ContainerMenuData> PACKET_CODEC = StreamCodec.composite(UUIDUtil.STREAM_CODEC, ContainerMenuData::ship, ContainerMenuData::new);
     }
 }

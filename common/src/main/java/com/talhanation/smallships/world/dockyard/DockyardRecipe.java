@@ -189,7 +189,7 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
 
     /** Cost check for any material list, also used by the repair task. */
     public static boolean canAfford(List<Ingredient> ingredients, Player player) {
-        if (player.hasInfiniteMaterials()) return true;
+        if (player.isCreative()) return true;
         for (Ingredient ingredient : ingredients) {
             if (ingredient.countIn(player) < ingredient.amount()) return false;
         }
@@ -198,7 +198,7 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
 
     /** Consumes any material list, also used by the repair task. */
     public static void consume(List<Ingredient> ingredients, Player player) {
-        if (player.hasInfiniteMaterials()) return;
+        if (player.isCreative()) return;
         for (Ingredient ingredient : ingredients) {
             int remaining = ingredient.amount();
             for (ItemStack stack : player.getInventory().items) {

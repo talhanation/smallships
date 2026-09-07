@@ -1,6 +1,6 @@
 package com.talhanation.smallships.world.block;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.InteractionHand;
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
 import net.minecraft.core.BlockPos;
@@ -33,18 +33,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DockyardBlock extends BaseEntityBlock {
     public static final String ID = "dockyard";
-    public static final MapCodec<DockyardBlock> CODEC = simpleCodec(DockyardBlock::new);
-
     public DockyardBlock(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
         );
-    }
-
-    @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -58,12 +51,12 @@ public class DockyardBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState rotate(@NotNull BlockState state, Rotation rotation) {
+    public @NotNull BlockState rotate(@NotNull BlockState state, Rotation rotation) {
         return state.setValue(HorizontalDirectionalBlock.FACING, rotation.rotate(state.getValue(HorizontalDirectionalBlock.FACING)));
     }
 
     @Override
-    protected @NotNull BlockState mirror(@NotNull BlockState state, Mirror mirror) {
+    public @NotNull BlockState mirror(@NotNull BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(HorizontalDirectionalBlock.FACING)));
     }
 
@@ -75,7 +68,7 @@ public class DockyardBlock extends BaseEntityBlock {
     // the model is drawn by the block entity renderer, so the block itself must not
     // darken it: without this the faces are shaded as if they were inside a full cube
     @Override
-    protected float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+    public float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return 1.0F;
     }
 
@@ -85,8 +78,10 @@ public class DockyardBlock extends BaseEntityBlock {
         return new DockyardBlockEntity(pos, state);
     }
 
+    // 1.20.1 has no split between useWithoutItem and useItemOn - everything
+    // arrives in use, including the hand
     @Override
-    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof DockyardBlockEntity dockyard) {
             player.openMenu(dockyard);
             // the material list is drawn client side, so the screen gets the

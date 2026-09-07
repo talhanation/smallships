@@ -119,7 +119,7 @@ public class MouseHandlerMixin {
     @Inject(method = "onScroll(JDD)V", at = @At("HEAD"), cancellable = true)
     private void onScrollCaptureScrollDelta(long windowPointer, double xOffset, double yOffset, CallbackInfo ci) {
         if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return;
-        if (this.minecraft.player == null || this.minecraft.screen != null || this.minecraft.overlay != null) return;
+        if (this.minecraft.player == null || this.minecraft.screen != null || this.minecraft.getOverlay() != null) return;
         if (this.minecraft.options.getCameraType().isFirstPerson()) return;
         if (!(this.minecraft.player.getVehicle() instanceof Ship)) return;
 

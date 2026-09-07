@@ -21,15 +21,7 @@ public class Color {
         this.b = b;
     }
 
-    public Color(float r, float g, float b, float a) {
-        this(r, g, b);
 
-        this.a = a;
-    }
-
-    public Color(float red, float green, float blue, float alpha){
-        this(color, true);
-    }
 
     public Color(int color, boolean alpha) {
         this.set(color, alpha);
@@ -84,10 +76,6 @@ public class Color {
         }
 
         return this;
-    }
-
-    public Color set(float red, float green, float blue, float alpha){
-        return this.set(color, true);
     }
 
     public Color set(int color, boolean alpha) {

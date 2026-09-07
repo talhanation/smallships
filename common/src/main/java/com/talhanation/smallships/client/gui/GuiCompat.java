@@ -14,16 +14,18 @@ import net.minecraft.resources.ResourceLocation;
  *
  * - 1.20.2+ has the sprite atlas ({@code GuiGraphics#blitSprite}, {@code WidgetSprites}).
  *   The nine slicing is described by the sprite json, the code just names it.
- * - 1.20.1 has no atlas. The same visuals come from
+ * - 1.20.1, the version below, has no atlas. The same visuals come from
  *   {@code textures/gui/widgets.png} via {@code blitNineSliced(WIDGETS, x, y, w, h, 20, 4, 200, 20, 0, v)}
  *   with v = 46 (disabled), 66 (normal), 86 (hovered), on a 256x256 sheet.
  *   Only the bodies below change, no caller does.
  */
 public final class GuiCompat {
 
-    private static final ResourceLocation BUTTON = new ResourceLocation("widget/button");
-    private static final ResourceLocation BUTTON_DISABLED = new ResourceLocation("widget/button_disabled");
-    private static final ResourceLocation BUTTON_HIGHLIGHTED = new ResourceLocation("widget/button_highlighted");
+    private static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/widgets.png");
+    /** v offsets of the three button faces on the 256x256 widgets sheet */
+    private static final int V_DISABLED = 46;
+    private static final int V_NORMAL = 66;
+    private static final int V_HIGHLIGHTED = 86;
 
     private GuiCompat() {
     }
@@ -43,18 +45,18 @@ public final class GuiCompat {
      * pixel art that would fall out of sync with a resource pack.
      */
     public static void blitButton(GuiGraphics guiGraphics, int x, int y, int width, int height, boolean active, boolean highlighted) {
-        ResourceLocation sprite = !active ? BUTTON_DISABLED : (highlighted ? BUTTON_HIGHLIGHTED : BUTTON);
-        guiGraphics.blitSprite(sprite, x, y, width, height);
+        int v = !active ? V_DISABLED : (highlighted ? V_HIGHLIGHTED : V_NORMAL);
+        guiGraphics.blitNineSliced(WIDGETS, x, y, width, height, 20, 4, 200, 20, 0, v);
     }
 
     /**
      * A one pixel frame in the given ARGB color. Kept here next to the button
      * face because the two are always drawn as a pair on the upgrade rows.
      */
-    public static void frame(GuiGraphics guiGraphics, int x, int y, int width, int height, float red, float green, float blue, float alpha){
-        guiGraphics.fill(x, y, x + width, y + 1, red, green, blue, alpha);
-        guiGraphics.fill(x, y + height - 1, x + width, y + height, red, green, blue, alpha);
-        guiGraphics.fill(x, y + 1, x + 1, y + height - 1, red, green, blue, alpha);
-        guiGraphics.fill(x + width - 1, y + 1, x + width, y + height - 1, red, green, blue, alpha);
+    public static void frame(GuiGraphics guiGraphics, int x, int y, int width, int height, int color) {
+        guiGraphics.fill(x, y, x + width, y + 1, color);
+        guiGraphics.fill(x, y + height - 1, x + width, y + height, color);
+        guiGraphics.fill(x, y + 1, x + 1, y + height - 1, color);
+        guiGraphics.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
     }
 }

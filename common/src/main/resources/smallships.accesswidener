@@ -18,3 +18,4 @@ accessible method net/minecraft/world/entity/vehicle/Boat getBubbleTime ()I
 accessible method net/minecraft/world/entity/vehicle/Boat setBubbleTime (I)V
 accessible field net/minecraft/world/entity/vehicle/Boat isAboveBubbleColumn Z
 accessible field net/minecraft/world/entity/vehicle/Boat outOfControlTicks F
+accessible field net/minecraft/world/SimpleContainer items Lnet/minecraft/core/NonNullList;

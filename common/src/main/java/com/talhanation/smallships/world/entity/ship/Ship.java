@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.entity.ship;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.config.SyncedServerConfig;
+import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -22,7 +23,6 @@ import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -675,7 +675,7 @@ public abstract class Ship extends Boat {
         return isLocked;
     }
     public boolean isShipLeashed(){
-        return this.isLeashed();
+        return  ((BoatLeashAccess) this).isLeashed();
     }
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced

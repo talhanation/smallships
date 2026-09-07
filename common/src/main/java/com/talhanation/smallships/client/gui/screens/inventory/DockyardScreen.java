@@ -201,6 +201,14 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.imageHeight = WINDOW_H;
     }
 
+    /**
+     * 1.20.1 has no Player#hasInfiniteMaterials - creative is read straight off
+     * the abilities. One place for it, the check appears in three spots.
+     */
+    private static boolean hasInfiniteMaterials(@Nullable Player player) {
+        return player != null && player.getAbilities().instabuild;
+    }
+
     /* ---------------- absolute layout helpers ---------------- */
 
     private int x(int textureX) {
@@ -467,7 +475,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
 
         if (ship instanceof Sailable && player != null) {
-            String currentColor = ship.getData(Ship.SAIL_red, green, blue, alpha);
+            String currentColor = ship.getData(Ship.SAIL_COLOR);
             Set<String> seenColors = new LinkedHashSet<>();
             var items = player.getInventory().items;
             for (int slot = 0; slot < items.size() && seenColors.size() < 16; slot++) {
@@ -789,9 +797,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.woodDropdown.visible = !modify;
         this.woodDropdown.active = !busy;
         if (modify || busy) this.woodDropdown.close();
-        this.materialList.visible = !modify;
+        this.materialList.setVisible(!modify);
 
-        this.upgradeList.visible = modify;
+        this.upgradeList.setVisible(modify);
         this.applyButton.visible = modify;
         this.nameField.visible = modify;
         this.repairHullButton.visible = modify;
@@ -980,13 +988,13 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         // after every other widget - it is a child, not a renderable
         this.woodDropdown.renderDropdown(guiGraphics, mouseX, mouseY);
 
-        List<Component> lines = this.upgradeList.visible ? this.upgradeList.getHoveredTooltip() : null;
+        List<Component> lines = this.upgradeList.isVisible() ? this.upgradeList.getHoveredTooltip() : null;
         if (lines != null) {
             guiGraphics.renderComponentTooltip(this.font, lines, mouseX, mouseY);
             return;
         }
         ItemStack hovered = this.woodDropdown.getHoveredStack(mouseX, mouseY);
-        if (hovered.isEmpty() && this.materialList.visible) hovered = this.materialList.getHoveredStack();
+        if (hovered.isEmpty() && this.materialList.isVisible()) hovered = this.materialList.getHoveredStack();
         if (!hovered.isEmpty()) {
             guiGraphics.renderTooltip(this.font, hovered, mouseX, mouseY);
         }
@@ -1021,7 +1029,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                     this.active, this.selected || this.isHoveredOrFocused());
             int textColor = !this.active ? 0xFF6E6E6E : (this.selected ? 0xFFFFFFFF : 0xFFCCCCCC);
             guiGraphics.drawCenteredString(net.minecraft.client.Minecraft.getInstance().font, this.getMessage(),
-                    this.getX() + this.getWidth() / 2, this.getY() + (this.getHeight() - 8) / 2, textred, green, blue, alpha);
+                    this.getX() + this.getWidth() / 2, this.getY() + (this.getHeight() - 8) / 2, textColor);
         }
     }
 
@@ -1075,7 +1083,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             for (DockyardRecipe.Ingredient cost : costs) {
                 ItemStack display = cost.getDisplayStack(Boat.Type.OAK);
                 costLine.append(Component.literal("\n" + cost.amount() + "x ")).append(display.getHoverName());
-                if (player != null && !player.hasInfiniteMaterials() && cost.countIn(player) < cost.amount()) afford = false;
+                if (player != null && !hasInfiniteMaterials(player) && cost.countIn(player) < cost.amount()) afford = false;
             }
             costLine.append(Component.literal("\n")).append(durationLine(DockyardBlockEntity.getRepairTime(ship, hull, sails)));
             this.setTooltip(net.minecraft.client.gui.components.Tooltip.create(costLine));
@@ -1168,10 +1176,11 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             this.pitch = Mth.clamp(this.pitch - (float) dragY * DRAG_SENSITIVITY, -PITCH_LIMIT, PITCH_LIMIT);
         }
 
+        /** 1.20.1 passes a single scroll delta, the split x/y axes came later */
         @Override
-        public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
             if (!this.isMouseOver(mouseX, mouseY)) return false;
-            this.zoom = Mth.clamp(this.zoom + (float) scrollY * 0.15F, ZOOM_MIN, ZOOM_MAX);
+            this.zoom = Mth.clamp(this.zoom + (float) delta * 0.15F, ZOOM_MIN, ZOOM_MAX);
             return true;
         }
 
@@ -1255,31 +1264,38 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         /** the vanilla scrollbar is 6 wide and sits right of the rows */
         private static final int SCROLLBAR_LANE = 8;
 
+        /**
+         * 1.20.1 AbstractSelectionList is not an AbstractWidget: it has no
+         * visible flag, no getX/getWidth and no setX. The bounds live in the
+         * protected x0/x1/y0/y1 fields, and the flag has to be our own.
+         */
+        private boolean visible = true;
+
         private ItemStack hoveredStack = ItemStack.EMPTY;
 
         protected MaterialList(int x, int y, int width, int height) {
-            super(Minecraft.getInstance(), width, height, y, ROW_HEIGHT);
-            this.setX(x);
+            super(Minecraft.getInstance(), width, height, y, y + height, ROW_HEIGHT);
+            this.x0 = x;
+            this.x1 = x + width;
             this.centerListVertically = false;
         }
 
-        /** The panel frame comes from the background texture, so the list draws none. */
-        @Override
-        protected void renderListBackground(@NotNull GuiGraphics guiGraphics) {
+        public void setVisible(boolean visible) {
+            this.visible = visible;
         }
 
-        @Override
-        protected void renderListSeparators(@NotNull GuiGraphics guiGraphics) {
+        public boolean isVisible() {
+            return this.visible;
         }
 
         @Override
         public int getRowWidth() {
-            return this.getWidth() - ROW_INSET;
+            return this.width - ROW_INSET;
         }
 
         @Override
         protected int getScrollbarPosition() {
-            return this.getX() + this.getWidth() - SCROLLBAR_LANE;
+            return this.x0 + this.width - SCROLLBAR_LANE;
         }
 
         /**
@@ -1293,11 +1309,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
          */
         @Override
         public boolean isMouseOver(double mouseX, double mouseY) {
-            return this.visible && mouseX >= this.getX() + LIST_OVERHANG && super.isMouseOver(mouseX, mouseY);
-        }
-
-        @Override
-        protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
+            return this.visible && mouseX >= this.x0 + LIST_OVERHANG && super.isMouseOver(mouseX, mouseY);
         }
 
         public ItemStack getHoveredStack() {
@@ -1315,15 +1327,24 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             }
         }
 
+        /**
+         * 1.20.1 has no renderWidget / renderListBackground / renderListSeparators
+         * hooks - the vanilla render tiles the dirt texture over the whole list
+         * and draws the two gradient shadows, which would paint straight over the
+         * panel frame of the window texture. So render is taken over completely:
+         * rows and scrollbar, nothing else.
+         */
         @Override
-        public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            if (!this.visible) return;
             this.hoveredStack = ItemStack.EMPTY;
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+            this.renderList(guiGraphics, mouseX, mouseY, partialTick);
+            DockyardScreen.renderScrollbar(guiGraphics, this.getScrollbarPosition(), this.y0, this.y1,
+                    this.getMaxScroll(), this.getMaxPosition(), this.getScrollAmount());
         }
 
         @Override
-        public void updateNarration(NarrationElementOutput narrationElementOutput) {
-
+        public void updateNarration(@NotNull NarrationElementOutput narrationElementOutput) {
         }
 
         private class Entry extends AbstractSelectionList.Entry<Entry> {
@@ -1339,7 +1360,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             public void render(@NotNull GuiGraphics guiGraphics, int index, int top, int left, int width, int height,
                                int mouseX, int mouseY, boolean hovering, float partialTick) {
                 Player player = DockyardScreen.this.menu.getPlayer();
-                boolean has = player == null || player.hasInfiniteMaterials()
+                boolean has = player == null || hasInfiniteMaterials(player)
                         || this.ingredient.countIn(player) >= this.ingredient.amount();
 
                 guiGraphics.renderItem(this.displayStack, left, top + 1);
@@ -1352,6 +1373,25 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 if (hovering) MaterialList.this.hoveredStack = this.displayStack;
             }
         }
+    }
+
+    /**
+     * The vanilla scrollbar, redrawn by hand.
+     *
+     * Both lists take over render completely (see MaterialList#render), so the
+     * one piece of the vanilla drawing that is actually wanted has to be
+     * repeated here. Same geometry and same colours as AbstractSelectionList.
+     */
+    private static void renderScrollbar(GuiGraphics guiGraphics, int scrollbarX, int top, int bottom,
+                                        int maxScroll, int maxPosition, double scrollAmount) {
+        if (maxScroll <= 0) return;
+        int listHeight = bottom - top;
+        int barHeight = Mth.clamp((int) ((float) (listHeight * listHeight) / (float) maxPosition), 32, listHeight - 8);
+        int barY = Math.max(top, (int) scrollAmount * (listHeight - barHeight) / maxScroll + top);
+
+        guiGraphics.fill(scrollbarX, top, scrollbarX + 6, bottom, 0xFF000000);
+        guiGraphics.fill(scrollbarX, barY, scrollbarX + 6, barY + barHeight, 0xFF808080);
+        guiGraphics.fill(scrollbarX, barY, scrollbarX + 5, barY + barHeight - 1, 0xFFC0C0C0);
     }
 
     /**
@@ -1369,30 +1409,34 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         private static final int ROW_INSET = 12;
         private static final int SCROLLBAR_LANE = 8;
 
+        /** see MaterialList.visible */
+        private boolean visible = true;
+
         @Nullable private List<Component> hoveredTooltip;
 
         protected UpgradeList(int x, int y, int width, int height) {
-            super(net.minecraft.client.Minecraft.getInstance(), width, height, y, ROW_HEIGHT);
-            this.setX(x);
+            super(net.minecraft.client.Minecraft.getInstance(), width, height, y, y + height, ROW_HEIGHT);
+            this.x0 = x;
+            this.x1 = x + width;
             this.centerListVertically = false;
         }
 
-        @Override
-        protected void renderListBackground(@NotNull GuiGraphics guiGraphics) {
+        public void setVisible(boolean visible) {
+            this.visible = visible;
         }
 
-        @Override
-        protected void renderListSeparators(@NotNull GuiGraphics guiGraphics) {
+        public boolean isVisible() {
+            return this.visible;
         }
 
         @Override
         public int getRowWidth() {
-            return this.getWidth() - ROW_INSET;
+            return this.width - ROW_INSET;
         }
 
         @Override
         protected int getScrollbarPosition() {
-            return this.getX() + this.getWidth() - SCROLLBAR_LANE;
+            return this.x0 + this.width - SCROLLBAR_LANE;
         }
 
         /**
@@ -1406,11 +1450,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
          */
         @Override
         public boolean isMouseOver(double mouseX, double mouseY) {
-            return this.visible && mouseX >= this.getX() + LIST_OVERHANG && super.isMouseOver(mouseX, mouseY);
-        }
-
-        @Override
-        protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
+            return this.visible && mouseX >= this.x0 + LIST_OVERHANG && super.isMouseOver(mouseX, mouseY);
         }
 
         @Nullable
@@ -1438,10 +1478,18 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             this.setScrollAmount(scroll);
         }
 
+        /** see MaterialList#render */
         @Override
-        public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            if (!this.visible) return;
             this.hoveredTooltip = null;
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+            this.renderList(guiGraphics, mouseX, mouseY, partialTick);
+            DockyardScreen.renderScrollbar(guiGraphics, this.getScrollbarPosition(), this.y0, this.y1,
+                    this.getMaxScroll(), this.getMaxPosition(), this.getScrollAmount());
+        }
+
+        @Override
+        public void updateNarration(@NotNull NarrationElementOutput narrationElementOutput) {
         }
 
         private class Entry extends AbstractSelectionList.Entry<Entry> {

@@ -1,9 +1,9 @@
 package com.talhanation.smallships.world.item;
 
+import net.minecraft.nbt.CompoundTag;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
@@ -16,7 +16,6 @@ import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -30,6 +29,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Iterator;
 import java.util.List;
+
+import java.util.UUID;
 
 public class CannonItem extends Item {
     public CannonItem(Properties properties) {
@@ -66,13 +67,21 @@ public class CannonItem extends Item {
         if (level instanceof ServerLevel serverLevel) {
             GroundCannonEntity cannon = new GroundCannonEntity(level, pos);
             cannon.setYRot(player.getYRot());
-            CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
-            if (data != null) data.loadInto(cannon);
+            // 1.20.1 has no CUSTOM_DATA component - entity nbt on an item lives
+            // in the "EntityTag" subtag, the same convention spawn eggs use
+            CompoundTag entityTag = itemStack.getTagElement("EntityTag");
+            if (entityTag != null) {
+                CompoundTag copy = entityTag.copy();
+                UUID uuid = cannon.getUUID();
+                copy.remove("UUID");
+                cannon.load(copy);
+                cannon.setUUID(uuid);
+            }
             serverLevel.addFreshEntity(cannon);
             serverLevel.gameEvent(GameEvent.ENTITY_PLACE, blockPos, GameEvent.Context.of(useOnContext.getPlayer(), serverLevel.getBlockState(blockPos.below())));
         }
 
-        itemStack.consume(1, player);
+        if (player == null || !player.getAbilities().instabuild) itemStack.shrink(1);
 
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
