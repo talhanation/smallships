@@ -3,12 +3,16 @@ package com.talhanation.smallships.forge.client;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.ClientInitializer;
 import com.talhanation.smallships.client.model.*;
+import com.talhanation.smallships.client.model.block.DockyardBlockModel;
 import com.talhanation.smallships.client.model.projectile.CannonBallModel;
 import com.talhanation.smallships.client.model.projectile.ChainShotModel;
 import com.talhanation.smallships.client.model.projectile.GrapeShotModel;
 import com.talhanation.smallships.client.option.ModGameOptions;
+import com.talhanation.smallships.client.renderer.block.DockyardBlockRenderer;
 import com.talhanation.smallships.client.renderer.entity.*;
+import com.talhanation.smallships.world.block.ModBlockEntityTypes;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.particles.ModParticleProviders;
 import com.talhanation.smallships.world.particles.forge.ModParticleProvidersImpl;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleProvider;
@@ -32,6 +36,10 @@ public class ClientModBus {
 
     @SubscribeEvent
     static void initRegisterRendererRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlockEntityTypes.DOCKYARD, DockyardBlockRenderer::new);
+
+        event.registerEntityRenderer(ModEntityTypes.SHIP_PART, ShipPartRenderer::new);
+
         event.registerEntityRenderer(ModEntityTypes.CANNON_BALL, CannonBallRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.CHAIN_SHOT, ChainShotRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.GRAPE_SHOT, GrapeShotRenderer::new);
@@ -48,6 +56,8 @@ public class ClientModBus {
 
     @SubscribeEvent
     static void initRegisterRendererLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(DockyardBlockModel.LAYER_LOCATION, DockyardBlockModel::createBodyLayer);
+
         event.registerLayerDefinition(CannonBallModel.LAYER_LOCATION, CannonBallModel::createBodyLayer);
         event.registerLayerDefinition(ChainShotModel.LAYER_LOCATION, ChainShotModel::createBodyLayer);
         event.registerLayerDefinition(GrapeShotModel.LAYER_LOCATION, GrapeShotModel::createBodyLayer);
@@ -68,9 +78,15 @@ public class ClientModBus {
         event.register(ModGameOptions.ENTER_CANNON_BARREL_KEY);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"rawtypes", "unchecked", "InstantiationOfUtilityClass"})
     @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        // ModParticleProvidersImpl does not extend ModParticleProviders on forge,
+        // so the common class has to be loaded by hand - without this the list
+        // below stays empty, every particle type keeps its null provider and
+        // ParticleEngine#createParticle silently returns null
+        new ModParticleProviders();
+
         for (Pair<ParticleType<?>, Object> particleProvider : ModParticleProvidersImpl.PARTICLE_PROVIDERS) {
             if (particleProvider.getB() instanceof ParticleProvider) {
                 event.registerSpecial(particleProvider.getA(), (ParticleProvider) particleProvider.getB());

@@ -1,24 +1,27 @@
 package com.talhanation.smallships.world.item.forge;
 
 import com.talhanation.smallships.SmallShipsMod;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.client.renderer.item.DockyardItemRenderer;
+import com.talhanation.smallships.world.block.ModBlocks;
+import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.item.*;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ModItemsImpl {
@@ -41,14 +44,35 @@ public class ModItemsImpl {
         register("chained_shot", () -> new CannonBallItem(CannonBallItem.Type.CHAINED, (new Item.Properties()).stacksTo(16)));
         register("grape_shot", () -> new CannonBallItem(CannonBallItem.Type.GRAPE, (new Item.Properties()).stacksTo(16)));
         register("fine_grain_powder", () -> new Item(new Item.Properties()));
-        register("dockyard", () -> new net.minecraft.world.item.BlockItem(com.talhanation.smallships.world.block.ModBlocks.DOCKYARD, new Item.Properties()));
+
+        // forge has no BuiltinItemRendererRegistry - the dockyard item renderer is
+        // handed over through the item itself, the anonymous IClientItemExtensions
+        // stays unloaded on a dedicated server
+        register("dockyard", () -> new BlockItem(ModBlocks.DOCKYARD, new Item.Properties()) {
+            @Override
+            public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+                consumer.accept(new IClientItemExtensions() {
+                    @Override
+                    public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                        return DockyardItemRenderer.getInstance();
+                    }
+                });
+            }
+        });
+
+        register("copper_plating", () -> new Item(new Item.Properties().stacksTo(1)));
+        register("cotton_sails", () -> new Item(new Item.Properties().stacksTo(1)));
+        register("iron_scantlings", () -> new Item(new Item.Properties().stacksTo(1)));
 
         for (Boat.Type type: Boat.Type.values()) {
             String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
             register(name + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + DhowEntity.ID,  () -> new DhowItem(type, new Item.Properties().stacksTo(1)));
             register(name + "_" + DrakkarEntity.ID,  () -> new DrakkarItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + GalleonEntity.ID,  () -> new GalleonItem(type, new Item.Properties().stacksTo(1)));
+            register(name + "_" + CaravelEntity.ID,  () -> new CaravelItem(type, new Item.Properties().stacksTo(1)));
         }
     }
 

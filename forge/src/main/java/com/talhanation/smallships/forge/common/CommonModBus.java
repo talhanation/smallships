@@ -51,8 +51,7 @@ public class CommonModBus {
             }
         } else {
             //VANILLA CREATIVE MENU TAB
-            if (getCreativeModeTab.apply(CreativeModeTabs.COLORED_BLOCKS).equals(event.getTab())) {
-            } else if (getCreativeModeTab.apply(CreativeModeTabs.COMBAT).equals(event.getTab())) {
+            if (getCreativeModeTab.apply(CreativeModeTabs.COMBAT).equals(event.getTab())) {
                 event.getEntries().putAfter(new ItemStack(Items.CROSSBOW), new ItemStack(ModItems.CANNON_BALL), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 event.getEntries().putAfter(new ItemStack(Items.CROSSBOW), new ItemStack(ModItems.CANNON), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 event.getEntries().putAfter(new ItemStack(ModItems.CANNON_BALL), new ItemStack(ModItems.CHAINED_SHOT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
@@ -65,8 +64,10 @@ public class CommonModBus {
                     event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.BRIGG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.GALLEY_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DHOW_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DRAKKAR_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-
+                    event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.GALLEON_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.CARAVEL_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 }
             }
         }

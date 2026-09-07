@@ -5,10 +5,7 @@ import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ChainShotEntity;
 import com.talhanation.smallships.world.entity.projectile.GrapeShotEntity;
-import com.talhanation.smallships.world.entity.ship.BriggEntity;
-import com.talhanation.smallships.world.entity.ship.CogEntity;
-import com.talhanation.smallships.world.entity.ship.DrakkarEntity;
-import com.talhanation.smallships.world.entity.ship.GalleyEntity;
+import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -30,12 +27,18 @@ public class ModEntityTypesImpl {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, SmallShipsMod.MOD_ID);
 
     static {
+        // The size here is only the placeholder until the synched data arrives -
+        // every part overrides getDimensions from its own width and height.
+        // updateInterval is deliberately high: a part recomputes its position
+        // from its ship on both sides every tick, so position packets are pure
+        // overhead, and a Brigg alone carries five of these.
+        // noSummon keeps players from spawning a parentless part by command.
         entries.put(ShipPartEntity.class, ENTITY_TYPES.register(ShipPartEntity.ID,
                 () -> EntityType.Builder.of(ShipPartEntity::factory, MobCategory.MISC)
-                        .sized(0.25F, 0.25F)
+                        .sized(1.0F, 1.0F)
+                        .noSummon()
                         .clientTrackingRange(20)
-                        .setUpdateInterval(10)
-                        .setShouldReceiveVelocityUpdates(true)
+                        .setUpdateInterval(Integer.MAX_VALUE)
                         .build(ShipPartEntity.ID)));
 
         entries.put(CannonBallEntity.class, ENTITY_TYPES.register(CannonBallEntity.ID,
@@ -46,6 +49,14 @@ public class ModEntityTypesImpl {
                         .setShouldReceiveVelocityUpdates(true)
                         .build(CannonBallEntity.ID)));
 
+        entries.put(ChainShotEntity.class, ENTITY_TYPES.register(ChainShotEntity.ID,
+                () -> EntityType.Builder.of(ChainShotEntity::factory, MobCategory.MISC)
+                        .sized(1.00F, 0.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(ChainShotEntity.ID)));
+
         entries.put(GrapeShotEntity.class, ENTITY_TYPES.register(GrapeShotEntity.ID,
                 () -> EntityType.Builder.of(GrapeShotEntity::factory, MobCategory.MISC)
                         .sized(0.25F, 0.25F)
@@ -53,14 +64,6 @@ public class ModEntityTypesImpl {
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
                         .build(GrapeShotEntity.ID)));
-
-        entries.put(ChainShotEntity.class, ENTITY_TYPES.register(ChainShotEntity.ID,
-                () -> EntityType.Builder.of(ChainShotEntity::factory, MobCategory.MISC)
-                        .sized(0.25F, 0.25F)
-                        .clientTrackingRange(20)
-                        .setUpdateInterval(10)
-                        .setShouldReceiveVelocityUpdates(true)
-                        .build(ChainShotEntity.ID)));
 
         entries.put(GroundCannonEntity.class, ENTITY_TYPES.register(GroundCannonEntity.ID,
                 () -> EntityType.Builder.of(GroundCannonEntity::factory, MobCategory.MISC)
@@ -72,7 +75,7 @@ public class ModEntityTypesImpl {
 
         entries.put(CogEntity.class, ENTITY_TYPES.register(CogEntity.ID,
                 () -> EntityType.Builder.of(CogEntity::new, MobCategory.MISC)
-                        .sized(3.5F, 1.25F)
+                        .sized(1.0F, 1.25F)
                         .clientTrackingRange(20)
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
@@ -94,12 +97,36 @@ public class ModEntityTypesImpl {
                         .setShouldReceiveVelocityUpdates(true)
                         .build(GalleyEntity.ID)));
 
+        entries.put(DhowEntity.class, ENTITY_TYPES.register(DhowEntity.ID,
+                () -> EntityType.Builder.of(DhowEntity::new, MobCategory.MISC)
+                        .sized(1.0F, 1.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(DhowEntity.ID)));
+
         entries.put(DrakkarEntity.class, ENTITY_TYPES.register(DrakkarEntity.ID,
                 () -> EntityType.Builder.of(DrakkarEntity::new, MobCategory.MISC)
                         .sized(3.5F, 1.25F)
                         .clientTrackingRange(20)
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
-                        .build(GalleyEntity.ID)));
+                        .build(DrakkarEntity.ID)));
+
+        entries.put(GalleonEntity.class, ENTITY_TYPES.register(GalleonEntity.ID,
+                () -> EntityType.Builder.of(GalleonEntity::new, MobCategory.MISC)
+                        .sized(3.5F, 1.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(GalleonEntity.ID)));
+
+        entries.put(CaravelEntity.class, ENTITY_TYPES.register(CaravelEntity.ID,
+                () -> EntityType.Builder.of(CaravelEntity::new, MobCategory.MISC)
+                        .sized(3.5F, 1.25F)
+                        .clientTrackingRange(20)
+                        .setUpdateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(CaravelEntity.ID)));
     }
 }
