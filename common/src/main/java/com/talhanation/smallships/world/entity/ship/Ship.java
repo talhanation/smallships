@@ -3,7 +3,6 @@ package com.talhanation.smallships.world.entity.ship;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.config.SyncedServerConfig;
-import com.talhanation.smallships.duck.BoatLeashAccess;
 import com.talhanation.smallships.math.Kalkuel;
 import com.talhanation.smallships.mixin.controlling.BoatAccessor;
 import com.talhanation.smallships.network.ModPackets;
@@ -63,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
+import java.util.UUID;
 
 public abstract class Ship extends Boat {
     public static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
@@ -96,6 +96,14 @@ public abstract class Ship extends Boat {
      *  drive is a scalar along the bow and cannot express a sideways shove. */
     private static final EntityDataAccessor<Float> IMPULSE_X = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> IMPULSE_Z = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.FLOAT);
+    /**
+     * Entity id of whoever holds the lead, -1 when the ship is free.
+     *
+     * Synched rather than sent as a vanilla entity link: 1.20.1 forwards
+     * ClientboundSetEntityLinkPacket to Mobs only, so a ship never learned
+     * about its own leash on the client. See Leashable.
+     */
+    public static final EntityDataAccessor<Integer> LEASH_HOLDER = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<CompoundTag> SHIELD_DATA = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     /** Broadside aim data (Better Cannon Gameplay), see Cannonable. */
     public static final EntityDataAccessor<CompoundTag> CANNON_AIM = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
@@ -107,6 +115,15 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<CompoundTag> CANNON_SLOTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     /** Fixed seat assignments: Seat<id> -> passenger UUID, see Seatable. */
     public static final EntityDataAccessor<CompoundTag> SEAT_ASSIGNMENTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+
+    /**
+     * Server side: who holds the lead, across a world load.
+     *
+     * The uuid and not the id, because ids are handed out per session - and
+     * the holder's chunk may not be loaded yet when the ship comes back, so
+     * Leashable retries the lookup until it resolves or gives up.
+     */
+    @Nullable public UUID leashHolderUuid;
 
     /** live collision parts, server side only, see updateParts */
     private final List<ShipPartEntity> parts = new ArrayList<>();
@@ -123,8 +140,7 @@ public abstract class Ship extends Boat {
      * hit ship is thrown at the speed it was hit with. Nothing else.
      *
      * Speeds are in km/h, the unit the ships report to the player, so the
-     * threshold can be checked against the readout on screen. A Cog at full
-     * speed makes about 42 km/h; two of them head-on close at roughly 84.
+     * threshold can be checked against the readout on screen.
      */
 
     /** below this closing speed the hulls just bump and nothing is spent */
@@ -278,6 +294,7 @@ public abstract class Ship extends Boat {
             if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
             if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
             if (this instanceof Shieldable shieldShip) shieldShip.tickShieldShip();
+            if (this instanceof Leashable leashShip) leashShip.tickLeashShip();
             if (this instanceof IceBreakable iceBreakable) iceBreakable.tickIceBreakable();
 
             boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
@@ -304,6 +321,9 @@ public abstract class Ship extends Boat {
         this.entityData.define(DOCKYARD_WORK, false);
         this.entityData.define(IMPULSE_X, 0.0F);
         this.entityData.define(IMPULSE_Z, 0.0F);
+
+        // Leashable
+        this.entityData.define(Ship.LEASH_HOLDER, -1);
 
         // Sailable
         this.entityData.define(SAIL_STATE, (byte) 0);
@@ -348,6 +368,7 @@ public abstract class Ship extends Boat {
         if (this instanceof Bannerable bannerShip) bannerShip.readBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.readCannonShipSaveData(tag);
         if (this instanceof Shieldable shieldShip) shieldShip.readShieldShipSaveData(tag);
+        if (this instanceof Leashable leashShip) leashShip.readLeashShipSaveData(tag);
 
         // hull damage: vanilla Boat keeps this in synched data only and never
         // writes it, so a damaged ship used to come back whole after a restart
@@ -367,6 +388,7 @@ public abstract class Ship extends Boat {
         if (this instanceof Bannerable bannerShip) bannerShip.addBannerShipSaveData(tag);
         if (this instanceof Cannonable cannonShip) cannonShip.addCannonShipSaveData(tag);
         if (this instanceof Shieldable shieldShip) shieldShip.addShieldShipSaveData(tag);
+        if (this instanceof Leashable leashShip) leashShip.addLeashShipSaveData(tag);
 
         tag.putFloat("HullDamage", this.getDamage());
         tag.putBoolean("Sunken", isSunken());
@@ -476,8 +498,6 @@ public abstract class Ship extends Boat {
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
 
-        //SmallShipsMod.LOGGER.info("Speed kmh: " +  Kalkuel.getKilometerPerHour(this.getSpeed()));
-
         if(this.level().isClientSide() && !this.isSunken()){
 
             Player player = getDriver();
@@ -516,7 +536,6 @@ public abstract class Ship extends Boat {
             this.calculateSpeed(acceleration);
 
             //CALCULATE ROTATION SPEED//
-            //((BoatAccessor) this).setDeltaRotation(0); // IDK WHAT THIS IS FOR BUT IT WORKS WITHOUT IT
             float rotationSpeed = Kalkuel.subtractToZero(getRotSpeed(), getVelocityResistance() * 2.5F);
 
 
@@ -674,8 +693,13 @@ public abstract class Ship extends Boat {
     public boolean isLocked(){
         return isLocked;
     }
+
+    /**
+     * @return whether a lead is holding this ship. A ship on the leash makes no
+     * way of its own - see controlBoat, it is being towed, not sailed.
+     */
     public boolean isShipLeashed(){
-        return  ((BoatLeashAccess) this).isLeashed();
+        return this instanceof Leashable leashShip && leashShip.getLeashHolder() != null;
     }
     private void calculateSpeed(float acceleration) {
         // If there is no interaction the speed should get reduced
@@ -755,6 +779,8 @@ public abstract class Ship extends Boat {
         return entityData.get(BACKWARD);
     }
 
+    // same guard as forward/backward: the input flags stay in the synched data
+    // after the driver leaves, and without this the hull kept turning by itself
     public boolean isLeft() {
         if (this.getControllingPassenger() == null) {
             return false;
@@ -783,8 +809,8 @@ public abstract class Ship extends Boat {
 
 
         boolean coldType = shipBiomeType == BiomeModifierType.COLD;
-        boolean neutralType = shipBiomeType == BiomeModifierType.NEUTRAL;;
-        boolean warmType = shipBiomeType == BiomeModifierType.WARM;;
+        boolean neutralType = shipBiomeType == BiomeModifierType.NEUTRAL;
+        boolean warmType = shipBiomeType == BiomeModifierType.WARM;
 
         if (coldBiomes && coldType || warmBiomes && warmType || neutralBiomes && neutralType) {
             return modifier;
@@ -851,6 +877,9 @@ public abstract class Ship extends Boat {
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         if(!this.isLocked()){
+            // the lead comes first: a right click with one in hand is never
+            // meant to board, and boarding would swallow it
+            if (this instanceof Leashable leashShip && leashShip.interactLead(player, interactionHand)) return InteractionResult.SUCCESS;
             if(this.interactWithNameTag(player)) return InteractionResult.SUCCESS;
             if(this.interactIronNuggets(player)) return InteractionResult.SUCCESS;
             // cannon mounting moved to the dockyard (no field mounting anymore)
@@ -863,7 +892,8 @@ public abstract class Ship extends Boat {
     }
 
     private boolean interactWithNameTag(@NotNull Player player){
-        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().has(DataComponents.CUSTOM_NAME) && !player.getCommandSenderWorld().isClientSide){
+        // 1.20.1 has no CUSTOM_NAME component, a renamed item carries a display tag
+        if (player.getMainHandItem().is(Items.NAME_TAG) && player.getMainHandItem().hasCustomHoverName() && !player.getCommandSenderWorld().isClientSide){
             this.setCustomName(player.getMainHandItem().getHoverName());
             this.setCustomNameVisible(false);
             if(!player.isCreative()) player.getMainHandItem().shrink(1);
@@ -935,19 +965,39 @@ public abstract class Ship extends Boat {
     /**
      * Seat system: passengers are positioned by their FIXED seat assignment,
      * never by their index in the passenger list.
+     *
+     * There is no getPassengerAttachmentPoint in 1.20.1 - a vehicle places its
+     * riders itself. So the seat offset is added to the hull position here, and
+     * the rotation bookkeeping Boat#positionRider does around it has to be
+     * repeated: without it a passenger keeps his world yaw while the ship turns
+     * under him.
      */
     @Override
-    public @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity entity, @NotNull EntityDimensions dimensions, float partialTick) {
-        if (this instanceof Seatable seatable) {
-            ShipSeat seat = seatable.getSeatOf(entity);
-            if (seat != null) {
-                return seat.getAttachmentPoint(this, dimensions);
-            }
-            // not yet assigned (first tick / edge case): center of the deck
-            return new Vec3(1.5F, dimensions.height() - 0.1, 0.0F)
-                    .yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
+    public void positionRider(@NotNull Entity entity) {
+        if (!this.hasPassenger(entity)) return;
+        if (!(this instanceof Seatable seatable)) {
+            super.positionRider(entity);
+            return;
         }
-        return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
+
+        EntityDimensions dimensions = this.getDimensions(this.getPose());
+        ShipSeat seat = seatable.getSeatOf(entity);
+        Vec3 attachment = seat != null
+                ? seat.getAttachmentPoint(this, dimensions)
+                // not yet assigned (first tick / edge case): center of the deck
+                : new Vec3(1.5F, dimensions.height - 0.1, 0.0F)
+                .yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
+
+        // getMyRidingOffset is what vanilla Boat adds on top as well. It is 0 for
+        // players and only speaks up for the animals that override it.
+        entity.setPos(this.getX() + attachment.x,
+                this.getY() + attachment.y + entity.getMyRidingOffset(),
+                this.getZ() + attachment.z);
+
+        float deltaRotation = ((BoatAccessor) this).getDeltaRotation();
+        entity.setYRot(entity.getYRot() + deltaRotation);
+        entity.setYHeadRot(entity.getYHeadRot() + deltaRotation);
+        this.clampRotation(entity);
     }
 
     /**
@@ -1183,6 +1233,8 @@ public abstract class Ship extends Boat {
         // parts must never outlive their ship, not even for a tick
         for (ShipPartEntity part : this.parts) part.discard();
         this.parts.clear();
+        // a ship that is gone cannot stay tied to anything - give the lead back
+        if (this instanceof Leashable leashShip) leashShip.dropLeash(true);
         super.remove(removalReason);
     }
 
@@ -1244,11 +1296,6 @@ public abstract class Ship extends Boat {
     }
 
     /**
-     * The displacement of this ship, taken straight from its hull boxes instead
-     * of from yet another config value: an addon ship gets a sensible mass the
-     * moment its parts are defined. Masts do not count, they carry no water.
-     */
-    /**
      * @return how far the tallest point of this ship reaches above the
      * waterline, in blocks - masthead on a rigged ship, deck rail otherwise.
      *
@@ -1267,6 +1314,11 @@ public abstract class Ship extends Boat {
         return height;
     }
 
+    /**
+     * The displacement of this ship, taken straight from its hull boxes instead
+     * of from yet another config value: an addon ship gets a sensible mass the
+     * moment its parts are defined. Masts do not count, they carry no water.
+     */
     public float getMass() {
         float mass = 0.0F;
         for (ShipPartEntity.Definition definition : this.getParts()) {
@@ -1475,13 +1527,6 @@ public abstract class Ship extends Boat {
     }
 
     /**
-     * Full stop against something solid - terrain, a wall, a wedged hull - with
-     * the timber to go with it.
-     *
-     * Nothing to do with ramShip: this is the ship being brought up short by
-     * the world, it costs no damage and knows nothing about the other party.
-     */
-    /**
      * Watches for the hull running into terrain, on BOTH sides.
      *
      * It cannot live in move(): vanilla only calls that on the controlling
@@ -1544,7 +1589,6 @@ public abstract class Ship extends Boat {
         return this.getBoundingBox().inflate(5.0D);
     }
 
-    @Override
     /**
      * @return how many stations this ship has open right now.
      *
@@ -1552,6 +1596,7 @@ public abstract class Ship extends Boat {
      * body, which meant seven places to keep in sync and an addon ship silently
      * getting it wrong. Override it only if a ship really does count differently.
      */
+    @Override
     public int getMaxPassengers() {
         return this instanceof Seatable seatable ? seatable.getUsableSeatCount() : 0;
     }

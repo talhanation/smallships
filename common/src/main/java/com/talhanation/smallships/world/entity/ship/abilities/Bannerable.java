@@ -19,14 +19,16 @@ public interface Bannerable extends Ability {
         }
     }
 
+    // 1.20.1 reads and writes item nbt without a registry context: ItemStack.of
+    // instead of parse (no Optional), and save takes the tag to write into
     default void readBannerShipSaveData(CompoundTag tag) {
-        if (tag.get("Banner") instanceof CompoundTag bannerCompound) self().setData(Ship.BANNER, ItemStack.parse(self().registryAccess(), bannerCompound).orElse(ItemStack.EMPTY));
-        if (tag.get("SailBanner") instanceof CompoundTag sailBannerCompound) self().setData(Ship.SAIL_BANNER, ItemStack.parse(self().registryAccess(), sailBannerCompound).orElse(ItemStack.EMPTY));
+        if (tag.get("Banner") instanceof CompoundTag bannerCompound) self().setData(Ship.BANNER, ItemStack.of(bannerCompound));
+        if (tag.get("SailBanner") instanceof CompoundTag sailBannerCompound) self().setData(Ship.SAIL_BANNER, ItemStack.of(sailBannerCompound));
     }
 
     default void addBannerShipSaveData(CompoundTag tag) {
-        if (!self().getData(Ship.BANNER).isEmpty()) tag.put("Banner", self().getData(Ship.BANNER).save(self().registryAccess()));
-        if (!self().getData(Ship.SAIL_BANNER).isEmpty()) tag.put("SailBanner", self().getData(Ship.SAIL_BANNER).save(self().registryAccess()));
+        if (!self().getData(Ship.BANNER).isEmpty()) tag.put("Banner", self().getData(Ship.BANNER).save(new CompoundTag()));
+        if (!self().getData(Ship.SAIL_BANNER).isEmpty()) tag.put("SailBanner", self().getData(Ship.SAIL_BANNER).save(new CompoundTag()));
     }
 
     /**

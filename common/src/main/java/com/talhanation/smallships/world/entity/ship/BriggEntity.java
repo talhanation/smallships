@@ -15,12 +15,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
+public class BriggEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Leashable, Ability {
     public static final String ID = "brigg";
 
     /** Two fully square rigged masts: by far the largest canvas and a heavy iron bound hull. */
@@ -203,5 +204,10 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     @Override
     public float getTailWindMultiplier() {
         return 1.40F;
+    }
+
+    @Override
+    public @Nullable Vec3 applyLeashOffset() {
+        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 }

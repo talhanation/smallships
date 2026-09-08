@@ -15,12 +15,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class GalleonEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
+public class GalleonEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Leashable, Ability {
     public static final String ID = "galleon";
 
     /** The biggest hull of the fleet, four sails and the most plating of all - nothing here is cheap. */
@@ -227,6 +228,11 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
     @Override
     public byte getMaxCannonPerSide(){
         return 5;
+    }
+
+    @Override
+    public @Nullable Vec3 applyLeashOffset() {
+        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 
     /* ---------------- wind profile ---------------- */

@@ -1,6 +1,7 @@
 package com.talhanation.smallships.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.api.ShipRegistry;
 import com.talhanation.smallships.api.ShipType;
@@ -49,7 +50,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -1199,24 +1203,21 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         public void renderPreview(GuiGraphics guiGraphics, @Nullable Ship ship, boolean modify) {
             if (ship == null || DockyardScreen.this.minecraft == null) return;
 
-            // The hovered gun is handed to the renderer, which draws it in
-            // flat white on the spot it would occupy. Set for this one draw
-            // call and cleared right after: the world has already been rendered
-            // by the time a screen draws, so it never reaches the ship floating
-            // outside.
             int ghostSlot = modify ? DockyardScreen.this.ghostCannonSlot : -1;
             if (ghostSlot >= 0) ShipRenderer.setGhostCannon(ghostSlot);
 
             int centerX = this.getX() + this.getWidth() / 2;
             int centerY = this.getY() + (int) (this.getHeight() * PIVOT_Y_FRACTION);
-            // fit the ship into the frame once, the player takes it from there
             float fit = this.getHeight() * PIVOT_Y_FRACTION * PREVIEW_FIT / ship.getModelHeight();
             float scale = fit * this.zoom;
 
             guiGraphics.enableScissor(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight());
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(centerX, centerY, 100.0F);
-            guiGraphics.pose().scale(scale, scale, -scale);
+            guiGraphics.pose().translate(centerX, centerY, 50.0D);
+            // the flip into entity space goes in as a matrix, not as scale(): that is
+            // how vanilla and the working siege weapon preview do it, and mixing the
+            // two ways of getting there is the only thing that ever differed here
+            guiGraphics.pose().mulPoseMatrix(new Matrix4f().scaling(scale, scale, -scale));
             guiGraphics.pose().mulPose(new Quaternionf()
                     .rotateZ((float) Math.PI)
                     .rotateX(this.pitch * Mth.DEG_TO_RAD)
@@ -1225,14 +1226,17 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             Lighting.setupForEntityInInventory();
             var dispatcher = DockyardScreen.this.minecraft.getEntityRenderDispatcher();
             dispatcher.setRenderShadow(false);
-            MultiBufferSource.BufferSource bufferSource = DockyardScreen.this.minecraft.renderBuffers().bufferSource();
-            dispatcher.render(ship, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, guiGraphics.pose(), bufferSource, 15728880);
-            bufferSource.endBatch();
-            dispatcher.setRenderShadow(true);
-            Lighting.setupFor3DItems();
 
+            // fast graphics picks cheaper render types for parts of the model, which
+            // in a 200 pixel preview only costs quality and saves nothing
+            RenderSystem.runAsFancy(() -> dispatcher.render(ship, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F,
+                    guiGraphics.pose(), guiGraphics.bufferSource(), 15728880));
+            guiGraphics.flush();
+
+            dispatcher.setRenderShadow(true);
             guiGraphics.pose().popPose();
             guiGraphics.disableScissor();
+            Lighting.setupFor3DItems();
 
             ShipRenderer.clearGhostCannon();
         }
@@ -1338,7 +1342,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             if (!this.visible) return;
             this.hoveredStack = ItemStack.EMPTY;
+            guiGraphics.enableScissor(this.x0, this.y0, this.x1, this.y1);
             this.renderList(guiGraphics, mouseX, mouseY, partialTick);
+            guiGraphics.disableScissor();
             DockyardScreen.renderScrollbar(guiGraphics, this.getScrollbarPosition(), this.y0, this.y1,
                     this.getMaxScroll(), this.getMaxPosition(), this.getScrollAmount());
         }
@@ -1483,7 +1489,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             if (!this.visible) return;
             this.hoveredTooltip = null;
+            guiGraphics.enableScissor(this.x0, this.y0, this.x1, this.y1);
             this.renderList(guiGraphics, mouseX, mouseY, partialTick);
+            guiGraphics.disableScissor();
             DockyardScreen.renderScrollbar(guiGraphics, this.getScrollbarPosition(), this.y0, this.y1,
                     this.getMaxScroll(), this.getMaxPosition(), this.getScrollAmount());
         }

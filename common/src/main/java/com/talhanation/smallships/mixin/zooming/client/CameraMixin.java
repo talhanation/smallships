@@ -16,8 +16,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -175,19 +174,36 @@ public abstract class CameraMixin implements CameraZoomAccess {
      * player position to the ship center, allowing a full 360 degree orbit
      * around the ship. The transition after mounting is smoothed by
      * ShipCameraHandler (aim and align).
+     *
+     * A REDIRECT, not a ModifyArgs: the latter hands the handler a synthetic
+     * org.spongepowered.asm.synthetic.args.Args subclass that mixin generates at
+     * runtime, and in a dev launch that class is regularly not loadable - the
+     * whole GameRenderer then dies with a NoClassDefFoundError before the game
+     * window ever appears. A redirect needs no generated class, and unlike
+     * ModifyArg (singular) it may still take the enclosing setup parameters,
+     * which is what detached, entity and partialTick below come from.
+     *
+     * The camera is NOT clipped here. This only moves the anchor sideways onto
+     * the hull; vanilla runs its own getMaxZoom right after and probes the orbit
+     * out of that new anchor, so terrain still pushes the camera back in.
      */
-    @ModifyArgs(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", ordinal = 0))
-    private void smallships$centerCameraOnShip(Args args, BlockGetter blockGetter, Entity entity, boolean detached, boolean mirrored, float partialTick) {
-        if (!detached) return;
-        if (!SmallShipsConfig.Client.shipGeneralCameraShipCenterEnable.get()) return;
-        if (!(entity.getVehicle() instanceof Ship ship)) return;
+    @Redirect(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", ordinal = 0))
+    private void smallships$centerCameraOnShip(Camera camera, double x, double y, double z,
+                                               BlockGetter blockGetter, Entity entity, boolean detached, boolean mirrored, float partialTick) {
+        if (!detached
+                || !SmallShipsConfig.Client.shipGeneralCameraShipCenterEnable.get()
+                || !(entity.getVehicle() instanceof Ship ship)) {
+            this.setPosition(x, y, z);
+            return;
+        }
 
         double shipX = Mth.lerp(partialTick, ship.xo, ship.getX());
         double shipZ = Mth.lerp(partialTick, ship.zo, ship.getZ());
 
         float blend = ShipCameraHandler.getAnchorBlend(partialTick);
-        args.set(0, Mth.lerp(blend, (Double) args.get(0), shipX));
-        args.set(2, Mth.lerp(blend, (Double) args.get(2), shipZ));
+        // y is left alone on purpose: the eye stays at the player's own height,
+        // only the horizontal pivot moves onto the ship
+        this.setPosition(Mth.lerp(blend, x, shipX), y, Mth.lerp(blend, z, shipZ));
     }
 
     /**
@@ -198,6 +214,9 @@ public abstract class CameraMixin implements CameraZoomAccess {
      * that was already clamped against a wall, which is how the camera ended up
      * inside terrain. Scaling what goes in makes vanilla probe the full distance
      * we want and clamp it itself.
+     *
+     * ModifyArg (singular) is safe here where ModifyArgs was not: it passes a
+     * plain double and generates nothing.
      *
      * The whole camera is double based in 1.20.1 - Camera#move and getMaxZoom
      * only became float in the later versions.

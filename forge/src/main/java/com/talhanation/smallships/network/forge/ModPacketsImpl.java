@@ -11,13 +11,11 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ModPacketsImpl {
     private static final String PROTOCOL_VERSION = "1";
 
-    private static final Map<ResourceLocation, ModPacket.Reader> readers = new HashMap<>();
+    /** forge numbers its messages, one index per registered packet class */
+    private static int index;
 
     // acceptMissingOr keeps the channel optional, so a client without the mod is
     // not rejected over the network handshake alone
@@ -28,29 +26,27 @@ public class ModPacketsImpl {
             NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION));
 
     /**
-     * Forge dispatches a SimpleChannel message on its concrete class, and every
-     * packet here shares ModPacket, so registering all of them separately is not
-     * possible. Instead there is ONE message: the encoder puts the packet id on
-     * the wire ahead of the body and the decoder uses it to pick the reader.
-     * Costs a ResourceLocation per packet and keeps the common API identical to
-     * fabric's.
+     * ONE registration per packet class - a single shared one on ModPacket does
+     * NOT work: IndexedMessageCodec looks the codec up with
+     * types.get(message.getClass()), an exact map hit, so a supertype key is
+     * never found and sending dies with "Invalid message ...".
+     *
+     * The packet id therefore never goes on the wire here, unlike on fabric:
+     * forge already identifies the message by its index.
      */
-    public static void buildChannel() {
-        CHANNEL.registerMessage(0, ModPacket.class,
-                (packet, buf) -> {
-                    buf.writeResourceLocation(packet.id());
-                    packet.write(buf);
-                },
-                buf -> {
-                    ResourceLocation id = buf.readResourceLocation();
-                    ModPacket.Reader reader = readers.get(id);
-                    if (reader == null) throw new IllegalStateException("Unknown smallships packet " + id);
-                    return reader.read(buf);
-                },
+    public static void registerPacket(ResourceLocation id, ModPacket.Side side, Class<? extends ModPacket> type, ModPacket.Reader reader) {
+        registerTyped(side, type, reader);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends ModPacket> void registerTyped(ModPacket.Side side, Class<? extends ModPacket> type, ModPacket.Reader reader) {
+        CHANNEL.registerMessage(index++, (Class<T>) type,
+                (packet, buf) -> packet.write(buf),
+                buf -> (T) reader.read(buf),
                 (packet, contextSupplier) -> {
                     NetworkEvent.Context context = contextSupplier.get();
                     context.enqueueWork(() -> {
-                        if (packet.side() == ModPacket.Side.SERVERBOUND) {
+                        if (side == ModPacket.Side.SERVERBOUND) {
                             // getSender is null on the client, which is exactly
                             // how a spoofed serverbound packet arrives there
                             ServerPlayer sender = context.getSender();
@@ -61,11 +57,6 @@ public class ModPacketsImpl {
                     });
                     context.setPacketHandled(true);
                 });
-    }
-
-    /** The side is carried by the packet itself, the channel only needs the reader. */
-    public static void registerPacket(ResourceLocation id, ModPacket.Side side, ModPacket.Reader reader) {
-        readers.put(id, reader);
     }
 
     public static void serverSendPacket(ServerPlayer player, ModPacket packet) {

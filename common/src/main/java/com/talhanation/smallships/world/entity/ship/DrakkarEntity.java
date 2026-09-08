@@ -15,12 +15,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Paddleable, IceBreakable, Seatable, Ability {
+public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable, Shieldable, Paddleable, IceBreakable, Seatable, Leashable, Ability {
     public static final String ID = "drakkar";
 
     /** Clinker built on thousands of rivets, the single square sail stays modest. */
@@ -163,6 +164,11 @@ public class DrakkarEntity extends ContainerShip implements Bannerable, Sailable
     @Override
     public byte getMaxShieldsPerSide(){
         return 5;
+    }
+
+    @Override
+    public @Nullable Vec3 applyLeashOffset() {
+        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 
     /* ---------------- wind profile ---------------- */

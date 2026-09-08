@@ -40,14 +40,16 @@ public interface Shieldable extends Ability {
     default ItemStack getShieldInSlot(int slot) {
         CompoundTag tag = self().getShieldData().getCompound(slotKey(slot));
         if (tag.isEmpty()) return ItemStack.EMPTY;
-        return ItemStack.parse(self().registryAccess(), tag).orElse(ItemStack.EMPTY);
+        // 1.20.1 reads item nbt without a registry context and returns EMPTY on
+        // anything it cannot make sense of, so there is no Optional to unwrap
+        return ItemStack.of(tag);
     }
 
     default void setShieldInSlot(int slot, ItemStack shield) {
         if (slot < 0 || slot >= this.getTotalShieldSlots()) return;
         CompoundTag tag = self().getShieldData().copy();
         if (shield.isEmpty()) tag.remove(slotKey(slot));
-        else tag.put(slotKey(slot), shield.copyWithCount(1).save(self().registryAccess(), new CompoundTag()));
+        else tag.put(slotKey(slot), shield.copyWithCount(1).save(new CompoundTag()));
         self().setShieldData(tag);
     }
 
@@ -100,9 +102,9 @@ public interface Shieldable extends Ability {
         ListTag legacy = tag.getList("Shields", Tag.TAG_COMPOUND);
         CompoundTag slots = new CompoundTag();
         for (int slot = 0; slot < legacy.size() && slot < this.getTotalShieldSlots(); slot++) {
-            ItemStack itemStack = ItemStack.parse(self().registryAccess(), legacy.getCompound(slot)).orElse(ItemStack.EMPTY);
+            ItemStack itemStack = ItemStack.of(legacy.getCompound(slot));
             if (!itemStack.isEmpty()) {
-                slots.put(slotKey(slot), itemStack.copyWithCount(1).save(self().registryAccess(), new CompoundTag()));
+                slots.put(slotKey(slot), itemStack.copyWithCount(1).save(new CompoundTag()));
             }
         }
         self().setShieldData(slots);

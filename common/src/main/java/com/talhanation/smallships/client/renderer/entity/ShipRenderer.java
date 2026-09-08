@@ -21,9 +21,13 @@ import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.client.model.CannonModel;
 import com.talhanation.smallships.client.wind.ClientWindManager;
 import com.talhanation.smallships.compat.ShieldRegistry;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.phys.Vec3;
@@ -46,6 +50,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import java.util.List;
@@ -135,6 +140,11 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         poseStack.popPose();
 
         super.render(shipEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
+
+        if (shipEntity instanceof Leashable leashShip) {
+            Entity holder = leashShip.getLeashHolder();
+            if (holder != null) this.renderLeash(shipEntity, partialTicks, poseStack, multiBufferSource, holder);
+        }
     }
 
     private static final CannonModel cannonModel = new CannonModel();
@@ -383,5 +393,83 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     public static String getNameFromType(Boat.Type type) {
         return type.getName().replace(":", "/");
+    }
+
+    private static final int LEASH_SEGMENTS = 24;
+    private void renderLeash(T shipEntity, float partialTicks, PoseStack poseStack, MultiBufferSource multiBufferSource, Entity holder) {
+        Vec3 offset = ((Leashable) shipEntity).applyLeashOffset();
+        if (offset == null) return;
+
+        poseStack.pushPose();
+
+        // the offset is stated un-rotated, so it is turned with the hull here.
+        // Boat has no yBodyRot, the hull heading is the body heading.
+        double yaw = Mth.lerp(partialTicks, shipEntity.yRotO, shipEntity.getYRot()) * Mth.DEG_TO_RAD + (Math.PI / 2D);
+        double offX = Math.cos(yaw) * offset.z + Math.sin(yaw) * offset.x;
+        double offZ = Math.sin(yaw) * offset.z - Math.cos(yaw) * offset.x;
+        poseStack.translate(offX, offset.y, offZ);
+
+        Vec3 ropeHold = holder.getRopeHoldPosition(partialTicks);
+        float dx = (float) (ropeHold.x - (Mth.lerp(partialTicks, shipEntity.xo, shipEntity.getX()) + offX));
+        float dy = (float) (ropeHold.y - (Mth.lerp(partialTicks, shipEntity.yo, shipEntity.getY()) + offset.y));
+        float dz = (float) (ropeHold.z - (Mth.lerp(partialTicks, shipEntity.zo, shipEntity.getZ()) + offZ));
+
+        // half the rope width, turned across the run so the two strips cross
+        double flat = Math.sqrt(dx * dx + dz * dz);
+        float thin = flat < 1.0E-4D ? 0.0F : (float) (0.0125D / flat);
+        float sideZ = dz * thin;
+        float sideX = dx * thin;
+
+        // Both ends are lit from the level rather than from their renderers:
+        // EntityRenderer#getBlockLightLevel is protected and MobRenderer only
+        // gets at the holder's copy because it sits in the same package.
+        BlockPos shipPos = BlockPos.containing(shipEntity.getEyePosition(partialTicks));
+        BlockPos holderPos = BlockPos.containing(holder.getEyePosition(partialTicks));
+        int shipBlock = shipEntity.level().getBrightness(LightLayer.BLOCK, shipPos);
+        int holderBlock = holder.level().getBrightness(LightLayer.BLOCK, holderPos);
+        int shipSky = shipEntity.level().getBrightness(LightLayer.SKY, shipPos);
+        int holderSky = holder.level().getBrightness(LightLayer.SKY, holderPos);
+
+        VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.leash());
+        Matrix4f pose = poseStack.last().pose();
+        renderLeashSide(vertexConsumer, pose, dx, dy, dz, shipBlock, holderBlock, shipSky, holderSky, 0.025F, 0.025F, sideZ, sideX);
+        renderLeashSide(vertexConsumer, pose, dx, dy, dz, shipBlock, holderBlock, shipSky, holderSky, 0.025F, 0.0F, sideZ, sideX);
+
+        poseStack.popPose();
+    }
+
+    private static void renderLeashSide(VertexConsumer consumer, Matrix4f pose, float dx, float dy, float dz,
+                                        int blockLightStart, int blockLightEnd, int skyLightStart, int skyLightEnd,
+                                        float width, float yOffset, float xOffset, float zOffset) {
+        for (int segment = 0; segment < LEASH_SEGMENTS; segment++) {
+            float t = (float) segment / (float) LEASH_SEGMENTS;
+            // the light fades along the rope, so a lead running out of a lit
+            // harbour into the dark does not stay bright to the far end
+            int packedLight = LightTexture.pack(
+                    (int) Mth.lerp(t, (float) blockLightStart, (float) blockLightEnd),
+                    (int) Mth.lerp(t, (float) skyLightStart, (float) skyLightEnd));
+            addLeashVertexPair(consumer, pose, packedLight, dx, dy, dz, width, yOffset, segment, false, xOffset, zOffset);
+            addLeashVertexPair(consumer, pose, packedLight, dx, dy, dz, width, yOffset, segment + 1, true, xOffset, zOffset);
+        }
+    }
+
+    private static void addLeashVertexPair(VertexConsumer consumer, Matrix4f pose, int packedLight,
+                                           float dx, float dy, float dz, float width, float yOffset,
+                                           int segment, boolean reverse, float xOffset, float zOffset) {
+        float t = (float) segment / (float) LEASH_SEGMENTS;
+        float x = dx * t;
+        // the sag - a rope hangs, it is not a straight line between two points.
+        // Which half of the curve is used depends on whether the holder is above
+        // or below, so the belly always points downwards.
+        float y = dy > 0.0F ? dy * t * t : dy - dy * (1.0F - t) * (1.0F - t);
+        float z = dz * t;
+
+        if (!reverse) {
+            consumer.vertex(pose, x + xOffset, y + width - yOffset, z - zOffset).color(0.5F, 0.4F, 0.3F, 1.0F).uv2(packedLight).endVertex();
+            consumer.vertex(pose, x - xOffset, y + yOffset, z + zOffset).color(0.5F, 0.4F, 0.3F, 1.0F).uv2(packedLight).endVertex();
+        } else {
+            consumer.vertex(pose, x - xOffset, y + yOffset, z + zOffset).color(0.5F, 0.4F, 0.3F, 1.0F).uv2(packedLight).endVertex();
+            consumer.vertex(pose, x + xOffset, y + width - yOffset, z - zOffset).color(0.5F, 0.4F, 0.3F, 1.0F).uv2(packedLight).endVertex();
+        }
     }
 }

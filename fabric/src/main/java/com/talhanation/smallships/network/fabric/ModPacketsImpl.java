@@ -17,7 +17,11 @@ public class ModPacketsImpl {
     private static final Map<ResourceLocation, ModPacket.Reader> clientReceivers = new HashMap<>();
     private static final Map<ResourceLocation, ModPacket.Reader> serverReceivers = new HashMap<>();
 
-    public static void registerPacket(ResourceLocation id, ModPacket.Side side, ModPacket.Reader reader) {
+    /**
+     * The packet class is ignored here: fabric addresses a packet by its channel
+     * id, only forge needs the concrete class for its own message table.
+     */
+    public static void registerPacket(ResourceLocation id, ModPacket.Side side, Class<? extends ModPacket> type, ModPacket.Reader reader) {
         switch (side) {
             case CLIENTBOUND -> clientReceivers.put(id, reader);
             case SERVERBOUND -> serverReceivers.put(id, reader);

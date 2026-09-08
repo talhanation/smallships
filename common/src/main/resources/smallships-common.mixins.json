@@ -16,7 +16,8 @@
     "vanillaboat.BoatSpeedMixin",
     "entity.EntityMixin",
     "entity.LivingEntityMixin",
-    "entity.ServerEntityMixin"
+    "entity.ServerEntityMixin",
+    "zooming.client.EntityRenderDispatcherMixin"
   ],
   "injectors": {
     "defaultRequire": 1

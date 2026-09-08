@@ -15,12 +15,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DhowEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Ability {
+public class DhowEntity extends ContainerShip implements Bannerable, Sailable, Cannonable, Seatable, Leashable, Ability {
     public static final String ID = "dhow";
 
     /** The lightest hull of the mod under the largest lateen sail, and not a nail of iron in it. */
@@ -171,6 +172,11 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
             this.level().addParticle(ParticleTypes.BUBBLE, this.getX() - vector3d.x * (double) f2_ - (double) f0_1, this.getY() - vector3d.y + 0.8D, this.getZ() - vector3d.z * (double) (f2_ - x) - (double) f1_1 * 1.1, 0.0D, 0.0D, 0.0D);
 
         }
+    }
+
+    @Override
+    public @Nullable Vec3 applyLeashOffset() {
+        return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
 
     /* ---------------- wind profile ---------------- */

@@ -30,7 +30,6 @@ public class CommonModBus {
     @SubscribeEvent
     static void init(FMLCommonSetupEvent event) {
         event.enqueueWork(ModPackets::registerPackets);
-        event.enqueueWork(ModPacketsImpl::buildChannel);
         // ship types need the configs, which Forge loads after mod construction
         event.enqueueWork(ModShipTypes::init);
     }
