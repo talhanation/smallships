@@ -756,10 +756,16 @@ public abstract class Ship extends Boat {
     }
 
     public boolean isLeft() {
+        if (this.getControllingPassenger() == null) {
+            return false;
+        }
         return entityData.get(LEFT);
     }
 
     public boolean isRight() {
+        if (this.getControllingPassenger() == null) {
+            return false;
+        }
         return entityData.get(RIGHT);
     }
 

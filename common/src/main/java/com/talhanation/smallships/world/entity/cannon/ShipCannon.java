@@ -129,24 +129,24 @@ public class ShipCannon implements ICannon {
         final int count = type.projectileCount;
         for (int i = 0; i < count; i++) {
             if (i == 0) {
-                this.cannon.triggerFuze(driverEntity, () -> this.createProjectile(type));
+                this.cannon.triggerFuze(driverEntity, () -> createProjectile(type, level));
             }
         }
         // grape shot: additional pellets are spawned by the projectile itself on shoot,
         // see CannonBallEntity/AbstractCannonBall handling of projectileCount
     }
 
-    private AbstractCannonBall createProjectile(CannonBallItem.Type type) {
+    public static AbstractCannonBall createProjectile(CannonBallItem.Type type, Level level) {
         AbstractCannonBall ball;
 
         if(type == CannonBallItem.Type.CHAINED){
-            ball = new ChainShotEntity(this.level);
+            ball = new ChainShotEntity(level);
         }
         else if(type == CannonBallItem.Type.GRAPE){
-            ball = new GrapeShotEntity(this.level);
+            ball = new GrapeShotEntity(level);
         }
         else{
-            ball = new CannonBallEntity(this.level);
+            ball = new CannonBallEntity(level);
         }
         ball.setBallType(type);
 
