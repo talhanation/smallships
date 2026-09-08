@@ -7,6 +7,7 @@ import com.talhanation.smallships.network.packet.ServerboundShootGroundCannonPac
 import com.talhanation.smallships.network.packet.ServerboundUdpateGroundCannonControlPacket;
 import com.talhanation.smallships.world.entity.IMixinEntity;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
+import com.talhanation.smallships.world.entity.projectile.AbstractCannonBall;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
@@ -638,9 +639,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
             this.cannon.triggerFuze(triggeredBy, () -> {
                 if (cannonBallToShoot != null) {
-                    CannonBallEntity ball = new CannonBallEntity(this.level());
-                    ball.setBallType(ballType);
-                    return ball;
+                    return ShipCannon.createProjectile(ballType, this.level());
                 } else {
                     return (ICannonProjectile) this.getPassengerInBarrel();
                 }

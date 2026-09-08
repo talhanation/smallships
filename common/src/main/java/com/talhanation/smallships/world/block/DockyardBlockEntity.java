@@ -134,8 +134,12 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                 case DockyardMenu.DATA_POS_X -> DockyardBlockEntity.this.worldPosition.getX();
                 case DockyardMenu.DATA_POS_Y -> DockyardBlockEntity.this.worldPosition.getY();
                 case DockyardMenu.DATA_POS_Z -> DockyardBlockEntity.this.worldPosition.getZ();
-                case DockyardMenu.DATA_BUILD_SHIP ->
-                        ShipRegistry.indexOf(ShipRegistry.get(DockyardBlockEntity.this.shipTypeId));
+                case DockyardMenu.DATA_BUILD_SHIP ->{
+                    if (DockyardBlockEntity.this.task != Task.BUILD_SHIP) yield -1;
+                    yield ShipRegistry.indexOf(ShipRegistry.get(DockyardBlockEntity.this.shipTypeId));
+                }
+
+
                 case DockyardMenu.DATA_SHIP_ID -> {
                     // while building a ship, no ship is reported - the screen
                     // stays in build mode showing the progress
