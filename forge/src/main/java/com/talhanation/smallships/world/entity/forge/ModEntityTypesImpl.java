@@ -38,7 +38,7 @@ public class ModEntityTypesImpl {
                         .sized(1.0F, 1.0F)
                         .noSummon()
                         .clientTrackingRange(20)
-                        .setUpdateInterval(Integer.MAX_VALUE)
+                        .setUpdateInterval(10)
                         .build(ShipPartEntity.ID)));
 
         entries.put(CannonBallEntity.class, ENTITY_TYPES.register(CannonBallEntity.ID,
