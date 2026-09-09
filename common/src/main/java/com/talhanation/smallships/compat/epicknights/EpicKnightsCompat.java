@@ -25,10 +25,6 @@ import java.util.Map;
  * catches all of them, including the addons', and the id is then only read to
  * pick the SHAPE: every id ends in its family name, so one entry per shape is
  * enough and the material in front of it does not matter.
- *
- * The numbers below are starting values, not measured ones. They are derived
- * from the vanilla shields' placement, which is the only known good anchor we
- * have - expect one tuning round in game before they sit right.
  */
 public final class EpicKnightsCompat implements ShieldRegistry.Provider {
 
@@ -37,6 +33,12 @@ public final class EpicKnightsCompat implements ShieldRegistry.Provider {
      * builds and runs without theirs on the classpath.
      */
     private static final String SHIELD_ITEM_CLASS = "com.magistuarmory.item.MedievalShieldItem";
+
+    /**
+     * Turned on the whole family table at once, so the shields can be sized
+     * against the hull without touching their proportions to each other.
+     */
+    private static final float SCALE = 0.66F;
 
     /** lean away from the hull, the same angle the vanilla shield is hung at */
     private static final float PITCH = 20.0F;
@@ -49,13 +51,15 @@ public final class EpicKnightsCompat implements ShieldRegistry.Provider {
      * {@code roundshield} sits behind {@code heatershield} - a corrupted round
      * shield ends in the former and must not be caught by a shorter key.
      *
-     * The scale is the shields' size on the hull relative to a vanilla shield
-     * at 0.8: a buckler is a fist sized boss, a pavise is a wall to kneel behind.
+     * The numbers are each shapes' size RELATIVE to the others, a vanilla
+     * shield being 0.8: a buckler is a fist sized boss, a pavise is a wall to
+     * kneel behind. How big the whole set ends up on the hull is
+     * {@link #SCALE}s' business - tune that one, not these.
      */
     private static final Map<String, ShieldRegistry.ShieldEntry> FAMILIES = new LinkedHashMap<>();
 
     /** an Epic Knights shield we do not know the shape of, e.g. from an addon */
-    private static final ShieldRegistry.ShieldEntry DEFAULT = ShieldRegistry.ShieldEntry.item(0.8F, PITCH, YAW, ROLL);
+    private static final ShieldRegistry.ShieldEntry DEFAULT = entry(0.8F);
 
     static {
         // round shapes, smallest first
@@ -72,7 +76,11 @@ public final class EpicKnightsCompat implements ShieldRegistry.Provider {
     }
 
     private static void family(String idSuffix, float scale) {
-        FAMILIES.put(idSuffix, ShieldRegistry.ShieldEntry.item(scale, PITCH, YAW, ROLL));
+        FAMILIES.put(idSuffix, entry(scale));
+    }
+
+    private static ShieldRegistry.ShieldEntry entry(float scale) {
+        return ShieldRegistry.ShieldEntry.item(scale * SCALE, PITCH, YAW, ROLL);
     }
 
     private EpicKnightsCompat() {
