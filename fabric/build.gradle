@@ -67,7 +67,7 @@ remapJar {
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set null
+    archiveClassifier = "${project.name}-${rootProject.minecraft_version}"
 }
 
 jar {

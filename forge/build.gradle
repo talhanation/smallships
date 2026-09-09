@@ -57,7 +57,7 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set null
+    archiveClassifier = "${project.name}-${rootProject.minecraft_version}"
 }
 
 jar {
