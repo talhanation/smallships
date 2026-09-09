@@ -1,5 +1,6 @@
 package com.talhanation.smallships.forge.common;
 
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.forge.SmallshipsModForge;
@@ -22,6 +23,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import java.nio.file.Path;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
@@ -37,7 +39,10 @@ public class CommonModBus {
     @SubscribeEvent
     static void initRegisterConfigs(ModConfigEvent event) {
         ModConfig config = event.getConfig();
-        SmallShipsConfig.updateConfig(new SmallShipsConfig.ModConfigWrapper(config.getType().toString(), config.getFullPath(), config.getFileName(), config.getConfigData()));
+
+        Path path = config.getConfigData() instanceof CommentedFileConfig fileConfig ? fileConfig.getNioPath() : null;
+        SmallShipsConfig.updateConfig(new SmallShipsConfig.ModConfigWrapper(
+                config.getType().toString(), path, config.getFileName(), config.getConfigData()));
     }
 
     @SubscribeEvent

@@ -733,6 +733,7 @@ public class SmallShipsConfig {
     }
     private static final List<Consumer<ModConfigWrapper>> clientSchematicUpdater = new ArrayList<>();
     private static boolean updateConfig(ModConfigWrapper config, List<Consumer<ModConfigWrapper>> schematicUpdater) {
+        if (config.getFullPath() == null) return false;
         if (getSchematicVersion(config) < schematicUpdater.size() + 1) {
             for (int i = getSchematicVersion(config) - 1; i < schematicUpdater.size(); i++) {
                 int j = 0;
