@@ -83,11 +83,21 @@ public class SmallShipsConfig {
     /**
      * Defines the attribute block of one ship. The key names stay exactly what
      * they were, so a config file written by an older version still reads.
+     *
+     * Public because an ADDON has to be able to call it too: it builds its own
+     * ForgeConfigSpec and defines its ships on it, and registering the block
+     * here is what gets those values into the server snapshot. Without that,
+     * an addon ship would fall back to the CLIENTS own file while connected to
+     * a server and quietly show and predict different numbers than the server
+     * calculates.
+     *
+     * @param prefix the config key prefix, unique across all mods - an addon
+     *               prefixes its own mod id, e.g. "myaddonShipAttributeLongship"
      */
-    private static ShipAttributes defineAttributes(ForgeConfigSpec.Builder builder, String prefix,
-                                                   double maxHealth, double maxSpeed, double maxReverseSpeed,
-                                                   double maxRotationSpeed, double acceleration,
-                                                   double rotationAcceleration) {
+    public static ShipAttributes defineAttributes(ForgeConfigSpec.Builder builder, String prefix,
+                                                  double maxHealth, double maxSpeed, double maxReverseSpeed,
+                                                  double maxRotationSpeed, double acceleration,
+                                                  double rotationAcceleration) {
         ShipAttributes attributes = new ShipAttributes(
                 prefix,
                 builder.defineInRange(prefix + "MaxHealth", maxHealth, 1.0D, 10000.0D),
@@ -96,8 +106,23 @@ public class SmallShipsConfig {
                 builder.defineInRange(prefix + "MaxRotationSpeed", maxRotationSpeed, 0.0D, 100.0D),
                 builder.defineInRange(prefix + "Acceleration", acceleration, 0.0D, 100.0D),
                 builder.defineInRange(prefix + "RotationAcceleration", rotationAcceleration, 0.0D, 100.0D));
-        ATTRIBUTE_BLOCKS.put(prefix, attributes);
+        registerAttributeBlock(attributes);
         return attributes;
+    }
+
+    /**
+     * Adds an attribute block to the set the server snapshot is built from.
+     * Only needed by an addon that does NOT want a config at all and hands in
+     * a block built some other way - {@link #defineAttributes} already does it.
+     *
+     * @throws IllegalStateException on a duplicate prefix, which would have one
+     * mods' ship silently read another mods' values
+     */
+    public static synchronized void registerAttributeBlock(ShipAttributes attributes) {
+        ShipAttributes previous = ATTRIBUTE_BLOCKS.putIfAbsent(attributes.key(), attributes);
+        if (previous != null && previous != attributes) {
+            throw new IllegalStateException("Duplicate ship attribute prefix: " + attributes.key());
+        }
     }
 
     /** Every attribute block that was defined, keyed by its config prefix. */

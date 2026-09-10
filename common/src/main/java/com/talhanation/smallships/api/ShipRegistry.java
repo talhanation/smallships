@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +33,8 @@ public final class ShipRegistry {
     private static final Map<ResourceLocation, ShipType> SHIP_TYPES = new LinkedHashMap<>();
     /** ids from the config whitelist that match no registered ship, warned about once */
     private static final Set<String> WARNED_UNKNOWN_IDS = new HashSet<>();
+    /** see {@link #indexOf}, rebuilt on registration and never handed out */
+    private static List<ShipType> networkOrder = List.of();
 
     private ShipRegistry() {
     }
@@ -48,6 +51,9 @@ public final class ShipRegistry {
         if (previous != null) {
             throw new IllegalStateException("Duplicate smallships ship type: " + shipType.getId());
         }
+        List<ShipType> sorted = new ArrayList<>(SHIP_TYPES.values());
+        sorted.sort(Comparator.comparing(type -> type.getId().toString()));
+        networkOrder = List.copyOf(sorted);
         return shipType;
     }
 
@@ -67,36 +73,32 @@ public final class ShipRegistry {
     }
 
     /**
-     * Position of a ship type in the registration order.
+     * Position of a ship type in a NETWORK order that is sorted by id, not the
+     * registration order the rest of this class hands out.
      *
      * The dockyard syncs the ship it is currently building through the menus'
      * ContainerData, which carries plain ints - a ResourceLocation does not fit
-     * through there. Registration happens identically on both sides at mod
-     * setup, and the backing map keeps insertion order, so the index means the
-     * same thing on the client. The CONFIG whitelist must not be involved here:
-     * it is common config and not synced.
+     * through there. Registration order is NOT safe to send: loaders dispatch
+     * mod setup in parallel, so with addons installed the client can end up
+     * with a different insertion order than the server and the player would be
+     * shown the wrong hull on the stocks. Sorting by id is deterministic on
+     * both sides no matter which mod happened to register first.
+     *
+     * The CONFIG whitelist must not be involved here either: it is server
+     * config and a client may hold a different one.
      *
      * @return the index, or -1 if the type is not registered
      */
     public static synchronized int indexOf(@Nullable ShipType shipType) {
         if (shipType == null) return -1;
-        int index = 0;
-        for (ResourceLocation id : SHIP_TYPES.keySet()) {
-            if (id.equals(shipType.getId())) return index;
-            index++;
-        }
-        return -1;
+        return networkOrder.indexOf(shipType);
     }
 
     /** Counterpart of {@link #indexOf(ShipType)}. */
     @Nullable
     public static synchronized ShipType byIndex(int index) {
-        if (index < 0) return null;
-        int current = 0;
-        for (ShipType shipType : SHIP_TYPES.values()) {
-            if (current++ == index) return shipType;
-        }
-        return null;
+        if (index < 0 || index >= networkOrder.size()) return null;
+        return networkOrder.get(index);
     }
 
     /**

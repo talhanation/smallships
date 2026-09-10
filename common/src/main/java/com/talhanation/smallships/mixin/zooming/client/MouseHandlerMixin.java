@@ -1,6 +1,7 @@
 package com.talhanation.smallships.mixin.zooming.client;
 
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
+import com.talhanation.smallships.client.cannon.CannonAmmoHandler;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
@@ -70,8 +71,8 @@ public class MouseHandlerMixin {
     @Shadow private double accumulatedDY;
 
     /**
-     * Better Cannon Gameplay: while the ship driver holds right click, the
-     * accumulated mouse movement adjusts the broadside cannon aim instead of
+     * Better Cannon Gameplay: while the ship driver or a gunner holds right
+     * click, the accumulated mouse movement adjusts the cannon aim instead of
      * turning the camera.
      * Note: 1.20.3+ renamed this method to "handleAccumulatedMovement", on
      * 1.20.1 it is still called "turnPlayer".
@@ -104,22 +105,34 @@ public class MouseHandlerMixin {
     @Unique private static final double SMALLSHIPS_ZOOM_PER_NOTCH = 0.2D;
 
     /**
-     * Ship camera zoom on the scroll wheel.
+     * The scroll wheel, for two things at once: picking the ammo type while
+     * aiming, and the ship camera zoom otherwise.
      *
      * 1.20.1 onScroll does not expose the locals the later versions do - there
      * is no sensitivity scaled delta to capture, only a raw offset and, much
      * later, an int notch count. So the amount is taken straight from the
      * parameter instead. Cancelling at HEAD also makes the WrapWithCondition on
      * swapPaint unnecessary: nothing further down the method runs at all, so the
-     * hotbar cannot swap behind our back.
+     * hotbar cannot swap behind our back - which is why this file needs neither
+     * the shouldCancel flag nor MixinExtras.
      *
-     * The one thing lost against the old version is the mouseWheelSensitivity
+     * The one thing lost against the later versions is the mouseWheelSensitivity
      * option, which is applied further down in the method we no longer reach.
      */
     @Inject(method = "onScroll(JDD)V", at = @At("HEAD"), cancellable = true)
     private void onScrollCaptureScrollDelta(long windowPointer, double xOffset, double yOffset, CallbackInfo ci) {
-        if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return;
         if (this.minecraft.player == null || this.minecraft.screen != null || this.minecraft.getOverlay() != null) return;
+
+        // ammo type picker: while aiming, the wheel cycles the cannonball type
+        // instead of the hotbar. Before the zoom, which does not apply during
+        // aiming anyway because the aim camera overrides it.
+        if (CannonAmmoHandler.canSelectAmmo(this.minecraft.player)) {
+            CannonAmmoHandler.handleScroll(this.minecraft.player, yOffset);
+            ci.cancel();
+            return;
+        }
+
+        if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return;
         if (this.minecraft.options.getCameraType().isFirstPerson()) return;
         if (!(this.minecraft.player.getVehicle() instanceof Ship)) return;
 

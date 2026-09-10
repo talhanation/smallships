@@ -9,6 +9,7 @@ import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import net.minecraft.client.Minecraft;
@@ -51,9 +52,20 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
         // isAiming() is synched, so on its own it would show the line to
         // EVERY client watching - a firing solution is the gunners' own
         // business, not something bystanders read off the barrel
-        if (entity.isAiming() && Minecraft.getInstance().player == entity.getDriver()) {
-            float yaw = Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot());
-            float pitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
+        Player localPlayer = Minecraft.getInstance().player;
+        if (entity.isAiming() && localPlayer == entity.getDriver()) {
+            float yaw;
+            float pitch;
+
+            if (localPlayer != null && localPlayer.getVehicle() == entity && entity.isAiming()) {
+                yaw = localPlayer.getViewYRot(partialTicks);
+                pitch = Mth.clamp(localPlayer.getViewXRot(partialTicks),
+                        GroundCannonEntity.PITCH_MIN, GroundCannonEntity.PITCH_MAX);
+            }
+            else {
+                yaw = Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot());
+                pitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
+            }
             Vec3 direction = Vec3.directionFromRotation(pitch, yaw);
 
             // barrel end relative to the entity origin
