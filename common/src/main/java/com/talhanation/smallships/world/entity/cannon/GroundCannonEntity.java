@@ -11,6 +11,7 @@ import com.talhanation.smallships.world.entity.projectile.AbstractCannonBall;
 import com.talhanation.smallships.world.entity.projectile.CannonBallEntity;
 import com.talhanation.smallships.world.entity.projectile.ICannonProjectile;
 import com.talhanation.smallships.world.inventory.ContainerUtility;
+import com.talhanation.smallships.world.item.CannonAmmoSelection;
 import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
@@ -725,13 +726,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
         if (driver instanceof ICannonBallSource container) {
             container.consumeCannonBall();
-        } else if (this.getDriver() instanceof Player player) {
-            for (ItemStack itemstack : player.getInventory().items) {
-                if (itemstack.getItem() instanceof CannonBallItem) {
-                    itemstack.shrink(1);
-                    break;
-                }
-            }
+        } else if (driver instanceof Player player) {
+            CannonAmmoSelection.consumePreferred(player, player.getInventory().items, null);
         }
     }
 
@@ -817,10 +813,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         if (this.getDriver() instanceof ICannonBallSource container) {
             return container.getCannonBallToShoot();
         } else if (this.getDriver() instanceof Player player) {
-            for (ItemStack itemStack : player.getInventory().items) {
-                if (itemStack.getItem() instanceof CannonBallItem cannonBallItem) return cannonBallItem;
-            }
-            return null;
+            return CannonAmmoSelection.findPreferred(player, player.getInventory().items, null);
         } else {
             return null;
         }

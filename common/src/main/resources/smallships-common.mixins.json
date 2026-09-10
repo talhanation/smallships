@@ -7,7 +7,8 @@
     "client.KeyboardHandlerMixin",
     "render.LivingEntityRendererMixin",
     "zooming.client.CameraMixin",
-    "zooming.client.MouseHandlerMixin"
+    "zooming.client.MouseHandlerMixin",
+    "client.GuiMixin"
   ],
   "mixins": [
     "container.SimpleContainerAccessor",

@@ -11,6 +11,7 @@ import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.world.entity.ship.sinking.SinkingAnimation;
 import com.talhanation.smallships.world.entity.ship.seat.SeatType;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.wind.Wind;
@@ -86,6 +87,21 @@ public abstract class Ship extends Boat {
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> SUNKEN = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    /**
+     * The state between a hull that swims and a wreck: she has taken more
+     * than she can carry and is going down, but she is still there and still
+     * being watched. It runs for as long as {@link SinkingAnimation} says and
+     * ends in SUNKEN, see startSinking.
+     */
+    private static final EntityDataAccessor<Boolean> SINKING = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BOOLEAN);
+    /** which of the four ways she is going down, see {@link SinkingAnimation} */
+    private static final EntityDataAccessor<Byte> SINKING_TYPE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.BYTE);
+    /**
+     * Ticks the sinking has been running. Synched rather than counted on the
+     * client: someone who comes over the horizon halfway through has to see
+     * the ship where she already is, not watch her go under a second time.
+     */
+    private static final EntityDataAccessor<Integer> SINKING_TIME = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.INT);
     /**
      * True while a dockyard is working ON this ship. Synched, not transient
      * like the dockyard claim next to it: the client refuses to board and to
@@ -186,6 +202,13 @@ public abstract class Ship extends Boat {
      */
     private static final float MANOEUVRE_SPEED = 0.03F;
 
+    /**
+     * What is left of a ships' way after each tick of sinking. She does not
+     * stop dead when she is holed - she carries on and dies away while the
+     * water takes her.
+     */
+    private static final float SINKING_DRIFT_DECAY = 0.92F;
+
     /** Server side: where this ship last rammed, see RAM_REARM_DISTANCE. */
     @Nullable private Vec3 ramRearmPos;
     /** ticks left of the drive block after an impact, see OBSTACLE_HOLD_TICKS */
@@ -268,7 +291,10 @@ public abstract class Ship extends Boat {
                     5, this.getBbWidth() * 0.5D, 0.6D, this.getBbWidth() * 0.5D, 0.01D);
         }
 
-        if(isSunken()){
+        if (this.isSinking()) {
+            this.tickSinking();
+        }
+        else if(isSunken()){
             if(++this.sunkenTime > SmallShipsConfig.Server.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
             else this.setDeltaMovement (getDeltaMovement().x, - 0.2D, getDeltaMovement().z);
         }
@@ -301,6 +327,9 @@ public abstract class Ship extends Boat {
         builder.define(LEFT, false);
         builder.define(RIGHT, false);
         builder.define(SUNKEN, false);
+        builder.define(SINKING, false);
+        builder.define(SINKING_TYPE, SinkingAnimation.BOW_FIRST.getId());
+        builder.define(SINKING_TIME, 0);
         builder.define(DOCKYARD_WORK, false);
         builder.define(IMPULSE_X, 0.0F);
         builder.define(IMPULSE_Z, 0.0F);
@@ -354,6 +383,9 @@ public abstract class Ship extends Boat {
         if (tag.contains("HullDamage")) this.setDamage(tag.getFloat("HullDamage"));
 
         this.setSunken(tag.getBoolean("Sunken"));
+        this.setData(SINKING, tag.getBoolean("Sinking"));
+        this.setData(SINKING_TYPE, tag.getByte("SinkingType"));
+        this.setData(SINKING_TIME, tag.getInt("SinkingTime"));
         this.isLocked = (tag.getBoolean("locked"));
         if (tag.contains("Upgrades")) this.setData(UPGRADES, tag.getCompound("Upgrades"));
         if (this instanceof Seatable && tag.contains("SeatAssignments")) this.setData(SEAT_ASSIGNMENTS, tag.getCompound("SeatAssignments"));
@@ -370,6 +402,9 @@ public abstract class Ship extends Boat {
 
         tag.putFloat("HullDamage", this.getDamage());
         tag.putBoolean("Sunken", isSunken());
+        tag.putBoolean("Sinking", this.isSinking());
+        tag.putByte("SinkingType", this.getData(SINKING_TYPE));
+        tag.putInt("SinkingTime", this.getSinkingTime());
         tag.putBoolean("locked", this.isLocked);
         tag.put("Upgrades", this.getData(UPGRADES));
         if (this instanceof Seatable) tag.put("SeatAssignments", this.getData(SEAT_ASSIGNMENTS));
@@ -409,6 +444,7 @@ public abstract class Ship extends Boat {
      */
     public boolean hasFreeSeatFor(Entity entity) {
         if (this.isInDockyardWork()) return false;
+        if (this.isSinking() || this.isSunken()) return false;
         if (!(this instanceof Seatable seatable)) return true;
         return seatable.findNearestFreeSeat(entity.position(), this.canDrive(entity)) != null;
     }
@@ -420,6 +456,7 @@ public abstract class Ship extends Boat {
      */
     public boolean canDrive(Entity entity) {
         if (this.isInDockyardWork()) return false;
+        if (this.isSinking() || this.isSunken()) return false;
         if (entity instanceof Player) return true;
         String id = entity.getEncodeId();
         return id != null && SmallShipsConfig.Server.driverEntities.get().contains(id);
@@ -478,14 +515,14 @@ public abstract class Ship extends Boat {
 
         //SmallShipsMod.LOGGER.info("Speed kmh: " +  Kalkuel.getKilometerPerHour(this.getSpeed()));
 
-        if(this.level().isClientSide() && !this.isSunken()){
+        if(this.level().isClientSide() && !this.isSunken() && !this.isSinking()){
 
             Player player = getDriver();
             if(player != null)
                 updateControls(((BoatAccessor) this).isInputUp(),((BoatAccessor) this).isInputDown(), ((BoatAccessor) this).isInputLeft(), ((BoatAccessor) this).isInputRight(), player);
         }
 
-        if(this.isInWater() && !this.isShipLeashed() && !this.isSunken() && !isLocked()){
+        if(this.isInWater() && !this.isShipLeashed() && !this.isSunken() && !this.isSinking() && !isLocked()){
             // propulsion from canvas: linear in the sail state, scaled by sail
             // damage and by the wind zone the ship is currently in
             float sailDrive = 0.0F;
@@ -1080,6 +1117,100 @@ public abstract class Ship extends Boat {
         return this.entityData.get(SUNKEN);
     }
 
+    /* ---------------- sinking ---------------- */
+
+    /**
+     * A hull that has taken more than she can carry neither vanishes nor drops
+     * to the bottom at once: she gets a state of her own for as long as she is
+     * going down, and only becomes a wreck when that is through.
+     *
+     * WHICH of the four ways she goes is drawn once, here, and synched from
+     * then on - everyone watching has to see the same ship go over the same
+     * way, and the client draws her attitude from nothing but the type and the
+     * tick count, see {@link SinkingAnimation}.
+     */
+    public void startSinking() {
+        if (this.level().isClientSide() || this.isSinking() || this.isSunken()) return;
+
+        this.setData(SINKING_TYPE, SinkingAnimation.pick(this.random).getId());
+        this.setData(SINKING_TIME, 0);
+        this.setData(SINKING, true);
+
+        // she is out of anyone's hands from this moment: no drive, no rudder,
+        // and the canvas comes off the yards
+        this.setSpeed(0.0F);
+        this.setRotSpeed(0.0F);
+        if (this instanceof Sailable sailShip) sailShip.setSailState((byte) 0);
+
+        this.level().playSound(null, this.getX(), this.getY() + 1.0D, this.getZ(),
+                ModSoundTypes.SHIP_HIT, this.getSoundSource(), 4.0F, 0.6F);
+    }
+
+    /**
+     * Runs in place of the whole normal ship tick while she goes down.
+     *
+     * She only ever DROPS here. She never turns: her attitude is drawn on the
+     * client alone, because a hull lying at ninety degrees whose collision
+     * parts and seats had turned with her would throw her own crew through the
+     * deck - and every part box is square anyway, so a turned one would not
+     * even sit where it looks like it does.
+     */
+    private void tickSinking() {
+        if (this.level().isClientSide()) return;
+
+        SinkingAnimation animation = this.getSinkingAnimation();
+        int time = this.getSinkingTime() + 1;
+        this.setData(SINKING_TIME, time);
+
+        // what way she still had dies out while she settles
+        this.setSpeed(this.getSpeed() * SINKING_DRIFT_DECAY);
+        this.setDeltaMovement(this.getDeltaMovement().x * SINKING_DRIFT_DECAY,
+                -animation.getSinkSpeed(animation.getProgress(time, 0.0F)),
+                this.getDeltaMovement().z * SINKING_DRIFT_DECAY);
+
+        if (this.level() instanceof ServerLevel sinkingLevel && time % 2 == 0) {
+            sinkingLevel.sendParticles(ParticleTypes.BUBBLE, this.getX(), this.getY() + 0.5D, this.getZ(),
+                    6, this.getBbWidth() * 0.6D, 0.3D, this.getBbWidth() * 0.6D, 0.0D);
+            sinkingLevel.sendParticles(ParticleTypes.SPLASH, this.getX(), this.getY() + 1.0D, this.getZ(),
+                    4, this.getBbWidth() * 0.6D, 0.1D, this.getBbWidth() * 0.6D, 0.0D);
+        }
+
+        if (time >= animation.getDurationTicks()) this.finishSinking();
+    }
+
+    /**
+     * The moment she is gone: the wreck state takes over, the despawn timer
+     * starts running and whoever was still aboard is in the water. The animation
+     * is left standing at its last frame - the type stays synched, so a wreck on
+     * the bottom keeps the attitude she went down in.
+     */
+    private void finishSinking() {
+        this.setData(SINKING, false);
+        this.setSunken(true);
+        this.ejectPassengers();
+    }
+
+    public boolean isSinking() {
+        return this.getData(SINKING);
+    }
+
+    public int getSinkingTime() {
+        return this.getData(SINKING_TIME);
+    }
+
+    public SinkingAnimation getSinkingAnimation() {
+        return SinkingAnimation.byId(this.getData(SINKING_TYPE));
+    }
+
+    /**
+     * @return how far the sinking has run, 0 to 1. A wreck stays at 1: she went
+     * down the way she went down, and she lies that way until she despawns.
+     */
+    public float getSinkingProgress(float partialTicks) {
+        if (!this.isSinking()) return this.isSunken() ? 1.0F : 0.0F;
+        return this.getSinkingAnimation().getProgress(this.getSinkingTime(), partialTicks);
+    }
+
     private void updateWaveAngle(){
         this.prevWaveAngle = this.waveAngle;
         this.waveAngle = (float) Math.sin(getWaveSpeed() * (float) this.tickCount) * getWaveFactor();
@@ -1637,7 +1768,7 @@ public abstract class Ship extends Boat {
                     this.destroy(this.getCommandSenderWorld().damageSources().drown());
                 }
                 else
-                    this.setSunken(true);
+                    this.startSinking();
             }
             if(bl){
                 this.discard();

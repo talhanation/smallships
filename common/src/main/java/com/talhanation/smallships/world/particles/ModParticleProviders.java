@@ -4,6 +4,7 @@ import com.talhanation.smallships.world.particles.cannon.CannonBallShootParticle
 import com.talhanation.smallships.world.particles.cannon.CannonPoofParticles;
 import com.talhanation.smallships.world.particles.custom.CustomPoofParticle;
 import com.talhanation.smallships.world.particles.wind.WindLineParticle;
+import com.talhanation.smallships.world.particles.wood.WoodDebrisParticle;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
@@ -25,6 +26,9 @@ public class ModParticleProviders {
         // SpriteSet - the Supplier overload would build it without sprites and the
         // particle would stay invisible
         registerSprite(ModParticleTypes.WIND_LINE.get(), WindLineParticle.Provider::new);
+        // wood_debris takes its sprite off the plank block, not off a sprite set,
+        // so it goes through the plain Supplier overload and needs no particle json
+        register(ModParticleTypes.WOOD_DEBRIS.get(), WoodDebrisParticle.Provider::new);
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Supplier<ParticleProvider<T>> providerConstructor) {

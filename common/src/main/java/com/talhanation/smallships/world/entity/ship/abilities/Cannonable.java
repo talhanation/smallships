@@ -5,6 +5,7 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.Ship;
+import com.talhanation.smallships.world.item.CannonAmmoSelection;
 import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.nbt.CompoundTag;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -261,22 +263,39 @@ public interface Cannonable extends Ability {
     }
 
     /**
-     * @return the cannonball item that would be shot next: the first
-     * CannonBallItem of any type found in the ship container or the
-     * driver's inventory. Null if there is none.
+     * @return the cannonball item that would be shot next by the DRIVER's
+     * volley: his preferred type (see {@link #getCannonBallToShoot(Entity)})
+     * if available, otherwise any other CannonBallItem found in the ship
+     * container or his inventory. Null if there is none. Kept no-arg for
+     * reflection compatibility (Workers/Recruits mod).
      */
     default CannonBallItem getCannonBallToShoot() {
-        if (self() instanceof ContainerEntity containerEntity){
-            for (ItemStack itemStack : containerEntity.getItemStacks()) {
-                if (itemStack.getItem() instanceof CannonBallItem cannonBallItem) return cannonBallItem;
-            }
-        }
-        if(self().getControllingPassenger() instanceof Player player) {
-            for (ItemStack itemStack : player.getInventory().items) {
-                if (itemStack.getItem() instanceof CannonBallItem cannonBallItem) return cannonBallItem;
-            }
-        }
-        return null;
+        return this.getCannonBallToShoot(self().getControllingPassenger());
+    }
+
+    /**
+     * @param shooter the entity actually pulling the trigger (driver volley
+     *                or a gunner firing his own cannon) - only used to read
+     *                the shooter's selected ammo type (mouse wheel while
+     *                aiming). The ammo SOURCE is unchanged: the ship
+     *                container, then the DRIVER's inventory.
+     * @return the preferred type's cannonball if available, otherwise any
+     * other CannonBallItem found. Null if there is none.
+     */
+    default CannonBallItem getCannonBallToShoot(@Nullable Entity shooter) {
+        return CannonAmmoSelection.findPreferred(shooter, this.getShipAmmo(), this.getDriverAmmo());
+    }
+
+    /** @return the ship container's stacks, or null if this ship has none. */
+    @Nullable
+    private Iterable<ItemStack> getShipAmmo() {
+        return self() instanceof ContainerEntity containerEntity ? containerEntity.getItemStacks() : null;
+    }
+
+    /** @return the driver's inventory, or null if nobody is at the helm. */
+    @Nullable
+    private Iterable<ItemStack> getDriverAmmo() {
+        return self().getControllingPassenger() instanceof Player player ? player.getInventory().items : null;
     }
 
     /**
@@ -318,24 +337,21 @@ public interface Cannonable extends Ability {
         return multiplier;
     }
 
+    /**
+     * Consumes one cannonball for the DRIVER's volley. Kept no-arg for
+     * reflection compatibility (Workers/Recruits mod).
+     */
     default void consumeCannonBall() {
-        if (self() instanceof ContainerEntity containerEntity){
-            for(ItemStack itemstack: containerEntity.getItemStacks()){
-                if(itemstack.getItem() instanceof CannonBallItem){
-                    itemstack.shrink(1);
-                    return;
-                }
-            }
-        }
+        this.consumeCannonBall(self().getControllingPassenger());
+    }
 
-        if(self().getControllingPassenger() instanceof Player player) {
-            for (ItemStack itemstack : player.getInventory().items) {
-                if (itemstack.getItem() instanceof CannonBallItem) {
-                    itemstack.shrink(1);
-                    return;
-                }
-            }
-        }
+    /**
+     * @param shooter same role as in {@link #getCannonBallToShoot(Entity)}:
+     *                only used to read the preferred ammo type, the source
+     *                (container, then driver inventory) is unchanged.
+     */
+    default void consumeCannonBall(@Nullable Entity shooter) {
+        CannonAmmoSelection.consumePreferred(shooter, this.getShipAmmo(), this.getDriverAmmo());
     }
 
     /**

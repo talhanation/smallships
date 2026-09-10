@@ -109,14 +109,16 @@ public class ShipCannon implements ICannon {
         // cannonball when this cannon can actually start a new shot (reload)
         if (this.cannon.isCooldown() || this.cannon.isFuzing()) return;
 
-        CannonBallItem ammo = cannonable.getCannonBallToShoot();
+        CannonBallItem ammo = cannonable.getCannonBallToShoot(shooterEntity);
         if (ammo == null) return;
         CannonBallItem.Type type = ammo.getType();
 
         // ball type multiplier, +50% if a fine grain powder is actually consumed.
-        // getShotSpeedMultiplier(false) gives the type part; the fine grain part
-        // is applied here because it must CONSUME the powder, not just peek it
-        float speedMultiplier = cannonable.getShotSpeedMultiplier(false);
+        // taken from the ammo just resolved above (not getShotSpeedMultiplier,
+        // which is driver-only) so a gunner's own ammo choice determines his
+        // own shot speed. The fine grain part is applied here because it must
+        // CONSUME the powder, not just peek it
+        float speedMultiplier = type.speedMultiplier;
         boolean fineGrain = cannonable.consumeFineGrainPowder();
         if (fineGrain) {
             speedMultiplier *= 1.5F;
@@ -124,7 +126,7 @@ public class ShipCannon implements ICannon {
         this.cannon.setSpeedMultiplier(speedMultiplier);
         this.cannon.setFineGrain(fineGrain);
 
-        cannonable.consumeCannonBall();
+        cannonable.consumeCannonBall(shooterEntity);
 
         final int count = type.projectileCount;
         for (int i = 0; i < count; i++) {

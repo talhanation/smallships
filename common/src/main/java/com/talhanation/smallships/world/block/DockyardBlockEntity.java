@@ -182,7 +182,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                 .filter(ship -> !ship.isRemoved())
                 // a sunken ship is a wreck: there is nothing left to service,
                 // and detecting one would block the build tab for good
-                .filter(ship -> !ship.isSunken())
+                .filter(ship -> !ship.isSunken() && !ship.isSinking())
                 // exclusive detection: a ship captured by another dockyard is invisible to this one
                 .filter(ship -> !ship.isServicedByOtherDockyard(this.worldPosition))
                 .min(Comparator.comparingDouble(ship -> ship.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)))

@@ -2,6 +2,7 @@ package com.talhanation.smallships.mixin.zooming.client;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
+import com.talhanation.smallships.client.cannon.CannonAmmoHandler;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
@@ -108,8 +109,18 @@ public class MouseHandlerMixin {
     @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(method = "onScroll(JDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;swapPaint(D)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     private void onScrollCaptureScrollDelta(long windowPointer, double xOffset, double yOffset, CallbackInfo ci, boolean bl, double scrollSensitivity, double scrollDeltaX, double scrollDeltaY) {
+        assert this.minecraft.player != null;
+
+        // ammo type picker: while aiming, the wheel cycles the cannonball type
+        // instead of the hotbar - takes priority over the zoom below, which
+        // does not apply during aiming anyway (the aim camera overrides it)
+        if (CannonAmmoHandler.canSelectAmmo(this.minecraft.player)) {
+            CannonAmmoHandler.handleScroll(this.minecraft.player, scrollDeltaY);
+            smallships$shouldCancel = true;
+            return;
+        }
+
         if (SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) {
-            assert this.minecraft.player != null;
             if (!this.minecraft.options.getCameraType().isFirstPerson() && this.minecraft.player.getVehicle() instanceof Ship) {
                 Camera camera = minecraft.gameRenderer.getMainCamera();
                 float shipZoom = Math.min(SmallShipsConfig.Client.shipGeneralCameraZoomMax.get().floatValue(), Math.max(SmallShipsConfig.Client.shipGeneralCameraZoomMin.get().floatValue(), ((CameraZoomAccess) camera).smallships$getShipZoomData() - ((float) scrollDeltaY / 5)));
