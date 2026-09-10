@@ -48,6 +48,15 @@ public class CannonBallItem extends Item {
             for (Type type : values()) if (type.id == id) return type;
             return BALL;
         }
+
+        /** @return the actual item of this type, for icon rendering and ammo preference lookups. */
+        public Item getItem() {
+            return switch (this) {
+                case BALL -> ModItems.CANNON_BALL;
+                case CHAINED -> ModItems.CHAINED_SHOT;
+                case GRAPE -> ModItems.GRAPE_SHOT;
+            };
+        }
     }
 
     private final Type type;

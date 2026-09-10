@@ -10,6 +10,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
+import com.talhanation.smallships.world.particles.wood.WoodDebris;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
@@ -45,6 +46,8 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
      * otherwise a broadside vanishes mid flight. Used by the renderers.
      */
     public static final double RENDER_RANGE = 200.0D;
+    /** share of the hull burst a hit in the rigging is worth, see onHitEntity */
+    private static final float MAST_DEBRIS_FACTOR = 0.6F;
     public boolean inWater = false;
     public boolean wasShot = false;
     public int counter = 0;
@@ -254,11 +257,13 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
                     SailDamage.applyCannonHit(shipHitEntity, shipDamage * ballType.sailFactor);
                     this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                             ModSoundTypes.SAIL_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
+                    // a mast is timber too, it just has less of it to give
+                    WoodDebris.onCannonHit(shipHitEntity, hitResult.getLocation(), ballType.damageMultiplier * MAST_DEBRIS_FACTOR);
                 } else {
                     shipHitEntity.hurt(this.damageSources().thrown(this, ownerEntity), shipDamage * ballType.hullFactor);
                     this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                             ModSoundTypes.SHIP_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());
-
+                    WoodDebris.onCannonHit(shipHitEntity, hitResult.getLocation(), ballType.damageMultiplier);
                 }
             }
             else if (ownerEntity instanceof LivingEntity livingOwnerEntity) {

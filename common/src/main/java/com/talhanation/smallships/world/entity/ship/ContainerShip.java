@@ -8,6 +8,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import com.talhanation.smallships.world.item.CannonBallItem;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -43,6 +44,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public static final EntityDataAccessor<Byte> PAGES = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> PAGE_INDEX = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> CONTAINER_FILL_STATE = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
+    /** one bit per CannonBallItem.Type, so every gunner aboard can see what the hold carries. */
+    public static final EntityDataAccessor<Byte> AMMO_IN_HOLD = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
 
     private final int originalContainerSize;
     NonNullList<ItemStack> itemStacks;
@@ -91,6 +94,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         builder.define(PAGES, (byte) 1);
         builder.define(PAGE_INDEX, (byte) 0);
         builder.define(CONTAINER_FILL_STATE, (byte) 0);
+        builder.define(AMMO_IN_HOLD, (byte) 0);
     }
 
     @Override
@@ -236,6 +240,9 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         } else {
             ContainerUtility.loadAllItems(tag, this.getItemStacks(), levelRegistry);
             this.resizeContainer(this.getContainerSize());
+            // nothing calls setChanged on load, so without this the flags would
+            // read empty until the hold is next touched
+            this.updateAmmoInHold();
         }
     }
 
@@ -304,6 +311,33 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
 
         int percent = (int) getInvFillStateInPercent();
         this.setContainerFillState((byte) percent);
+        this.updateAmmoInHold();
+    }
+
+    /**
+     * Recomputes which cannonball types the hold carries, as one bit per type.
+     * Server only for the same reason as the fill state above: the client only
+     * ever holds the OPEN PAGE of a multi page hold, so letting it recompute
+     * would report shot as missing that is merely on another page.
+     */
+    protected void updateAmmoInHold() {
+        if (this.level().isClientSide()) return;
+
+        byte flags = 0;
+        for (ItemStack itemStack : this.getItemStacks()) {
+            if (itemStack.getItem() instanceof CannonBallItem cannonBallItem) {
+                flags |= (byte) (1 << cannonBallItem.getType().id);
+            }
+        }
+        this.setData(AMMO_IN_HOLD, flags);
+    }
+
+    /**
+     * @return whether the hold carries this type. Safe to call on the client -
+     * it reads the synched flags, not the (incomplete) client side stacks.
+     */
+    public boolean hasAmmoInHold(CannonBallItem.Type type) {
+        return (this.getData(AMMO_IN_HOLD) & (1 << type.id)) != 0;
     }
 
     public byte getInvFillState(){

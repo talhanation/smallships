@@ -196,6 +196,22 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
+     * Work time in ticks, or 0 for a player who is building in creative or is
+     * an operator - the dockyard timer is a survival cost, and someone with
+     * creative access can conjure the finished ship anyway, so making him watch
+     * a progress bar only slows down building and testing.
+     *
+     * Zero is safe rather than special cased: the task still goes through the
+     * normal pipeline and simply completes on the next tick, so every finish
+     * step - spawn spot revalidation, the ship claim, the retry pause - runs
+     * exactly as it does for everyone else. The screen already skips its
+     * progress bar when the total time is not positive.
+     */
+    private static int workTime(ServerPlayer player, int time) {
+        return player.isCreative() || player.hasPermissions(2) ? 0 : time;
+    }
+
+    /**
      * Starts building a ship. Validates materials (player inventory) and a
      * valid 5x5 water spawn spot; consumes the materials immediately.
      * Server side only.
@@ -226,7 +242,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.shipTypeId = shipType.getId();
         this.woodTypeOrdinal = woodType.ordinal();
         this.spawnSpot = spot;
-        this.totalTime = recipe.buildTime();
+        this.totalTime = workTime(player, recipe.buildTime());
         this.progress = 0;
         this.setChanged();
     }
@@ -396,7 +412,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
         ship.setDockyardWork(true);
-        this.totalTime = Math.max(20, time);
+        this.totalTime = workTime(player, Math.max(20, time));
         this.progress = 0;
         this.setChanged();
     }
@@ -556,7 +572,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
         ship.setDockyardWork(true);
-        this.totalTime = getRepairTime(ship, hull, sails);
+        this.totalTime = workTime(player, getRepairTime(ship, hull, sails));
         this.progress = 0;
         this.setChanged();
     }

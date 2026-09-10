@@ -136,12 +136,22 @@ public interface Seatable extends Ability {
     /* ---------------- nearest seat search ---------------- */
 
     /**
-     * @param worldPos  the position to search from (hit position or entity position)
-     *                  seats (falling back to CANNON seats when full, never DRIVER)
-     * @return the nearest free seat or null
+     * Picks the seat an entity gets when it BOARDS the ship.
      *
+     * Two different rules, because the two groups want different things:
+     *
+     * - Whoever may steer takes the helm if it is open, wherever he clicked - a
+     *   captain boarding a ship is there to sail it. Is the helm taken, he goes
+     *   to whatever is closest to the spot he clicked, see {@link #findSeatAt}.
+     * - Everyone else fills the ship up from the passenger seats and only ends
+     *   up at a gun post when nothing else is left, so a mob being pulled aboard
+     *   never takes a station off someone who could work it.
+     *
+     * @param worldPos the position to search from - the hit position of the
+     *                 right click, or the entity position when there is none
+     *                 (a mob being pulled aboard, a command, a Recruits captain)
      * @param canDrive whether this entity is allowed to take the helm, see
-     *                 Ship#canDrive. Anything else never lands on a DRIVER seat.
+     *                 Ship#canDrive
      * @return the seat to put the entity on, or NULL when the ship is full.
      *
      * Null really does mean full and has to be treated as such by the caller -
@@ -151,19 +161,74 @@ public interface Seatable extends Ability {
      */
     @Nullable
     default ShipSeat findNearestFreeSeat(Vec3 worldPos, boolean canDrive) {
-        // the helm first, but only if it is actually free
         if (canDrive) {
             for (ShipSeat seat : this.getSeats()) {
                 if (seat.type() == SeatType.DRIVER && this.isSeatFree(seat.id())) return seat;
             }
+            return this.findSeatAt(worldPos, false);
         }
 
-        ShipSeat best = this.nearestFree(worldPos, seat -> seat.type() == SeatType.PASSENGER);
-        // an empty gun carriage is simply a place to sit
-        if (best == null) best = this.nearestFree(worldPos, seat -> seat.type() == SeatType.CANNON);
-        // gun posts last, so a passenger does not take a station off a gunner
+        // an empty gun carriage is simply a place to sit, so it counts as a
+        // passenger seat here - only the POST behind the gun is held back
+        ShipSeat best = this.nearestFree(worldPos, seat ->
+                seat.type() == SeatType.PASSENGER || seat.type() == SeatType.CANNON);
         if (best == null) best = this.nearestFree(worldPos, seat -> seat.type() == SeatType.GUNNER);
         return best;
+    }
+
+    /**
+     * Picks the seat for a DELIBERATE click on a spot of the ship: purely by
+     * distance, no type ranking at all. Used when someone already aboard clicks
+     * another station, and as the second half of {@link #findNearestFreeSeat}
+     * once the helm is taken.
+     *
+     * The helm is never jumped to from here even when it is free - a player
+     * switching seats clicked at something specific, and teleporting him to the
+     * wheel instead is the opposite of what he asked for. It only becomes a
+     * candidate when the caller says so.
+     *
+     * A gun carriage counts as a target even while a gun stands on it: nobody
+     * can sit there, but clicking a cannon means the cannon, so the post that
+     * works that same slot is handed back instead.
+     *
+     * @param includeDriver whether the helm may be picked by distance too
+     */
+    @Nullable
+    default ShipSeat findSeatAt(Vec3 worldPos, boolean includeDriver) {
+        ShipSeat target = null;
+        double bestDist = Double.MAX_VALUE;
+        for (ShipSeat seat : this.getSeats()) {
+            //if (!includeDriver && seat.type() == SeatType.DRIVER) continue;
+            boolean carriageWithGun = seat.type() == SeatType.CANNON && this.isSeatBlocked(seat);
+            if (!carriageWithGun && !this.isSeatFree(seat.id())) continue;
+            double dist = seat.getWorldPosition(self()).distanceToSqr(worldPos);
+            if (dist < bestDist) {
+                bestDist = dist;
+                target = seat;
+            }
+        }
+        if (target == null) return null;
+
+        if (target.type() == SeatType.CANNON && this.isSeatBlocked(target)) {
+            ShipSeat gunner = this.freeGunnerSeat(target.mappedCannonSlot());
+            // that post is manned as well - fall back to whatever is genuinely
+            // free, so a click on a busy gun never refuses the boarding outright
+            if (gunner != null) return gunner;
+            return this.nearestFree(worldPos, seat -> includeDriver || seat.type() != SeatType.DRIVER);
+        }
+        return target;
+    }
+
+    /** @return the free GUNNER post working the given cannon slot, or null. */
+    @Nullable
+    private ShipSeat freeGunnerSeat(int cannonSlot) {
+        for (ShipSeat seat : this.getSeats()) {
+            if (seat.type() == SeatType.GUNNER && seat.mappedCannonSlot() == cannonSlot
+                    && this.isSeatFree(seat.id())) {
+                return seat;
+            }
+        }
+        return null;
     }
 
     @Nullable

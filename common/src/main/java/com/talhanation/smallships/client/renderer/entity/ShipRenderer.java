@@ -16,6 +16,7 @@ import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
+import com.talhanation.smallships.world.entity.ship.sinking.SinkingAnimation;
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.client.cannon.CannonTrajectory;
 import com.talhanation.smallships.client.model.CannonModel;
@@ -33,9 +34,12 @@ import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -80,6 +84,13 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
     @Override
     public void render(T shipEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
+        // the attitude of a hull that is going down or has gone down. First,
+        // so hurt and wave still rock on top of it, and client side only -
+        // nothing here moves a hitbox, a seat or a passenger
+        if (shipEntity.isSinking() || shipEntity.isSunken()) {
+            this.applySinkingPose(shipEntity, partialTicks, poseStack);
+        }
+
         Attributes shipAttributes = shipEntity.getAttributes();
         float h = ((float) shipEntity.getHurtTime() - partialTicks) / ((shipAttributes.maxHealth * shipEntity.getBbWidth()) / 40.0F);
         float j = shipEntity.getDamage() - partialTicks;
@@ -101,7 +112,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         }
 
         float l = shipEntity.getWaveAngle(partialTicks);
-        if (!shipEntity.isSunken() && !Mth.equal(l, 0.0F)) {
+        if (!shipEntity.isSunken() && !shipEntity.isSinking() && !Mth.equal(l, 0.0F)) {
             poseStack.mulPose(getWaveAngleRotation().rotationDegrees(l));
         }
 
@@ -175,10 +186,18 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             if (!mounted && !ghost) continue;
             ShipCannon cannon = new ShipCannon(cannonShipEntity.self(), cannonShipEntity.getCannonPosition(slot), slot);
 
-            // per-cannon aim (gunner) with broadside fallback (driver)
             float aimRotation = cannonShipEntity.getCannonRotation(slot, cannon.isRightSided());
             float aimAngle = cannonShipEntity.getCannonAngle(slot, cannon.isRightSided());
 
+            // The gun this client is working himself is drawn from his own
+            // input instead of from the synched aim - that one steps at 20 Hz
+            // and gets overwritten by the servers' echo of a value this client
+            // sent four ticks ago. See CannonAimHandler#getRenderAngle.
+            float ownAngle = CannonAimHandler.getRenderAngle(cannonShipEntity.self(), slot, cannon.isRightSided());
+            if (!Float.isNaN(ownAngle)) {
+                aimAngle = ownAngle;
+                aimRotation = CannonAimHandler.getRenderRotation(cannonShipEntity.self(), slot, cannon.isRightSided());
+            }
             poseStack.pushPose();
             poseStack.mulPose(Axis.YN.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
             poseStack.translate(cannon.isRightSided() ? -cannon.getOffsetX() : cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), -cannon.getOffsetZ());
@@ -337,6 +356,37 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 OverlayTexture.NO_OVERLAY, poseStack, multiBufferSource, ship.level(), ship.getId() * 31 + slot);
     }
 
+
+    /**
+     * Turns the whole ship into the attitude {@link SinkingAnimation} asks for.
+     *
+     * The order is the one a ship actually takes it in: she slews first, then
+     * she trims by the head or the stern, and the heel goes on top of both. Roll
+     * around ZN like the wave angle, so a positive angle means the same side
+     * here as it does there.
+     */
+    private void applySinkingPose(T shipEntity, float partialTicks, PoseStack poseStack) {
+        SinkingAnimation animation = shipEntity.getSinkingAnimation();
+        float progress = shipEntity.getSinkingProgress(partialTicks);
+        float pivot = this.getSinkPivotOffset();
+
+        poseStack.translate(0.0D, -pivot, 0.0D);
+        poseStack.mulPose(Axis.YP.rotationDegrees(animation.getYaw(progress)));
+        poseStack.mulPose(Axis.XP.rotationDegrees(animation.getPitch(progress)));
+        poseStack.mulPose(Axis.ZN.rotationDegrees(animation.getRoll(progress)));
+        poseStack.translate(0.0D, pivot, 0.0D);
+    }
+
+    /*********************************************************
+     * Offset for the sinking animation:
+     * - The point the hull turns around while she goes down,
+     *   in blocks BELOW the pose origin
+     * - Positive values move the pivot down towards the keel
+     * - 0 turns her around the point the model hangs from
+     *********************************************************/
+    protected float getSinkPivotOffset() {
+        return 0.0F;
+    }
 
     public Axis getWaveAngleRotation(){
         return Axis.ZN;

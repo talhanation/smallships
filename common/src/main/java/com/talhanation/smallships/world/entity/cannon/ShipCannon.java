@@ -81,13 +81,25 @@ public class ShipCannon implements ICannon {
      * @return the global position of this cannon based on the ship position and the offsets.
      */
     public Vec3 getGlobalPosition() {
-        Vec3 forward = this.ship.getForward().normalize();
+        return this.getGlobalPosition(this.ship.getX(), this.ship.getY(), this.ship.getZ(), this.ship.getYRot());
+    }
+
+    /**
+     * The same, but from a ship position and heading the caller supplies.
+     *
+     * The camera needs this: it draws between ticks, and the raw ship values
+     * only move 20 times a second. Feeding it the interpolated ones keeps the
+     * gun - and with it the camera bolted to it - smooth at any speed. Anything
+     * that runs on the tick, shooting included, keeps using the method above.
+     */
+    public Vec3 getGlobalPosition(double shipX, double shipY, double shipZ, float shipYaw) {
+        Vec3 forward = Vec3.directionFromRotation(0.0F, shipYaw).normalize();
         Vec3 right = forward.yRot(-Mth.HALF_PI).normalize();
 
         double side = this.isRightSided ? this.offsetZ : -this.offsetZ;
-        double x = this.ship.getX() - forward.x * this.offsetX + right.x * side;
-        double y = this.ship.getY() + this.offsetY;
-        double z = this.ship.getZ() - forward.z * this.offsetX + right.z * side;
+        double x = shipX - forward.x * this.offsetX + right.x * side;
+        double y = shipY + this.offsetY;
+        double z = shipZ - forward.z * this.offsetX + right.z * side;
         return new Vec3(x, y, z);
     }
 
@@ -109,14 +121,16 @@ public class ShipCannon implements ICannon {
         // cannonball when this cannon can actually start a new shot (reload)
         if (this.cannon.isCooldown() || this.cannon.isFuzing()) return;
 
-        CannonBallItem ammo = cannonable.getCannonBallToShoot();
+        CannonBallItem ammo = cannonable.getCannonBallToShoot(shooterEntity);
         if (ammo == null) return;
         CannonBallItem.Type type = ammo.getType();
 
         // ball type multiplier, +50% if a fine grain powder is actually consumed.
-        // getShotSpeedMultiplier(false) gives the type part; the fine grain part
-        // is applied here because it must CONSUME the powder, not just peek it
-        float speedMultiplier = cannonable.getShotSpeedMultiplier(false);
+        // taken from the ammo just resolved above (not getShotSpeedMultiplier,
+        // which is driver-only) so a gunner's own ammo choice determines his
+        // own shot speed. The fine grain part is applied here because it must
+        // CONSUME the powder, not just peek it
+        float speedMultiplier = type.speedMultiplier;
         boolean fineGrain = cannonable.consumeFineGrainPowder();
         if (fineGrain) {
             speedMultiplier *= 1.5F;
@@ -124,7 +138,7 @@ public class ShipCannon implements ICannon {
         this.cannon.setSpeedMultiplier(speedMultiplier);
         this.cannon.setFineGrain(fineGrain);
 
-        cannonable.consumeCannonBall();
+        cannonable.consumeCannonBall(shooterEntity);
 
         final int count = type.projectileCount;
         for (int i = 0; i < count; i++) {

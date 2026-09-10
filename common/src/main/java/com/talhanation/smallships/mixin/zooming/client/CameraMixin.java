@@ -40,6 +40,10 @@ public abstract class CameraMixin implements CameraZoomAccess {
     // with the muzzle instead of leaving it at a fixed height looking upwards.
     @Unique private static final double GROUND_CANNON_TRUNNION_Y = 0.75D;
     @Unique private static final double GROUND_CANNON_BORE_FORWARD = 0.75D;
+    // the same two for a ship gun. Higher than the ground cannon, because a
+    // carriage stands on a deck well above the ship origin.
+    @Unique private static final double SHIP_CANNON_TRUNNION_Y = 2.5D;
+    @Unique private static final double SHIP_CANNON_BORE_FORWARD = 0.75D;
     // the eight corner offsets vanilla probes in getMaxZoom
     @Unique private static final double CAMERA_PROBE = 0.1D;
     // never let the zoom factor reach zero or turn negative - the configured
@@ -55,8 +59,8 @@ public abstract class CameraMixin implements CameraZoomAccess {
      * Right click aim mode, SiegeWeapons ballista style:
      * - Ground cannon: the camera rides the barrel and looks along it, so the
      *   player sees the gun move under him while aiming.
-     * - Cannon ship: the camera looks into the direction the aimed broadside /
-     *   gunner cannon is about to shoot.
+     * - Cannon ship, gunner: the same, on his own gun.
+     * - Cannon ship, driver: over the deck, pulled back against the broadside.
      *
      * Every one of these paths cancels setup, so vanillas' own camera collision
      * in getMaxZoom never runs for them - and the mouse swings them around
@@ -99,20 +103,37 @@ public abstract class CameraMixin implements CameraZoomAccess {
 
         // cannon ship: aim camera while the right click is held
         if (player.getVehicle() instanceof Ship ship && CannonAimHandler.isAimingShip(ship)) {
-            float aimYaw = CannonAimHandler.getAimYaw(ship, partialTick);
-            float aimPitch = CannonAimHandler.getAimPitch();
-            Vec3 aimDirection = CannonAimHandler.getAimDirection(ship, partialTick);
             Cannonable cannonable = ship instanceof Cannonable ? (Cannonable) ship : null;
-
             int gunnerSlot = CannonAimHandler.getAimSlot();
+
+            // Everything below works off INTERPOLATED ship values. The stored aim
+            // and ShipCannon#getGlobalPosition are both written once per tick, and
+            // at speed that is most of a block of camera jump between two frames -
+            // which is why the whole thing got worse the faster the ship sailed.
+            double shipX = Mth.lerp(partialTick, ship.xo, ship.getX());
+            double shipY = Mth.lerp(partialTick, ship.yo, ship.getY());
+            double shipZ = Mth.lerp(partialTick, ship.zo, ship.getZ());
+            float shipYaw = Mth.rotLerp(partialTick, ship.yRotO, ship.getYRot());
+
             if (gunnerSlot >= 0 && cannonable != null && cannonable.getCannonPosition(gunnerSlot) != null) {
-                // GUNNER: barrel camera at HIS cannon, like the ground cannon /
-                // ballista - behind and above the barrel, looking along it
-                Vec3 anchor = new ShipCannon(ship, cannonable.getCannonPosition(gunnerSlot), gunnerSlot).getGlobalPosition().add(0.0D, 1.35D, 0.0D);
-                Vec3 camera = this.smallships$clip(blockGetter, anchor, anchor.subtract(aimDirection.scale(1.0D)));
+                // GUNNER: barrel camera on HIS gun.
+                //
+                // Both angles come from the aim handler, interpolated - the same
+                // numbers the barrel is drawn from, so camera and gun cannot
+                // disagree. Reading the player view here instead was what made
+                // the aim fight itself: the camera wrote a clamped pitch back
+                // onto the player while the mouse was still moving it.
+                float yaw = CannonAimHandler.getAimYaw(ship, partialTick);
+                float pitch = CannonAimHandler.getAimPitch();
+
+                Vec3 gun = new ShipCannon(ship, cannonable.getCannonPosition(gunnerSlot), gunnerSlot)
+                        .getGlobalPosition(shipX, shipY, shipZ, shipYaw);
+                Vec3 bore = Vec3.directionFromRotation(pitch, yaw);
+                Vec3 anchor = gun.add(0.0D, SHIP_CANNON_TRUNNION_Y, 0.0D);
+                Vec3 camera = this.smallships$clip(blockGetter, anchor, anchor.add(bore.scale(SHIP_CANNON_BORE_FORWARD)));
 
                 this.setPosition(camera.x, camera.y, camera.z);
-                this.setRotation(aimYaw, aimPitch);
+                this.setRotation(yaw, pitch);
                 ci.cancel();
                 return;
             }
@@ -120,14 +141,12 @@ public abstract class CameraMixin implements CameraZoomAccess {
             // DRIVER: over the deck, pulled back against the shooting direction.
             // The camera yaw follows the broadside, but the PITCH stays fixed - the
             // mouse only elevates the cannons, it must not tilt the driver's view
-            // up/down (the gunner keeps the barrel cam with aimPitch above).
-            double x = Mth.lerp(partialTick, ship.xo, ship.getX());
-            double y = Mth.lerp(partialTick, ship.yo, ship.getY());
-            double z = Mth.lerp(partialTick, ship.zo, ship.getZ());
+            // up/down (the gunner keeps the barrel cam above).
+            float aimYaw = CannonAimHandler.getAimYaw(ship, partialTick);
             Vec3 flatDirection = Vec3.directionFromRotation(0.0F, aimYaw);
             // decks sit at very different heights, so the eye level is per ship
             double aimY = cannonable != null ? cannonable.getCannonAimY() : DRIVER_AIM_CAMERA_Y;
-            Vec3 anchor = new Vec3(x, y + aimY, z);
+            Vec3 anchor = new Vec3(shipX, shipY + aimY, shipZ);
             Vec3 camera = this.smallships$clip(blockGetter, anchor, anchor.subtract(flatDirection.scale(-0.75D)));
 
             this.setPosition(camera.x, camera.y, camera.z);
