@@ -209,6 +209,16 @@ public abstract class Ship extends Boat {
      */
     private static final float SINKING_DRIFT_DECAY = 0.92F;
 
+    /**
+     * How far the client clock may be out before it is set instead of eased.
+     * Anything under this is network jitter and gets smoothed away; anything
+     * over it is someone who has just come over the horizon and has to see
+     * the ship where she already is.
+     */
+    private static final float SINKING_CLOCK_SNAP = 20.0F;
+    /** share of the remaining difference the client clock makes up per tick */
+    private static final float SINKING_CLOCK_CATCHUP = 0.1F;
+
     /** Server side: where this ship last rammed, see RAM_REARM_DISTANCE. */
     @Nullable private Vec3 ramRearmPos;
     /** ticks left of the drive block after an impact, see OBSTACLE_HOLD_TICKS */
@@ -221,6 +231,9 @@ public abstract class Ship extends Boat {
     private List<VoxelShape> blockerCache;
     private boolean isLocked = false;
     private int sunkenTime = 0;
+    /** client side: the smoothed sinking clock the renderer reads, see tickSinkingClock */
+    private float clientSinkingTime;
+    private float clientSinkingTimeO;
     private float prevWaveAngle;
     private float waveAngle;
     public float prevBannerWaveAngle;
@@ -264,6 +277,9 @@ public abstract class Ship extends Boat {
         // means neither number can silently start healing ships again, and a
         // single point of damage no longer decays to nothing.
         float hullDamageBeforeVanillaTick = this.getDamage();
+        // where she was before vanilla buoyancy got at her. A sinking hull is
+        // driven down by hand from that mark, see tickSinking
+        double heightBeforeVanillaTick = this.getY();
         super.tick();
         if (this.getDamage() != hullDamageBeforeVanillaTick) this.setDamage(hullDamageBeforeVanillaTick);
 
@@ -292,7 +308,7 @@ public abstract class Ship extends Boat {
         }
 
         if (this.isSinking()) {
-            this.tickSinking();
+            this.tickSinking(heightBeforeVanillaTick);
         }
         else if(isSunken()){
             if(++this.sunkenTime > SmallShipsConfig.Server.shipGeneralDespawnTimeSunken.get()*20*60) this.destroy(this.getCommandSenderWorld().damageSources().drown());
@@ -1155,18 +1171,29 @@ public abstract class Ship extends Boat {
      * deck - and every part box is square anyway, so a turned one would not
      * even sit where it looks like it does.
      */
-    private void tickSinking() {
+    private void tickSinking(double heightBeforeVanillaTick) {
+        SinkingAnimation animation = this.getSinkingAnimation();
+
+        if (this.level().isClientSide()) this.tickSinkingClock();
+
+        // The descent is set, not pushed - on every side that runs its own
+        // physics. Vanilla buoyancy lifting her inside the tick above and the
+        // sinking pulling her down afterwards were fighting each other every
+        // tick, and that fight IS the judder: she was going down in a saw tooth.
+        // Taking her height back to the mark and placing her makes the way down
+        // exactly the curve the animation asks for and nothing else.
+        if (this.isControlledByLocalInstance()) {
+            float progress = animation.getProgress(this.getSinkingTime(), 0.0F);
+            this.setSpeed(this.getSpeed() * SINKING_DRIFT_DECAY);
+            this.setDeltaMovement(this.getDeltaMovement().x * SINKING_DRIFT_DECAY, 0.0D,
+                    this.getDeltaMovement().z * SINKING_DRIFT_DECAY);
+            this.setPos(this.getX(), heightBeforeVanillaTick - animation.getSinkSpeed(progress), this.getZ());
+        }
+
         if (this.level().isClientSide()) return;
 
-        SinkingAnimation animation = this.getSinkingAnimation();
         int time = this.getSinkingTime() + 1;
         this.setData(SINKING_TIME, time);
-
-        // what way she still had dies out while she settles
-        this.setSpeed(this.getSpeed() * SINKING_DRIFT_DECAY);
-        this.setDeltaMovement(this.getDeltaMovement().x * SINKING_DRIFT_DECAY,
-                -animation.getSinkSpeed(animation.getProgress(time, 0.0F)),
-                this.getDeltaMovement().z * SINKING_DRIFT_DECAY);
 
         if (this.level() instanceof ServerLevel sinkingLevel && time % 2 == 0) {
             sinkingLevel.sendParticles(ParticleTypes.BUBBLE, this.getX(), this.getY() + 0.5D, this.getZ(),
@@ -1176,6 +1203,23 @@ public abstract class Ship extends Boat {
         }
 
         if (time >= animation.getDurationTicks()) this.finishSinking();
+    }
+
+    /**
+     * The clock the sinking is drawn from, client side.
+     *
+     * The synched tick count is the truth but it is not smooth: it arrives
+     * over the network, so between two frames it moves by two ticks, or by
+     * none, and an angle read straight off it steps instead of turning. This
+     * runs at one tick per tick of its own and only leans towards the server
+     * value, which keeps the animation even without letting it drift.
+     */
+    private void tickSinkingClock() {
+        this.clientSinkingTimeO = this.clientSinkingTime;
+
+        float drift = this.getSinkingTime() - this.clientSinkingTime;
+        if (Math.abs(drift) > SINKING_CLOCK_SNAP) this.clientSinkingTime = this.getSinkingTime();
+        else this.clientSinkingTime += 1.0F + drift * SINKING_CLOCK_CATCHUP;
     }
 
     /**
@@ -1208,7 +1252,12 @@ public abstract class Ship extends Boat {
      */
     public float getSinkingProgress(float partialTicks) {
         if (!this.isSinking()) return this.isSunken() ? 1.0F : 0.0F;
-        return this.getSinkingAnimation().getProgress(this.getSinkingTime(), partialTicks);
+
+        SinkingAnimation animation = this.getSinkingAnimation();
+        if (this.level().isClientSide()) {
+            return animation.getProgress(Mth.lerp(partialTicks, this.clientSinkingTimeO, this.clientSinkingTime));
+        }
+        return animation.getProgress(this.getSinkingTime(), partialTicks);
     }
 
     private void updateWaveAngle(){
