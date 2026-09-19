@@ -33,7 +33,7 @@ public class ModParticleTypes {
         CANNON_BALL_SHOOT_FINE = register("cannon_ball_shoot_fine");
         WIND_LINE = register("wind_line");
         WOOD_DEBRIS = register("wood_debris",
-                WoodDebrisParticleOptions.MAP_CODEC, WoodDebrisParticleOptions.STREAM_CODEC);
+                WoodDebrisParticleOptions.CODEC, WoodDebrisParticleOptions.DESERIALIZER);
     }
 
     public static Supplier<SimpleParticleType> register(String id) {
