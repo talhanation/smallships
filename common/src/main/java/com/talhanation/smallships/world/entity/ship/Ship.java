@@ -1245,9 +1245,9 @@ public abstract class Ship extends Boat {
 
         if (this.level() instanceof ServerLevel sinkingLevel && time % 2 == 0) {
             sinkingLevel.sendParticles(ParticleTypes.BUBBLE, this.getX(), this.getY() + 0.5D, this.getZ(),
-                    6, this.getBbWidth() * 0.6D, 0.3D, this.getBbWidth() * 0.6D, 0.0D);
+                    20, this.getBbWidth() * 0.6D, 0.3D, this.getBbWidth() * 0.6D, 0.0D);
             sinkingLevel.sendParticles(ParticleTypes.SPLASH, this.getX(), this.getY() + 1.0D, this.getZ(),
-                    4, this.getBbWidth() * 0.6D, 0.1D, this.getBbWidth() * 0.6D, 0.0D);
+                    15, this.getBbWidth() * 0.6D, 0.1D, this.getBbWidth() * 0.6D, 0.0D);
         }
 
         if (time >= animation.getDurationTicks()) this.finishSinking();
