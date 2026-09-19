@@ -1056,14 +1056,19 @@ public abstract class Ship extends Boat {
      */
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if (this instanceof Sailable sailShip && sailShip.getSailState() != 0) sailShip.toggleSail();
-
         Vec3 seatPosition = null;
         if (livingEntity.getUUID().equals(this.dismountSeatFor) && this.dismountSeat != null) {
             seatPosition = this.dismountSeat;
-        } else if (this instanceof Seatable seatable) {
+        }
+        else if (this instanceof Seatable seatable) {
             ShipSeat seat = seatable.getSeatOf(livingEntity);
-            if (seat != null) seatPosition = seat.getWorldPosition(this);
+
+            if (seat != null){
+                if(seat.type() == SeatType.DRIVER && this instanceof Sailable sailShip && sailShip.getSailState() != 0)
+                    sailShip.toggleSail();
+
+                seatPosition = seat.getWorldPosition(this);
+            }
         }
         this.dismountSeat = null;
         this.dismountSeatFor = null;
