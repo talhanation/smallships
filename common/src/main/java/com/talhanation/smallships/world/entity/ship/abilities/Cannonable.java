@@ -124,8 +124,7 @@ public interface Cannonable extends Ability {
     }
 
     default boolean hasPerCannonAim(int slot) {
-        if (!(this instanceof Seatable seatable) || seatable.getGunner(slot) == null) return false;
-        return self().getData(Ship.CANNON_AIM).contains("C" + slot + "Angle");
+        return this instanceof Seatable seatable && seatable.getGunner(slot) != null;
     }
 
     /**
