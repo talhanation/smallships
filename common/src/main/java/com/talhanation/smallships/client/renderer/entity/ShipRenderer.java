@@ -223,7 +223,9 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 poseStack.pushPose();
                 poseStack.scale(1.0F / 1.3F, 1.0F / 1.3F, 1.0F / 1.3F);
                 VertexConsumer lineConsumer = multiBufferSource.getBuffer(RenderType.lines());
-                float previewSpeed = CannonTrajectory.CANNON_SPEED * cannonShipEntity.getShotSpeedMultiplier(true);
+                // the line is only ever drawn for the local player's own aim, so
+                // he is the shooter - a gunner's arc follows his own ammo
+                float previewSpeed = CannonTrajectory.CANNON_SPEED * cannonShipEntity.getShotSpeedMultiplier(Minecraft.getInstance().player, true);
                 // start the arc at the muzzle instead of at the mounting point on
                 // the deck. The offset comes back in the scale the MODEL is drawn
                 // at, so the 1.3 the line is drawn at has to be divided out again

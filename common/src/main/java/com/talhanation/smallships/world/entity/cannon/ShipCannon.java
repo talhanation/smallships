@@ -126,12 +126,12 @@ public class ShipCannon implements ICannon {
         CannonBallItem.Type type = ammo.getType();
 
         // ball type multiplier, +50% if a fine grain powder is actually consumed.
-        // taken from the ammo just resolved above (not getShotSpeedMultiplier,
-        // which is driver-only) so a gunner's own ammo choice determines his
-        // own shot speed. The fine grain part is applied here because it must
-        // CONSUME the powder, not just peek it
+        // taken from the ammo just resolved above so a gunner's own ammo choice
+        // determines his own shot speed. The fine grain part is applied here
+        // because it must CONSUME the powder, not just peek it - and like the
+        // ball it comes out of the hold or the SHOOTER's pockets
         float speedMultiplier = type.speedMultiplier;
-        boolean fineGrain = cannonable.consumeFineGrainPowder();
+        boolean fineGrain = cannonable.consumeFineGrainPowder(shooterEntity);
         if (fineGrain) {
             speedMultiplier *= 1.5F;
         }

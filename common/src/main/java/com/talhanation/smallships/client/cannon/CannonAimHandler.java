@@ -9,7 +9,9 @@ import com.talhanation.smallships.world.entity.ship.seat.SeatType;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -73,7 +75,24 @@ public class CannonAimHandler {
         if (player == null || minecraft.screen != null) return false;
         if (!(player.getVehicle() instanceof Ship ship) || !(ship instanceof Cannonable cannonable)) return false;
         if (cannonable.getCannonCount() <= 0) return false;
+        if (isHoldingUsableItem(player)) return false;
         return player.equals(ship.getDriver()) || getGunnerSlot(player, ship) >= 0;
+    }
+
+    /**
+     * @return true if the player holds an item with a use of its own in either
+     * hand - bow, crossbow, trident, shield, food, potion, spyglass, horn. The
+     * right click belongs to that item then, not to the cannon, so a gunner
+     * can still draw his bow or eat at his station.
+     *
+     * Read off the use animation, the one thing every such item declares: an
+     * item without one has nothing to hold right click for.
+     */
+    public static boolean isHoldingUsableItem(Player player) {
+        for (InteractionHand hand : InteractionHand.values()) {
+            if (player.getItemInHand(hand).getUseAnimation() != UseAnim.NONE) return true;
+        }
+        return false;
     }
 
     /**

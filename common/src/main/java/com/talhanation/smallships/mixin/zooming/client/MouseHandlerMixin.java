@@ -30,7 +30,9 @@ public class MouseHandlerMixin {
      * SiegeWeapons-ballista style: right click HOLD activates the aim mode
      * - on cannon ships for the driver (broadside) / gunner (his cannon)
      * - on the ground cannon (view aiming with barrel camera).
-     * The press is captured so no vanilla item use / interaction fires.
+     * The press is captured so no vanilla item use / interaction fires -
+     * unless the player holds a usable item, see
+     * CannonAimHandler#isHoldingUsableItem. Then the click stays his.
      */
     @Inject(method = "onPress", at = @At("HEAD"), cancellable = true)
     private void smallships$captureAimRightClick(long windowPointer, int button, int action, int mods, CallbackInfo ci) {
@@ -41,6 +43,9 @@ public class MouseHandlerMixin {
 
         // ground cannon: aim mode = camera behind the barrel + view aiming
         if (this.minecraft.player.getVehicle() instanceof GroundCannonEntity cannon) {
+            // the release still goes through below, so an aim started before
+            // the item was taken into the hand still ends cleanly
+            if (press && CannonAimHandler.isHoldingUsableItem(this.minecraft.player)) return;
             if (press) {
                 long now = net.minecraft.Util.getMillis();
                 if (now - this.smallships$lastCannonRightClick <= SMALLSHIPS_DOUBLE_CLICK_MS) {
