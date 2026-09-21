@@ -43,8 +43,8 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     public static final EntityDataAccessor<Byte> PAGES = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> PAGE_INDEX = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Byte> CONTAINER_FILL_STATE = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
-    /** one bit per CannonBallItem.Type, so every gunner aboard can see what the hold carries. */
-    public static final EntityDataAccessor<Byte> AMMO_IN_HOLD = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.BYTE);
+    /** rounds per CannonBallItem.Type, so every gunner aboard can see what the hold carries. */
+    public static final EntityDataAccessor<CompoundTag> AMMO_IN_HOLD = SynchedEntityData.defineId(ContainerShip.class, EntityDataSerializers.COMPOUND_TAG);
 
     private final int originalContainerSize;
     NonNullList<ItemStack> itemStacks;
@@ -92,7 +92,7 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
         this.entityData.define(PAGES, (byte) 1);
         this.entityData.define(PAGE_INDEX, (byte) 0);
         this.entityData.define(CONTAINER_FILL_STATE, (byte) 0);
-		this.entityData.define(AMMO_IN_HOLD, (byte) 0);
+        this.entityData.define(AMMO_IN_HOLD, new CompoundTag());
     }
 
     @Override
@@ -313,29 +313,40 @@ public abstract class ContainerShip extends Ship implements HasCustomInventorySc
     }
 
     /**
-     * Recomputes which cannonball types the hold carries, as one bit per type.
+     * Recomputes how many rounds of each cannonball type the hold carries.
      * Server only for the same reason as the fill state above: the client only
      * ever holds the OPEN PAGE of a multi page hold, so letting it recompute
      * would report shot as missing that is merely on another page.
+     *
+     * A count and not just a flag per type: the ammo picker prints the rounds
+     * left, and a flag would leave it to invent a number for the hold.
      */
     protected void updateAmmoInHold() {
         if (this.level().isClientSide()) return;
 
-        byte flags = 0;
+        int[] counts = new int[CannonBallItem.Type.values().length];
         for (ItemStack itemStack : this.getItemStacks()) {
             if (itemStack.getItem() instanceof CannonBallItem cannonBallItem) {
-                flags |= (byte) (1 << cannonBallItem.getType().id);
+                counts[cannonBallItem.getType().ordinal()] += itemStack.getCount();
             }
         }
-        this.setData(AMMO_IN_HOLD, flags);
+
+        CompoundTag tag = new CompoundTag();
+        for (CannonBallItem.Type type : CannonBallItem.Type.values()) {
+            if (counts[type.ordinal()] > 0) tag.putInt(type.name(), counts[type.ordinal()]);
+        }
+        // synched data only resends on a real change, so an unchanged hold
+        // costs no packet even though this runs on every setChanged
+        this.setData(AMMO_IN_HOLD, tag);
     }
 
     /**
-     * @return whether the hold carries this type. Safe to call on the client -
-     * it reads the synched flags, not the (incomplete) client side stacks.
+     * @return how many rounds of this type the hold carries. Safe to call on
+     * the client - it reads the synched counts, not the (incomplete) client
+     * side stacks.
      */
-    public boolean hasAmmoInHold(CannonBallItem.Type type) {
-        return (this.getData(AMMO_IN_HOLD) & (1 << type.id)) != 0;
+    public int getAmmoInHold(CannonBallItem.Type type) {
+        return this.getData(AMMO_IN_HOLD).getInt(type.name());
     }
 
     public byte getInvFillState(){

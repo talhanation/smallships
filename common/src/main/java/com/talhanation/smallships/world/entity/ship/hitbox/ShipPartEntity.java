@@ -18,6 +18,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -428,6 +429,22 @@ public class ShipPartEntity extends Entity {
         return free;
     }
 
+    /**
+     * @return the world boxes of the hull where the ship lies right now, masts
+     * left out - they stand inside the hull footprint anyway. A ship without
+     * parts answers with its own vanilla box.
+     */
+    public static List<AABB> hullBoxes(Ship ship) {
+        List<Definition> definitions = ship.getParts();
+        if (definitions.isEmpty()) return List.of(ship.getBoundingBox());
+
+        List<Definition> hull = new ArrayList<>(definitions.size());
+        for (Definition definition : definitions) {
+            if (!definition.mast()) hull.add(definition);
+        }
+        return boxesAt(hull, ship.position(), ship.getYRot());
+    }
+
     private static List<AABB> boxesAt(List<Definition> definitions, Vec3 position, float yaw) {
         float angle = -yaw * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F);
         float sin = Mth.sin(angle);
@@ -484,14 +501,25 @@ public class ShipPartEntity extends Entity {
      * purpose: they are dealt with by the knockback in Ship#updateCollision, and
      * a chicken has no business stopping a brigg.
      *
+     * Neither are the blocks the hull breaks through, see Ship#canBreakThrough.
+     * The parts reach far past the ships' own small box, so with a lily pad in
+     * here the bow stopped dead on it long before anything that could break it
+     * ever got close - vanilla only clears it for the box that touches it.
+     *
      * Never call this directly - Ship#getBlockers caches the result for the tick,
      * because the turn gate and the movement sweep both want almost the same area
      * and scanning the world twice was the most expensive thing here.
      */
     public static List<VoxelShape> scanBlockers(Ship ship, AABB area) {
         List<VoxelShape> blockers = new ArrayList<>();
-        for (VoxelShape shape : ship.level().getBlockCollisions(ship, area)) {
-            blockers.add(shape);
+        Level level = ship.level();
+        // getBlockCollisions hands back bare shapes, the block behind them is
+        // gone by then - this is the same iterator with the position still known
+        BlockCollisions<VoxelShape> collisions = new BlockCollisions<>(level, ship, area, false,
+                (pos, shape) -> ship.canBreakThrough(level.getBlockState(pos)) ? Shapes.empty() : shape);
+        while (collisions.hasNext()) {
+            VoxelShape shape = collisions.next();
+            if (!shape.isEmpty()) blockers.add(shape);
         }
         for (Entity entity : ship.level().getEntities(ship, area, entity -> isHull(ship, entity))) {
             blockers.add(Shapes.create(entity.getBoundingBox()));

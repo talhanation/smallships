@@ -49,6 +49,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WaterlilyBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -213,6 +216,12 @@ public abstract class Ship extends Boat {
      * has no way on, accelerate, hit, stop - grinding its way along a wall.
      */
     private static final int OBSTACLE_HOLD_TICKS = 10;
+    /**
+     * How far past the hull lily pads and ice are cleared, in blocks. More than
+     * a ship makes between two runs of tickBreakThrough even at full way - a
+     * 30 km/h hull covers about 0.83 blocks in two ticks.
+     */
+    private static final double BREAK_THROUGH_REACH = 1.0D;
 
     /**
      * Fixed manoeuvring speed in blocks per tick, ahead and astern alike, and
@@ -341,7 +350,7 @@ public abstract class Ship extends Boat {
             if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
             if (this instanceof Shieldable shieldShip) shieldShip.tickShieldShip();
             if (this instanceof Leashable leashShip) leashShip.tickLeashShip();
-            if (this instanceof IceBreakable iceBreakable) iceBreakable.tickIceBreakable();
+            this.tickBreakThrough();
 
             boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
             this.updateShipAmbience(isCruising);
@@ -365,9 +374,9 @@ public abstract class Ship extends Boat {
         this.entityData.define(LEFT, false);
         this.entityData.define(RIGHT, false);
         this.entityData.define(SUNKEN, false);
-		this.entityData.define(SINKING, false);
-		this.entityData.define(SINKING_TYPE, SinkingAnimation.BOW_FIRST.getId());
-		this.entityData.define(SINKING_TIME, 0);
+        this.entityData.define(SINKING, false);
+        this.entityData.define(SINKING_TYPE, SinkingAnimation.BOW_FIRST.getId());
+        this.entityData.define(SINKING_TIME, 0);
         this.entityData.define(DOCKYARD_WORK, false);
         this.entityData.define(IMPULSE_X, 0.0F);
         this.entityData.define(IMPULSE_Z, 0.0F);
@@ -895,8 +904,7 @@ public abstract class Ship extends Boat {
         // dyeing behind the shipwrights' back
         if (this.isInDockyardWork()) return InteractionResult.PASS;
 
-        if (this instanceof Seatable && !this.isLocked()
-                && player.getVehicle() != this && !this.level().isClientSide()) {
+        if (this instanceof Seatable && !this.isLocked() && player.getVehicle() != this && !this.level().isClientSide()) {
             this.pendingSeatHit = this.position().add(hitVec);
             this.pendingSeatHitFor = player.getUUID();
         }
@@ -1079,7 +1087,7 @@ public abstract class Ship extends Boat {
             // Leave them over their own seat anyway: the hull parts carry them
             // while the ship lies still, and dropping into the water beside
             // their station beats being teleported amidships.
-            return spot != null ? spot : new Vec3(seatPosition.x, seatPosition.y + 1.25, seatPosition.z);
+            return spot != null ? spot : new Vec3(seatPosition.x, seatPosition.y + 1.5, seatPosition.z);
         }
         return super.getDismountLocationForPassenger(livingEntity);
     }
@@ -1114,17 +1122,9 @@ public abstract class Ship extends Boat {
 
     @Override
     protected void addPassenger(Entity entity) {
-        // Auto third person: Enable
-        if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
-            this.previousCameraType = Minecraft.getInstance().options.getCameraType();
-            Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
-        }
-        // Better Ship Camera: smoothly move the camera anchor to the ship center,
-        // keeping the direction the player was facing when right-clicking (aim and align)
         if (this.level().isClientSide() && Objects.equals(Minecraft.getInstance().player, entity)) {
             ShipCameraHandler.startTransition();
         }
-        super.addPassenger(entity);
 
         // seat system: assign the fixed seat (never index based)
         if (this instanceof Seatable seatable && !this.level().isClientSide() && seatable.getSeatOf(entity) == null) {
@@ -1135,8 +1135,18 @@ public abstract class Ship extends Boat {
             this.pendingSeatHit = null;
             this.pendingSeatHitFor = null;
             ShipSeat seat = seatable.findSeatAt(from, this.canDrive(entity));
-            if (seat != null) seatable.assignSeat(entity, seat.id());
+            if (seat != null){
+                seatable.assignSeat(entity, seat.id());
+
+                if(seat.type() == SeatType.DRIVER){
+                    if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+                        this.previousCameraType = Minecraft.getInstance().options.getCameraType();
+                        Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
+                    }
+                }
+            }
         }
+        super.addPassenger(entity);
     }
 
     @Override
@@ -1152,6 +1162,9 @@ public abstract class Ship extends Boat {
         }
         // Auto third person: Disable
         if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
+            if(this.previousCameraType == null){
+                this.previousCameraType = Minecraft.getInstance().options.getCameraType();
+            }
             Minecraft.getInstance().options.setCameraType(this.previousCameraType);
         }
         super.removePassenger(entity);
@@ -1245,9 +1258,9 @@ public abstract class Ship extends Boat {
 
         if (this.level() instanceof ServerLevel sinkingLevel && time % 2 == 0) {
             sinkingLevel.sendParticles(ParticleTypes.BUBBLE, this.getX(), this.getY() + 0.5D, this.getZ(),
-                    20, this.getBbWidth() * 0.6D, 0.3D, this.getBbWidth() * 0.6D, 0.0D);
+                    50, this.getBbWidth() * 0.6D, 0.3D, this.getBbWidth() * 0.6D, 0.0D);
             sinkingLevel.sendParticles(ParticleTypes.SPLASH, this.getX(), this.getY() + 1.0D, this.getZ(),
-                    15, this.getBbWidth() * 0.6D, 0.1D, this.getBbWidth() * 0.6D, 0.0D);
+                    50, this.getBbWidth() * 0.6D, 0.1D, this.getBbWidth() * 0.6D, 0.0D);
         }
 
         if (time >= animation.getDurationTicks()) this.finishSinking();
@@ -1437,6 +1450,59 @@ public abstract class Ship extends Boat {
     private static boolean covers(AABB outer, AABB inner) {
         return outer.minX <= inner.minX && outer.minY <= inner.minY && outer.minZ <= inner.minZ
                 && outer.maxX >= inner.maxX && outer.maxY >= inner.maxY && outer.maxZ >= inner.maxZ;
+    }
+
+    /**
+     * @return true for blocks the hull shoves aside instead of stopping at:
+     * lily pads for every ship, the way a vanilla boat does, and ice for an ice
+     * breaker. They are left out of the collision entirely, see
+     * ShipPartEntity#scanBlockers, and cleared away by tickBreakThrough.
+     *
+     * Must answer the same on both sides - the client sweeps the movement, the
+     * server breaks the blocks.
+     */
+    public boolean canBreakThrough(BlockState blockState) {
+        if (blockState.getBlock() instanceof WaterlilyBlock) return true;
+        return this instanceof IceBreakable && IceBreakable.isBreakableIce(blockState);
+    }
+
+    /**
+     * Clears whatever canBreakThrough lets the hull sail into, along the hull
+     * parts and a little ahead of them. Server only, the client cannot break
+     * blocks - it just sails on, since the collision never saw them.
+     *
+     * Every other tick is enough: the reach ahead covers more than a ship makes
+     * in two ticks, so nothing is left standing inside the hull.
+     */
+    private void tickBreakThrough() {
+        if (this.level().isClientSide() || this.tickCount % 2 != 0) return;
+
+        Level level = this.level();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        boolean hasBrokenIce = false;
+        for (AABB box : ShipPartEntity.hullBoxes(this)) {
+            AABB reach = box.inflate(BREAK_THROUGH_REACH, 0.0D, BREAK_THROUGH_REACH);
+            for (int x = Mth.floor(reach.minX); x <= Mth.floor(reach.maxX); x++) {
+                for (int y = Mth.floor(reach.minY); y <= Mth.floor(reach.maxY); y++) {
+                    for (int z = Mth.floor(reach.minZ); z <= Mth.floor(reach.maxZ); z++) {
+                        pos.set(x, y, z);
+                        BlockState blockState = level.getBlockState(pos);
+                        if (!this.canBreakThrough(blockState)) continue;
+
+                        if (blockState.getBlock() instanceof WaterlilyBlock) {
+                            // exactly what WaterlilyBlock#entityInside does for a boat
+                            level.destroyBlock(pos, true, this);
+                        } else {
+                            level.setBlock(pos, Blocks.WATER.defaultBlockState(), 3);
+                            hasBrokenIce = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (hasBrokenIce) {
+            level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GLASS_BREAK, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * this.random.nextFloat());
+        }
     }
 
     /**
