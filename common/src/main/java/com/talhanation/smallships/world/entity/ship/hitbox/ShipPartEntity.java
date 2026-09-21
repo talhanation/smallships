@@ -319,6 +319,11 @@ public class ShipPartEntity extends Entity {
     public boolean hurt(@NotNull DamageSource damageSource, float amount) {
         Ship ship = this.getParent();
         if (ship == null) return false;
+        // the rigging answers to the same rule as the hull: Ship#hurt refuses
+        // the own crew, and the sail path below never gets there. Only the
+        // DAMAGE is refused - a vanilla arrow still stops at the part it hit
+        // and drops, letting it fly through would need a Projectile mixin
+        if (ship.isCrew(damageSource.getEntity())) return false;
         if (this.isMast() && SailDamage.canTakeDamage(ship)) {
             SailDamage.applyCannonHit(ship, amount);
             return true;

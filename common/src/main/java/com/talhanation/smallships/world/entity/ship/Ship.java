@@ -1912,7 +1912,7 @@ public abstract class Ship extends Boat {
         // around the deck, so anything a passenger looses over the rail clips
         // one on the way out - and every part forwards its hits to the ship.
         // This covers the ships' own cannons too: their owner is aboard.
-        else if (this.isOwnCrew(damageSource)) {
+        else if (this.isCrew(damageSource.getEntity())) {
             return false;
         }
         else if (!this.getCommandSenderWorld().isClientSide() && !this.isRemoved()) {
@@ -1945,10 +1945,14 @@ public abstract class Ship extends Boat {
         }
     }
 
-    private boolean isOwnCrew(DamageSource damageSource) {
-        Entity shooter = damageSource.getEntity();
-        if (shooter == null) return false;
-        return shooter.getVehicle() == this || this.hasIndirectPassenger(shooter);
+    /**
+     * @return true if the entity sails aboard this ship - seated directly or
+     * riding something that is. Its hits on the own hull and rigging are
+     * refused, see hurt and ShipPartEntity#hurt.
+     */
+    public boolean isCrew(@Nullable Entity entity) {
+        if (entity == null) return false;
+        return entity.getVehicle() == this || this.hasIndirectPassenger(entity);
     }
 
     private void knockBack(Entity entity, double speed, AABB boundingBox) {
