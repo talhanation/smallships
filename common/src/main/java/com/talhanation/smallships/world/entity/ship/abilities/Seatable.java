@@ -198,7 +198,9 @@ public interface Seatable extends Ability {
         ShipSeat target = null;
         double bestDist = Double.MAX_VALUE;
         for (ShipSeat seat : this.getSeats()) {
-            //if (!includeDriver && seat.type() == SeatType.DRIVER) continue;
+
+            if (includeDriver && seat.type() == SeatType.DRIVER && this.isSeatFree(seat.id())) return seat;
+
             boolean carriageWithGun = seat.type() == SeatType.CANNON && this.isSeatBlocked(seat);
             if (!carriageWithGun && !this.isSeatFree(seat.id())) continue;
             double dist = seat.getWorldPosition(self()).distanceToSqr(worldPos);
