@@ -16,6 +16,7 @@ import com.talhanation.smallships.world.item.CannonBallItem;
 import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.particles.cannon.DyedCannonShootOptions;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
@@ -70,7 +71,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     private ResourceLocation lootTable;
     private long lootTableSeed;
     private final Cannon cannon = new Cannon(this);
-    public float maxSpeedInKmH = 7F;// 7km/h
+    public float maxSpeedInKmH = 15.75F;// 15.75km/h
     /** barrel elevation limits, single source of truth for the entity and the Cannon core */
     public static final float PITCH_MIN = -30.0F;
     public static final float PITCH_MAX = 10.0F;
@@ -82,6 +83,14 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     private static final float RECENTER_EPSILON = 0.5F;
     /** barrel elevation speed in degrees per tick (key-only aiming) */
     private static final float BARREL_PITCH_SPEED = 0.75F;
+    /**
+     * speed gained per tick while driving. The roll resistance takes the whole
+     * speed away every tick, so this step is what the carriage actually rolls at -
+     * maxSpeed only caps it.
+     */
+    private static final float ACCELERATION = 0.0225F;
+    /** how far behind the carriage centre the driver stands */
+    private static final float DRIVER_STAND_DISTANCE = 1.0F;
     private float maxSpeed = maxSpeedInKmH / (60F * 1.15F);
 
     private float wheelRotation;
@@ -94,6 +103,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     protected float deltaRotation;
     private boolean drivenPrevTick;
+    private boolean aimingPrevTick;
 
     public SimpleContainer inventory;
 
@@ -172,6 +182,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         DyeColor dye;
         if ((dye = this.getDye()) != null) tag.putString("Dye", dye.getSerializedName());
         this.getEntityInBarrelUUID().ifPresent(uuid -> tag.putUUID("EntityInBarrelUUID", uuid));
+        tag.putFloat("Health", this.getHealth());
     }
 
     @Override
@@ -184,6 +195,10 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         }
         if (tag.contains("EntityInBarrelUUID")) {
             this.setEntityInBarrelUUID(tag.getUUID("EntityInBarrelUUID"));
+        }
+        // cannons placed before the health system have no tag and start at full health
+        if (tag.contains("Health")) {
+            this.setHealth(tag.getFloat("Health"));
         }
     }
 
@@ -243,11 +258,15 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
      * Careful when comparing against the 1.21 branch: Entity#getGravity returns
      * 0 for anything that does not override it, and this class never did - so
      * applyGravity() was a no-op there and the carriage only ever sat on the
-     * ground it was placed on. GRAVITY below keeps that behaviour. If the gun
-     * is supposed to fall when the block under it is mined, this is the one
-     * number to change (a minecart uses 0.04).
+     * ground it was placed on.
+     *
+     * The gravity is also what makes maxUpStep work at all: Entity#collide only
+     * steps up while the entity is onGround, and onGround needs a downward
+     * collision - without any fall the carriage never touched the ground and
+     * stopped dead at every block edge instead of climbing it.
+     * Same value as a minecart.
      */
-    private static final double GRAVITY = 0.0D;
+    private static final double GRAVITY = 0.04D;
 
     protected void applyGravity() {
         if (GRAVITY != 0.0D && !this.isNoGravity()) {
@@ -324,6 +343,10 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     public void control(Entity driver, float xRot, float yRot) {
         float speed = Kalkuel.subtractToZero(getSpeed(), getRollResistance());
+        // detect the start of aim mode, the view is aligned to the gun once there
+        boolean isAiming = this.isAiming();
+        boolean startedAiming = isAiming && !this.aimingPrevTick;
+        this.aimingPrevTick = isAiming;
         if(driver != null) {
 
             // aiming locks the carriage in place: a loaded gun is not aimed while
@@ -332,13 +355,13 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
             if (isForward() && !movementLocked) {
                 if (speed <= maxSpeed) {
-                    speed = Math.min(speed + 0.01F, maxSpeed);
+                    speed = Math.min(speed + ACCELERATION, maxSpeed);
                 }
             }
 
             if (isBackward() && !movementLocked) {
                 if (speed >= -maxSpeed) {
-                    speed = Math.max(speed - 0.01F, -maxSpeed);
+                    speed = Math.max(speed - ACCELERATION, -maxSpeed);
                 }
             }
 
@@ -370,6 +393,12 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
             // NOTE: no early return here - the movement block below must still run,
             // otherwise the cannon keeps its old delta movement and coasts while aiming.
             else if (this.isAiming()) {
+                // entering aim mode: the view takes over the guns' current lay,
+                // not the other way round - the barrel must not jump to wherever
+                // the driver happened to look when he pressed right click
+                if (startedAiming) {
+                    this.alignDriverToCannon(driver);
+                }
                 float targetPitch = Mth.clamp(driver.getXRot(), PITCH_MIN, PITCH_MAX);
                 this.setYRot(Mth.wrapDegrees(driver.getYRot()));
                 this.setXRot(targetPitch);
@@ -494,9 +523,28 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     public void updateAimingControl(boolean aiming, @Nullable LivingEntity livingEntity) {
         if (this.isAimingRaw() == aiming) return;
         this.setAiming(aiming);
+        // align right on the click and not only on the next tick, otherwise the
+        // aim camera shows the old view direction for a frame or two
+        if (aiming && livingEntity != null && livingEntity == this.getDriver()) {
+            this.alignDriverToCannon(livingEntity);
+        }
         if (this.getCommandSenderWorld().isClientSide && livingEntity instanceof Player) {
             ModPackets.clientSendPacket(new ServerboundUdpateGroundCannonControlPacket(this.isForward(), this.isBackward(), this.isLeft(), this.isRight(), aiming));
         }
+    }
+
+    /**
+     * Turns the drivers' view onto the current barrel orientation. The old
+     * rotation is overwritten as well, so the camera does not swing over from
+     * the previous view within the partial ticks.
+     */
+    private void alignDriverToCannon(Entity driver) {
+        float pitch = Mth.clamp(this.getXRot(), PITCH_MIN, PITCH_MAX);
+        driver.setYRot(this.getYRot());
+        driver.setXRot(pitch);
+        driver.yRotO = this.getYRot();
+        driver.xRotO = pitch;
+        driver.setYHeadRot(this.getYRot());
     }
 
     private boolean isAimingRaw() {
@@ -686,9 +734,59 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         entity.setPos(this.getX() + attachment.x, this.getY() + attachment.y, this.getZ() + attachment.z);
     }
 
+    /**
+     * The driver stands on the ground behind the carriage, his feet at the height
+     * of the gun. The standing (and crouching while aiming) pose itself is only
+     * a render matter, see LivingEntityRendererMixin.
+     */
     protected Vec3 getBarrelPassengerAttachmentPoint() {
-        Vector3f relativePoint = new Vector3f(0,0,-0.5F).rotateAxis(-(float) Math.toRadians(this.getYRot()), 0, 1, 0);
+        Vector3f relativePoint = new Vector3f(0,0,-DRIVER_STAND_DISTANCE).rotateAxis(-(float) Math.toRadians(this.getYRot()), 0, 1, 0);
         return new Vec3(relativePoint.x, relativePoint.y, relativePoint.z);
+    }
+
+    /**
+     * The driver steps off exactly where he stood, behind the carriage.
+     *
+     * Runs after the passenger was already removed, so getDriver() does not
+     * know him anymore - the barrel UUID is still set though and tells the two
+     * apart. The barrel passenger keeps the vanilla behaviour.
+     */
+    @Override
+    public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
+        boolean wasInBarrel = this.getEntityInBarrelUUID().map(uuid -> uuid.equals(livingEntity.getUUID())).orElse(false);
+        if (!wasInBarrel) {
+            Vec3 standPosition = this.position().add(this.getBarrelPassengerAttachmentPoint());
+            Vec3 spot = this.findStandDismountSpot(livingEntity, standPosition);
+            if (spot != null) return spot;
+        }
+        return super.getDismountLocationForPassenger(livingEntity);
+    }
+
+    /**
+     * @return a safe place to stand at the stand position, or null if there is
+     * none (wall or drop behind the gun). Same floor and pose checks as
+     * Ship#findSeatDismountSpot.
+     */
+    @Nullable
+    private Vec3 findStandDismountSpot(LivingEntity livingEntity, Vec3 standPosition) {
+        BlockPos at = BlockPos.containing(standPosition);
+        BlockPos below = at.below();
+
+        List<Vec3> candidates = new ArrayList<>();
+        double floor = this.level().getBlockFloorHeight(at);
+        if (DismountHelper.isBlockFloorValid(floor)) candidates.add(new Vec3(standPosition.x, at.getY() + floor, standPosition.z));
+        double floorBelow = this.level().getBlockFloorHeight(below);
+        if (DismountHelper.isBlockFloorValid(floorBelow)) candidates.add(new Vec3(standPosition.x, below.getY() + floorBelow, standPosition.z));
+
+        for (Pose pose : livingEntity.getDismountPoses()) {
+            for (Vec3 candidate : candidates) {
+                if (DismountHelper.canDismountTo(this.level(), candidate, livingEntity, pose)) {
+                    livingEntity.setPose(pose);
+                    return candidate;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -870,8 +968,8 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         return entityData.get(SPEED);
     }
 
-    public void setHealth(float speed) {
-        entityData.set(HEALTH, speed);
+    public void setHealth(float health) {
+        entityData.set(HEALTH, Mth.clamp(health, 0.0F, this.getMaxHealth()));
     }
 
     public float getHealth(){
@@ -905,6 +1003,11 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
         if (this.isInvulnerableTo(damageSource)) {
             return false;
         }
+        // the gun crew cannot damage its own cannon - a shot that clips the
+        // carriage on its way out of the barrel is still the drivers' shot
+        else if (damageSource.getEntity() != null && this.hasPassenger(damageSource.getEntity())) {
+            return false;
+        }
         else if (!this.getCommandSenderWorld().isClientSide() && !this.isRemoved()) {
             this.setHealth(this.getHealth() - f);
             this.markHurt();
@@ -912,7 +1015,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
             boolean bl = damageSource.getEntity() instanceof Player player && player.getAbilities().instabuild && player.isCrouching();
 
-            if (this.getHealth() <= this.getMaxHealth()) {
+            if (this.getHealth() <= 0.0F) {
                 kill();
             }
             if(bl){

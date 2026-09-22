@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerLevel;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -285,6 +286,8 @@ public abstract class Ship extends Boat {
         return attributeSpeed / SPEED_ATTRIBUTE_DIVISOR;
     }
     private CameraType previousCameraType;
+    /** client: whether the local player sat at this helm last tick */
+    private boolean wasLocalDriver;
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
@@ -293,6 +296,7 @@ public abstract class Ship extends Boat {
 
     @Override
     public void tick() {
+        if (this.level().isClientSide()) this.tickAutoThirdPerson();
         // seat system: clean up assignments of passengers that left (server, every second)
         if (this instanceof Seatable seatable && !this.level().isClientSide() && this.tickCount % 20 == 0) {
             seatable.validateSeatAssignments();
@@ -1138,24 +1142,49 @@ public abstract class Ship extends Boat {
         // seat system: assign the fixed seat (never index based)
         if (this instanceof Seatable seatable && !this.level().isClientSide() && seatable.getSeatOf(entity) == null) {
             Vec3 from = entity.position();
-            if (entity.getUUID().equals(this.pendingSeatHitFor) && this.pendingSeatHit != null) {
+            boolean hasClicked = entity.getUUID().equals(this.pendingSeatHitFor) && this.pendingSeatHit != null;
+            if (hasClicked) {
                 from = this.pendingSeatHit;
             }
             this.pendingSeatHit = null;
             this.pendingSeatHitFor = null;
-            ShipSeat seat = seatable.findSeatAt(from, this.canDrive(entity));
+            // a click right on a gun mans that gun, anything else boards as
+            // usual - the helm first for whoever may steer. Only for a real
+            // click: a mob pulled aboard just happens to stand somewhere
+            ShipSeat seat = hasClicked ? seatable.findGunnerSeatAt(from) : null;
+            if (seat == null) seat = seatable.findSeatAt(from, this.canDrive(entity));
             if (seat != null){
                 seatable.assignSeat(entity, seat.id());
-
-                if(seat.type() == SeatType.DRIVER){
-                    if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
-                        this.previousCameraType = Minecraft.getInstance().options.getCameraType();
-                        Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
-                    }
-                }
             }
         }
         super.addPassenger(entity);
+    }
+
+    /**
+     * Client: third person when the local player takes the helm, his own camera
+     * back when he leaves it. Watched per tick and not in addPassenger, because
+     * the seat is assigned on the server - at the moment the client adds the
+     * passenger it cannot know yet that he sits at the helm.
+     *
+     * Client side getDriver() is only ever the local player, so it answers
+     * "am I driving this ship" by itself. Only switched from first person: a
+     * player already looking from outside keeps his view.
+     */
+    private void tickAutoThirdPerson() {
+        boolean isLocalDriver = this.getDriver() != null;
+        if (isLocalDriver == this.wasLocalDriver) return;
+        this.wasLocalDriver = isLocalDriver;
+
+        Options options = Minecraft.getInstance().options;
+        if (isLocalDriver) {
+            if (SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && options.getCameraType().isFirstPerson()) {
+                this.previousCameraType = options.getCameraType();
+                options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            }
+        } else if (this.previousCameraType != null) {
+            options.setCameraType(this.previousCameraType);
+            this.previousCameraType = null;
+        }
     }
 
     @Override
@@ -1168,13 +1197,6 @@ public abstract class Ship extends Boat {
                 this.dismountSeatFor = entity.getUUID();
             }
             seatable.freeSeatOf(entity);
-        }
-        // Auto third person: Disable
-        if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
-            if(this.previousCameraType == null){
-                this.previousCameraType = Minecraft.getInstance().options.getCameraType();
-            }
-            Minecraft.getInstance().options.setCameraType(this.previousCameraType);
         }
         super.removePassenger(entity);
     }

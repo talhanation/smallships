@@ -76,9 +76,13 @@ public interface Cannonable extends Ability {
     /**
      * Fires the single cannon in the given slot, triggered by its gunner.
      * The gunner's cannon fires regardless of the driver's look direction.
+     *
+     * No canShoot() up front: that one asks for the DRIVER's ammo, so a gunner
+     * alone aboard - no driver, nothing in the hold - could never fire the
+     * balls in his own pockets. ShipCannon#trigger checks the ammo of the
+     * actual shooter itself and simply does nothing without any.
      */
     default void triggerGunnerCannon(int slot) {
-        if (!canShoot()) return;
         for (ShipCannon cannon : this.getCannons()) {
             if (cannon.getSlotIndex() == slot) {
                 cannon.trigger(this instanceof Seatable seatable ? seatable.getGunner(slot) : null);
