@@ -462,21 +462,30 @@ public abstract class Ship extends Boat {
         if (this instanceof Seatable) tag.put("SeatAssignments", this.getData(SEAT_ASSIGNMENTS));
     }
 
+    /**
+     * A ship rides out a bubble column, it is no rowing boat. Vanilla's Boat
+     * starts its bubble timer here - the one that rocks it and, once run out,
+     * drags it under and throws the crew off, or flings it into the air.
+     * None of that is started, so the timer stays at zero: no rocking, no
+     * sinking. Only the spray is left, the water is still boiling after all.
+     */
+    @Override
     public void onAboveBubbleCol(boolean bl) {
-        if (!this.level().isClientSide) {
-            this.isAboveBubbleColumn = true;
-            this.bubbleColumnDirectionIsDown = bl;
-            if (this.getBubbleTime() == 0) {
-                this.setBubbleTime(1200);
-            }
-        }
-
         this.level().addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7, this.getZ() + (double)this.random.nextFloat(), 0.0, 0.0, 0.0);
         if (this.random.nextInt(20) == 0) {
             this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), this.getSwimSplashSound(), this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
             this.gameEvent(GameEvent.SPLASH, this.getControllingPassenger());
         }
 
+    }
+
+    /**
+     * The hull reaches down into the column, and Entity would pull or push it
+     * a little every tick for that - fighting the buoyancy, so the ship bobs
+     * on the spot. A ship this size does not care about a column of bubbles.
+     */
+    @Override
+    public void onInsideBubbleColumn(boolean bl) {
     }
 
     public <T> T getData(EntityDataAccessor<T> accessor) {
