@@ -1,6 +1,10 @@
 package com.talhanation.smallships.mixin.client;
 
+import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.client.cannon.CannonAmmoHandler;
+import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,5 +38,17 @@ public abstract class GuiMixin {
     @Inject(method = "render", at = @At("TAIL"))
     private void smallships$renderAmmoPicker(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         CannonAmmoHandler.render(guiGraphics);
+    }
+
+    /**
+     * No crosshair while a cannon is aimed - same check as the hand in
+     * ItemInHandRendererMixin. Runs on Forge too: ForgeGui's CROSSHAIR overlay
+     * calls this very method instead of overriding it.
+     */
+    @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
+    private void smallships$hideCrosshairWhileAiming(GuiGraphics guiGraphics, CallbackInfo ci) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+        if (player.getVehicle() instanceof GroundCannonEntity cannon ? cannon.isAiming() : CannonAimHandler.isAiming()) ci.cancel();
     }
 }

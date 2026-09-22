@@ -16,6 +16,6 @@ public class ClientTickHandler {
         ClientWindManager.tick();
         WindEffects.tick(minecraft);
         CannonAimHandler.tick(minecraft);
-        ShipCameraHandler.tick();
+        ShipCameraHandler.tick(minecraft);
     }
 }
