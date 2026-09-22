@@ -207,7 +207,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
             }
             poseStack.pushPose();
             poseStack.mulPose(Axis.YN.rotationDegrees(this.getCannonAngleOffset() + cannon.getAngle()));
-            poseStack.translate(cannon.isRightSided() ? -cannon.getOffsetX() : cannon.getOffsetX(), -cannon.getOffsetY() + getCannonHeightOffset(), -cannon.getOffsetZ());
+            poseStack.translate(cannon.isRightSided() ? -cannon.getOffsetX() : cannon.getOffsetX(), -cannon.getOffsetY() + cannonShipEntity.self().getCannonHeightOffset(), -cannon.getOffsetZ());
 
             // aim rotation around the cannon's OWN vertical axis (after the translate!)
             poseStack.mulPose(Axis.YN.rotationDegrees(cannon.isRightSided() ? -aimRotation : aimRotation));
@@ -226,10 +226,11 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
                 // the line is only ever drawn for the local player's own aim, so
                 // he is the shooter - a gunner's arc follows his own ammo
                 float previewSpeed = CannonTrajectory.CANNON_SPEED * cannonShipEntity.getShotSpeedMultiplier(Minecraft.getInstance().player, true);
-                // start the arc at the muzzle instead of at the mounting point on
-                // the deck. The offset comes back in the scale the MODEL is drawn
-                // at, so the 1.3 the line is drawn at has to be divided out again
-                Vec3 muzzle = CannonModel.getMuzzleOffset(aimAngle).scale(1.3D);
+                // start the arc where the ball really spawns instead of at the
+                // mounting point on the deck. The offset comes back in the scale
+                // the MODEL is drawn at, so the 1.3 the line is drawn at has to
+                // be divided out again
+                Vec3 muzzle = CannonModel.getSpawnOffset(aimAngle).scale(1.3D);
                 // the line fades out towards its far end instead of being cut at
                 // the water surface, so no fluid lookup is needed here
                 CannonTrajectory.render(poseStack, lineConsumer, CannonTrajectory.calculateLocal(aimAngle, previewSpeed, muzzle));
@@ -262,14 +263,6 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         return 0;
     }
 
-    /*********************************************************
-     * Offset for Cannon Render:
-     * - Positive values will decrease the height
-     * - Negative values will increase the height
-     *********************************************************/
-    protected float getCannonHeightOffset(){
-        return 0;
-    }
 
     @SuppressWarnings("unused")
     private void renderBanner(Bannerable bannerShipEntity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {

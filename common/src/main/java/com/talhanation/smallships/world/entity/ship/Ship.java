@@ -1375,6 +1375,26 @@ public abstract class Ship extends Boat {
      * ever reached newly placed ships - now one global setting moves the whole
      * fleet, loaded chunks included, without a migration or a reset command.
      */
+    /**
+     * Height of the render pose origin above the ship position, in blocks - the
+     * translate every ship renderer does before it draws the hull.
+     *
+     * Lives on the entity and not in the renderer because the cannon positions
+     * are built from it, and those are needed on the server, where no renderer
+     * exists. See ShipCannon#getGlobalPosition.
+     */
+    public float getRenderPoseHeight() {
+        return 0.0F;
+    }
+
+    /**
+     * Per ship correction of the cannon mounting height inside the render pose.
+     * Positive values move the guns DOWN, the sign the renderers used.
+     */
+    public float getCannonHeightOffset() {
+        return 0.0F;
+    }
+
     public Attributes getAttributes() {
         Attributes attributes = this.getConfiguredAttributes().read();
         ShipUpgrade.applyAll(this, attributes);

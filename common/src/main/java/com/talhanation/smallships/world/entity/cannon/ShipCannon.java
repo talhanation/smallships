@@ -57,6 +57,8 @@ public class ShipCannon implements ICannon {
         this.cannon = new Cannon(this);
 
         this.cannon.setPitchBounds(-30.0F, 10.0F);
+        // the barrel of a ship gun hangs BELOW its mounting point, see CannonGeometry
+        this.cannon.setBarrelGeometry(CannonGeometry.shipTrunnionHeight(), CannonGeometry.trunnionForward(), CannonGeometry.spawnDistance());
     }
 
     /**
@@ -78,7 +80,8 @@ public class ShipCannon implements ICannon {
     }
 
     /**
-     * @return the global position of this cannon based on the ship position and the offsets.
+     * @return the global position of this cannon: the point the renderer draws
+     * its model onto, based on the ship position and the offsets.
      */
     public Vec3 getGlobalPosition() {
         return this.getGlobalPosition(this.ship.getX(), this.ship.getY(), this.ship.getZ(), this.ship.getYRot());
@@ -87,19 +90,23 @@ public class ShipCannon implements ICannon {
     /**
      * The same, but from a ship position and heading the caller supplies.
      *
-     * The camera needs this: it draws between ticks, and the raw ship values
-     * only move 20 times a second. Feeding it the interpolated ones keeps the
-     * gun - and with it the camera bolted to it - smooth at any speed. Anything
-     * that runs on the tick, shooting included, keeps using the method above.
+     * The offsets are the ones the renderer translates by, and it does that
+     * INSIDE the hull pose - which is scaled by CannonGeometry.POSE_SCALE and
+     * sits Ship#getRenderPoseHeight above the ship position. Both have to be
+     * applied here as well, otherwise the gun the shot comes from is not the gun
+     * the player sees: on a Cog that was about a block and a half too low, and
+     * on a two decker each deck missed its own mounting height.
      */
     public Vec3 getGlobalPosition(double shipX, double shipY, double shipZ, float shipYaw) {
         Vec3 forward = Vec3.directionFromRotation(0.0F, shipYaw).normalize();
         Vec3 right = forward.yRot(-Mth.HALF_PI).normalize();
 
-        double side = this.isRightSided ? this.offsetZ : -this.offsetZ;
-        double x = shipX - forward.x * this.offsetX + right.x * side;
-        double y = shipY + this.offsetY;
-        double z = shipZ - forward.z * this.offsetX + right.z * side;
+        double along = this.offsetX * CannonGeometry.POSE_SCALE;
+        double side = (this.isRightSided ? this.offsetZ : -this.offsetZ) * CannonGeometry.POSE_SCALE;
+        double x = shipX - forward.x * along + right.x * side;
+        double y = shipY + this.ship.getRenderPoseHeight()
+                + CannonGeometry.POSE_SCALE * (this.offsetY - this.ship.getCannonHeightOffset());
+        double z = shipZ - forward.z * along + right.z * side;
         return new Vec3(x, y, z);
     }
 

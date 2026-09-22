@@ -257,4 +257,14 @@ public class GalleonEntity extends ContainerShip implements Bannerable, Sailable
     public float getTailWindMultiplier() {
         return 1.50F;
     }
+
+    @Override
+    public float getRenderPoseHeight() {
+        return 2.7F;
+    }
+
+    @Override
+    public float getCannonHeightOffset() {
+        return 0.25F;
+    }
 }

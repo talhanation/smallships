@@ -204,4 +204,14 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     public float getRamSelfDamageFactor() {
         return 0.0F;
     }
+
+    @Override
+    public float getRenderPoseHeight() {
+        return 3.15F;
+    }
+
+    @Override
+    public float getCannonHeightOffset() {
+        return 0.25F;
+    }
 }

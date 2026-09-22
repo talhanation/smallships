@@ -19,16 +19,12 @@ public class DrakkarRenderer extends ShipRenderer<DrakkarEntity> {
         return new DrakkarModel(context.bakeLayer(DrakkarModel.LAYER_LOCATION));
     }
 
-    @Override
-    protected float getCannonHeightOffset(){
-        return 0.25F;
-    }
 
     @Override
     public void render(@NotNull DrakkarEntity drakkarEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
-        poseStack.translate(0.0D, 3.1D,0.0D);
+        poseStack.translate(0.0D, drakkarEntity.getRenderPoseHeight(), 0.0D);
         super.render(drakkarEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 }

@@ -210,4 +210,14 @@ public class BriggEntity extends ContainerShip implements Bannerable, Sailable, 
     public @Nullable Vec3 applyLeashOffset() {
         return new Vec3(0.0, this.getEyeHeight(), this.getBbWidth() * 0.1F);
     }
+
+    @Override
+    public float getRenderPoseHeight() {
+        return 2.7F;
+    }
+
+    @Override
+    public float getCannonHeightOffset() {
+        return -0.25F;
+    }
 }

@@ -75,6 +75,17 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     /** barrel elevation limits, single source of truth for the entity and the Cannon core */
     public static final float PITCH_MIN = -30.0F;
     public static final float PITCH_MAX = 10.0F;
+    /*
+     * Barrel geometry, all of it from CannonGeometry. GroundCannonRenderer draws
+     * the model with the vanilla -1.5 blocks translate, so its pose origin is the
+     * 24 unit one - that is the only thing this entity has to know about it.
+     */
+    /** height of the trunnions above the entity position */
+    public static final float TRUNNION_HEIGHT = CannonGeometry.trunnionHeight(CannonGeometry.MODEL_ORIGIN_Y);
+    /** trunnions in front of the entity position, along the yaw */
+    public static final float TRUNNION_FORWARD = CannonGeometry.trunnionForward();
+    /** trunnions to the spawn point of the ball */
+    public static final float MUZZLE_DISTANCE = CannonGeometry.spawnDistance();
     /** barrel elevation speed while the gun traverses back to centre */
     private static final float RECENTER_PITCH_SPEED = 1.5F;
     /** snap-to-center traverse speed, deliberately faster than manual tracking */
@@ -110,6 +121,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     public GroundCannonEntity(Level level, Vec3 pos) {
         super(ModEntityTypes.GROUND_CANNON, level);
         this.cannon.setPitchBounds(PITCH_MIN, PITCH_MAX);
+        this.cannon.setBarrelGeometry(TRUNNION_HEIGHT, TRUNNION_FORWARD, MUZZLE_DISTANCE);
         this.setPos(pos);
         recalculateBoundingBox();
         this.inventory = new SimpleContainer(1);
@@ -118,6 +130,7 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
     public GroundCannonEntity(EntityType<? extends Entity> entityType, Level level) {
         super(entityType, level);
         this.cannon.setPitchBounds(PITCH_MIN, PITCH_MAX);
+        this.cannon.setBarrelGeometry(TRUNNION_HEIGHT, TRUNNION_FORWARD, MUZZLE_DISTANCE);
     }
 
     public Item getDropItem() {
@@ -906,6 +919,20 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
      *                      caller consumes it separately (real shot uses
      *                      consumeFineGrainPowder instead)
      */
+    /**
+     * The spawn point of the shot relative to the entity position, for a given
+     * view. Same point as Cannon#getBarrelEndPointLocal, but for a yaw and pitch
+     * the cannon has not reached yet - the trajectory preview follows the view
+     * within the partial ticks.
+     *
+     * @param yaw   in Minecraft convention, as getYRot
+     * @param pitch in Minecraft convention, negative = up
+     */
+    public static Vec3 getMuzzleOffset(float yaw, float pitch) {
+        Vec3 pivot = Vec3.directionFromRotation(0.0F, yaw).scale(TRUNNION_FORWARD).add(0.0D, TRUNNION_HEIGHT, 0.0D);
+        return pivot.add(Vec3.directionFromRotation(pitch, yaw).scale(MUZZLE_DISTANCE));
+    }
+
     public float getShotSpeedMultiplier(boolean peekFineGrain) {
         // an entity in the barrel is always shot at base speed, no ammo is loaded
         CannonBallItem ammo = this.getPassengerInBarrel() == null ? this.getCannonBallToShoot() : null;

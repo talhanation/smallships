@@ -48,7 +48,12 @@ public class Cannon {
     private float pitch = 0;
     private float prevPitch = 0;
     private Vector3d pos = new Vector3d();
-    private final float barrelHeight = 0.3F;
+    /** height of the barrel pivot above the cannon position */
+    private float barrelHeight = 0.3F;
+    /** how far the barrel pivot sits in front of the cannon position, along the yaw */
+    private float barrelForwardOffset = 0.0F;
+    /** pivot to the point the projectile spawns at */
+    private float barrelLength = 1.2F;
     private final float speed = 2.6F;
     private float speedMultiplier;
     /** set by the owner right before the shot, see setFineGrain */
@@ -100,9 +105,10 @@ public class Cannon {
     }
 
     public Vector3d getBarrelEndPointLocal() {
-        Vector3d barrelMiddle = new Vector3d();
-        barrelMiddle.y += this.barrelHeight;
-        return barrelMiddle.add(this.getForward().normalize().mul(1.2F));
+        // the pivot turns with the yaw only, the barrel itself also with the pitch
+        Vector3d barrelMiddle = new Vector3d(0, this.barrelHeight, this.barrelForwardOffset);
+        barrelMiddle.rotateY((float) Math.toRadians(this.yaw));
+        return barrelMiddle.add(this.getForward().normalize().mul(this.barrelLength));
     }
 
     public Vector3d getPos() {
@@ -204,6 +210,21 @@ public class Cannon {
     private void playFuzeSound() {
         if (this.level.isClientSide()) return;
         this.owner.playSoundAt(SoundEvents.TNT_PRIMED, 1F, 1.5F);
+    }
+
+    /**
+     * Where the barrel sits on its owner, in blocks. The defaults fit the ship
+     * cannons; an owner drawn differently has to set its own values, otherwise
+     * the shot leaves from a point that is not the visible muzzle.
+     *
+     * @param height        height of the pivot above the cannon position
+     * @param forwardOffset pivot in front of the cannon position, along the yaw
+     * @param length        pivot to the spawn point of the projectile
+     */
+    public void setBarrelGeometry(float height, float forwardOffset, float length) {
+        this.barrelHeight = height;
+        this.barrelForwardOffset = forwardOffset;
+        this.barrelLength = length;
     }
 
     public void setPitchBounds(float up, float down) {

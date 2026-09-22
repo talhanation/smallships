@@ -68,8 +68,8 @@ public class GroundCannonRenderer extends EntityRenderer<GroundCannonEntity> {
             }
             Vec3 direction = Vec3.directionFromRotation(pitch, yaw);
 
-            // barrel end relative to the entity origin
-            Vec3 start = direction.scale(1.4D).add(0.0D, 1.1D, 0.0D);
+            // spawn point of the real shot relative to the entity origin
+            Vec3 start = GroundCannonEntity.getMuzzleOffset(yaw, pitch);
 
             // match the real shot: grape/chained shot fly slower, fine grain
             // powder makes them faster (peek only, the preview must not consume it)

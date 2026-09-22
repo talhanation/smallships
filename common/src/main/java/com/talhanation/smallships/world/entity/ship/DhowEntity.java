@@ -201,4 +201,14 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     public float getTailWindMultiplier() {
         return 1.00F;
     }
+
+    @Override
+    public float getRenderPoseHeight() {
+        return 2.5F;
+    }
+
+    @Override
+    public float getCannonHeightOffset() {
+        return 0.25F;
+    }
 }

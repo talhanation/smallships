@@ -205,4 +205,14 @@ public class CogEntity extends ContainerShip implements Bannerable, Sailable, Ca
     public float getTailWindMultiplier() {
         return 1.50F;
     }
+
+    @Override
+    public float getRenderPoseHeight() {
+        return 3.1F;
+    }
+
+    @Override
+    public float getCannonHeightOffset() {
+        return 0.5F;
+    }
 }

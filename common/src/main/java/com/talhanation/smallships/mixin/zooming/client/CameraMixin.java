@@ -6,6 +6,7 @@ import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
+import com.talhanation.smallships.world.entity.cannon.CannonGeometry;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import net.minecraft.world.entity.player.Player;
@@ -37,11 +38,17 @@ public abstract class CameraMixin implements CameraZoomAccess {
     // the barrel pivots around, BORE_FORWARD how far along the bore the camera
     // sits in front of that pivot - so elevating the gun swings the camera up
     // with the muzzle instead of leaving it at a fixed height looking upwards.
-    @Unique private static final double GROUND_CANNON_TRUNNION_Y = 0.75D;
+    //
+    // SIGHT_HEIGHT lifts it off the bore axis onto the barrel: sitting exactly
+    // in the axis means sitting INSIDE the metal, which clips the model into the
+    // view. The gunner sights over his gun, he does not look out of its bore.
+    @Unique private static final double CANNON_SIGHT_HEIGHT = CannonGeometry.sightHeight();
+    @Unique private static final double GROUND_CANNON_TRUNNION_Y = GroundCannonEntity.TRUNNION_HEIGHT + CANNON_SIGHT_HEIGHT;
     @Unique private static final double GROUND_CANNON_BORE_FORWARD = 0.75D;
-    // the same two for a ship gun. Higher than the ground cannon, because a
-    // carriage stands on a deck well above the ship origin.
-    @Unique private static final double SHIP_CANNON_TRUNNION_Y = 2.5D;
+    // the same two for a ship gun. The trunnion part is negative, because
+    // ShipCannon#getGlobalPosition returns the mounting point and the barrel of
+    // a ship gun hangs below it.
+    @Unique private static final double SHIP_CANNON_TRUNNION_Y = CannonGeometry.shipTrunnionHeight() + CANNON_SIGHT_HEIGHT;
     @Unique private static final double SHIP_CANNON_BORE_FORWARD = 0.75D;
     // the eight corner offsets vanilla probes in getMaxZoom
     @Unique private static final double CAMERA_PROBE = 0.1D;

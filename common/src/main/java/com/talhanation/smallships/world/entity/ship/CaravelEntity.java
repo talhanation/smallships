@@ -196,4 +196,14 @@ public class CaravelEntity extends ContainerShip implements Bannerable, Sailable
     public float getTailWindMultiplier() {
         return 0.80F;
     }
+
+    @Override
+    public float getRenderPoseHeight() {
+        return 2.15F;
+    }
+
+    @Override
+    public float getCannonHeightOffset() {
+        return 0.25F;
+    }
 }
