@@ -18,7 +18,6 @@ import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.wind.Wind;
 import com.talhanation.smallships.world.wind.WindManager;
 import com.talhanation.smallships.client.wind.ClientWindManager;
-import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import net.minecraft.server.level.ServerLevel;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.client.CameraType;
@@ -66,7 +65,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -1135,10 +1133,6 @@ public abstract class Ship extends Boat {
 
     @Override
     protected void addPassenger(Entity entity) {
-        if (this.level().isClientSide() && Objects.equals(Minecraft.getInstance().player, entity)) {
-            ShipCameraHandler.startTransition();
-        }
-
         // seat system: assign the fixed seat (never index based)
         if (this instanceof Seatable seatable && !this.level().isClientSide() && seatable.getSeatOf(entity) == null) {
             Vec3 from = entity.position();

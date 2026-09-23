@@ -3,7 +3,6 @@ package com.talhanation.smallships.mixin.zooming.client;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
-import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.cannon.CannonGeometry;
@@ -198,8 +197,12 @@ public abstract class CameraMixin implements CameraZoomAccess {
     /**
      * Better Ship Camera: in third person the camera anchor is moved from the
      * player position to the ship center, allowing a full 360 degree orbit
-     * around the ship. The transition after mounting is smoothed by
-     * ShipCameraHandler (aim and align).
+     * around the ship.
+     *
+     * Straight onto the centre, NOT eased in over the first ticks after
+     * mounting: the player sits off centre, so easing is a camera that slides
+     * sideways on its own the moment he boards. The jump itself is hidden by
+     * the mount.
      *
      * A REDIRECT, not a ModifyArgs: the latter hands the handler a synthetic
      * org.spongepowered.asm.synthetic.args.Args subclass that mixin generates at
@@ -226,10 +229,9 @@ public abstract class CameraMixin implements CameraZoomAccess {
         double shipX = Mth.lerp(partialTick, ship.xo, ship.getX());
         double shipZ = Mth.lerp(partialTick, ship.zo, ship.getZ());
 
-        float blend = ShipCameraHandler.getAnchorBlend(partialTick);
         // y is left alone on purpose: the eye stays at the player's own height,
         // only the horizontal pivot moves onto the ship
-        this.setPosition(Mth.lerp(blend, x, shipX), y, Mth.lerp(blend, z, shipZ));
+        this.setPosition(shipX, y, shipZ);
     }
 
     /**

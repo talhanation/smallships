@@ -1,6 +1,5 @@
 package com.talhanation.smallships.client;
 
-import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.client.wind.ClientWindManager;
 import com.talhanation.smallships.client.wind.WindEffects;
@@ -16,6 +15,5 @@ public class ClientTickHandler {
         ClientWindManager.tick();
         WindEffects.tick(minecraft);
         CannonAimHandler.tick(minecraft);
-        ShipCameraHandler.tick(minecraft);
     }
 }
