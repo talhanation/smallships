@@ -214,6 +214,30 @@ public class GalleonSailModel extends SailModel {
 	private final ModelPart rope_sail_front_top_2_2;
 	private final ModelPart rope_sail_front_top_3_2;
 	private final ModelPart rope_sail_front_top_4_2;
+	private final ModelPart sail_front_rope_left_0;
+	private final ModelPart cube_r11;
+	private final ModelPart cube_r12;
+	private final ModelPart cube_r13;
+	private final ModelPart sail_front_rope_right_0;
+	private final ModelPart cube_r70;
+	private final ModelPart cube_r71;
+	private final ModelPart cube_r72;
+	private final ModelPart sail_main_rope_right_0;
+	private final ModelPart cube_r73;
+	private final ModelPart cube_r74;
+	private final ModelPart cube_r75;
+	private final ModelPart sail_main_rope_left_0;
+	private final ModelPart cube_r76;
+	private final ModelPart cube_r77;
+	private final ModelPart cube_r78;
+	private final ModelPart rope_sail_main_top_0_3;
+	private final ModelPart rope_sail_main_top_0_2;
+	private final ModelPart rope_sail_front_top_0_3;
+	private final ModelPart rope_sail_front_top_0_2;
+	private final ModelPart rope_back_sail_0;
+	private final ModelPart cube_r79;
+	private final ModelPart cube_r80;
+	private final ModelPart cube_r84;
 	public GalleonSailModel() {
 		ModelPart root = createBodyLayer().bakeRoot();
 		this.GalleonSail = root.getChild("GalleonSail");
@@ -415,7 +439,32 @@ public class GalleonSailModel extends SailModel {
 		this.rope_sail_front_top_2_2 = this.GalleonSail.getChild("rope_sail_front_top_2_2");
 		this.rope_sail_front_top_3_2 = this.GalleonSail.getChild("rope_sail_front_top_3_2");
 		this.rope_sail_front_top_4_2 = this.GalleonSail.getChild("rope_sail_front_top_4_2");
+		this.sail_front_rope_left_0 = this.GalleonSail.getChild("sail_front_rope_left_0");
+		this.cube_r11 = this.sail_front_rope_left_0.getChild("cube_r11");
+		this.cube_r12 = this.sail_front_rope_left_0.getChild("cube_r12");
+		this.cube_r13 = this.sail_front_rope_left_0.getChild("cube_r13");
+		this.sail_front_rope_right_0 = this.GalleonSail.getChild("sail_front_rope_right_0");
+		this.cube_r70 = this.sail_front_rope_right_0.getChild("cube_r70");
+		this.cube_r71 = this.sail_front_rope_right_0.getChild("cube_r71");
+		this.cube_r72 = this.sail_front_rope_right_0.getChild("cube_r72");
+		this.sail_main_rope_right_0 = this.GalleonSail.getChild("sail_main_rope_right_0");
+		this.cube_r73 = this.sail_main_rope_right_0.getChild("cube_r73");
+		this.cube_r74 = this.sail_main_rope_right_0.getChild("cube_r74");
+		this.cube_r75 = this.sail_main_rope_right_0.getChild("cube_r75");
+		this.sail_main_rope_left_0 = this.GalleonSail.getChild("sail_main_rope_left_0");
+		this.cube_r76 = this.sail_main_rope_left_0.getChild("cube_r76");
+		this.cube_r77 = this.sail_main_rope_left_0.getChild("cube_r77");
+		this.cube_r78 = this.sail_main_rope_left_0.getChild("cube_r78");
+		this.rope_sail_main_top_0_3 = this.GalleonSail.getChild("rope_sail_main_top_0_3");
+		this.rope_sail_main_top_0_2 = this.GalleonSail.getChild("rope_sail_main_top_0_2");
+		this.rope_sail_front_top_0_3 = this.GalleonSail.getChild("rope_sail_front_top_0_3");
+		this.rope_sail_front_top_0_2 = this.GalleonSail.getChild("rope_sail_front_top_0_2");
+		this.rope_back_sail_0 = this.GalleonSail.getChild("rope_back_sail_0");
+		this.cube_r79 = this.rope_back_sail_0.getChild("cube_r79");
+		this.cube_r80 = this.rope_back_sail_0.getChild("cube_r80");
+		this.cube_r84 = this.rope_back_sail_0.getChild("cube_r84");
 	}
+
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
@@ -714,7 +763,7 @@ public class GalleonSailModel extends SailModel {
 				.texOffs(0, 24).addBox(18.5F, -0.5F, -17.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 24).addBox(7.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 24).addBox(7.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-				.texOffs(96, 7).addBox(32.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.7479F, 17.1432F, 0.0F, 0.0F, -1.5708F));
+				.texOffs(17, 24).addBox(32.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.7479F, 17.1432F, 0.0F, 0.0F, -1.5708F));
 
 		PartDefinition cube_r57 = sail_front_rope_left_3.addOrReplaceChild("cube_r57", CubeListBuilder.create().texOffs(9, 10).addBox(-12.65F, -12.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -42.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
 
@@ -735,15 +784,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_front_top_1 = sail_front_top.addOrReplaceChild("sail_front_top_1", CubeListBuilder.create(), PartPose.offset(0.5F, -24.7357F, -2.2981F));
 
-		PartDefinition cube_r11 = sail_front_top_1.addOrReplaceChild("cube_r11", CubeListBuilder.create().texOffs(95, 52).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r85 = sail_front_top_1.addOrReplaceChild("cube_r85", CubeListBuilder.create().texOffs(95, 52).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 38).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 59).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.6981F, 0.0F, 0.0F));
 
-		PartDefinition cube_r12 = sail_front_top_1.addOrReplaceChild("cube_r12", CubeListBuilder.create().texOffs(64, 8).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r86 = sail_front_top_1.addOrReplaceChild("cube_r86", CubeListBuilder.create().texOffs(64, 8).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(99, 38).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 57).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -1.8284F, 2.1553F, 0.5236F, 0.0F, 0.0F));
 
-		PartDefinition cube_r13 = sail_front_top_1.addOrReplaceChild("cube_r13", CubeListBuilder.create().texOffs(64, 28).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r87 = sail_front_top_1.addOrReplaceChild("cube_r87", CubeListBuilder.create().texOffs(64, 28).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(99, 40).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 59).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 2.1749F, -1.8051F, 0.8727F, 0.0F, 0.0F));
 
@@ -755,15 +804,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_front_top_2 = sail_front_top.addOrReplaceChild("sail_front_top_2", CubeListBuilder.create(), PartPose.offset(0.5F, -20.1055F, -5.5033F));
 
-		PartDefinition cube_r70 = sail_front_top_2.addOrReplaceChild("cube_r70", CubeListBuilder.create().texOffs(100, 48).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r88 = sail_front_top_2.addOrReplaceChild("cube_r88", CubeListBuilder.create().texOffs(100, 48).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 29).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 34).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 1.0472F, 0.0F, 0.0F));
 
-		PartDefinition cube_r71 = sail_front_top_2.addOrReplaceChild("cube_r71", CubeListBuilder.create().texOffs(76, 43).addBox(-5.5F, -1.0F, -3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r89 = sail_front_top_2.addOrReplaceChild("cube_r89", CubeListBuilder.create().texOffs(76, 43).addBox(-5.5F, -1.0F, -3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 52).addBox(-34.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 59).addBox(5.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.5F, -0.158F, 0.0737F, 1.2217F, 0.0F, 0.0F));
 
-		PartDefinition cube_r72 = sail_front_top_2.addOrReplaceChild("cube_r72", CubeListBuilder.create().texOffs(100, 44).addBox(-5.5F, -1.0F, -3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r90 = sail_front_top_2.addOrReplaceChild("cube_r90", CubeListBuilder.create().texOffs(100, 44).addBox(-5.5F, -1.0F, -3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 58).addBox(-34.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 57).addBox(5.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.5F, 2.4927F, -0.9073F, 1.3963F, 0.0F, 0.0F));
 
@@ -775,15 +824,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_front_top_3 = sail_front_top.addOrReplaceChild("sail_front_top_3", CubeListBuilder.create(), PartPose.offset(0.0F, -11.832F, -6.9163F));
 
-		PartDefinition cube_r73 = sail_front_top_3.addOrReplaceChild("cube_r73", CubeListBuilder.create().texOffs(64, 51).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r91 = sail_front_top_3.addOrReplaceChild("cube_r91", CubeListBuilder.create().texOffs(64, 51).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(100, 33).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 58).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 1.5708F, 0.0F, 0.0F));
 
-		PartDefinition cube_r74 = sail_front_top_3.addOrReplaceChild("cube_r74", CubeListBuilder.create().texOffs(64, 58).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r92 = sail_front_top_3.addOrReplaceChild("cube_r92", CubeListBuilder.create().texOffs(64, 58).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(100, 4).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 55).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 2.7808F, 0.5057F, 1.7453F, 0.0F, 0.0F));
 
-		PartDefinition cube_r75 = sail_front_top_3.addOrReplaceChild("cube_r75", CubeListBuilder.create().texOffs(64, 23).addBox(-34.5F, -1.0F, 3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r93 = sail_front_top_3.addOrReplaceChild("cube_r93", CubeListBuilder.create().texOffs(64, 23).addBox(-34.5F, -1.0F, 3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(70, 2).addBox(-5.5F, -1.0F, 3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 33).addBox(5.5F, -1.0F, 3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 8.2506F, 2.5128F, 1.9199F, 0.0F, 0.0F));
 
@@ -795,15 +844,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_front_top_4 = sail_front_top.addOrReplaceChild("sail_front_top_4", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition cube_r76 = sail_front_top_4.addOrReplaceChild("cube_r76", CubeListBuilder.create().texOffs(64, 36).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r94 = sail_front_top_4.addOrReplaceChild("cube_r94", CubeListBuilder.create().texOffs(64, 36).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(69, 1).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 22).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 2.4435F, 0.0F, 0.0F));
 
-		PartDefinition cube_r77 = sail_front_top_4.addOrReplaceChild("cube_r77", CubeListBuilder.create().texOffs(63, 5).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r95 = sail_front_top_4.addOrReplaceChild("cube_r95", CubeListBuilder.create().texOffs(63, 5).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(70, 2).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 22).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -1.8051F, -2.1749F, 2.2689F, 0.0F, 0.0F));
 
-		PartDefinition cube_r78 = sail_front_top_4.addOrReplaceChild("cube_r78", CubeListBuilder.create().texOffs(64, 24).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r96 = sail_front_top_4.addOrReplaceChild("cube_r96", CubeListBuilder.create().texOffs(64, 24).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(91, 3).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 36).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -3.9604F, -4.0033F, 2.0944F, 0.0F, 0.0F));
 
@@ -819,17 +868,17 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_main_1 = sail_main.addOrReplaceChild("sail_main_1", CubeListBuilder.create(), PartPose.offset(0.5F, -6.7923F, 9.0167F));
 
-		PartDefinition cube_r79 = sail_main_1.addOrReplaceChild("cube_r79", CubeListBuilder.create().texOffs(64, 10).addBox(21.0F, -1.0F, -3.5F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r97 = sail_main_1.addOrReplaceChild("cube_r97", CubeListBuilder.create().texOffs(64, 10).addBox(21.0F, -1.0F, -3.5F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 51).addBox(-1.0F, -1.0F, -3.5F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(74, 19).addBox(-22.0F, -1.0F, -3.5F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 38).addBox(-48.0F, -1.0F, -3.5F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.5236F, 0.0F, 0.0F));
 
-		PartDefinition cube_r80 = sail_main_1.addOrReplaceChild("cube_r80", CubeListBuilder.create().texOffs(64, 9).addBox(21.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r98 = sail_main_1.addOrReplaceChild("cube_r98", CubeListBuilder.create().texOffs(64, 9).addBox(21.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 36).addBox(-0.5F, -1.0F, 2.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(74, 1).addBox(-21.5F, -1.0F, 2.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 20).addBox(-47.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.5F, 6.7923F, -9.0167F, 0.6981F, 0.0F, 0.0F));
 
-		PartDefinition cube_r84 = sail_main_1.addOrReplaceChild("cube_r84", CubeListBuilder.create().texOffs(64, 45).addBox(21.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r99 = sail_main_1.addOrReplaceChild("cube_r99", CubeListBuilder.create().texOffs(64, 45).addBox(21.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 30).addBox(-0.5F, -1.0F, 2.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(73, 25).addBox(-21.5F, -1.0F, 2.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 9).addBox(-47.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.5F, 11.5118F, -12.5036F, 0.8727F, 0.0F, 0.0F));
@@ -845,17 +894,17 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_main_2 = sail_main.addOrReplaceChild("sail_main_2", CubeListBuilder.create(), PartPose.offset(0.0F, 6.2034F, -4.3437F));
 
-		PartDefinition cube_r85 = sail_main_2.addOrReplaceChild("cube_r85", CubeListBuilder.create().texOffs(67, 56).addBox(-21.5F, -1.0F, -8.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r100 = sail_main_2.addOrReplaceChild("cube_r100", CubeListBuilder.create().texOffs(67, 56).addBox(-21.5F, -1.0F, -8.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 9).addBox(-47.5F, -1.0F, -8.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 39).addBox(-0.5F, -1.0F, -8.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 31).addBox(21.5F, -1.0F, -8.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 1.2217F, 0.0F, 0.0F));
 
-		PartDefinition cube_r86 = sail_main_2.addOrReplaceChild("cube_r86", CubeListBuilder.create().texOffs(64, 9).addBox(-47.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r101 = sail_main_2.addOrReplaceChild("cube_r101", CubeListBuilder.create().texOffs(64, 9).addBox(-47.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(71, 51).addBox(-21.5F, -1.0F, 2.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 26).addBox(-0.5F, -1.0F, 2.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 27).addBox(21.5F, -1.0F, 2.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 3.7694F, -1.7577F, 1.0472F, 0.0F, 0.0F));
 
-		PartDefinition cube_r87 = sail_main_2.addOrReplaceChild("cube_r87", CubeListBuilder.create().texOffs(64, 42).addBox(21.5F, -1.0F, -6.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r102 = sail_main_2.addOrReplaceChild("cube_r102", CubeListBuilder.create().texOffs(64, 42).addBox(21.5F, -1.0F, -6.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 51).addBox(-0.5F, -1.0F, -6.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(65, 54).addBox(-21.5F, -1.0F, -6.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 9).addBox(-47.5F, -1.0F, -6.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 7.3492F, -2.691F, 1.3963F, 0.0F, 0.0F));
@@ -871,17 +920,17 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_main_3 = sail_main.addOrReplaceChild("sail_main_3", CubeListBuilder.create(), PartPose.offset(0.0F, 26.099F, -7.903F));
 
-		PartDefinition cube_r88 = sail_main_3.addOrReplaceChild("cube_r88", CubeListBuilder.create().texOffs(74, 52).addBox(-21.5F, -1.0F, -5.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r103 = sail_main_3.addOrReplaceChild("cube_r103", CubeListBuilder.create().texOffs(74, 52).addBox(-21.5F, -1.0F, -5.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 43).addBox(-47.5F, -1.0F, -5.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 1).addBox(-0.5F, -1.0F, -5.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 9).addBox(21.5F, -1.0F, -5.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 1.7453F, 0.0F, 0.0F));
 
-		PartDefinition cube_r89 = sail_main_3.addOrReplaceChild("cube_r89", CubeListBuilder.create().texOffs(64, 9).addBox(-47.5F, -1.0F, -5.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r104 = sail_main_3.addOrReplaceChild("cube_r104", CubeListBuilder.create().texOffs(64, 9).addBox(-47.5F, -1.0F, -5.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(65, 38).addBox(-21.5F, -1.0F, -5.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 31).addBox(21.5F, -1.0F, -5.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 1).addBox(-0.5F, -1.0F, -5.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -5.8112F, -0.1585F, 1.5708F, 0.0F, 0.0F));
 
-		PartDefinition cube_r90 = sail_main_3.addOrReplaceChild("cube_r90", CubeListBuilder.create().texOffs(64, 9).addBox(21.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r105 = sail_main_3.addOrReplaceChild("cube_r105", CubeListBuilder.create().texOffs(64, 9).addBox(21.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 0).addBox(-0.5F, -1.0F, -9.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(74, 43).addBox(-21.5F, -1.0F, -9.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 2).addBox(-47.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 1.9366F, -0.2029F, 1.9199F, 0.0F, 0.0F));
@@ -897,17 +946,17 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_main_4 = sail_main.addOrReplaceChild("sail_main_4", CubeListBuilder.create(), PartPose.offset(0.0F, 39.09F, -4.1297F));
 
-		PartDefinition cube_r91 = sail_main_4.addOrReplaceChild("cube_r91", CubeListBuilder.create().texOffs(64, 1).addBox(-47.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r106 = sail_main_4.addOrReplaceChild("cube_r106", CubeListBuilder.create().texOffs(64, 1).addBox(-47.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(74, 41).addBox(-21.5F, -1.0F, -9.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 0).addBox(-0.5F, -1.0F, -9.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 9).addBox(21.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -5.3533F, -2.4717F, 2.0944F, 0.0F, 0.0F));
 
-		PartDefinition cube_r92 = sail_main_4.addOrReplaceChild("cube_r92", CubeListBuilder.create().texOffs(65, 0).addBox(-21.5F, -1.0F, -9.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r107 = sail_main_4.addOrReplaceChild("cube_r107", CubeListBuilder.create().texOffs(65, 0).addBox(-21.5F, -1.0F, -9.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 1).addBox(-47.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 0).addBox(-0.5F, -1.0F, -9.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 9).addBox(21.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 2.2689F, 0.0F, 0.0F));
 
-		PartDefinition cube_r93 = sail_main_4.addOrReplaceChild("cube_r93", CubeListBuilder.create().texOffs(64, 9).addBox(21.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r108 = sail_main_4.addOrReplaceChild("cube_r108", CubeListBuilder.create().texOffs(64, 9).addBox(21.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(69, 43).addBox(-0.5F, -1.0F, -9.0F, 22.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(65, 3).addBox(-21.5F, -1.0F, -9.0F, 21.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 36).addBox(-47.5F, -1.0F, -9.0F, 26.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 4.8428F, 3.3637F, 2.4435F, 0.0F, 0.0F));
@@ -927,15 +976,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_main_top_1 = sail_main_top.addOrReplaceChild("sail_main_top_1", CubeListBuilder.create(), PartPose.offset(0.0F, -1.8284F, 2.1553F));
 
-		PartDefinition cube_r94 = sail_main_top_1.addOrReplaceChild("cube_r94", CubeListBuilder.create().texOffs(64, 25).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r109 = sail_main_top_1.addOrReplaceChild("cube_r109", CubeListBuilder.create().texOffs(64, 25).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 15).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 35).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.5236F, 0.0F, 0.0F));
 
-		PartDefinition cube_r95 = sail_main_top_1.addOrReplaceChild("cube_r95", CubeListBuilder.create().texOffs(64, 25).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r110 = sail_main_top_1.addOrReplaceChild("cube_r110", CubeListBuilder.create().texOffs(64, 25).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(68, 22).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 45).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 1.8284F, -2.1553F, 0.6981F, 0.0F, 0.0F));
 
-		PartDefinition cube_r96 = sail_main_top_1.addOrReplaceChild("cube_r96", CubeListBuilder.create().texOffs(64, 39).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r111 = sail_main_top_1.addOrReplaceChild("cube_r111", CubeListBuilder.create().texOffs(64, 39).addBox(5.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(100, 25).addBox(-6.0F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 30).addBox(-35.0F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 4.0033F, -3.9604F, 0.8727F, 0.0F, 0.0F));
 
@@ -947,15 +996,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_main_top_2 = sail_main_top.addOrReplaceChild("sail_main_top_2", CubeListBuilder.create(), PartPose.offset(-0.5F, 7.1229F, -4.1124F));
 
-		PartDefinition cube_r97 = sail_main_top_2.addOrReplaceChild("cube_r97", CubeListBuilder.create().texOffs(64, 24).addBox(-34.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r112 = sail_main_top_2.addOrReplaceChild("cube_r112", CubeListBuilder.create().texOffs(64, 24).addBox(-34.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(75, 48).addBox(-5.5F, -1.0F, -3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 28).addBox(5.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 1.3963F, 0.0F, 0.0F));
 
-		PartDefinition cube_r98 = sail_main_top_2.addOrReplaceChild("cube_r98", CubeListBuilder.create().texOffs(64, 28).addBox(-34.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r113 = sail_main_top_2.addOrReplaceChild("cube_r113", CubeListBuilder.create().texOffs(64, 28).addBox(-34.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(98, 49).addBox(-5.5F, -1.0F, -3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 0).addBox(5.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -2.6507F, 0.981F, 1.2217F, 0.0F, 0.0F));
 
-		PartDefinition cube_r99 = sail_main_top_2.addOrReplaceChild("cube_r99", CubeListBuilder.create().texOffs(64, 27).addBox(-34.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r114 = sail_main_top_2.addOrReplaceChild("cube_r114", CubeListBuilder.create().texOffs(64, 27).addBox(-34.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(73, 39).addBox(-5.5F, -1.0F, -3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 53).addBox(5.5F, -1.0F, -3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -5.0908F, 2.4073F, 1.0472F, 0.0F, 0.0F));
 
@@ -967,15 +1016,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_main_top_3 = sail_main_top.addOrReplaceChild("sail_main_top_3", CubeListBuilder.create(), PartPose.offset(-0.5F, 15.6844F, -4.1124F));
 
-		PartDefinition cube_r100 = sail_main_top_3.addOrReplaceChild("cube_r100", CubeListBuilder.create().texOffs(64, 30).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r115 = sail_main_top_3.addOrReplaceChild("cube_r115", CubeListBuilder.create().texOffs(64, 30).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(100, 43).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 53).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 1.7453F, 0.0F, 0.0F));
 
-		PartDefinition cube_r101 = sail_main_top_3.addOrReplaceChild("cube_r101", CubeListBuilder.create().texOffs(64, 47).addBox(-34.5F, -1.0F, 3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r116 = sail_main_top_3.addOrReplaceChild("cube_r116", CubeListBuilder.create().texOffs(64, 47).addBox(-34.5F, -1.0F, 3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(100, 3).addBox(-5.5F, -1.0F, 3.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 35).addBox(5.5F, -1.0F, 3.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 5.4698F, 2.007F, 1.9199F, 0.0F, 0.0F));
 
-		PartDefinition cube_r102 = sail_main_top_3.addOrReplaceChild("cube_r102", CubeListBuilder.create().texOffs(64, 25).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r117 = sail_main_top_3.addOrReplaceChild("cube_r117", CubeListBuilder.create().texOffs(64, 25).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(72, 30).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 1).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -2.7808F, -0.5057F, 1.5708F, 0.0F, 0.0F));
 
@@ -987,15 +1036,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_main_top_4 = sail_main_top.addOrReplaceChild("sail_main_top_4", CubeListBuilder.create(), PartPose.offset(-0.5F, 24.7357F, 2.2981F));
 
-		PartDefinition cube_r103 = sail_main_top_4.addOrReplaceChild("cube_r103", CubeListBuilder.create().texOffs(66, 4).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r118 = sail_main_top_4.addOrReplaceChild("cube_r118", CubeListBuilder.create().texOffs(66, 4).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 26).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 6).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 2.4435F, 0.0F, 0.0F));
 
-		PartDefinition cube_r104 = sail_main_top_4.addOrReplaceChild("cube_r104", CubeListBuilder.create().texOffs(100, 5).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r119 = sail_main_top_4.addOrReplaceChild("cube_r119", CubeListBuilder.create().texOffs(100, 5).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 47).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
-				.texOffs(62, 16).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -1.8051F, -2.1749F, 2.2689F, 0.0F, 0.0F));
+				.texOffs(64, 18).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -1.8051F, -2.1749F, 2.2689F, 0.0F, 0.0F));
 
-		PartDefinition cube_r105 = sail_main_top_4.addOrReplaceChild("cube_r105", CubeListBuilder.create().texOffs(64, 42).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r120 = sail_main_top_4.addOrReplaceChild("cube_r120", CubeListBuilder.create().texOffs(64, 42).addBox(5.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(100, 5).addBox(-5.5F, -1.0F, 0.0F, 11.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 41).addBox(-34.5F, -1.0F, 0.0F, 29.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -3.9604F, -4.0033F, 2.0944F, 0.0F, 0.0F));
 
@@ -1011,15 +1060,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_front_1 = sail_front.addOrReplaceChild("sail_front_1", CubeListBuilder.create(), PartPose.offset(0.0358F, 4.7038F, 43.1695F));
 
-		PartDefinition cube_r106 = sail_front_1.addOrReplaceChild("cube_r106", CubeListBuilder.create().texOffs(64, 42).addBox(13.4642F, -20.9027F, -43.0912F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r121 = sail_front_1.addOrReplaceChild("cube_r121", CubeListBuilder.create().texOffs(64, 42).addBox(13.4642F, -20.9027F, -43.0912F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 23).addBox(-13.5358F, -20.9027F, -43.0912F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 17).addBox(-41.5358F, -20.9027F, -43.0912F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.3491F, 0.0F, 0.0F));
 
-		PartDefinition cube_r107 = sail_front_1.addOrReplaceChild("cube_r107", CubeListBuilder.create().texOffs(64, 48).addBox(13.5F, -1.0F, -2.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r122 = sail_front_1.addOrReplaceChild("cube_r122", CubeListBuilder.create().texOffs(64, 48).addBox(13.5F, -1.0F, -2.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(65, 16).addBox(-13.5F, -1.0F, -2.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 23).addBox(-41.5F, -1.0F, -2.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.0358F, -3.038F, -48.8737F, 0.5236F, 0.0F, 0.0F));
 
-		PartDefinition cube_r108 = sail_front_1.addOrReplaceChild("cube_r108", CubeListBuilder.create().texOffs(64, 56).addBox(13.5F, -1.0F, -2.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r123 = sail_front_1.addOrReplaceChild("cube_r123", CubeListBuilder.create().texOffs(64, 56).addBox(13.5F, -1.0F, -2.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 47).addBox(-13.5F, -1.0F, -2.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 17).addBox(-41.5F, -1.0F, -2.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.0358F, -0.8525F, -51.9951F, 0.6981F, 0.0F, 0.0F));
 
@@ -1032,15 +1081,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_front_2 = sail_front.addOrReplaceChild("sail_front_2", CubeListBuilder.create(), PartPose.offset(0.0F, 15.0F, -16.0F));
 
-		PartDefinition cube_r109 = sail_front_2.addOrReplaceChild("cube_r109", CubeListBuilder.create().texOffs(64, 43).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r124 = sail_front_2.addOrReplaceChild("cube_r124", CubeListBuilder.create().texOffs(64, 43).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 56).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 8).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 1.2217F, 0.0F, 0.0F));
 
-		PartDefinition cube_r110 = sail_front_2.addOrReplaceChild("cube_r110", CubeListBuilder.create().texOffs(64, 54).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r125 = sail_front_2.addOrReplaceChild("cube_r125", CubeListBuilder.create().texOffs(64, 54).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(65, 39).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 29).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -6.9221F, 3.1944F, 0.8727F, 0.0F, 0.0F));
 
-		PartDefinition cube_r111 = sail_front_2.addOrReplaceChild("cube_r111", CubeListBuilder.create().texOffs(64, 50).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r126 = sail_front_2.addOrReplaceChild("cube_r126", CubeListBuilder.create().texOffs(64, 50).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 56).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 17).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -3.6008F, 1.2944F, 1.0472F, 0.0F, 0.0F));
 
@@ -1053,15 +1102,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_front_3 = sail_front.addOrReplaceChild("sail_front_3", CubeListBuilder.create(), PartPose.offset(0.0F, 26.3628F, -15.9549F));
 
-		PartDefinition cube_r112 = sail_front_3.addOrReplaceChild("cube_r112", CubeListBuilder.create().texOffs(64, 17).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r127 = sail_front_3.addOrReplaceChild("cube_r127", CubeListBuilder.create().texOffs(64, 17).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 30).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 24).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 1.7453F, 0.0F, 0.0F));
 
-		PartDefinition cube_r113 = sail_front_3.addOrReplaceChild("cube_r113", CubeListBuilder.create().texOffs(64, 17).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r128 = sail_front_3.addOrReplaceChild("cube_r128", CubeListBuilder.create().texOffs(64, 17).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 47).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 38).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -7.5919F, -0.6946F, 1.3963F, 0.0F, 0.0F));
 
-		PartDefinition cube_r114 = sail_front_3.addOrReplaceChild("cube_r114", CubeListBuilder.create().texOffs(64, 9).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r129 = sail_front_3.addOrReplaceChild("cube_r129", CubeListBuilder.create().texOffs(64, 9).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 38).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 33).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -3.7656F, -0.6794F, 1.5708F, 0.0F, 0.0F));
 
@@ -1074,15 +1123,15 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_front_4 = sail_front.addOrReplaceChild("sail_front_4", CubeListBuilder.create(), PartPose.offset(0.0F, 38.6286F, -7.2935F));
 
-		PartDefinition cube_r115 = sail_front_4.addOrReplaceChild("cube_r115", CubeListBuilder.create().texOffs(64, 17).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r130 = sail_front_4.addOrReplaceChild("cube_r130", CubeListBuilder.create().texOffs(64, 17).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 16).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 7).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -2.4479F, -2.9409F, 2.2689F, 0.0F, 0.0F));
 
-		PartDefinition cube_r116 = sail_front_4.addOrReplaceChild("cube_r116", CubeListBuilder.create().texOffs(64, 44).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r131 = sail_front_4.addOrReplaceChild("cube_r131", CubeListBuilder.create().texOffs(64, 44).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 56).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 17).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -5.3693F, -5.4121F, 2.0944F, 0.0F, 0.0F));
 
-		PartDefinition cube_r117 = sail_front_4.addOrReplaceChild("cube_r117", CubeListBuilder.create().texOffs(64, 52).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r132 = sail_front_4.addOrReplaceChild("cube_r132", CubeListBuilder.create().texOffs(64, 52).addBox(13.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(66, 24).addBox(-13.5F, -1.0F, 0.0F, 27.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(64, 51).addBox(-41.5F, -1.0F, 0.0F, 28.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.6754F, -7.3384F, 1.9199F, 0.0F, 0.0F));
 
@@ -1208,7 +1257,7 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition sail_back_0_bottom = sail_back_0.addOrReplaceChild("sail_back_0_bottom", CubeListBuilder.create(), PartPose.offset(-0.2F, 0.0F, -43.5F));
 
-		PartDefinition cube_r118 = sail_back_0_bottom.addOrReplaceChild("cube_r118", CubeListBuilder.create().texOffs(64, 0).addBox(-3.0F, -3.0F, 77.5797F, 6.0F, 6.0F, 12.9299F, new CubeDeformation(0.0F))
+		PartDefinition cube_r133 = sail_back_0_bottom.addOrReplaceChild("cube_r133", CubeListBuilder.create().texOffs(64, 0).addBox(-3.0F, -3.0F, 77.5797F, 6.0F, 6.0F, 12.9299F, new CubeDeformation(0.0F))
 				.texOffs(64, 0).addBox(-3.0F, -3.0F, 64.6498F, 6.0F, 6.0F, 12.93F, new CubeDeformation(0.0F))
 				.texOffs(64, 0).addBox(-3.0F, -3.0F, 51.7198F, 6.0F, 6.0F, 12.9299F, new CubeDeformation(0.0F))
 				.texOffs(64, 0).addBox(-3.0F, -3.0F, 38.7899F, 6.0F, 6.0F, 12.93F, new CubeDeformation(0.0F))
@@ -1216,18 +1265,18 @@ public class GalleonSailModel extends SailModel {
 				.texOffs(64, 0).addBox(-3.0F, -3.0F, 12.93F, 6.0F, 6.0F, 12.93F, new CubeDeformation(0.0F))
 				.texOffs(64, 0).addBox(-3.0F, -3.0F, 0.0F, 6.0F, 6.0F, 12.93F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.7854F, 0.0F, 0.0F));
 
-		PartDefinition rope_sail_main_top_1_1 = GalleonSail.addOrReplaceChild("rope_sail_main_top_1_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-44.0641F, -37.9027F, 9.8343F, 0.1881F, -0.0238F, 0.2555F));
+		PartDefinition rope_sail_main_top_1_1 = GalleonSail.addOrReplaceChild("rope_sail_main_top_1_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-44.0641F, -37.9027F, 9.8343F, 0.2754F, -0.0238F, 0.3079F));
 
 		PartDefinition cube_r83_r1 = rope_sail_main_top_1_1.addOrReplaceChild("cube_r83_r1", CubeListBuilder.create().texOffs(7, 25).addBox(-31.0F, -0.5F, -0.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(7, 25).addBox(-22.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(7, 25).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_main_top_2_1 = GalleonSail.addOrReplaceChild("rope_sail_main_top_2_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-44.0641F, -37.9027F, 9.8343F, 0.3271F, 0.0001F, 0.3534F));
+		PartDefinition rope_sail_main_top_2_1 = GalleonSail.addOrReplaceChild("rope_sail_main_top_2_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-44.0641F, -37.9027F, 9.8343F, 0.3969F, -0.2268F, 0.3534F));
 
 		PartDefinition cube_r83_r2 = rope_sail_main_top_2_1.addOrReplaceChild("cube_r83_r2", CubeListBuilder.create().texOffs(7, 25).addBox(-25.0F, -0.5F, -0.5F, 13.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(7, 25).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_main_top_3_1 = GalleonSail.addOrReplaceChild("rope_sail_main_top_3_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-44.0641F, -37.9027F, 9.8343F, 0.4632F, -0.0193F, 0.534F));
+		PartDefinition rope_sail_main_top_3_1 = GalleonSail.addOrReplaceChild("rope_sail_main_top_3_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-44.0641F, -37.9027F, 9.8343F, 0.4457F, -0.1066F, 0.6561F));
 
 		PartDefinition cube_r83_r3 = rope_sail_main_top_3_1.addOrReplaceChild("cube_r83_r3", CubeListBuilder.create().texOffs(7, 25).addBox(-18.0F, -0.5F, -0.5F, 6.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(7, 25).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
@@ -1236,39 +1285,39 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition cube_r83_r4 = rope_sail_main_top_4_1.addOrReplaceChild("cube_r83_r4", CubeListBuilder.create().texOffs(7, 25).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_front_top_1_1 = GalleonSail.addOrReplaceChild("rope_sail_front_top_1_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-41.0641F, -19.9027F, -44.1657F, 0.1874F, 0.018F, 0.1526F));
+		PartDefinition rope_sail_front_top_1_1 = GalleonSail.addOrReplaceChild("rope_sail_front_top_1_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-41.0641F, -19.9027F, -44.1657F, 0.2572F, 0.018F, 0.205F));
 
 		PartDefinition cube_r84_r1 = rope_sail_front_top_1_1.addOrReplaceChild("cube_r84_r1", CubeListBuilder.create().texOffs(23, 26).addBox(-29.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(23, 26).addBox(-19.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(23, 26).addBox(-8.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_front_top_2_1 = GalleonSail.addOrReplaceChild("rope_sail_front_top_2_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-41.0641F, -19.9027F, -44.1657F, 0.3463F, 0.0471F, 0.2366F));
+		PartDefinition rope_sail_front_top_2_1 = GalleonSail.addOrReplaceChild("rope_sail_front_top_2_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-41.0641F, -19.9027F, -44.1657F, 0.4685F, 0.0471F, 0.3413F));
 
 		PartDefinition cube_r84_r2 = rope_sail_front_top_2_1.addOrReplaceChild("cube_r84_r2", CubeListBuilder.create().texOffs(23, 26).addBox(-22.0F, -0.5F, -0.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(23, 26).addBox(-15.0F, -0.5F, -0.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(23, 26).addBox(-8.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_front_top_3_1 = GalleonSail.addOrReplaceChild("rope_sail_front_top_3_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-41.0641F, -19.9027F, -44.1657F, 0.5245F, 0.0351F, 0.4008F));
+		PartDefinition rope_sail_front_top_3_1 = GalleonSail.addOrReplaceChild("rope_sail_front_top_3_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-41.0641F, -19.9027F, -44.1657F, 0.4896F, 0.0525F, 0.5753F));
 
-		PartDefinition cube_r84_r3 = rope_sail_front_top_3_1.addOrReplaceChild("cube_r84_r3", CubeListBuilder.create().texOffs(93, 7).addBox(-15.0F, -0.5F, -0.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r84_r3 = rope_sail_front_top_3_1.addOrReplaceChild("cube_r84_r3", CubeListBuilder.create().texOffs(23, 25).addBox(-15.0F, -0.5F, -0.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(23, 26).addBox(-8.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
 		PartDefinition rope_sail_front_top_4_1 = GalleonSail.addOrReplaceChild("rope_sail_front_top_4_1", CubeListBuilder.create(), PartPose.offsetAndRotation(-41.0641F, -19.9027F, -44.1657F, 0.3159F, -0.0916F, 0.6938F));
 
 		PartDefinition cube_r84_r4 = rope_sail_front_top_4_1.addOrReplaceChild("cube_r84_r4", CubeListBuilder.create().texOffs(23, 26).addBox(-8.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_main_top_1_2 = GalleonSail.addOrReplaceChild("rope_sail_main_top_1_2", CubeListBuilder.create(), PartPose.offsetAndRotation(44.9359F, -37.9027F, 10.2343F, 0.2051F, -0.14F, -0.4673F));
+		PartDefinition rope_sail_main_top_1_2 = GalleonSail.addOrReplaceChild("rope_sail_main_top_1_2", CubeListBuilder.create(), PartPose.offsetAndRotation(44.9359F, -37.9027F, 10.2343F, 0.2749F, -0.14F, -0.5371F));
 
 		PartDefinition cube_r84_r5 = rope_sail_main_top_1_2.addOrReplaceChild("cube_r84_r5", CubeListBuilder.create().texOffs(16, 24).addBox(-31.0F, -0.5F, -0.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(16, 24).addBox(-22.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(16, 24).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_main_top_2_2 = GalleonSail.addOrReplaceChild("rope_sail_main_top_2_2", CubeListBuilder.create(), PartPose.offsetAndRotation(44.9359F, -37.9027F, 10.2343F, 0.3496F, -0.1349F, -0.5892F));
+		PartDefinition rope_sail_main_top_2_2 = GalleonSail.addOrReplaceChild("rope_sail_main_top_2_2", CubeListBuilder.create(), PartPose.offsetAndRotation(44.9359F, -37.9027F, 10.2343F, 0.402F, -0.0476F, -0.659F));
 
 		PartDefinition cube_r84_r6 = rope_sail_main_top_2_2.addOrReplaceChild("cube_r84_r6", CubeListBuilder.create().texOffs(16, 24).addBox(-25.0F, -0.5F, -0.5F, 13.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(16, 24).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_main_top_3_2 = GalleonSail.addOrReplaceChild("rope_sail_main_top_3_2", CubeListBuilder.create(), PartPose.offsetAndRotation(44.9359F, -37.9027F, 10.2343F, 0.4804F, -0.085F, -0.7896F));
+		PartDefinition rope_sail_main_top_3_2 = GalleonSail.addOrReplaceChild("rope_sail_main_top_3_2", CubeListBuilder.create(), PartPose.offsetAndRotation(44.9359F, -37.9027F, 10.2343F, 0.4455F, 0.0197F, -0.7896F));
 
 		PartDefinition cube_r84_r7 = rope_sail_main_top_3_2.addOrReplaceChild("cube_r84_r7", CubeListBuilder.create().texOffs(26, 26).addBox(-18.0F, -0.5F, -0.5F, 6.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(16, 24).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
@@ -1277,26 +1326,125 @@ public class GalleonSailModel extends SailModel {
 
 		PartDefinition cube_r84_r8 = rope_sail_main_top_4_2.addOrReplaceChild("cube_r84_r8", CubeListBuilder.create().texOffs(16, 24).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_front_top_1_2 = GalleonSail.addOrReplaceChild("rope_sail_front_top_1_2", CubeListBuilder.create(), PartPose.offsetAndRotation(41.9359F, -19.9027F, -43.7657F, 0.2327F, -0.1914F, -0.413F));
+		PartDefinition rope_sail_front_top_1_2 = GalleonSail.addOrReplaceChild("rope_sail_front_top_1_2", CubeListBuilder.create(), PartPose.offsetAndRotation(41.9359F, -19.9027F, -43.7657F, 0.3025F, -0.1914F, -0.4654F));
 
 		PartDefinition cube_r85_r1 = rope_sail_front_top_1_2.addOrReplaceChild("cube_r85_r1", CubeListBuilder.create().texOffs(21, 26).addBox(-30.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(21, 26).addBox(-20.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(21, 26).addBox(-10.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
-		PartDefinition rope_sail_front_top_2_2 = GalleonSail.addOrReplaceChild("rope_sail_front_top_2_2", CubeListBuilder.create(), PartPose.offsetAndRotation(41.9359F, -19.9027F, -43.7657F, 0.3908F, -0.1816F, -0.53F));
+		PartDefinition rope_sail_front_top_2_2 = GalleonSail.addOrReplaceChild("rope_sail_front_top_2_2", CubeListBuilder.create(), PartPose.offsetAndRotation(41.9359F, -19.9027F, -43.7657F, 0.4606F, -0.1816F, -0.5998F));
 
-		PartDefinition cube_r85_r2 = rope_sail_front_top_2_2.addOrReplaceChild("cube_r85_r2", CubeListBuilder.create().texOffs(21, 26).addBox(-24.0F, -0.5F, -0.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r85_r2 = rope_sail_front_top_2_2.addOrReplaceChild("cube_r85_r2", CubeListBuilder.create().texOffs(23, 26).addBox(-22.0F, -0.5F, -0.5F, 5.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(21, 26).addBox(-17.0F, -0.5F, -0.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(21, 26).addBox(-10.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
 		PartDefinition rope_sail_front_top_3_2 = GalleonSail.addOrReplaceChild("rope_sail_front_top_3_2", CubeListBuilder.create(), PartPose.offsetAndRotation(41.9359F, -19.9027F, -43.7657F, 0.5481F, -0.1235F, -0.7192F));
 
-		PartDefinition cube_r85_r3 = rope_sail_front_top_3_2.addOrReplaceChild("cube_r85_r3", CubeListBuilder.create().texOffs(21, 26).addBox(-17.0F, -0.5F, -0.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		PartDefinition cube_r85_r3 = rope_sail_front_top_3_2.addOrReplaceChild("cube_r85_r3", CubeListBuilder.create().texOffs(24, 26).addBox(-14.0F, -0.5F, -0.5F, 4.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(21, 26).addBox(-10.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
 
 		PartDefinition rope_sail_front_top_4_2 = GalleonSail.addOrReplaceChild("rope_sail_front_top_4_2", CubeListBuilder.create(), PartPose.offsetAndRotation(41.9359F, -19.9027F, -43.7657F, 0.3423F, -0.041F, -0.9676F));
 
-		PartDefinition cube_r85_r4 = rope_sail_front_top_4_2.addOrReplaceChild("cube_r85_r4", CubeListBuilder.create().texOffs(91, 7).addBox(-10.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
+		PartDefinition cube_r85_r4 = rope_sail_front_top_4_2.addOrReplaceChild("cube_r85_r4", CubeListBuilder.create().texOffs(16, 25).addBox(-10.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
+
+		PartDefinition sail_front_rope_left_0 = GalleonSail.addOrReplaceChild("sail_front_rope_left_0", CubeListBuilder.create(), PartPose.offsetAndRotation(20.4642F, 53.718F, -48.8267F, 0.2453F, 1.8757F, 0.497F));
+
+		PartDefinition cube_r11 = sail_front_rope_left_0.addOrReplaceChild("cube_r11", CubeListBuilder.create().texOffs(0, 24).addBox(1.5F, -0.5F, -17.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(12, 25).addBox(18.5F, -0.5F, -17.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(7.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(7.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(12, 25).addBox(32.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(12, 25).addBox(47.5F, -0.5F, -17.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.7479F, 17.1432F, 0.0F, 0.0F, -1.5708F));
+
+		PartDefinition cube_r12 = sail_front_rope_left_0.addOrReplaceChild("cube_r12", CubeListBuilder.create().texOffs(9, 10).addBox(-12.65F, -12.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -42.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition cube_r13 = sail_front_rope_left_0.addOrReplaceChild("cube_r13", CubeListBuilder.create().texOffs(16, 4).addBox(-11.5F, -11.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -30.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition sail_front_rope_right_0 = GalleonSail.addOrReplaceChild("sail_front_rope_right_0", CubeListBuilder.create(), PartPose.offsetAndRotation(-20.5358F, 54.718F, -48.8267F, 0.9695F, 1.6485F, 0.6866F));
+
+		PartDefinition cube_r70 = sail_front_rope_right_0.addOrReplaceChild("cube_r70", CubeListBuilder.create().texOffs(0, 24).addBox(1.5F, -0.5F, -17.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(1, 26).addBox(18.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(7.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(7.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(1, 26).addBox(33.5F, -0.5F, -17.5F, 15.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(1, 26).addBox(48.5F, -0.5F, -17.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.7479F, 17.1432F, 0.0F, 0.0F, -1.5708F));
+
+		PartDefinition cube_r71 = sail_front_rope_right_0.addOrReplaceChild("cube_r71", CubeListBuilder.create().texOffs(9, 9).addBox(-12.65F, -12.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -42.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition cube_r72 = sail_front_rope_right_0.addOrReplaceChild("cube_r72", CubeListBuilder.create().texOffs(16, 4).addBox(-11.5F, -11.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -30.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition sail_main_rope_right_0 = GalleonSail.addOrReplaceChild("sail_main_rope_right_0", CubeListBuilder.create(), PartPose.offsetAndRotation(-33.5358F, 50.718F, 7.1733F, 1.4322F, 1.6439F, 1.2877F));
+
+		PartDefinition cube_r73 = sail_main_rope_right_0.addOrReplaceChild("cube_r73", CubeListBuilder.create().texOffs(11, 25).addBox(-8.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(11, 25).addBox(1.5F, -0.5F, -17.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(23, 25).addBox(18.5F, -0.5F, -17.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(7.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(7.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(17, 26).addBox(25.5F, -0.5F, -17.5F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(16, 26).addBox(37.5F, -0.5F, -17.5F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(16, 26).addBox(49.5F, -0.5F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(7, 24).addBox(60.5F, -0.5F, -17.5F, 17.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.748F, 17.1432F, 0.0F, 0.0F, -1.5708F));
+
+		PartDefinition cube_r74 = sail_main_rope_right_0.addOrReplaceChild("cube_r74", CubeListBuilder.create().texOffs(9, 9).addBox(-12.65F, -12.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -42.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition cube_r75 = sail_main_rope_right_0.addOrReplaceChild("cube_r75", CubeListBuilder.create().texOffs(16, 4).addBox(-11.5F, -11.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -30.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition sail_main_rope_left_0 = GalleonSail.addOrReplaceChild("sail_main_rope_left_0", CubeListBuilder.create(), PartPose.offsetAndRotation(33.4642F, 50.718F, 7.1733F, 1.308F, 1.6496F, 1.4485F));
+
+		PartDefinition cube_r76 = sail_main_rope_left_0.addOrReplaceChild("cube_r76", CubeListBuilder.create().texOffs(0, 25).addBox(-8.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 26).addBox(1.5F, -0.5F, -17.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(18.5F, -0.5F, -17.5F, 6.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(7.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 24).addBox(7.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(16, 26).addBox(24.5F, -0.5F, -17.5F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(10, 26).addBox(36.5F, -0.5F, -17.5F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(16, 26).addBox(48.5F, -0.5F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(9, 25).addBox(59.5F, -0.5F, -17.5F, 17.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.748F, 17.1432F, 0.0F, 0.0F, -1.5708F));
+
+		PartDefinition cube_r77 = sail_main_rope_left_0.addOrReplaceChild("cube_r77", CubeListBuilder.create().texOffs(9, 10).addBox(-12.65F, -12.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -42.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition cube_r78 = sail_main_rope_left_0.addOrReplaceChild("cube_r78", CubeListBuilder.create().texOffs(16, 4).addBox(-11.5F, -11.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -30.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition rope_sail_main_top_0_3 = GalleonSail.addOrReplaceChild("rope_sail_main_top_0_3", CubeListBuilder.create(), PartPose.offsetAndRotation(44.9359F, -37.9027F, 10.2343F, 0.0306F, -0.14F, -0.4673F));
+
+		PartDefinition cube_r84_r9 = rope_sail_main_top_0_3.addOrReplaceChild("cube_r84_r9", CubeListBuilder.create().texOffs(16, 24).addBox(-31.0F, -0.5F, -0.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(16, 24).addBox(-22.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(16, 24).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
+
+		PartDefinition rope_sail_main_top_0_2 = GalleonSail.addOrReplaceChild("rope_sail_main_top_0_2", CubeListBuilder.create(), PartPose.offsetAndRotation(-44.0641F, -37.9027F, 9.8343F, 0.0136F, -0.0238F, 0.2555F));
+
+		PartDefinition cube_r83_r5 = rope_sail_main_top_0_2.addOrReplaceChild("cube_r83_r5", CubeListBuilder.create().texOffs(7, 25).addBox(-31.0F, -0.5F, -0.5F, 9.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(7, 25).addBox(-22.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(7, 25).addBox(-12.0F, -0.5F, -0.5F, 14.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
+
+		PartDefinition rope_sail_front_top_0_3 = GalleonSail.addOrReplaceChild("rope_sail_front_top_0_3", CubeListBuilder.create(), PartPose.offsetAndRotation(-41.0641F, -19.9027F, -44.1657F, 0.0303F, 0.018F, 0.1701F));
+
+		PartDefinition cube_r84_r10 = rope_sail_front_top_0_3.addOrReplaceChild("cube_r84_r10", CubeListBuilder.create().texOffs(23, 26).addBox(-29.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(23, 26).addBox(-19.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(23, 26).addBox(-8.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
+
+		PartDefinition rope_sail_front_top_0_2 = GalleonSail.addOrReplaceChild("rope_sail_front_top_0_2", CubeListBuilder.create(), PartPose.offsetAndRotation(41.9359F, -19.9027F, -43.7657F, 0.0581F, -0.1914F, -0.413F));
+
+		PartDefinition cube_r85_r5 = rope_sail_front_top_0_2.addOrReplaceChild("cube_r85_r5", CubeListBuilder.create().texOffs(21, 26).addBox(-30.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(21, 26).addBox(-20.0F, -0.5F, -0.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(21, 26).addBox(-10.0F, -0.5F, -0.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0283F, -2.1273F, 1.0822F, 0.0F, 0.0F, 1.6581F));
+
+		PartDefinition rope_back_sail_0 = GalleonSail.addOrReplaceChild("rope_back_sail_0", CubeListBuilder.create(), PartPose.offsetAndRotation(-8.5358F, 41.718F, 82.1733F, -0.1725F, 0.9943F, -0.2703F));
+
+		PartDefinition cube_r79 = rope_back_sail_0.addOrReplaceChild("cube_r79", CubeListBuilder.create().texOffs(24, 27).addBox(-8.5F, -0.5F, -17.5F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(24, 27).addBox(1.5F, -0.5F, -17.5F, 7.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(28, 28).addBox(18.5F, -0.5F, -17.5F, 6.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(10, 27).addBox(7.5F, 0.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(10, 27).addBox(7.5F, -1.75F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(12, 27).addBox(24.5F, -0.5F, -17.5F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(12, 27).addBox(36.5F, -0.5F, -17.5F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(12, 27).addBox(48.5F, -0.5F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(12, 27).addBox(59.5F, -0.5F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(12, 27).addBox(70.5F, -0.5F, -17.5F, 11.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -8.748F, 17.1432F, 0.0F, 0.0F, -1.5708F));
+
+		PartDefinition cube_r80 = rope_back_sail_0.addOrReplaceChild("cube_r80", CubeListBuilder.create().texOffs(4, 1).addBox(-12.65F, -12.75F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -42.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
+
+		PartDefinition cube_r84 = rope_back_sail_0.addOrReplaceChild("cube_r84", CubeListBuilder.create().texOffs(23, 9).addBox(-11.5F, -11.5F, -1.0F, 3.0F, 3.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -30.748F, 0.1432F, 0.0F, 0.0F, -2.3562F));
 
 		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
@@ -1560,6 +1708,9 @@ public class GalleonSailModel extends SailModel {
 				this.sail_back_3_bottom.visible = false;
 			}
 		}
+
+		this.sail_front_rope_left_0.visible = sail_front_0_bottom.visible;
+		this.sail_front_rope_right_0.visible = sail_front_0_bottom.visible;
 
 		this.sail_main_rope_right_1.visible = sail_main_1_bottom.visible;
 		this.sail_main_rope_right_2.visible = sail_main_2_bottom.visible;
