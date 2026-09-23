@@ -52,7 +52,7 @@ import java.util.*;
 /**
  * @author Chryfi, Talhanation
  */
-public class GroundCannonEntity extends Entity implements ICannon, ContainerEntity, HasCustomInventoryScreen{
+public class GroundCannonEntity extends Entity implements ICannon{
     public static final String ID = "ground_cannon";
     private static final EntityDataAccessor<Optional<UUID>> UUID = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<String> DYE = SynchedEntityData.defineId(GroundCannonEntity.class, EntityDataSerializers.STRING);
@@ -1124,102 +1124,5 @@ public class GroundCannonEntity extends Entity implements ICannon, ContainerEnti
 
     public float getMaxHealth() {
         return 100.00F;
-    }
-
-    //IContainerEntity Stuff//
-    // 1.20.1 ContainerEntity works with a plain ResourceLocation, the
-    // ResourceKey<LootTable> overload only exists from 1.21 on
-    @Override
-    public @Nullable ResourceLocation getLootTable() {
-        return this.lootTable;
-    }
-
-    @Override
-    public void setLootTable(@Nullable ResourceLocation lootTable) {
-        this.lootTable = lootTable;
-    }
-
-    @Override
-    public long getLootTableSeed() {
-        return this.lootTableSeed;
-    }
-
-    @Override
-    public void setLootTableSeed(long l) {
-        this.lootTableSeed = l;
-    }
-
-    @Override
-    public @NotNull NonNullList<ItemStack> getItemStacks() {
-        return this.inventory.items;
-    }
-
-    @Override
-    public void clearItemStacks() {
-        this.inventory.removeAllItems();
-    }
-
-    @Override
-    public int getContainerSize() {
-        return 1;
-    }
-
-    @Override
-    public @NotNull ItemStack getItem(int i) {
-        return this.getChestVehicleItem(i);
-    }
-
-    @Override
-    public @NotNull ItemStack removeItem(int i, int j) {
-        return this.removeChestVehicleItem(i, j);
-    }
-
-    @Override
-    public @NotNull ItemStack removeItemNoUpdate(int i) {
-        return this.removeChestVehicleItemNoUpdate(i);
-    }
-
-    @Override
-    public void setItem(int i, @NotNull ItemStack itemStack) {
-        this.setChestVehicleItem(i, itemStack);
-    }
-
-    @Override
-    public @NotNull SlotAccess getSlot(int n) {
-        return this.getChestVehicleSlot(n);
-    }
-
-    @Override
-    public void setChanged() {
-
-    }
-
-    @Override
-    public boolean stillValid(@NotNull Player player) {
-        return this.isChestVehicleStillValid(player);
-    }
-
-    @Override
-    public void clearContent() {
-        this.clearChestVehicleContent();
-    }
-
-    @Nullable
-    @Override
-    public AbstractContainerMenu createMenu(int syncId, @NotNull Inventory inventory, @NotNull Player player) {
-        if (this.lootTable == null || !player.isSpectator()) {
-            this.unpackChestVehicleLootTable(inventory.player);
-            this.openCustomInventoryScreen(player);
-        }
-        return null;
-    }
-
-    @Override
-    public void openCustomInventoryScreen(@NotNull Player player) {
-        ContainerUtility.openCannonMenu(player, this);
-        if (!player.level().isClientSide()) {
-            this.gameEvent(GameEvent.CONTAINER_OPEN, player);
-            PiglinAi.angerNearbyPiglins(player, true);//lol
-        }
     }
 }

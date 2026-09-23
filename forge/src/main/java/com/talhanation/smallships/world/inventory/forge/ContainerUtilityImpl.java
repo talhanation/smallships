@@ -2,7 +2,6 @@ package com.talhanation.smallships.world.inventory.forge;
 
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
-import com.talhanation.smallships.world.inventory.GroundCannonContainerMenu;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import com.talhanation.smallships.world.inventory.ShipContainerMenu;
 import net.minecraft.network.chat.Component;
@@ -27,20 +26,6 @@ public class ContainerUtilityImpl {
                 return new ShipContainerMenu(ModMenuTypes.SHIP_CONTAINER, syncId, inventory, containerShip);
             }
             }, buf -> buf.writeUUID(containerShip.getUUID())
-        );
-    }
-
-    public static void openCannonMenu(Player player, GroundCannonEntity cannonEntity) {
-        NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
-            @Override
-            public @NotNull Component getDisplayName() {
-                return cannonEntity.getName();
-            }
-            @Override
-            public AbstractContainerMenu createMenu(int syncId, @NotNull Inventory inventory, @NotNull Player player) {
-                return new GroundCannonContainerMenu(ModMenuTypes.CANNON_CONTAINER, syncId, cannonEntity, inventory);
-            }
-        }, buf -> buf.writeUUID(cannonEntity.getUUID())
         );
     }
 }

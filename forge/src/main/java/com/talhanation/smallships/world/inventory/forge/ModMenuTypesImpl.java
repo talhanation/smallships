@@ -29,9 +29,6 @@ public class ModMenuTypesImpl {
         entries.put("ship_container", MENU_TYPES.register("ship_container",
                 () -> IForgeMenuType.create((int syncId, Inventory inventory, FriendlyByteBuf shipUUID) -> ModMenuTypes.extendedShipContainerMenuTypeSupplier(syncId, inventory, shipUUID.readUUID()))));
 
-        entries.put("cannon_container", MENU_TYPES.register("cannon_container",
-                () -> IForgeMenuType.create((int syncId, Inventory inventory, FriendlyByteBuf shipUUID) -> ModMenuTypes.groundCannonContainerMenuTypeSupplier(syncId, inventory, shipUUID.readUUID()))));
-
         entries.put("dockyard", MENU_TYPES.register("dockyard",
                 () -> new MenuType<>(DockyardMenu::new, FeatureFlags.VANILLA_SET)));
 
