@@ -12,6 +12,7 @@ import com.talhanation.smallships.network.packet.ServerboundDockyardApplyPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardBuildPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardRenamePacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardRepairPacket;
+import com.talhanation.smallships.network.packet.ServerboundDockyardSelectShipPacket;
 import com.talhanation.smallships.world.block.DockyardBlockEntity;
 import com.talhanation.smallships.compat.ShieldRegistry;
 import com.talhanation.smallships.world.dockyard.DockyardAction;
@@ -72,6 +73,8 @@ import java.util.Set;
  * - MODIFY: the docked ship with its editable name, the two repair buttons and
  *   the upgrade list. Several rows can be ticked at once - the dockyard turns
  *   the whole selection into ONE job with summed costs and one progress bar.
+ *   The arrows next to the preview flip through the ships in range; which one
+ *   is selected is kept by the dockyard, not by the screen.
  *
  * The ship in the middle is NOT animated: it is turned by the player with left
  * click + drag, zoomed with the wheel and reset with a double click.
@@ -196,6 +199,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private final List<UpgradeOption> options = new ArrayList<>();
     /** cheap change detector so the list is not rebuilt 20 times a second for nothing */
     private String optionSignature = "";
+    /** entity id of the ship the modify tab showed last tick, -1 = none */
+    private int displayedShipId = -1;
     /** the cannon slot the cursor rests on, projected onto the preview. -1 = none */
     private int ghostCannonSlot = -1;
 
@@ -246,9 +251,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         // popup has to be drawn last of all, see render().
         this.woodDropdown = this.addWidget(new WoodDropdown(this.x(ACTION_X + ACTION_W - 26), this.y(ACTION_Y + 12)));
 
-        this.prevShipButton = this.addRenderableWidget(Button.builder(Component.literal("<"), button -> this.cycleShipType(-1))
+        this.prevShipButton = this.addRenderableWidget(Button.builder(Component.literal("<"), button -> this.cycle(-1))
                 .bounds(this.x(PREVIEW_X + 2), this.y(PREVIEW_Y + PREVIEW_H / 2 - 10), 14, 20).build());
-        this.nextShipButton = this.addRenderableWidget(Button.builder(Component.literal(">"), button -> this.cycleShipType(1))
+        this.nextShipButton = this.addRenderableWidget(Button.builder(Component.literal(">"), button -> this.cycle(1))
                 .bounds(this.x(PREVIEW_X + PREVIEW_W - 16), this.y(PREVIEW_Y + PREVIEW_H / 2 - 10), 14, 20).build());
 
         // sail state toggle: the preview dummy alone, the modify tab always
@@ -322,6 +327,20 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private void sendRename() {
         if (this.getShip() == null) return;
         ModPackets.clientSendPacket(new ServerboundDockyardRenamePacket(this.menu.getDockyardPos(), this.nameField.getValue()));
+    }
+
+    /**
+     * The arrows next to the preview flip through whatever the tab shows: the
+     * ship types in build mode, the ships in range in modify mode. The docked
+     * ship is picked by the dockyard - the screen only asks for the next one
+     * and follows once the new id arrives with the container data.
+     */
+    private void cycle(int direction) {
+        if (this.isModifyMode()) {
+            ModPackets.clientSendPacket(new ServerboundDockyardSelectShipPacket(this.menu.getDockyardPos(), direction));
+        } else {
+            this.cycleShipType(direction);
+        }
     }
 
     /* ---------------- build tab ---------------- */
@@ -784,11 +803,20 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             this.rebuildMaterialList();
         }
 
+        // a different ship - flipped to, or the old one sailed off - must not
+        // inherit the ticked rows and the camera of the one before
+        int shipId = ship != null ? ship.getId() : -1;
+        if (shipId != this.displayedShipId) {
+            this.displayedShipId = shipId;
+            this.selectedRows.clear();
+            if (modify) this.preview.reset();
+        }
+
+        // the same arrows serve both tabs. How many ships are in range only
+        // the dockyard knows, so in modify mode they stay clickable while idle
         boolean multipleTypes = ShipRegistry.getBuildable().size() > 1;
-        this.prevShipButton.visible = !modify;
-        this.nextShipButton.visible = !modify;
-        this.prevShipButton.active = multipleTypes && !busy;
-        this.nextShipButton.active = multipleTypes && !busy;
+        this.prevShipButton.active = (modify || multipleTypes) && !busy;
+        this.nextShipButton.active = (modify || multipleTypes) && !busy;
 
         this.sailToggleButton.visible = !modify && this.getOrCreatePreviewShip() instanceof Sailable;
 

@@ -45,7 +45,7 @@ public record ServerboundDockyardRenamePacket(BlockPos pos, String name) impleme
         if (player.distanceToSqr(this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) > 64.0D) return;
         if (!(player.level().getBlockEntity(this.pos) instanceof DockyardBlockEntity dockyard)) return;
 
-        Ship ship = dockyard.findNearestShip();
+        Ship ship = dockyard.getSelectedShip();
         if (ship == null) return;
         if (ship.isServicedByOtherDockyard(dockyard.getBlockPos())) {
             serverPlayer.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_busy"), true);

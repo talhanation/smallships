@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  * The dockyard menu. It has no item slots: materials are taken directly from
  * the player inventory. The ContainerData syncs progress, task, the dockyard
  * position (for the client to find the block entity) and the entity id of the
- * detected nearest ship (-1 if none).
+ * ship selected for the modify tab (-1 if none).
  */
 public class DockyardMenu extends AbstractContainerMenu {
     public static final int DATA_PROGRESS = 0;
@@ -72,7 +72,7 @@ public class DockyardMenu extends AbstractContainerMenu {
         return new BlockPos(this.data.get(DATA_POS_X), this.data.get(DATA_POS_Y), this.data.get(DATA_POS_Z));
     }
 
-    /** @return the entity id of the detected nearest ship or -1. */
+    /** @return the entity id of the ship selected at the dockyard or -1. */
     public int getShipId() {
         return this.data.get(DATA_SHIP_ID);
     }

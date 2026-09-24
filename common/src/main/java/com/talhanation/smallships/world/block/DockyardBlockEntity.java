@@ -13,6 +13,7 @@ import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.item.ModItems;
@@ -43,6 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,7 +62,11 @@ import java.util.UUID;
  * IDLE -> BUILD_SHIP / MODIFY / REPAIR -> done.
  *
  * - Ships are built from materials in the player inventory (validated at start,
- *   consumed at start) and spawned at a previously validated 5x5 water spot.
+ *   consumed at start) and spawned at a previously validated water spot that
+ *   fits the hull and its draft, see WaterSpawnFinder.
+ * - The ship the modify tab works on is SELECTED, not detected: it is picked
+ *   when the screen opens and the player flips through the ships in range
+ *   with the arrows. Nothing searches for ships while the dockyard idles.
  * - MODIFY is a BATCH: the screen lets the player tick several rows at once and
  *   sends them as one list. Costs and work times are summed, everything is
  *   applied together when the timer runs out. That is what keeps the rule
@@ -116,6 +122,11 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     private boolean repairHull;
     private boolean repairSails;
     @Nullable private UUID targetShipUUID;
+    /**
+     * The ship the modify tab shows and every modify, repair and rename goes
+     * to. Transient: it is picked again whenever a screen opens.
+     */
+    @Nullable private UUID selectedShipUUID;
 
     public DockyardBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntityTypes.DOCKYARD, pos, blockState);
@@ -143,7 +154,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                     // while building a ship, no ship is reported - the screen
                     // stays in build mode showing the progress
                     if (DockyardBlockEntity.this.task == Task.BUILD_SHIP) yield -1;
-                    Ship ship = DockyardBlockEntity.this.findNearestShip();
+                    // no search here, this runs every tick while a screen is
+                    // open: the selection is only checked, never made
+                    Ship ship = DockyardBlockEntity.this.getSelectedShip();
                     yield ship != null ? ship.getId() : -1;
                 }
                 default -> 0;
@@ -167,25 +180,91 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int syncId, @NotNull Inventory inventory, @NotNull Player player) {
+        // the ship is picked HERE, once per opening. A running job keeps the
+        // ship it works on, anything else starts at the nearest one
+        if (this.isBusy() && this.targetShipUUID != null) this.selectedShipUUID = this.targetShipUUID;
+        else if (!this.isBusy()) this.selectNearestShip();
         return new DockyardMenu(syncId, inventory, this.dataAccess);
     }
 
-    /* ---------------- ship detection ---------------- */
+    /* ---------------- ship selection ---------------- */
 
-    @Nullable
-    public Ship findNearestShip() {
-        if (this.level == null) return null;
-        BlockPos pos = this.worldPosition;
-        AABB area = new AABB(pos).inflate(SHIP_DETECTION_RANGE);
+    /**
+     * @return every ship this dockyard could work on, nearest first.
+     *
+     * Nearest by the HULL, not by the entity position: the position of a
+     * galleon sits in the middle of fourteen blocks of ship, so her stern can
+     * lie right at this dockyard while her midship is closer to the next one.
+     */
+    public List<Ship> findShipsInRange() {
+        if (this.level == null) return List.of();
+        AABB area = new AABB(this.worldPosition).inflate(SHIP_DETECTION_RANGE);
+        Vec3 center = Vec3.atCenterOf(this.worldPosition);
         return this.level.getEntitiesOfClass(Ship.class, area).stream()
-                .filter(ship -> !ship.isRemoved())
+                .filter(this::isServiceable)
+                .sorted(Comparator.comparingDouble(ship -> hullDistanceSqr(ship, center)))
+                .toList();
+    }
+
+    private boolean isServiceable(Ship ship) {
+        return !ship.isRemoved()
                 // a sunken ship is a wreck: there is nothing left to service,
-                // and detecting one would block the build tab for good
-                .filter(ship -> !ship.isSunken())
-                // exclusive detection: a ship captured by another dockyard is invisible to this one
-                .filter(ship -> !ship.isServicedByOtherDockyard(this.worldPosition))
-                .min(Comparator.comparingDouble(ship -> ship.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)))
-                .orElse(null);
+                // and selecting one would block the build tab for good
+                && !ship.isSunken()
+                // exclusive: a ship another dockyard is working on is invisible to this one
+                && !ship.isServicedByOtherDockyard(this.worldPosition);
+    }
+
+    private static double hullDistanceSqr(Ship ship, Vec3 point) {
+        double nearest = Double.MAX_VALUE;
+        for (AABB box : ShipPartEntity.hullBoxes(ship)) {
+            double dx = Math.max(0.0D, Math.max(box.minX - point.x, point.x - box.maxX));
+            double dy = Math.max(0.0D, Math.max(box.minY - point.y, point.y - box.maxY));
+            double dz = Math.max(0.0D, Math.max(box.minZ - point.z, point.z - box.maxZ));
+            nearest = Math.min(nearest, dx * dx + dy * dy + dz * dz);
+        }
+        return nearest;
+    }
+
+    /**
+     * @return the selected ship, or null once it is gone, sunk, taken by
+     * another dockyard or sailed out of range. Cheap enough for every tick: a
+     * uuid lookup and a box test, no search.
+     */
+    @Nullable
+    public Ship getSelectedShip() {
+        if (this.selectedShipUUID == null || !(this.level instanceof ServerLevel serverLevel)) return null;
+        if (!(serverLevel.getEntity(this.selectedShipUUID) instanceof Ship ship)) return null;
+        if (!this.isServiceable(ship)) return null;
+        if (!new AABB(this.worldPosition).inflate(SHIP_DETECTION_RANGE).intersects(ship.getBoundingBox())) return null;
+        return ship;
+    }
+
+    public void selectNearestShip() {
+        List<Ship> ships = this.findShipsInRange();
+        this.selectedShipUUID = ships.isEmpty() ? null : ships.get(0).getUUID();
+    }
+
+    /**
+     * Steps to the next / previous ship in range, wrapping around. The list is
+     * searched fresh on every click, so a ship that came in after the screen
+     * was opened shows up here too. Locked while a job runs: the job and the
+     * screen have to keep talking about the same ship.
+     */
+    public void cycleShip(int direction) {
+        if (this.isBusy()) return;
+        List<Ship> ships = this.findShipsInRange();
+        if (ships.isEmpty()) {
+            this.selectedShipUUID = null;
+            return;
+        }
+        int index = -1;
+        for (int i = 0; i < ships.size(); i++) {
+            if (ships.get(i).getUUID().equals(this.selectedShipUUID)) index = i;
+        }
+        // a selection that is gone starts over at the nearest ship
+        int next = index < 0 ? 0 : Math.floorMod(index + direction, ships.size());
+        this.selectedShipUUID = ships.get(next).getUUID();
     }
 
     /* ---------------- tasks ---------------- */
@@ -212,7 +291,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * Starts building a ship. Validates materials (player inventory) and a
-     * valid 5x5 water spawn spot; consumes the materials immediately.
+     * water spawn spot the hull fits into; consumes the materials immediately.
      * Server side only.
      */
     public void startBuildShip(ServerPlayer player, ShipType shipType, Boat.Type woodType) {
@@ -230,9 +309,16 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
             return;
         }
-        BlockPos spot = WaterSpawnFinder.findSpawnSpot(this.level, this.worldPosition);
+        List<ShipPartEntity.Definition> hull = WaterSpawnFinder.getHull(this.level, shipType);
+        int depth = WaterSpawnFinder.getRequiredDepth(hull);
+        BlockPos spot = WaterSpawnFinder.findSpawnSpot(this.level, this.worldPosition, hull, depth);
         if (spot == null) {
-            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.no_water_spot"), true);
+            // a harbour that is too shallow is told apart from one without any
+            // room: the player has to fix two very different things
+            boolean shallow = depth > 1 && WaterSpawnFinder.findSpawnSpot(this.level, this.worldPosition, hull, 1) != null;
+            player.displayClientMessage(shallow
+                    ? Component.translatable("gui.smallships.dockyard.water_too_shallow", depth)
+                    : Component.translatable("gui.smallships.dockyard.no_water_spot"), true);
             return;
         }
 
@@ -260,7 +346,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     public void startModifyTask(ServerPlayer player, List<DockyardAction> actions) {
         if (this.level == null || this.level.isClientSide() || this.isBusy()) return;
 
-        Ship ship = this.findNearestShip();
+        Ship ship = this.getSelectedShip();
         if (ship == null) {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.no_ship"), true);
             return;
@@ -545,7 +631,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     public void startRepairTask(ServerPlayer player, boolean hull, boolean sails) {
         if (this.level == null || this.level.isClientSide() || this.isBusy()) return;
 
-        Ship ship = this.findNearestShip();
+        Ship ship = this.getSelectedShip();
         if (ship == null) {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.no_ship"), true);
             return;
@@ -641,14 +727,10 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     /* ---------------- ticking ---------------- */
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, DockyardBlockEntity dockyard) {
-        // exclusive capture: the dockyard claims its detected ship every second,
-        // even while idle - no other dockyard can capture the same ship. The
-        // claim expires 2s after the ship leaves the range or the dockyard stops.
-        if (level.getGameTime() % 20 == 0) {
-            Ship detected = dockyard.findNearestShip();
-            if (detected != null) detected.setServicingDockyard(pos);
-        }
-
+        // An idle dockyard claims nothing. It used to claim its nearest ship
+        // every second, and whichever dockyard ticked first kept the ship for
+        // good - even when another one lay much closer. The claim now only
+        // exists while a job runs on the ship.
         if (dockyard.task == Task.NONE) return;
 
         dockyard.progress++;
@@ -697,10 +779,12 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         if (shipType == null) return;
         Boat.Type woodType = Boat.Type.values()[Math.floorMod(this.woodTypeOrdinal, Boat.Type.values().length)];
 
+        List<ShipPartEntity.Definition> hull = WaterSpawnFinder.getHull(level, shipType);
+        int depth = WaterSpawnFinder.getRequiredDepth(hull);
         BlockPos spot = this.spawnSpot;
         // re-validate; if someone built the spot shut in the meantime, search again
-        if (spot == null || !WaterSpawnFinder.isValidSpawnSpot(level, spot)) {
-            spot = WaterSpawnFinder.findSpawnSpot(level, pos);
+        if (spot == null || !WaterSpawnFinder.isValidSpawnSpot(level, pos, spot, hull, depth)) {
+            spot = WaterSpawnFinder.findSpawnSpot(level, pos, hull, depth);
         }
         if (spot == null) {
             // pause: retry in 5 seconds without losing the build
@@ -713,10 +797,11 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         Ship ship = shipType.summon(level, spot.getX() + 0.5, spot.getY() + 1.0, spot.getZ() + 0.5);
         if (ship == null) return;
         ship.setVariant(woodType);
-        // face away from the dockyard
-        float yaw = (float) Math.toDegrees(Math.atan2(-(spot.getX() + 0.5 - (pos.getX() + 0.5)), spot.getZ() + 0.5 - (pos.getZ() + 0.5)));
-        ship.setYRot(yaw);
+        // face away from the dockyard - the very yaw the spot was checked with
+        ship.setYRot(WaterSpawnFinder.getSpawnYaw(pos, spot));
         level.addFreshEntity(ship);
+        // the new ship is what the player wants to look at next
+        this.selectedShipUUID = ship.getUUID();
 
         level.playSound(null, spot, SoundEvents.PLAYER_SPLASH_HIGH_SPEED, SoundSource.BLOCKS, 3.0F, 1.0F);
         this.spawnSpot = null;
