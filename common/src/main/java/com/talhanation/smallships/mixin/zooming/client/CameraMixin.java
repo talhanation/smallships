@@ -97,7 +97,9 @@ public abstract class CameraMixin implements CameraZoomAccess {
             // only offset keeps the camera at one height whatever the barrel does,
             // which reads as a floating viewpoint rather than a mounted one.
             Vec3 bore = Vec3.directionFromRotation(pitch, yaw);
-            Vec3 anchor = new Vec3(x, y + GROUND_CANNON_TRUNNION_Y, z);
+            Vec3 side = Vec3.directionFromRotation(0.0F, yaw + 90.0F).scale(-0.025D);
+            Vec3 anchor = new Vec3(x, y + GROUND_CANNON_TRUNNION_Y, z).add(side);
+
             Vec3 camera = this.smallships$clip(blockGetter, anchor, anchor.add(bore.scale(GROUND_CANNON_BORE_FORWARD)));
 
             this.setPosition(camera.x, camera.y, camera.z);
