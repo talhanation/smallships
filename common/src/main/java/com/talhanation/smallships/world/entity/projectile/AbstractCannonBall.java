@@ -10,6 +10,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
+import com.talhanation.smallships.world.particles.sail.SailShreds;
 import com.talhanation.smallships.world.particles.wood.WoodDebris;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -263,6 +264,10 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
                 // never reaches the timbers, and a ball in the side never reaches
                 // the canvas. Which one you hit is now the players' decision.
                 if (hitMast) {
+                    // the canvas goes first, before the damage is booked: the shot
+                    // that shreds the last of the sail still has cloth to tear.
+                    // Same power as the splinters below, so both fly alike
+                    SailShreds.onCannonHit(shipHitEntity, hitResult.getLocation(), ballType.damageMultiplier * MAST_DEBRIS_FACTOR);
                     SailDamage.applyCannonHit(shipHitEntity, shipDamage * ballType.sailFactor);
                     this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                             ModSoundTypes.SAIL_HIT, this.getSoundSource(), 3.3F, 0.8F + 0.4F * this.random.nextFloat());

@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.particles;
 import com.mojang.serialization.Codec;
 import com.talhanation.smallships.world.particles.cannon.DyedCannonShootOptions;
 import com.talhanation.smallships.world.particles.custom.CustomPoofParticleOptions;
+import com.talhanation.smallships.world.particles.sail.SailShredParticleOptions;
 import com.talhanation.smallships.world.particles.wood.WoodDebrisParticleOptions;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.particles.ParticleOptions;
@@ -22,6 +23,8 @@ public class ModParticleTypes {
     public static final Supplier<SimpleParticleType> WIND_LINE;
     /** splinters knocked out of a hull, textured with the ships' own planks */
     public static final Supplier<ParticleType<WoodDebrisParticleOptions>> WOOD_DEBRIS;
+    /** scraps torn out of a sail, textured with the wool of the sails' own colour */
+    public static final Supplier<ParticleType<SailShredParticleOptions>> SAIL_SHRED;
 
     static {
         CANNON_SHOOT = register("basic_cannon_shoot");
@@ -34,6 +37,8 @@ public class ModParticleTypes {
         WIND_LINE = register("wind_line");
         WOOD_DEBRIS = register("wood_debris",
                 WoodDebrisParticleOptions.CODEC, WoodDebrisParticleOptions.DESERIALIZER);
+        SAIL_SHRED = register("sail_shred",
+                SailShredParticleOptions.CODEC, SailShredParticleOptions.DESERIALIZER);
     }
 
     public static Supplier<SimpleParticleType> register(String id) {

@@ -28,7 +28,7 @@ public class ModPackets {
         registerPacket(ServerboundShipDetachPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundShipDetachPacket.class, ServerboundShipDetachPacket::read);
         registerPacket(ClientboundShipImpactPacket.ID, ModPacket.Side.CLIENTBOUND, ClientboundShipImpactPacket.class, ClientboundShipImpactPacket::read);
         registerPacket(ServerboundSetCannonAmmoTypePacket.ID, ModPacket.Side.SERVERBOUND, ServerboundSetCannonAmmoTypePacket.class, ServerboundSetCannonAmmoTypePacket::read);
-        registerPacket(ServerboundDockyardSelectShipPacket.ID, ModPacket.Side.SERVERBOUND, ServerboundDockyardSelectShipPacket.class, ServerboundDockyardSelectShipPacket::read);
+        registerPacket(ClientboundSailImpactPacket.ID, ModPacket.Side.CLIENTBOUND, ClientboundSailImpactPacket.class, ClientboundSailImpactPacket::read);
 
     }
 
