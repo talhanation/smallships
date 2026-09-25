@@ -33,6 +33,15 @@ public interface Sailable extends Ability {
 
     default void tickSailShip() {
         if (self().sailStateCooldown > 0) self().sailStateCooldown--;
+
+        // nobody at the helm who may steer her: the canvas comes in. Checked
+        // every tick instead of only on dismount, because the helmsman can
+        // leave in many ways that never pass through getDismountLocation -
+        // death, a teleport, a disconnect, a seat change or a /kill.
+        if (!self().level().isClientSide() && this.getSailState() != 0 && !self().hasHelmsman()) {
+            this.setSailState((byte) 0);
+            this.playSailSound(0);
+        }
     }
 
     default void readSailShipSaveData(CompoundTag tag) {

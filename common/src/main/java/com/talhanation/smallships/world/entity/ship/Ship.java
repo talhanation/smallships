@@ -526,6 +526,25 @@ public abstract class Ship extends Boat {
     }
 
     /**
+     * @return whether someone is standing at the helm who may actually steer
+     * her. Only the DRIVER seat counts - a player on a passenger bench or at a
+     * gun is aboard, but nobody is sailing the ship. Goes through
+     * {@link #canDrive} and not getControllingPassenger, because the latter
+     * only knows players and a Recruits captain has to count here as well.
+     */
+    public boolean hasHelmsman() {
+        if (this instanceof Seatable seatable) {
+            for (ShipSeat seat : seatable.getSeats()) {
+                if (seat.type() != SeatType.DRIVER) continue;
+                Entity occupant = seatable.getSeatOccupant(seat.id());
+                if (occupant != null && this.canDrive(occupant)) return true;
+            }
+            return false;
+        }
+        return !this.getPassengers().isEmpty() && this.canDrive(this.getPassengers().get(0));
+    }
+
+    /**
      * Everything standing on this ship that could be taken aboard.
      *
      * Vanilla only looks at the entity bounding box, and for a ship that box is
