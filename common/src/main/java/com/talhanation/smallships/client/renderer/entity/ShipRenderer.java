@@ -474,31 +474,41 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
 
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.leash());
         Matrix4f pose = poseStack.last().pose();
-        renderLeashSide(vertexConsumer, pose, dx, dy, dz, shipBlock, holderBlock, shipSky, holderSky, 0.025F, 0.025F, sideZ, sideX);
-        renderLeashSide(vertexConsumer, pose, dx, dy, dz, shipBlock, holderBlock, shipSky, holderSky, 0.025F, 0.0F, sideZ, sideX);
+        renderLeashSide(vertexConsumer, pose, dx, dy, dz, shipBlock, holderBlock, shipSky, holderSky, 0.025F, 0.025F, sideZ, sideX, false);
+        renderLeashSide(vertexConsumer, pose, dx, dy, dz, shipBlock, holderBlock, shipSky, holderSky, 0.025F, 0.0F, sideZ, sideX, true);
 
         poseStack.popPose();
     }
 
     private static void renderLeashSide(VertexConsumer consumer, Matrix4f pose, float dx, float dy, float dz,
                                         int blockLightStart, int blockLightEnd, int skyLightStart, int skyLightEnd,
-                                        float width, float yOffset, float xOffset, float zOffset) {
-        for (int segment = 0; segment < LEASH_SEGMENTS; segment++) {
-            float t = (float) segment / (float) LEASH_SEGMENTS;
-            // the light fades along the rope, so a lead running out of a lit
-            // harbour into the dark does not stay bright to the far end
-            int packedLight = LightTexture.pack(
-                    (int) Mth.lerp(t, (float) blockLightStart, (float) blockLightEnd),
-                    (int) Mth.lerp(t, (float) skyLightStart, (float) skyLightEnd));
-            addLeashVertexPair(consumer, pose, packedLight, dx, dy, dz, width, yOffset, segment, false, xOffset, zOffset);
-            addLeashVertexPair(consumer, pose, packedLight, dx, dy, dz, width, yOffset, segment + 1, true, xOffset, zOffset);
+                                        float width, float yOffset, float xOffset, float zOffset, boolean reverse) {
+        // RenderType.leash() is a triangle strip: one pair per point, 0..24
+        // inclusive. The second side walks back 24..0, so both strips join at
+        // the holder end without a stray triangle, exactly like MobRenderer.
+        for (int i = 0; i <= LEASH_SEGMENTS; i++) {
+            int segment = reverse ? LEASH_SEGMENTS - i : i;
+            addLeashVertexPair(consumer, pose, dx, dy, dz, blockLightStart, blockLightEnd, skyLightStart, skyLightEnd, width, yOffset, segment, reverse, xOffset, zOffset);
         }
     }
 
-    private static void addLeashVertexPair(VertexConsumer consumer, Matrix4f pose, int packedLight,
-                                           float dx, float dy, float dz, float width, float yOffset,
-                                           int segment, boolean reverse, float xOffset, float zOffset) {
+    private static void addLeashVertexPair(VertexConsumer consumer, Matrix4f pose, float dx, float dy, float dz,
+                                           int blockLightStart, int blockLightEnd, int skyLightStart, int skyLightEnd,
+                                           float width, float yOffset, int segment, boolean reverse, float xOffset, float zOffset) {
         float t = (float) segment / (float) LEASH_SEGMENTS;
+        // the light fades along the rope, so a lead running out of a lit
+        // harbour into the dark does not stay bright to the far end
+        int packedLight = LightTexture.pack(
+                (int) Mth.lerp(t, (float) blockLightStart, (float) blockLightEnd),
+                (int) Mth.lerp(t, (float) skyLightStart, (float) skyLightEnd));
+
+        // every other segment is darker - that is the braided look of the lead.
+        // The two sides are shifted by one, so the stripes alternate across the rope.
+        float shade = segment % 2 == (reverse ? 1 : 0) ? 0.7F : 1.0F;
+        float r = 0.5F * shade;
+        float g = 0.4F * shade;
+        float b = 0.3F * shade;
+
         float x = dx * t;
         // the sag - a rope hangs, it is not a straight line between two points.
         // Which half of the curve is used depends on whether the holder is above
@@ -506,12 +516,7 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         float y = dy > 0.0F ? dy * t * t : dy - dy * (1.0F - t) * (1.0F - t);
         float z = dz * t;
 
-        if (!reverse) {
-            consumer.vertex(pose, x + xOffset, y + width - yOffset, z - zOffset).color(0.5F, 0.4F, 0.3F, 1.0F).uv2(packedLight).endVertex();
-            consumer.vertex(pose, x - xOffset, y + yOffset, z + zOffset).color(0.5F, 0.4F, 0.3F, 1.0F).uv2(packedLight).endVertex();
-        } else {
-            consumer.vertex(pose, x - xOffset, y + yOffset, z + zOffset).color(0.5F, 0.4F, 0.3F, 1.0F).uv2(packedLight).endVertex();
-            consumer.vertex(pose, x + xOffset, y + width - yOffset, z - zOffset).color(0.5F, 0.4F, 0.3F, 1.0F).uv2(packedLight).endVertex();
-        }
+        consumer.vertex(pose, x - xOffset, y + yOffset, z + zOffset).color(r, g, b, 1.0F).uv2(packedLight).endVertex();
+        consumer.vertex(pose, x + xOffset, y + width - yOffset, z - zOffset).color(r, g, b, 1.0F).uv2(packedLight).endVertex();
     }
 }
