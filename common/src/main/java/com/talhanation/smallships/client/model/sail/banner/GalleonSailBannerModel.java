@@ -80,10 +80,10 @@ public class GalleonSailBannerModel extends SailBannerModel {
                 return segment == 0;
             }
             case 2 -> {
-                return segment == 0 || segment == 1 || segment == 2;
+                return segment == 0 || segment == 1 || segment == 2 || segment == 3;
             }
             case 3 -> {
-                return segment == 0 || segment == 1 || segment == 2 || segment == 3 || segment == 4;
+                return segment == 0 || segment == 1 || segment == 2 || segment == 3 || segment == 4 || segment == 5 || segment == 6;
             }
         }
         return true;

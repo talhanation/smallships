@@ -33,7 +33,14 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     public static final int FONT_COLOR = 4210752;
     /** centre of the gap between the two page buttons, in menu local coordinates */
     private static final int PAGE_LABEL_X = 142;
-    private static final int PAGE_LABEL_Y = 127;
+    /** width of the chest part of the texture, the stat panel starts right of it */
+    private static final int WINDOW_WIDTH = 176;
+    /**
+     * Height of the stat panel in the texture. It is drawn at this height no
+     * matter how many rows a page has - on a three row page (Caravel) the top
+     * blit ends at 71 and cut the panel off above the last line.
+     */
+    private static final int STAT_PANEL_HEIGHT = 6 * 18 + 17;
     private final int rowCount;
     private final int pageCount;
     private final int pageIndex;
@@ -94,8 +101,19 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
     protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
         int k = offset + (this.width - this.imageWidth) / 2;
         int l = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(RESOURCE_LOCATION, k, l, 0, 0, this.imageWidth, this.rowCount * 18 + 17);
-        guiGraphics.blit(RESOURCE_LOCATION, k, l + this.rowCount * 18 + 17, 0, 126, this.imageWidth, 96);
+        guiGraphics.blit(RESOURCE_LOCATION, k, l, 0, 0, WINDOW_WIDTH, this.rowCount * 18 + 17);
+        guiGraphics.blit(RESOURCE_LOCATION, k, l + this.rowCount * 18 + 17, 0, 126, WINDOW_WIDTH, 96);
+        guiGraphics.blit(RESOURCE_LOCATION, k + WINDOW_WIDTH, l, WINDOW_WIDTH, 0, this.imageWidth - WINDOW_WIDTH, STAT_PANEL_HEIGHT);
+    }
+
+    /**
+     * The page buttons sit on the "Inventory" bar, which is the first line of
+     * the lower texture part. That part starts right below the last row, so
+     * the buttons have to move with the row count. The fixed 125 only fitted
+     * six rows - on the Caravel (3 rows) they landed in the player inventory.
+     */
+    private int pageButtonY() {
+        return this.rowCount * 18 + 17;
     }
 
     @Override
@@ -113,14 +131,14 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         // render page forwards / backwards buttons
         Button backward = this.addRenderableWidget(new Button.Builder(Component.literal("<"),
                 button -> this.getMenu().clickMenuButton(this.minecraft.player, -1))
-                .pos(leftPos + 115, topPos + 125).size(12, 12)
+                .pos(leftPos + 115, topPos + this.pageButtonY()).size(12, 12)
                 .build());
 
         backward.active = this.pageCount > 1 && this.pageIndex + 1 > 1;
 
         Button forward = this.addRenderableWidget(new Button.Builder(Component.literal(">"),
                 button -> this.getMenu().clickMenuButton(this.minecraft.player, 1))
-                .pos(leftPos + 157, topPos + 125)
+                .pos(leftPos + 157, topPos + this.pageButtonY())
                 .size(12, 12)
                 .build());
         forward.active = this.pageCount > 1 && this.pageIndex + 1 < this.pageCount;
@@ -450,10 +468,10 @@ public class ShipContainerScreen extends AbstractContainerScreen<ShipContainerMe
         // The page number belongs BETWEEN the two page buttons, and OUTSIDE the
         // 0.7 scale block above: it was drawn shrunken, and offset by
         // origLeftPos on top of that - a coordinate frame renderLabels is not
-        // in. The buttons sit at local x 115..127 and 157..169, y 125..137.
+        // in. The buttons sit at local x 115..127 and 157..169, y pageButtonY()..+12.
         if (this.pageCount > 1) {
             String page = (this.pageIndex + 1) + "/" + this.pageCount;
-            guiGraphics.drawString(font, page, PAGE_LABEL_X - font.width(page) / 2, PAGE_LABEL_Y, FONT_COLOR, false);
+            guiGraphics.drawString(font, page, PAGE_LABEL_X - font.width(page) / 2, this.pageButtonY() + 2, FONT_COLOR, false);
         }
     }
 }
