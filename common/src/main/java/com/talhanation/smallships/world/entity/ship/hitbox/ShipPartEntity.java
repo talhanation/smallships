@@ -5,10 +5,12 @@ import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -16,11 +18,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -55,7 +61,7 @@ import java.util.List;
  * the DEFINITIONS, so they can answer for a position and a yaw the ship has not
  * reached yet, which is exactly what sweeping a movement and gating a turn need.
  */
-public class ShipPartEntity extends Entity {
+public class ShipPartEntity extends Entity implements Container {
 
     /**
      * A part as a ship declares it, in the same local (v, h) frame the seats
@@ -257,6 +263,25 @@ public class ShipPartEntity extends Entity {
         return entity;
     }
 
+    /**
+     * Same thing for a whole hit result - a raytrace, a crosshair, a projectile.
+     *
+     * The result itself cannot be changed: ProjectileUtil and the crosshair pick
+     * build the EntityHitResult from whatever box they found, and that box is
+     * the part. There is no hook between finding and handing out short of a
+     * mixin. So every consumer that needs the SHIP out of a hit - aiming, a
+     * mount command, targeting - reads it through here, the same way vanilla
+     * code reads EnderDragonPart#parentMob.
+     *
+     * @return the hit entity with a part swapped for its ship, or null if the
+     * result did not hit an entity at all
+     */
+    @Nullable
+    public static Entity resolve(HitResult hitResult) {
+        if (hitResult instanceof EntityHitResult entityHitResult) return resolve(entityHitResult.getEntity());
+        return null;
+    }
+
     /* ---------------- size ---------------- */
 
     @Override
@@ -344,6 +369,207 @@ public class ShipPartEntity extends Entity {
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand interactionHand) {
         Ship ship = this.getParent();
         return ship == null ? InteractionResult.PASS : ship.interact(player, interactionHand);
+    }
+
+    /**
+     * The vanilla multipart contract, the one EnderDragonPart implements: a part
+     * IS its parent. Vanilla asks this wherever "is that the same entity" has
+     * to see through parts, Projectile#ownedBy among them.
+     */
+    @Override
+    public boolean is(@NotNull Entity entity) {
+        return this == entity || this.getParent() == entity;
+    }
+
+    /** Middle click on the hull gives the ship, not a spawn egg of nothing. */
+    @Override
+    public @Nullable ItemStack getPickResult() {
+        Ship ship = this.getParent();
+        return ship == null ? null : ship.getPickResult();
+    }
+
+    /**
+     * The name of the ship, custom name included - for everything that labels
+     * what the crosshair is on (Jade, WTHIT, chat messages) and would otherwise
+     * print "Ship Part".
+     */
+    @Override
+    public @NotNull Component getName() {
+        Ship ship = this.getParent();
+        return ship == null ? super.getName() : ship.getName();
+    }
+
+    /* ---------------- mounting ---------------- */
+
+    /**
+     * Nobody rides a part - whoever tries to boards the ship.
+     *
+     * Only the players' right click was forwarded so far, through interact. A
+     * mob, a Recruit sent aboard or /ride call startRiding on whatever entity
+     * they got out of their raytrace, and that is the part. Vanilla gives a
+     * vehicle exactly two calls inside startRiding: this check, and addPassenger
+     * once the vehicle field of the rider is already set. The check answers for
+     * the SHIP, so boarding through a part follows the same rules - free seat,
+     * blacklist, lock - as boarding the ship itself.
+     */
+    @Override
+    protected boolean canAddPassenger(@NotNull Entity passenger) {
+        Ship ship = this.getParent();
+        return ship != null && ship.canAddPassenger(passenger);
+    }
+
+    /**
+     * The actual hand over. startRiding has set the part as vehicle by now, so
+     * that is undone first and the rider is put on the ship. Forced, because
+     * the check already ran against the ship in canAddPassenger - or was
+     * skipped on purpose by a forced mount like /ride.
+     *
+     * The part itself never gets the passenger, so there is nothing to sync:
+     * the passenger packet goes out for the ship, the same one as for a normal
+     * boarding.
+     */
+    @Override
+    protected void addPassenger(@NotNull Entity passenger) {
+        Ship ship = this.getParent();
+        if (ship != null) {
+            passenger.removeVehicle();
+            // a mount event that refused the dismount (Forge) leaves him on the
+            // part - then he has to be added properly, a rider that is missing
+            // from its vehicles' list is never ticked again
+            if (passenger.getVehicle() != this) {
+                passenger.startRiding(ship, true);
+                return;
+            }
+        }
+        super.addPassenger(passenger);
+    }
+
+    /* ---------------- container ---------------- */
+
+    /**
+     * @return the hold of the ship, or null if she has none. Asked for the
+     * Container interface and not for ContainerShip, so an addon ship that
+     * brings its own inventory is reached as well.
+     */
+    @Nullable
+    private Container getParentContainer() {
+        return this.getParent() instanceof Container container ? container : null;
+    }
+
+    /*
+     * Every part is a Container, whether its ship has a hold or not.
+     *
+     * Hoppers, droppers and every mod that looks for an inventory in the world
+     * go through EntitySelector.CONTAINER_ENTITY_SELECTOR - "instanceof
+     * Container" on whatever entity box they find. Next to a ship that box is a
+     * part, the ships' own vanilla box is far too small to be found. So the part
+     * carries the interface and hands every call to the hold.
+     *
+     * The class cannot decide per ship whether it implements an interface, so a
+     * ship without a hold answers as a container with NO SLOTS: size 0, always
+     * empty, always full, nothing placed, nothing taken. A hopper under a
+     * rowing boat simply finds nothing to do.
+     *
+     * Only Container, not ContainerEntity. That one belongs to the ship: loot
+     * table, item list and save data would exist twice, and the part keeps no
+     * state of its own anyway.
+     */
+
+    @Override
+    public int getContainerSize() {
+        Container container = this.getParentContainer();
+        return container == null ? 0 : container.getContainerSize();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        Container container = this.getParentContainer();
+        return container == null || container.isEmpty();
+    }
+
+    @Override
+    public @NotNull ItemStack getItem(int slot) {
+        Container container = this.getParentContainer();
+        return container == null ? ItemStack.EMPTY : container.getItem(slot);
+    }
+
+    @Override
+    public @NotNull ItemStack removeItem(int slot, int amount) {
+        Container container = this.getParentContainer();
+        return container == null ? ItemStack.EMPTY : container.removeItem(slot, amount);
+    }
+
+    @Override
+    public @NotNull ItemStack removeItemNoUpdate(int slot) {
+        Container container = this.getParentContainer();
+        return container == null ? ItemStack.EMPTY : container.removeItemNoUpdate(slot);
+    }
+
+    @Override
+    public void setItem(int slot, @NotNull ItemStack itemStack) {
+        Container container = this.getParentContainer();
+        if (container != null) container.setItem(slot, itemStack);
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        Container container = this.getParentContainer();
+        return container == null ? Container.super.getMaxStackSize() : container.getMaxStackSize();
+    }
+
+    /** the ship recomputes fill state and ammo count in here, so it must never be skipped */
+    @Override
+    public void setChanged() {
+        Container container = this.getParentContainer();
+        if (container != null) container.setChanged();
+    }
+
+    /** distance is measured to the SHIP - a hold is not opened any further away through a part */
+    @Override
+    public boolean stillValid(@NotNull Player player) {
+        Container container = this.getParentContainer();
+        return container != null && container.stillValid(player);
+    }
+
+    @Override
+    public void startOpen(@NotNull Player player) {
+        Container container = this.getParentContainer();
+        if (container != null) container.startOpen(player);
+    }
+
+    @Override
+    public void stopOpen(@NotNull Player player) {
+        Container container = this.getParentContainer();
+        if (container != null) container.stopOpen(player);
+    }
+
+    @Override
+    public boolean canPlaceItem(int slot, @NotNull ItemStack itemStack) {
+        Container container = this.getParentContainer();
+        return container != null && container.canPlaceItem(slot, itemStack);
+    }
+
+    @Override
+    public boolean canTakeItem(@NotNull Container target, int slot, @NotNull ItemStack itemStack) {
+        Container container = this.getParentContainer();
+        return container != null && container.canTakeItem(target, slot, itemStack);
+    }
+
+    @Override
+    public void clearContent() {
+        Container container = this.getParentContainer();
+        if (container != null) container.clearContent();
+    }
+
+    /**
+     * /item and every other command that addresses entity slots. Not part of
+     * Container but of Entity - forwarded all the same, a ship without a hold
+     * answers SlotAccess.NULL like any entity does.
+     */
+    @Override
+    public @NotNull SlotAccess getSlot(int slot) {
+        Ship ship = this.getParent();
+        return ship == null ? super.getSlot(slot) : ship.getSlot(slot);
     }
 
     /* ---------------- lifecycle ---------------- */
