@@ -41,71 +41,70 @@ public class ModEntityTypesImpl {
                 .noSummon()
                 .clientTrackingRange(20)
                 .updateInterval(Integer.MAX_VALUE)
-                .build()));
+                .build(ShipPartEntity.ID)));
 
         entries.put(CannonBallEntity.class, register(CannonBallEntity.ID, EntityType.Builder.of(CannonBallEntity::factory, MobCategory.MISC)
                 .sized(0.25F, 0.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(CannonBallEntity.ID)));
 
         entries.put(ChainShotEntity.class, register(ChainShotEntity.ID, EntityType.Builder.of(ChainShotEntity::factory, MobCategory.MISC)
                 .sized(1.00F, 0.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(ChainShotEntity.ID)));
 
         entries.put(GrapeShotEntity.class, register(GrapeShotEntity.ID, EntityType.Builder.of(GrapeShotEntity::factory, MobCategory.MISC)
                 .sized(0.25F, 0.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(GrapeShotEntity.ID)));
 
         entries.put(GroundCannonEntity.class, register(GroundCannonEntity.ID, EntityType.Builder.of(GroundCannonEntity::factory, MobCategory.MISC)
                 .sized(0.85F, 0.75F)
                 .clientTrackingRange(20)
-                .build()));
+                .build(GroundCannonEntity.ID)));
 
         entries.put(CogEntity.class, register(CogEntity.ID, EntityType.Builder.of(CogEntity::new, MobCategory.MISC)
                 .sized(1.0F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(CogEntity.ID)));
 
         entries.put(BriggEntity.class, register(BriggEntity.ID, EntityType.Builder.of(BriggEntity::new, MobCategory.MISC)
                 .sized(3.5F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(BriggEntity.ID)));
 
         entries.put(GalleyEntity.class, register(GalleyEntity.ID, EntityType.Builder.of(GalleyEntity::new, MobCategory.MISC)
                 .sized(3.5F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(GalleyEntity.ID)));
 
         entries.put(DhowEntity.class, register(DhowEntity.ID, EntityType.Builder.of(DhowEntity::new, MobCategory.MISC)
                 .sized(1.0F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(DhowEntity.ID)));
 
         entries.put(DrakkarEntity.class, register(DrakkarEntity.ID, EntityType.Builder.of(DrakkarEntity::new, MobCategory.MISC)
                 .sized(3.5F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(DrakkarEntity.ID)));
 
         entries.put(GalleonEntity.class, register(GalleonEntity.ID, EntityType.Builder.of(GalleonEntity::new, MobCategory.MISC)
                 .sized(3.5F, 1.25F)
                 .clientTrackingRange(20)
                 .updateInterval(10)
-                .build()));
+                .build(GalleonEntity.ID)));
 
         entries.put(CaravelEntity.class, register(CaravelEntity.ID, EntityType.Builder.of(CaravelEntity::new, MobCategory.MISC)
                 .sized(3.5F, 1.25F)
                 .clientTrackingRange(20)
-                .updateInterval(10)
-                .build()));
+                .updateInterval(10).build(CaravelEntity.ID)));
     }
 }

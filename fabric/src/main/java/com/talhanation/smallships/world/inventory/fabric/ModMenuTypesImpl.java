@@ -27,7 +27,7 @@ public class ModMenuTypesImpl {
 
     static {
         entries.put("ship_container", register("ship_container",
-                new ExtendedScreenHandlerType<>((syncId, inventory, data) -> ModMenuTypes.extendedShipContainerMenuTypeSupplier(syncId, inventory, data.ship()), ContainerUtilityImpl.ContainerMenuData.PACKET_CODEC)));
+                new ExtendedScreenHandlerType<>((syncId, inventory, data) -> ModMenuTypes.extendedShipContainerMenuTypeSupplier(syncId, inventory, data.readUUID()))));
 
         entries.put("dockyard", register("dockyard",
                 new MenuType<>(DockyardMenu::new, FeatureFlags.VANILLA_SET)));
