@@ -191,7 +191,10 @@ public interface Seatable extends Ability {
      * can sit there, but clicking a cannon means the cannon, so the post that
      * works that same slot is handed back instead.
      *
-     * @param includeDriver whether the helm may be picked by distance too
+     * @param includeDriver whether the helm may be picked at all. False for
+     *                      everyone who may not steer (Ship#canDrive): for them
+     *                      the helm is skipped entirely, even while it is free
+     *                      and the closest seat to the click
      */
     @Nullable
     default ShipSeat findSeatAt(Vec3 worldPos, boolean includeDriver) {
@@ -199,7 +202,15 @@ public interface Seatable extends Ability {
         double bestDist = Double.MAX_VALUE;
         for (ShipSeat seat : this.getSeats()) {
 
-            if (includeDriver && seat.type() == SeatType.DRIVER && this.isSeatFree(seat.id())) return seat;
+            if (seat.type() == SeatType.DRIVER) {
+                if (includeDriver && this.isSeatFree(seat.id())) return seat;
+                // the helm is not a place to sit for whoever may not steer -
+                // not even when it happens to be the seat closest to where he
+                // boarded. He takes another one, or stays ashore: see
+                // Ship#hasFreeSeatFor, which refuses him when the helm is all
+                // that is left
+                if (!includeDriver) continue;
+            }
 
             boolean carriageWithGun = seat.type() == SeatType.CANNON && this.isSeatBlocked(seat);
             if (!carriageWithGun && !this.isSeatFree(seat.id())) continue;

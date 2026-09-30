@@ -51,7 +51,7 @@ public class ModEntityTypesImpl {
 
         entries.put(ChainShotEntity.class, ENTITY_TYPES.register(ChainShotEntity.ID,
                 () -> EntityType.Builder.of(ChainShotEntity::factory, MobCategory.MISC)
-                        .sized(1.00F, 0.25F)
+                        .sized(1.30F, 0.25F)
                         .clientTrackingRange(20)
                         .setUpdateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)
