@@ -2,6 +2,8 @@ package com.talhanation.smallships.api;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.world.dockyard.DockyardRecipe;
+import com.talhanation.smallships.world.dockyard.DockyardRecipeManager;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,8 +27,8 @@ import java.util.Set;
  * on Fabric. The registry is thread safe because Forge dispatches mod setup in
  * parallel, so several mods may register at the same time.
  *
- * Iteration order is registration order, which keeps the dockyard ship list
- * stable for the player instead of shuffling with the mod load order.
+ * Iteration order is registration order. The dockyard build tab does NOT use
+ * it as is: it sorts the ships by price, see {@link #getBuildable()}.
  */
 public final class ShipRegistry {
 
@@ -114,8 +116,18 @@ public final class ShipRegistry {
     }
 
     /**
-     * @return the ship types offered in the dockyard build tab, in registration
-     * order. Unknown ids in the config are reported once and skipped.
+     * @return the ship types offered in the dockyard build tab, cheapest first.
+     * Unknown ids in the config are reported once and skipped.
+     *
+     * First everything the config allows is collected, THEN it is sorted - the
+     * order the ids are written in the whitelist has no say, and neither has
+     * the order the addons happened to register in. The price is the wood and
+     * iron of the recipe that is actually in effect (data pack over fallback),
+     * see {@link DockyardRecipe#getBuildCost()}, so paging through the build
+     * tab walks from the smallest hull up to the biggest one.
+     *
+     * The sort is stable: two ships of the same price keep their registration
+     * order instead of swapping places between two openings of the screen.
      */
     public static List<ShipType> getBuildable() {
         List<String> whiteList = SmallShipsConfig.Server.dockyardBuildableShips.get();
@@ -124,6 +136,7 @@ public final class ShipRegistry {
             if (isBuildable(shipType)) buildable.add(shipType);
         }
         warnUnknownIds(whiteList);
+        buildable.sort(Comparator.comparingInt(shipType -> DockyardRecipeManager.get(shipType).getBuildCost()));
         return buildable;
     }
 

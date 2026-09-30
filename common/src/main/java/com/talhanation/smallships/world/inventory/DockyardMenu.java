@@ -23,7 +23,7 @@ public class DockyardMenu extends AbstractContainerMenu {
     public static final int DATA_POS_Y = 4;
     public static final int DATA_POS_Z = 5;
     public static final int DATA_SHIP_ID = 6;
-    /** registry index of the ship type currently being built, -1 while idle */
+    /** registry index + 1 of the ship type currently being built, 0 while idle */
     public static final int DATA_BUILD_SHIP = 7;
     public static final int DATA_COUNT = 8;
 
@@ -51,9 +51,15 @@ public class DockyardMenu extends AbstractContainerMenu {
      * @return the registry index of the ship the dockyard is building, or -1.
      * Lets the build tab come back up on the right ship after the player closed
      * and reopened the screen mid build.
+     *
+     * The value travels shifted by one (0 = nothing on the stocks): the screen
+     * reads this in init, BEFORE the first data sync has arrived, while the
+     * client data still holds its default 0. Unshifted that 0 was index 0 of
+     * the network order - the brigg - and the build tab jumped to it on every
+     * opening.
      */
     public int getBuildShipIndex() {
-        return this.data.get(DATA_BUILD_SHIP);
+        return this.data.get(DATA_BUILD_SHIP) - 1;
     }
 
     public int getTotalTime() {
@@ -72,9 +78,13 @@ public class DockyardMenu extends AbstractContainerMenu {
         return new BlockPos(this.data.get(DATA_POS_X), this.data.get(DATA_POS_Y), this.data.get(DATA_POS_Z));
     }
 
-    /** @return the entity id of the ship selected at the dockyard or -1. */
+    /**
+     * @return the entity id of the ship selected at the dockyard or -1.
+     * Shifted by one on the wire for the same reason as
+     * {@link #getBuildShipIndex()}: 0 is a valid entity id.
+     */
     public int getShipId() {
-        return this.data.get(DATA_SHIP_ID);
+        return this.data.get(DATA_SHIP_ID) - 1;
     }
 
     public Player getPlayer() {

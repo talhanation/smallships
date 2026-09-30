@@ -32,6 +32,13 @@ import java.util.List;
  */
 public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
 
+    /** planks one log is worth, the vanilla crafting yield */
+    private static final int PLANKS_PER_LOG = 4;
+    /** nuggets one iron ingot is worth, the vanilla crafting yield */
+    private static final int NUGGETS_PER_INGOT = 9;
+    /** ingots one iron block is worth, the vanilla crafting yield */
+    private static final int INGOTS_PER_BLOCK = 9;
+
     public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(this.buildTime);
         buf.writeCollection(this.ingredients, (out, ingredient) -> ingredient.write(out));
@@ -73,6 +80,32 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
                 if (this.matches(stack)) count += stack.getCount();
             }
             return count;
+        }
+
+        /**
+         * @return what this ingredient adds to the price of a ship: wood counted
+         * in planks, iron counted in nuggets. Everything else - wool, string,
+         * whatever an addon asks for - is not part of the price, it only says
+         * what KIND of ship it is, not how big.
+         *
+         * Iron is normalized to nuggets because the recipes ask for it in
+         * both sizes: the small hulls in nuggets, brigg and galleon in ingots.
+         * Compared as written, eight ingots would come out cheaper than
+         * eighteen nuggets.
+         */
+        public int getBuildCost() {
+            if (this.tag != null) {
+                if (this.tag.equals(ItemTags.PLANKS)) return this.amount;
+                if (this.tag.equals(ItemTags.LOGS)) return this.amount * PLANKS_PER_LOG;
+                return 0;
+            }
+            if (this.item == Items.IRON_NUGGET) return this.amount;
+            if (this.item == Items.IRON_INGOT) return this.amount * NUGGETS_PER_INGOT;
+            if (this.item == Items.IRON_BLOCK) return this.amount * INGOTS_PER_BLOCK * NUGGETS_PER_INGOT;
+            // a data pack may well ask for one concrete wood instead of the tag
+            if (new ItemStack(this.item).is(ItemTags.PLANKS)) return this.amount;
+            if (new ItemStack(this.item).is(ItemTags.LOGS)) return this.amount * PLANKS_PER_LOG;
+            return 0;
         }
 
         public ItemStack getDisplayStack(Boat.Type woodType) {
@@ -174,6 +207,19 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
      */
     public void consume(Player player) {
         consume(this.ingredients, player);
+    }
+
+    /**
+     * @return the price of this ship in wood and iron, see
+     * {@link Ingredient#getBuildCost()}. Only used to ORDER the ships in the
+     * build tab, the dockyard never charges by this number.
+     */
+    public int getBuildCost() {
+        int cost = 0;
+        for (Ingredient ingredient : this.ingredients) {
+            cost += ingredient.getBuildCost();
+        }
+        return cost;
     }
 
     /**

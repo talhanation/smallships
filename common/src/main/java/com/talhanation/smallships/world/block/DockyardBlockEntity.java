@@ -144,20 +144,24 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
                 case DockyardMenu.DATA_POS_X -> DockyardBlockEntity.this.worldPosition.getX();
                 case DockyardMenu.DATA_POS_Y -> DockyardBlockEntity.this.worldPosition.getY();
                 case DockyardMenu.DATA_POS_Z -> DockyardBlockEntity.this.worldPosition.getZ();
-                case DockyardMenu.DATA_BUILD_SHIP ->{
-                    if (DockyardBlockEntity.this.task != Task.BUILD_SHIP) yield -1;
-                    yield ShipRegistry.indexOf(ShipRegistry.get(DockyardBlockEntity.this.shipTypeId));
+                // Both ids go out shifted by one, so that 0 means "nothing".
+                // 0 is what the client menu holds before the first sync
+                // arrives - and the screen is already built by then. Sent
+                // unshifted, that 0 was a real registry index (the brigg) and
+                // a real entity id, see DockyardMenu.
+                case DockyardMenu.DATA_BUILD_SHIP -> {
+                    if (DockyardBlockEntity.this.task != Task.BUILD_SHIP) yield 0;
+                    yield ShipRegistry.indexOf(ShipRegistry.get(DockyardBlockEntity.this.shipTypeId)) + 1;
                 }
-
 
                 case DockyardMenu.DATA_SHIP_ID -> {
                     // while building a ship, no ship is reported - the screen
                     // stays in build mode showing the progress
-                    if (DockyardBlockEntity.this.task == Task.BUILD_SHIP) yield -1;
+                    if (DockyardBlockEntity.this.task == Task.BUILD_SHIP) yield 0;
                     // no search here, this runs every tick while a screen is
                     // open: the selection is only checked, never made
                     Ship ship = DockyardBlockEntity.this.getSelectedShip();
-                    yield ship != null ? ship.getId() : -1;
+                    yield ship != null ? ship.getId() + 1 : 0;
                 }
                 default -> 0;
             };
