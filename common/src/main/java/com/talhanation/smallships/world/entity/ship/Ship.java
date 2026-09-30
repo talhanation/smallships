@@ -579,8 +579,16 @@ public abstract class Ship extends Boat {
         this.getEntityData().set(accessor, value);
     }
 
-    @Override
-    protected void controlBoat() {
+    /**
+     * The ships' own drive, called by BoatMixin in place of Boat#controlBoat.
+     *
+     * Deliberately NOT an override of controlBoat: that method is private in
+     * vanilla and only widened by our access widener. Loom does not remap an
+     * override of a private method, so in an addons' dev environment this
+     * stayed m_38396_, never overrode anything and every ship drove like a
+     * vanilla boat. A name of our own needs no widening and no remapping.
+     */
+    public void controlShip() {
         if (this.level().isClientSide() && !this.isControlledByLocalInstance()) return;
 
         Attributes attributes = this.getAttributes();
@@ -795,7 +803,7 @@ public abstract class Ship extends Boat {
 
     /**
      * @return whether a lead is holding this ship. A ship on the leash makes no
-     * way of its own - see controlBoat, it is being towed, not sailed.
+     * way of its own - see controlShip, it is being towed, not sailed.
      */
     public boolean isShipLeashed(){
         return this instanceof Leashable leashShip && leashShip.getLeashHolder() != null;
@@ -1496,7 +1504,7 @@ public abstract class Ship extends Boat {
     /**
      * The solid shapes around this ship, scanned at most once per tick.
      *
-     * The turn gate runs in controlBoat and the movement sweep runs in move,
+     * The turn gate runs in controlShip and the movement sweep runs in move,
      * both in the same tick and over almost the same volume - and that volume is
      * large, because the masts drag the search box twelve blocks into the air.
      * The cache remembers what it covered and rescans as soon as a request
@@ -1839,7 +1847,7 @@ public abstract class Ship extends Boat {
      *
      * It cannot live in move(): vanilla only calls that on the controlling
      * client, so for a crewed ship the server never sees the impact at all -
-     * and the damage has to be dealt there. controlBoat is driven on both sides
+     * and the damage has to be dealt there. controlShip is driven on both sides
      * by BoatMixin, and so is tick, which is where this hangs.
      */
     private void tickObstacleContact() {

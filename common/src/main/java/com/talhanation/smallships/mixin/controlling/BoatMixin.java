@@ -15,7 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 /**
- * Drives controlBoat on both sides and takes over the passenger pickup.
+ * Drives Ship#controlShip on both sides in place of controlBoat and takes
+ * over the passenger pickup.
  *
  * The leash used to live here as well - it is a ship feature now and sits in
  * Leashable, where it needs no bytecode surgery at all.
@@ -43,8 +44,8 @@ public abstract class BoatMixin {
     @SuppressWarnings("ConstantValue")
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;tickLerp()V"))
     private void tickClientAndServerControlBoat(CallbackInfo ci) {
-        if (((Boat)(Object)this instanceof Ship)) {
-            this.controlBoat();
+        if (((Boat)(Object)this instanceof Ship ship)) {
+            ship.controlShip();
         }
     }
 
