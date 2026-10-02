@@ -54,6 +54,9 @@ public class ModItemsImpl {
             ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
                 List<Item> shipItems = new ArrayList<>();
                 shipItems.add(ModItems.DOCKYARD);
+                shipItems.add(ModItems.IRON_SCANTLINGS);
+                shipItems.add(ModItems.COPPER_PLATING);
+                shipItems.add(ModItems.COTTON_SAILS);
                 for (Boat.Type type : Boat.Type.values()) {
                     shipItems.add(ModItems.COG_ITEMS.get(type));
                     shipItems.add(ModItems.BRIGG_ITEMS.get(type));

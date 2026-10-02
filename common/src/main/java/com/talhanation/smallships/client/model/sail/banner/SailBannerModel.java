@@ -194,11 +194,21 @@ public abstract class SailBannerModel {
         SegmentLayout layout = segmentPose.layout();
         ModelPart.Cube cube = segmentPose.cube();
         boolean flatX = layout.flatX();
-        // looking at the front of a Z flat surface, from +Z towards -Z, +X runs
-        // to the right and the width axis matches the reading direction of the
-        // banner. On an X flat surface, seen from +X towards -X, +Z runs to the
-        // left instead, so its width axis has to be flipped to read correctly
-        boolean mirrorU = segmentPose.mirrorU() != flatX;
+        // Which way the width axis runs on screen has to be read in the space
+        // the model is DRAWN in, not in the one it is modeled in: ShipRenderer
+        // turns every model over with scale(-1.3, -1.3, 1.3), like any entity
+        // model, so +X and +Y of the model end up pointing left and down.
+        //
+        // Looking at the front of a Z flat surface, from +Z towards -Z, +X
+        // therefore runs to the LEFT, against the reading direction of the
+        // banner, and the width axis has to be flipped. On an X flat surface,
+        // seen from +X towards -X, +Z runs to the right and reads as it is.
+        //
+        // This used to be the other way round - worked out for an upright
+        // model - and every sail showed its banner mirrored. Vanilla agrees:
+        // the cube face that carries the front of the flag has its u running
+        // with +X on the side facing -Z, not on the one facing +Z.
+        boolean mirrorU = segmentPose.mirrorU() == flatX;
         float uStart = mirrorU ? BANNER_WIDTH - layout.uStartPx() - layout.widthPx() : layout.uStartPx();
 
         // the back face samples the mirrored back region so the pattern reads

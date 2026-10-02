@@ -22,6 +22,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -278,10 +279,16 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * Work time in ticks, or 0 for a player who is building in creative or is
-     * an operator - the dockyard timer is a survival cost, and someone with
-     * creative access can conjure the finished ship anyway, so making him watch
-     * a progress bar only slows down building and testing.
+     * Work time in ticks, or 0 for a player who is building in creative - the
+     * dockyard timer is a survival cost, and someone in creative can conjure
+     * the finished ship anyway, so making him watch a progress bar only slows
+     * down building.
+     *
+     * The GAME MODE alone decides, not the permission level. Operators used to
+     * skip the timer as well, and that hit far more players than it was meant
+     * for: in a single player world with cheats on - and in every world opened
+     * to LAN with cheats - the player is an operator, so ships and upgrades
+     * were finished the instant the button was pressed, in plain survival.
      *
      * Zero is safe rather than special cased: the task still goes through the
      * normal pipeline and simply completes on the next tick, so every finish
@@ -290,7 +297,31 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
      * progress bar when the total time is not positive.
      */
     private static int workTime(ServerPlayer player, int time) {
-        return player.isCreative() || player.hasPermissions(2) ? 0 : time;
+        return player.isCreative() ? 0 : time;
+    }
+
+    /**
+     * Pushes the main inventory of the player to his client.
+     *
+     * The dockyard takes its materials straight out of the player inventory,
+     * but its menu has no slots - and while a menu is open, vanilla only syncs
+     * the slots of THAT menu. The paid materials therefore stayed in the
+     * clients' inventory until the screen was closed, and the material list
+     * kept showing them as still there.
+     *
+     * Sent as PLAYER_INVENTORY slots (container id -2), the one form the client
+     * takes for any inventory slot no matter which menu is open. The inventory
+     * menus' own id 0 will not do: outside the hotbar the client drops those
+     * updates while another menu is on screen.
+     */
+    private static void syncInventory(ServerPlayer player) {
+        // creative pays nothing, so there is nothing to send
+        if (player.isCreative()) return;
+        Inventory inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.items.size(); slot++) {
+            player.connection.send(new ClientboundContainerSetSlotPacket(
+                    ClientboundContainerSetSlotPacket.PLAYER_INVENTORY, 0, slot, inventory.items.get(slot)));
+        }
     }
 
     /**
@@ -327,6 +358,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         recipe.consume(player);
+        syncInventory(player);
         this.task = Task.BUILD_SHIP;
         this.shipTypeId = shipType.getId();
         this.woodTypeOrdinal = woodType.ordinal();
@@ -487,6 +519,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
         this.consume(player, costs);
+        syncInventory(player);
 
         this.task = Task.MODIFY;
         this.pendingActions.clear();
@@ -654,6 +687,7 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
         DockyardRecipe.consume(costs, player);
+        syncInventory(player);
 
         this.task = Task.REPAIR;
         this.repairHull = hull;

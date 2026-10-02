@@ -64,6 +64,9 @@ public class CommonModBus {
             }
             else if (getCreativeModeTab.apply(CreativeModeTabs.TOOLS_AND_UTILITIES).equals(event.getTab())) {
                 event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DOCKYARD), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.IRON_SCANTLINGS), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COPPER_PLATING), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COTTON_SAILS), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 for (Boat.Type type: Boat.Type.values()) {
                     event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     event.getEntries().putBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.BRIGG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);

@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 @Mod(SmallShipsMod.MOD_ID)
 public class SmallshipsModForge {
-    public static final boolean hasCustomItemGroup = TomlFormat.instance().createParser().parse(Path.of("config", "smallships-client.toml"), (file, configFormat) -> false).getOrElse(Arrays.asList("General", "smallshipsItemGroupEnable"), () -> false); //Forge doesn't do early config initialization. Will have to parse the config ourselves.
+    public static final boolean hasCustomItemGroup = TomlFormat.instance().createParser().parse(Path.of("config", "smallships-client.toml"), (file, configFormat) -> false).getOrElse(Arrays.asList("General", "smallshipsItemGroupEnable"), () -> true); //Forge doesn't do early config initialization. Will have to parse the config ourselves. The fallback has to match the default in SmallShipsConfig: on the very first start the file does not exist yet, and an older file does not hold the key.
 
     @SuppressWarnings("InstantiationOfUtilityClass")
     public SmallshipsModForge() {

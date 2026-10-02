@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SPS",
+    "I#W",
+    "LBL"
+  ],
+  "key": {
+    "P": { "item": "minecraft:paper" },
+    "W": { "item": "minecraft:white_wool" },
+    "L": { "item": "minecraft:lead" },
+    "S": { "item": "minecraft:string" },
+    "B": { "item": "minecraft:barrel" },
+    "I": { "item": "minecraft:iron_ingot" },
+    "#": { "item": "minecraft:crafting_table" }
+  },
+  "result": {
+    "item": "smallships:dockyard",
+    "count": 1
+  }
+}

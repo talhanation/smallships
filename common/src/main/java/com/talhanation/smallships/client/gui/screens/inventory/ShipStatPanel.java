@@ -156,7 +156,7 @@ public class ShipStatPanel {
                         1.0F - cannonShip.getCannonModifier() / 100.0F);
             }
             if (ship instanceof Shieldable shieldable) {
-                line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.shields",
+                line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.shields_dmg",
                         shieldable.getDamageModifier()* -1);
             }
             line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_biome",
