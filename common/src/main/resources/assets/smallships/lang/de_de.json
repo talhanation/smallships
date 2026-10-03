@@ -122,5 +122,8 @@
   "gui.smallships.dockyard.repair": "Schiff reparieren",
   "gui.smallships.dockyard.repair_cost": "Kosten:",
   "commands.smallships.wind.set_strength": "Windstärke auf %s gesetzt",
-  "commands.smallships.wind.info": "Wind: Richtung %s° (Norden = 0°, im Uhrzeigersinn), Stärke %s"
+  "commands.smallships.wind.info": "Wind: Richtung %s° (Norden = 0°, im Uhrzeigersinn), Stärke %s",
+  "chat.smallships.update.available": "Eine neue Version von Small Ships ist verfügbar: %s (installiert: %s)",
+  "chat.smallships.update.download": "Lade das Update %s herunter",
+  "chat.smallships.update.here": "hier"
 }

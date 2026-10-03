@@ -11,8 +11,10 @@ import com.talhanation.smallships.world.block.ModBlocks;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.ModShipTypes;
 import com.talhanation.smallships.commands.SmallshipsCommand;
+import com.talhanation.smallships.update.UpdateChecker;
 import com.talhanation.smallships.world.wind.WindManager;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.level.ServerLevel;
@@ -57,5 +59,8 @@ public class SmallshipsModFabric implements ModInitializer {
                 WindManager.get(serverLevel).sync(handler.getPlayer());
             }
         });
+
+        // update check: the server config is only loaded once the server is up
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> UpdateChecker.onServerStarted());
     }
 }

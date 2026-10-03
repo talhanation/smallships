@@ -169,6 +169,9 @@
   "gui.smallships.dockyard.repair_cost": "Costs:",
   "commands.smallships.wind.set_strength": "Wind strength set to %s",
   "commands.smallships.wind.info": "Wind: direction %s° (north = 0°, clockwise), strength %s",
+  "chat.smallships.update.available": "A new version of Small Ships is available: %s (installed: %s)",
+  "chat.smallships.update.download": "Download the update %s",
+  "chat.smallships.update.here": "here",
 
   "gui.smallships.dockyard.stat.wind": "Wind Profile",
   "gui.smallships.dockyard.stat.head_wind": "Head Wind",

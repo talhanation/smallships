@@ -148,6 +148,7 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.ConfigValue<List<String>> mountBlackList;
         public static ForgeConfigSpec.ConfigValue<List<String>> driverEntities;
         public static ForgeConfigSpec.ConfigValue<List<String>> dockyardBuildableShips;
+        public static ForgeConfigSpec.BooleanValue updateCheckerEnable;
         public static ForgeConfigSpec.DoubleValue shipGeneralShieldDamageReduction;
         public static ForgeConfigSpec.DoubleValue shipGeneralDespawnTimeSunken;
         public static ForgeConfigSpec.DoubleValue shipGeneralCannonDamage;
@@ -231,6 +232,7 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.BooleanValue windBannerEnable;
         public static ForgeConfigSpec.ConfigValue<Integer> shipModSpeedUnit;
         public static ForgeConfigSpec.BooleanValue smallshipsItemGroupEnable;
+        public static ForgeConfigSpec.BooleanValue updateCheckerEnable;
     }
 
 
@@ -651,6 +653,15 @@ public class SmallShipsConfig {
         builder.pop();
 
         builder.pop();
+
+        builder.comment(" This category holds configs that define general mod settings.");
+        builder.push("General");
+
+        builder.comment("Check for a new version of the mod when the server starts and write the result to the server log.");
+        Server.updateCheckerEnable = builder
+                .define("updateCheckerEnable", true);
+
+        builder.pop();
     }
 
     private static void setupClientConfig(ForgeConfigSpec.Builder builder) {
@@ -725,6 +736,10 @@ public class SmallShipsConfig {
         builder.comment("Enable smallships creative tab in the creative inventory (only takes effect after restart).");
         Client.smallshipsItemGroupEnable = builder
                 .define("smallshipsItemGroupEnable", true);
+
+        builder.comment("Check for a new version of the mod and show a chat message when joining a world while an update is available.");
+        Client.updateCheckerEnable = builder
+                .define("updateCheckerEnable", true);
 
         builder.pop();
     }

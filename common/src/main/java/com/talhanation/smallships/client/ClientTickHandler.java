@@ -11,6 +11,8 @@ import net.minecraft.client.Minecraft;
  */
 public class ClientTickHandler {
     public static void onClientTick(Minecraft minecraft) {
+        // before the level check: this one has to see the world come AND go
+        UpdateNotifier.tick(minecraft);
         if (minecraft.level == null) return;
         ClientWindManager.tick();
         WindEffects.tick(minecraft);
