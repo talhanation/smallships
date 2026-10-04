@@ -418,62 +418,9 @@ public class GalleySailModel extends SailModel {
 
     @Override
     public void setupAnim(Ship galley, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        switch (galley.getData(Ship.SAIL_STATE)) {
-            case 0 -> {
-                this.sail_0.visible = true;
-                this.sail_1.visible = false;
-                this.sail_2.visible = false;
-                this.sail_3.visible = false;
-                this.sail_4.visible = false;
+        int state = galley.getData(Ship.SAIL_STATE);
 
-                this.sail_1_bottom.visible = false;
-                this.sail_2_bottom.visible = false;
-                this.sail_3_bottom.visible = false;
-            }
-            case 1 -> {
-                this.sail_0.visible = false;
-                this.sail_1.visible = true;
-                this.sail_2.visible = false;
-                this.sail_3.visible = false;
-                this.sail_4.visible = false;
-
-                this.sail_1_bottom.visible = true;
-                this.sail_2_bottom.visible = false;
-                this.sail_3_bottom.visible = false;
-            }
-            case 2 -> {
-                this.sail_0.visible = false;
-                this.sail_1.visible = true;
-                this.sail_2.visible = true;
-                this.sail_3.visible = false;
-                this.sail_4.visible = false;
-                this.sail_1_bottom.visible = false;
-                this.sail_2_bottom.visible = true;
-                this.sail_3_bottom.visible = false;
-            }
-            case 3 -> {
-                this.sail_0.visible = false;
-                this.sail_1.visible = true;
-                this.sail_2.visible = true;
-                this.sail_3.visible = true;
-                this.sail_4.visible = false;
-                this.sail_1_bottom.visible = false;
-                this.sail_2_bottom.visible = false;
-                this.sail_3_bottom.visible = true;
-            }
-            case 4 -> {
-                this.sail_0.visible = false;
-                this.sail_1.visible = true;
-                this.sail_2.visible = true;
-                this.sail_3.visible = true;
-                this.sail_4.visible = true;
-
-
-                this.sail_1_bottom.visible = false;
-                this.sail_2_bottom.visible = false;
-                this.sail_3_bottom.visible = false;
-            }
-        }
+        showSail(state, this.sail_0, this.sail_1, this.sail_2, this.sail_3, this.sail_4, this.sail_1_bottom, this.sail_2_bottom, this.sail_3_bottom);
     }
 
     @Override

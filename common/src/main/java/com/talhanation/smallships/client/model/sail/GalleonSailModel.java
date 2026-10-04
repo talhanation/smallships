@@ -1451,307 +1451,63 @@ public class GalleonSailModel extends SailModel {
 
 	@Override
 	public void setupAnim(Ship entity, float f, float g, float h, float i, float j) {
-		switch (entity.getData(Ship.SAIL_STATE)) {
-			case 0 -> {
-				this.sail_main_0.visible = true;
-				this.sail_main_1.visible = false;
-				this.sail_main_2.visible = false;
-				this.sail_main_3.visible = false;
-				this.sail_main_4.visible = false;
+		int state = entity.getData(Ship.SAIL_STATE);
 
-				this.sail_main_1_bottom.visible = false;
-				this.sail_main_2_bottom.visible = false;
-				this.sail_main_3_bottom.visible = false;
+		showSail(state, this.sail_main_0, this.sail_main_1, this.sail_main_2, this.sail_main_3, this.sail_main_4, this.sail_main_1_bottom, this.sail_main_2_bottom, this.sail_main_3_bottom);
+		showSail(state, this.sail_main_top_0, this.sail_main_top_1, this.sail_main_top_2, this.sail_main_top_3, this.sail_main_top_4, this.sail_main_top_1_bottom, this.sail_main_top_2_bottom, this.sail_main_top_3_bottom);
+		showSail(state, this.sail_front_0, this.sail_front_1, this.sail_front_2, this.sail_front_3, this.sail_front_4, this.sail_front_1_bottom, this.sail_front_2_bottom, this.sail_front_3_bottom);
+		showSail(state, this.sail_front_top_0, this.sail_front_top_1, this.sail_front_top_2, this.sail_front_top_3, this.sail_front_top_4, this.sail_front_top_1_bottom, this.sail_front_top_2_bottom, this.sail_front_top_3_bottom);
+		showSail(state, this.sail_back_0, this.sail_back_1, this.sail_back_2, this.sail_back_3, this.sail_back_4, this.sail_back_1_bottom, this.sail_back_2_bottom, this.sail_back_3_bottom);
 
-				this.sail_main_top_0.visible = true;
-				this.sail_main_top_1.visible = false;
-				this.sail_main_top_2.visible = false;
-				this.sail_main_top_3.visible = false;
-				this.sail_main_top_4.visible = false;
+		this.sail_main_rope_right_0.visible = state == 0;
+		this.sail_main_rope_right_1.visible = state == 1;
+		this.sail_main_rope_right_2.visible = state == 2;
+		this.sail_main_rope_right_3.visible = state == 3;
+		this.sail_main_rope_right_4.visible = state == 4;
+		this.sail_main_rope_left_0.visible = state == 0;
+		this.sail_main_rope_left_1.visible = state == 1;
+		this.sail_main_rope_left_2.visible = state == 2;
+		this.sail_main_rope_left_3.visible = state == 3;
+		this.sail_main_rope_left_4.visible = state == 4;
 
-				this.sail_main_top_1_bottom.visible = false;
-				this.sail_main_top_2_bottom.visible = false;
-				this.sail_main_top_3_bottom.visible = false;
+		this.sail_front_rope_right_0.visible = state == 0;
+		this.sail_front_rope_right_1.visible = state == 1;
+		this.sail_front_rope_right_2.visible = state == 2;
+		this.sail_front_rope_right_3.visible = state == 3;
+		this.sail_front_rope_right_4.visible = state == 4;
+		this.sail_front_rope_left_0.visible = state == 0;
+		this.sail_front_rope_left_1.visible = state == 1;
+		this.sail_front_rope_left_2.visible = state == 2;
+		this.sail_front_rope_left_3.visible = state == 3;
+		this.sail_front_rope_left_4.visible = state == 4;
 
-				this.sail_front_0.visible = true;
-				this.sail_front_1.visible = false;
-				this.sail_front_2.visible = false;
-				this.sail_front_3.visible = false;
-				this.sail_front_4.visible = false;
+		this.rope_back_sail_0.visible = state == 0;
+		this.rope_back_sail_1.visible = state == 1;
+		this.rope_back_sail_2.visible = state == 2;
+		this.rope_back_sail_3.visible = state == 3;
+		this.rope_back_sail_4.visible = state == 4;
 
-				this.sail_front_1_bottom.visible = false;
-				this.sail_front_2_bottom.visible = false;
-				this.sail_front_3_bottom.visible = false;
+		this.rope_sail_main_top_0_3.visible = state == 0;
+		this.rope_sail_main_top_0_2.visible = state == 0;
+		this.rope_sail_main_top_1_1.visible = state == 1;
+		this.rope_sail_main_top_2_1.visible = state == 2;
+		this.rope_sail_main_top_3_1.visible = state == 3;
+		this.rope_sail_main_top_4_1.visible = state == 4;
+		this.rope_sail_main_top_1_2.visible = state == 1;
+		this.rope_sail_main_top_2_2.visible = state == 2;
+		this.rope_sail_main_top_3_2.visible = state == 3;
+		this.rope_sail_main_top_4_2.visible = state == 4;
 
-				this.sail_front_top_0.visible = true;
-				this.sail_front_top_1.visible = false;
-				this.sail_front_top_2.visible = false;
-				this.sail_front_top_3.visible = false;
-				this.sail_front_top_4.visible = false;
-
-				this.sail_front_top_1_bottom.visible = false;
-				this.sail_front_top_2_bottom.visible = false;
-				this.sail_front_top_3_bottom.visible = false;
-
-				this.sail_back_0.visible = true;
-				this.sail_back_1.visible = false;
-				this.sail_back_2.visible = false;
-				this.sail_back_3.visible = false;
-				this.sail_back_4.visible = false;
-
-				this.sail_back_1_bottom.visible = false;
-				this.sail_back_2_bottom.visible = false;
-				this.sail_back_3_bottom.visible = false;
-			}
-			case 1 -> {
-				this.sail_main_0.visible = false;
-				this.sail_main_1.visible = true;
-				this.sail_main_2.visible = false;
-				this.sail_main_3.visible = false;
-				this.sail_main_4.visible = false;
-
-				this.sail_main_1_bottom.visible = true;
-				this.sail_main_2_bottom.visible = false;
-				this.sail_main_3_bottom.visible = false;
-
-				this.sail_main_top_0.visible = false;
-				this.sail_main_top_1.visible = true;
-				this.sail_main_top_2.visible = false;
-				this.sail_main_top_3.visible = false;
-				this.sail_main_top_4.visible = false;
-
-				this.sail_main_top_1_bottom.visible = true;
-				this.sail_main_top_2_bottom.visible = false;
-				this.sail_main_top_3_bottom.visible = false;
-
-				this.sail_front_0.visible = false;
-				this.sail_front_1.visible = true;
-				this.sail_front_2.visible = false;
-				this.sail_front_3.visible = false;
-				this.sail_front_4.visible = false;
-
-				this.sail_front_1_bottom.visible = true;
-				this.sail_front_2_bottom.visible = false;
-				this.sail_front_3_bottom.visible = false;
-
-				this.sail_front_top_0.visible = false;
-				this.sail_front_top_1.visible = true;
-				this.sail_front_top_2.visible = false;
-				this.sail_front_top_3.visible = false;
-				this.sail_front_top_4.visible = false;
-
-				this.sail_front_top_1_bottom.visible = true;
-				this.sail_front_top_2_bottom.visible = false;
-				this.sail_front_top_3_bottom.visible = false;
-
-				this.sail_back_0.visible = false;
-				this.sail_back_1.visible = true;
-				this.sail_back_2.visible = false;
-				this.sail_back_3.visible = false;
-				this.sail_back_4.visible = false;
-
-				this.sail_back_1_bottom.visible = true;
-				this.sail_back_2_bottom.visible = false;
-				this.sail_back_3_bottom.visible = false;
-			}
-			case 2 -> {
-				this.sail_main_0.visible = false;
-				this.sail_main_1.visible = true;
-				this.sail_main_2.visible = true;
-				this.sail_main_3.visible = false;
-				this.sail_main_4.visible = false;
-
-				this.sail_main_1_bottom.visible = false;
-				this.sail_main_2_bottom.visible = true;
-				this.sail_main_3_bottom.visible = false;
-
-				this.sail_main_top_0.visible = false;
-				this.sail_main_top_1.visible = true;
-				this.sail_main_top_2.visible = true;
-				this.sail_main_top_3.visible = false;
-				this.sail_main_top_4.visible = false;
-
-				this.sail_main_top_1_bottom.visible = false;
-				this.sail_main_top_2_bottom.visible = true;
-				this.sail_main_top_3_bottom.visible = false;
-
-				this.sail_front_0.visible = false;
-				this.sail_front_1.visible = true;
-				this.sail_front_2.visible = true;
-				this.sail_front_3.visible = false;
-				this.sail_front_4.visible = false;
-
-				this.sail_front_1_bottom.visible = false;
-				this.sail_front_2_bottom.visible = true;
-				this.sail_front_3_bottom.visible = false;
-
-				this.sail_front_top_0.visible = false;
-				this.sail_front_top_1.visible = true;
-				this.sail_front_top_2.visible = true;
-				this.sail_front_top_3.visible = false;
-				this.sail_front_top_4.visible = false;
-
-				this.sail_front_top_1_bottom.visible = false;
-				this.sail_front_top_2_bottom.visible = true;
-				this.sail_front_top_3_bottom.visible = false;
-
-				this.sail_back_0.visible = false;
-				this.sail_back_1.visible = true;
-				this.sail_back_2.visible = true;
-				this.sail_back_3.visible = false;
-				this.sail_back_4.visible = false;
-
-				this.sail_back_1_bottom.visible = false;
-				this.sail_back_2_bottom.visible = true;
-				this.sail_back_3_bottom.visible = false;
-			}
-			case 3 -> {
-				this.sail_main_0.visible = false;
-				this.sail_main_1.visible = true;
-				this.sail_main_2.visible = true;
-				this.sail_main_3.visible = true;
-				this.sail_main_4.visible = false;
-
-				this.sail_main_1_bottom.visible = false;
-				this.sail_main_2_bottom.visible = false;
-				this.sail_main_3_bottom.visible = true;
-
-				this.sail_main_top_0.visible = false;
-				this.sail_main_top_1.visible = true;
-				this.sail_main_top_2.visible = true;
-				this.sail_main_top_3.visible = true;
-				this.sail_main_top_4.visible = false;
-
-				this.sail_main_top_1_bottom.visible = false;
-				this.sail_main_top_2_bottom.visible = false;
-				this.sail_main_top_3_bottom.visible = true;
-
-				this.sail_front_0.visible = false;
-				this.sail_front_1.visible = true;
-				this.sail_front_2.visible = true;
-				this.sail_front_3.visible = true;
-				this.sail_front_4.visible = false;
-
-				this.sail_front_1_bottom.visible = false;
-				this.sail_front_2_bottom.visible = false;
-				this.sail_front_3_bottom.visible = true;
-
-				this.sail_front_top_0.visible = false;
-				this.sail_front_top_1.visible = true;
-				this.sail_front_top_2.visible = true;
-				this.sail_front_top_3.visible = true;
-				this.sail_front_top_4.visible = false;
-
-				this.sail_front_top_1_bottom.visible = false;
-				this.sail_front_top_2_bottom.visible = false;
-				this.sail_front_top_3_bottom.visible = true;
-
-				this.sail_back_0.visible = false;
-				this.sail_back_1.visible = true;
-				this.sail_back_2.visible = true;
-				this.sail_back_3.visible = true;
-				this.sail_back_4.visible = false;
-
-				this.sail_back_1_bottom.visible = false;
-				this.sail_back_2_bottom.visible = false;
-				this.sail_back_3_bottom.visible = true;
-			}
-			case 4 -> {
-				this.sail_main_0.visible = false;
-				this.sail_main_1.visible = true;
-				this.sail_main_2.visible = true;
-				this.sail_main_3.visible = true;
-				this.sail_main_4.visible = true;
-
-				this.sail_main_1_bottom.visible = false;
-				this.sail_main_2_bottom.visible = false;
-				this.sail_main_3_bottom.visible = false;
-
-				this.sail_main_top_0.visible = false;
-				this.sail_main_top_1.visible = true;
-				this.sail_main_top_2.visible = true;
-				this.sail_main_top_3.visible = true;
-				this.sail_main_top_4.visible = true;
-
-				this.sail_main_top_1_bottom.visible = false;
-				this.sail_main_top_2_bottom.visible = false;
-				this.sail_main_top_3_bottom.visible = false;
-
-				this.sail_front_0.visible = false;
-				this.sail_front_1.visible = true;
-				this.sail_front_2.visible = true;
-				this.sail_front_3.visible = true;
-				this.sail_front_4.visible = true;
-
-				this.sail_front_1_bottom.visible = false;
-				this.sail_front_2_bottom.visible = false;
-				this.sail_front_3_bottom.visible = false;
-
-				this.sail_front_top_0.visible = false;
-				this.sail_front_top_1.visible = true;
-				this.sail_front_top_2.visible = true;
-				this.sail_front_top_3.visible = true;
-				this.sail_front_top_4.visible = true;
-
-				this.sail_front_top_1_bottom.visible = false;
-				this.sail_front_top_2_bottom.visible = false;
-				this.sail_front_top_3_bottom.visible = false;
-
-				this.sail_back_0.visible = false;
-				this.sail_back_1.visible = true;
-				this.sail_back_2.visible = true;
-				this.sail_back_3.visible = true;
-				this.sail_back_4.visible = true;
-
-				this.sail_back_1_bottom.visible = false;
-				this.sail_back_2_bottom.visible = false;
-				this.sail_back_3_bottom.visible = false;
-			}
-		}
-
-		this.sail_front_rope_left_0.visible = sail_front_0_bottom.visible;
-		this.sail_front_rope_right_0.visible = sail_front_0_bottom.visible;
-
-		this.sail_main_rope_right_1.visible = sail_main_1_bottom.visible;
-		this.sail_main_rope_right_2.visible = sail_main_2_bottom.visible;
-		this.sail_main_rope_right_3.visible = sail_main_3_bottom.visible;
-		this.sail_main_rope_right_4.visible = sail_main_4.visible;
-		this.sail_main_rope_left_1.visible = sail_main_1_bottom.visible;
-		this.sail_main_rope_left_2.visible = sail_main_2_bottom.visible;
-		this.sail_main_rope_left_3.visible = sail_main_3_bottom.visible;
-		this.sail_main_rope_left_4.visible = sail_main_4.visible;
-
-		this.rope_sail_main_top_1_1.visible = sail_main_top_1_bottom.visible;
-		this.rope_sail_main_top_2_1.visible = sail_main_top_2_bottom.visible;
-		this.rope_sail_main_top_3_1.visible = sail_main_top_3_bottom.visible;
-		this.rope_sail_main_top_4_1.visible = sail_main_top_4.visible;
-		this.rope_sail_main_top_1_2.visible = sail_main_top_1_bottom.visible;
-		this.rope_sail_main_top_2_2.visible = sail_main_top_2_bottom.visible;
-		this.rope_sail_main_top_3_2.visible = sail_main_top_3_bottom.visible;
-		this.rope_sail_main_top_4_2.visible = sail_main_top_4.visible;
-
-		this.sail_front_rope_right_1.visible = sail_front_1_bottom.visible;
-		this.sail_front_rope_right_2.visible = sail_front_2_bottom.visible;
-		this.sail_front_rope_right_3.visible = sail_front_3_bottom.visible;
-		this.sail_front_rope_right_4.visible = sail_front_4.visible;
-		this.sail_front_rope_left_1.visible = sail_front_1_bottom.visible;
-		this.sail_front_rope_left_2.visible = sail_front_2_bottom.visible;
-		this.sail_front_rope_left_3.visible = sail_front_3_bottom.visible;
-		this.sail_front_rope_left_4.visible = sail_front_4.visible;
-
-		this.rope_sail_front_top_1_1.visible = sail_front_top_1_bottom.visible;
-		this.rope_sail_front_top_2_1.visible = sail_front_top_2_bottom.visible;
-		this.rope_sail_front_top_3_1.visible = sail_front_top_3_bottom.visible;
-		this.rope_sail_front_top_4_1.visible = sail_front_top_4.visible;
-		this.rope_sail_front_top_1_2.visible = sail_front_top_1_bottom.visible;
-		this.rope_sail_front_top_2_2.visible = sail_front_top_2_bottom.visible;
-		this.rope_sail_front_top_3_2.visible = sail_front_top_3_bottom.visible;
-		this.rope_sail_front_top_4_2.visible = sail_front_top_4.visible;
-
-		this.rope_back_sail_1.visible = sail_back_1_bottom.visible;
-		this.rope_back_sail_2.visible = sail_back_2_bottom.visible;
-		this.rope_back_sail_3.visible = sail_back_3_bottom.visible;
-		this.rope_back_sail_4.visible = sail_back_4.visible;
+		this.rope_sail_front_top_0_3.visible = state == 0;
+		this.rope_sail_front_top_0_2.visible = state == 0;
+		this.rope_sail_front_top_1_1.visible = state == 1;
+		this.rope_sail_front_top_2_1.visible = state == 2;
+		this.rope_sail_front_top_3_1.visible = state == 3;
+		this.rope_sail_front_top_4_1.visible = state == 4;
+		this.rope_sail_front_top_1_2.visible = state == 1;
+		this.rope_sail_front_top_2_2.visible = state == 2;
+		this.rope_sail_front_top_3_2.visible = state == 3;
+		this.rope_sail_front_top_4_2.visible = state == 4;
 	}
 
 	@Override

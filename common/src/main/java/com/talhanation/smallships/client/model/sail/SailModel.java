@@ -3,11 +3,42 @@ package com.talhanation.smallships.client.model.sail;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
 
 public abstract class SailModel extends EntityModel<Ship> {
+
+    /**
+     * Shows the parts of ONE sail that belong to the given sail state. Every
+     * sail of every ship is cut the same way, so the rule lives here once:
+     *
+     * - the furled sail is there at state 0 and only then
+     * - the set sail is built from four strips, top down. Strip n hangs from
+     *   state n on and stays, the next state only adds the strip below it
+     * - the lowest strip of the states 1 to 3 gets its own edge, shown in that
+     *   one state only. At state 4 the last strip is the edge itself.
+     *
+     * The ropes are not part of this: which rope belongs to which state is a
+     * plain "state == n" in the model that owns them.
+     *
+     * @param state the sail state, 0 = furled up to 4 = fully set
+     */
+    protected static void showSail(int state, ModelPart furled,
+                                   ModelPart strip1, ModelPart strip2, ModelPart strip3, ModelPart strip4,
+                                   ModelPart edge1, ModelPart edge2, ModelPart edge3) {
+        furled.visible = state == 0;
+
+        strip1.visible = state >= 1;
+        strip2.visible = state >= 2;
+        strip3.visible = state >= 3;
+        strip4.visible = state >= 4;
+
+        edge1.visible = state == 1;
+        edge2.visible = state == 2;
+        edge3.visible = state == 3;
+    }
 
     public static SailModel.Color getSailColor(String stringColor) {
         return Arrays.stream(Color.values()).filter(color -> color.toString().equals(stringColor)).findAny().orElse(Color.WHITE);

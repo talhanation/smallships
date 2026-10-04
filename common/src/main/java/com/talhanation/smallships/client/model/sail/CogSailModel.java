@@ -527,78 +527,24 @@ public class CogSailModel extends SailModel {
 
 	@Override
 	public void setupAnim(@NotNull Ship cog, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		switch (cog.getData(Ship.SAIL_STATE)) {
-			case 0 -> {
-				this.sail_0.visible = true;
-				this.sail_1.visible = false;
-				this.sail_2.visible = false;
-				this.sail_3.visible = false;
-				this.sail_4.visible = false;
+		int state = cog.getData(Ship.SAIL_STATE);
 
-				this.sail_1_bottom.visible = false;
-				this.sail_2_bottom.visible = false;
-				this.sail_3_bottom.visible = false;
-			}
-			case 1 -> {
-				this.sail_0.visible = false;
-				this.sail_1.visible = true;
-				this.sail_2.visible = false;
-				this.sail_3.visible = false;
-				this.sail_4.visible = false;
+		showSail(state, this.sail_0, this.sail_1, this.sail_2, this.sail_3, this.sail_4, this.sail_1_bottom, this.sail_2_bottom, this.sail_3_bottom);
 
-				this.sail_1_bottom.visible = true;
-				this.sail_2_bottom.visible = false;
-				this.sail_3_bottom.visible = false;
-			}
-			case 2 -> {
-				this.sail_0.visible = false;
-				this.sail_1.visible = true;
-				this.sail_2.visible = true;
-				this.sail_3.visible = false;
-				this.sail_4.visible = false;
-				this.sail_1_bottom.visible = false;
-				this.sail_2_bottom.visible = true;
-				this.sail_3_bottom.visible = false;
-			}
-			case 3 -> {
-				this.sail_0.visible = false;
-				this.sail_1.visible = true;
-				this.sail_2.visible = true;
-				this.sail_3.visible = true;
-				this.sail_4.visible = false;
-				this.sail_1_bottom.visible = false;
-				this.sail_2_bottom.visible = false;
-				this.sail_3_bottom.visible = true;
-			}
-			case 4 -> {
-				this.sail_0.visible = false;
-				this.sail_1.visible = true;
-				this.sail_2.visible = true;
-				this.sail_3.visible = true;
-				this.sail_4.visible = true;
+		this.rope_4.visible = state == 0;
+		this.rope_5.visible = state == 0;
 
+		this.rope_7.visible = state == 1;
+		this.rope_8.visible = state == 1;
 
-				this.sail_1_bottom.visible = false;
-				this.sail_2_bottom.visible = false;
-				this.sail_3_bottom.visible = false;
-			}
-		}
+		this.rope_11.visible = state == 2;
+		this.rope_12.visible = state == 2;
 
+		this.rope_19.visible = state == 3;
+		this.rope_20.visible = state == 3;
 
-		this.rope_4.visible = sail_0.visible;
-		this.rope_5.visible = sail_0.visible;
-
-		this.rope_7.visible = sail_1_bottom.visible;
-		this.rope_8.visible = sail_1_bottom.visible;
-
-		this.rope_11.visible = sail_2_bottom.visible;
-		this.rope_12.visible = sail_2_bottom.visible;
-
-		this.rope_19.visible = sail_3_bottom.visible;
-		this.rope_20.visible = sail_3_bottom.visible;
-
-		this.rope_16.visible = sail_4.visible;
-		this.rope_15.visible = sail_4.visible;
+		this.rope_16.visible = state == 4;
+		this.rope_15.visible = state == 4;
 	}
 
 	@Override
