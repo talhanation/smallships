@@ -1244,6 +1244,12 @@ public abstract class Ship extends Boat {
      * the rotation bookkeeping Boat#positionRider does around it has to be
      * repeated: without it a passenger keeps his world yaw while the ship turns
      * under him.
+     *
+     * Which is exactly what a player who is NOT at the helm is supposed to do.
+     * His view is his own: a gunner or a passenger looks where he looks, and
+     * the ship turning under him must not turn his camera along. Only the
+     * helmsman is carried round with the bow, and so is every mob aboard -
+     * a mob has no view to keep, it would just stand at an angle to the deck.
      */
     @Override
     public void positionRider(@NotNull Entity entity) {
@@ -1267,9 +1273,11 @@ public abstract class Ship extends Boat {
                 this.getY() + attachment.y + entity.getMyRidingOffset(),
                 this.getZ() + attachment.z);
 
-        float deltaRotation = ((BoatAccessor) this).getDeltaRotation();
-        entity.setYRot(entity.getYRot() + deltaRotation);
-        entity.setYHeadRot(entity.getYHeadRot() + deltaRotation);
+        if (!(entity instanceof Player) || entity == this.getDriverAnySide()) {
+            float deltaRotation = ((BoatAccessor) this).getDeltaRotation();
+            entity.setYRot(entity.getYRot() + deltaRotation);
+            entity.setYHeadRot(entity.getYHeadRot() + deltaRotation);
+        }
         this.clampRotation(entity);
     }
 
