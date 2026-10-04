@@ -134,6 +134,25 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<CompoundTag> CANNON_SLOTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     /** Fixed seat assignments: Seat<id> -> passenger UUID, see Seatable. */
     public static final EntityDataAccessor<CompoundTag> SEAT_ASSIGNMENTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+    /**
+     * The exact pose of a ship that lies still: X, Y, Z and Yaw. Empty while
+     * she moves.
+     *
+     * Vanilla sends an entity position in steps of 1/4096 block and its yaw as
+     * a single byte, 1.4 degrees a step. That is close enough to draw a boat,
+     * but the hull parts are placed from this pose on BOTH sides, and the
+     * server checks every step a player takes against ITS part boxes - with a
+     * tolerance of a hundred-thousandth of a block. A deck that sits a hair
+     * lower on the client puts his feet inside the servers' deck, and he is
+     * set back on every part he touches. It only ever worked after someone had
+     * taken the helm once, because a driving client sends its own pose to the
+     * server unrounded.
+     *
+     * Synched data crosses unrounded as well, reaches everyone who tracks the
+     * ship and everyone who starts to later, and costs one packet per stop.
+     * See tickRestPose.
+     */
+    public static final EntityDataAccessor<CompoundTag> REST_POSE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
 
     /**
      * Server side: who holds the lead, across a world load.
@@ -144,8 +163,13 @@ public abstract class Ship extends Boat {
      */
     @Nullable public UUID leashHolderUuid;
 
-    /** live collision parts, server side only, see updateParts */
+    /**
+     * The live collision parts. The server creates them, see updateParts; the
+     * client only ever finds the ones it was sent, see collectParts.
+     */
     private final List<ShipPartEntity> parts = new ArrayList<>();
+    /** client side: how many parts this ship is made of, counted once */
+    private int partCount = -1;
     /** gets NPCs off the deck they cannot path on, server side only, see DeckEscape */
     private final DeckEscape deckEscape = new DeckEscape(this);
 
@@ -245,6 +269,36 @@ public abstract class Ship extends Boat {
     private static final float SINKING_CLOCK_SNAP = 20.0F;
     /** share of the remaining difference the client clock makes up per tick */
     private static final float SINKING_CLOCK_CATCHUP = 0.1F;
+
+    /**
+     * Ticks a ship has to lie still before its pose is published. Not the first
+     * still tick: a hull that is just settling moves, rests a tick and moves
+     * again, and every change of mind would be a packet.
+     */
+    private static final int REST_POSE_DELAY = 5;
+    /**
+     * Client: further off the rest pose than this - in blocks, or degrees - and
+     * the ship is eased towards it instead of being put there. She may still be
+     * catching up with the last stretch of a movement when the pose arrives.
+     */
+    private static final double REST_POSE_GLIDE_DISTANCE = 0.01D;
+    private static final float REST_POSE_GLIDE_TURN = 0.25F;
+    /** share of the way left to the rest pose that is made up per tick */
+    private static final float REST_POSE_GLIDE = 0.3F;
+    /**
+     * Client: how far around the ship its parts are looked for, in blocks. They
+     * arrive where the servers' ship is, and the ship on this side may still be
+     * a few blocks behind that.
+     */
+    private static final double PART_SEARCH_RADIUS = 16.0D;
+
+    /** server side: where she lay at the end of the last tick, see tickRestPose */
+    private Vec3 lastTickPosition = Vec3.ZERO;
+    private float lastTickYRot;
+    private int stillTicks;
+    /** client side: REST_POSE read once when it arrives, null while she moves */
+    @Nullable private Vec3 restPosition;
+    private float restYRot;
 
     /** Server side: where this ship last rammed, see RAM_REARM_DISTANCE. */
     @Nullable private Vec3 ramRearmPos;
@@ -362,6 +416,130 @@ public abstract class Ship extends Boat {
             this.floatUp();
             if(outOfControlTicks > 0) --this.outOfControlTicks;
         }
+
+        // last, after everything above that may still have moved her. The
+        // client does its half in tickClientHull, not in here
+        if (!this.level().isClientSide()) {
+            this.tickRestPose();
+            this.moveParts();
+        }
+    }
+
+    /**
+     * Client: holds the rest pose and carries the parts along, once per client
+     * tick. Called by ClientTickHandler for every ship in the world and NOT
+     * from tick(), on purpose.
+     *
+     * A client is free to skip the tick of an entity it does not draw - a
+     * culling mod does exactly that, for the parts always, they are never
+     * drawn, and possibly for a ship that is out of view as well. Whatever
+     * hangs off an entity tick then only works on some clients. The client tick itself is run for everybody, so this is
+     * the one path for all of them, with or without such a mod.
+     */
+    public void tickClientHull() {
+        this.holdRestPose();
+        this.moveParts();
+    }
+
+    /**
+     * Puts every part where the ship is now, on both sides.
+     *
+     * A part does the same in its own tick, but on the client that tick is not
+     * to be relied on, see tickClientHull - without this the parts are left
+     * standing where they were spawned while the ship sails off.
+     */
+    private void moveParts() {
+        if (this.level().isClientSide()) this.collectParts();
+        for (ShipPartEntity part : this.parts) part.follow(this);
+    }
+
+    /**
+     * Client: finds the parts the server sent for this ship. Looked for only
+     * while some are missing - right away as long as there are none at all,
+     * twice a second after that. Timed by the world clock, the ships' own tick
+     * count stands still while its tick is skipped.
+     */
+    private void collectParts() {
+        this.parts.removeIf(Entity::isRemoved);
+        if (this.partCount < 0) this.partCount = ShipPartEntity.split(this.getParts()).size();
+        if (this.parts.size() == this.partCount) return;
+        if (!this.parts.isEmpty() && this.level().getGameTime() % 10L != 0L) return;
+
+        this.parts.clear();
+        this.parts.addAll(this.level().getEntitiesOfClass(ShipPartEntity.class, this.getBoundingBox().inflate(PART_SEARCH_RADIUS), part -> part.getParent() == this));
+    }
+
+    /**
+     * Server: publishes the pose once the ship has not moved for
+     * REST_POSE_DELAY ticks and takes it back in the tick she moves again, so
+     * both sides stand on the very same pose while she lies still. Compared
+     * against the END of the last tick and not against xo/yo/zo, because a
+     * ship with a player at the helm is moved by his packets between two ticks
+     * and never inside one.
+     *
+     * The client half is holdRestPose.
+     */
+    private void tickRestPose() {
+        boolean hasMoved = !this.position().equals(this.lastTickPosition) || this.getYRot() != this.lastTickYRot;
+        this.lastTickPosition = this.position();
+        this.lastTickYRot = this.getYRot();
+
+        boolean isPublished = !this.getData(REST_POSE).isEmpty();
+        if (hasMoved) {
+            this.stillTicks = 0;
+            if (isPublished) this.setData(REST_POSE, new CompoundTag());
+            return;
+        }
+        if (isPublished) return;
+        if (++this.stillTicks < REST_POSE_DELAY) return;
+
+        CompoundTag pose = new CompoundTag();
+        pose.putDouble("X", this.getX());
+        pose.putDouble("Y", this.getY());
+        pose.putDouble("Z", this.getZ());
+        pose.putFloat("Yaw", this.getYRot());
+        this.setData(REST_POSE, pose);
+    }
+
+    /**
+     * Client: holds the ship on the pose the server published, for as long as
+     * it stands and nobody on this client is steering her.
+     *
+     * Runs after the entity ticks of this client tick, so after the vanilla
+     * interpolation as well, and simply has the last word:
+     * whatever rounded position a packet pulled her towards in this tick, she
+     * ends it on the exact one. The parts follow the ship, so they end up
+     * where the servers' parts are.
+     */
+    private void holdRestPose() {
+        if (this.restPosition == null || this.isControlledByLocalInstance()) return;
+
+        Vec3 offset = this.restPosition.subtract(this.position());
+        float turn = Mth.wrapDegrees(this.restYRot - this.getYRot());
+        if (offset.lengthSqr() > REST_POSE_GLIDE_DISTANCE * REST_POSE_GLIDE_DISTANCE || Math.abs(turn) > REST_POSE_GLIDE_TURN) {
+            this.setPos(this.getX() + offset.x * REST_POSE_GLIDE, this.getY() + offset.y * REST_POSE_GLIDE, this.getZ() + offset.z * REST_POSE_GLIDE);
+            this.setYRot(this.getYRot() + turn * REST_POSE_GLIDE);
+            return;
+        }
+
+        // The same angle is not the same number: the server keeps a yaw
+        // wrapped to +-180, a client that has been steering may stand at 725.
+        // The parts are turned through a sine TABLE, so the number has to
+        // match - and the old yaw is shifted by the same full turns, or the
+        // renderer would spin the hull through them within this one tick.
+        this.yRotO += (this.restYRot - this.getYRot()) - turn;
+        this.setPos(this.restPosition.x, this.restPosition.y, this.restPosition.z);
+        this.setYRot(this.restYRot);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> accessor) {
+        super.onSyncedDataUpdated(accessor);
+        if (!REST_POSE.equals(accessor) || !this.level().isClientSide()) return;
+
+        CompoundTag pose = this.getData(REST_POSE);
+        this.restPosition = pose.isEmpty() ? null : new Vec3(pose.getDouble("X"), pose.getDouble("Y"), pose.getDouble("Z"));
+        this.restYRot = pose.getFloat("Yaw");
     }
 
     @Override
@@ -419,6 +597,9 @@ public abstract class Ship extends Boat {
 
         // Seat assignments
         this.entityData.define(Ship.SEAT_ASSIGNMENTS, new CompoundTag());
+
+        // Rest pose
+        this.entityData.define(Ship.REST_POSE, new CompoundTag());
     }
 
     @Override
@@ -1493,8 +1674,12 @@ public abstract class Ship extends Boat {
 
     @Override
     public void remove(@NotNull RemovalReason removalReason) {
-        // parts must never outlive their ship, not even for a tick
-        for (ShipPartEntity part : this.parts) part.discard();
+        // parts must never outlive their ship, not even for a tick. Only the
+        // server decides that: on the client the ship may just have left the
+        // tracking range, and a part discarded here is not sent a second time
+        if (!this.level().isClientSide()) {
+            for (ShipPartEntity part : this.parts) part.discard();
+        }
         this.parts.clear();
         // a ship that is gone cannot stay tied to anything - give the lead back
         if (this instanceof Leashable leashShip) leashShip.dropLeash(true);

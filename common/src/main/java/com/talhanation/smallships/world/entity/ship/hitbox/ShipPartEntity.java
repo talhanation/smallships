@@ -232,12 +232,29 @@ public class ShipPartEntity extends Entity implements Container {
         this.follow(ship);
     }
 
-    /** Places this part at its local offset, turned with the ships' yaw. */
-    private void follow(Ship ship) {
+    /**
+     * Places this part at its local offset, turned with the ships' yaw. Called
+     * by the ship as well, see Ship#moveParts.
+     */
+    public void follow(Ship ship) {
         Vec3 local = new Vec3(this.entityData.get(LOCAL_V), this.entityData.get(LOCAL_Y), this.entityData.get(LOCAL_H))
                 .yRot(-ship.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2.0F));
         this.setPos(ship.getX() + local.x, ship.getY() + local.y, ship.getZ() + local.z);
         this.setYRot(ship.getYRot());
+    }
+
+    /**
+     * A part takes no position from the network, ever.
+     *
+     * Vanilla sends one for every tracked entity all the same - on movement,
+     * and every three seconds as a heartbeat even when nothing moved - and
+     * Entity#lerpTo puts the entity on that ROUNDED spot at once. The part was
+     * back in place with its next tick, but the player is ticked before it:
+     * for that one tick he stood on a deck a hair too high or too low, ended
+     * up inside the box and fell through it.
+     */
+    @Override
+    public void lerpTo(double x, double y, double z, float yRot, float xRot, int steps, boolean teleport) {
     }
 
     @Nullable
