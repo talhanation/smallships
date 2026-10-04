@@ -218,23 +218,25 @@ public class ShipPartEntity extends Entity implements Container {
         this.entityData.define(MAST, false);
     }
 
+    /**
+     * Only the orphan guard. A part is never moved from in here: the ship
+     * carries its parts itself, see Ship#moveParts - one way for both sides,
+     * and one that still works on a client that skips this tick altogether.
+     */
     @Override
     public void tick() {
         Ship ship = this.getParent();
         if (ship == null || ship.isRemoved()) {
-            // orphan guard: a part without its ship is invisible, solid and
-            // immortal, the worst thing this class could leave behind. Only the
-            // server decides - on the client the ship may simply not have
-            // arrived yet.
+            // a part without its ship is invisible, solid and immortal, the
+            // worst thing this class could leave behind. Only the server
+            // decides - on the client the ship may simply not have arrived yet.
             if (!this.level().isClientSide()) this.discard();
-            return;
         }
-        this.follow(ship);
     }
 
     /**
      * Places this part at its local offset, turned with the ships' yaw. Called
-     * by the ship as well, see Ship#moveParts.
+     * by the ship every tick, see Ship#moveParts.
      */
     public void follow(Ship ship) {
         Vec3 local = new Vec3(this.entityData.get(LOCAL_V), this.entityData.get(LOCAL_Y), this.entityData.get(LOCAL_H))
