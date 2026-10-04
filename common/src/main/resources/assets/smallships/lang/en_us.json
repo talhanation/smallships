@@ -173,6 +173,16 @@
   "chat.smallships.update.download": "Download the update %s",
   "chat.smallships.update.here": "here",
 
+  "tips.smallships.sail_toggle": "Set / Furl Sail",
+  "tips.smallships.sail_adjust": "More / Less Sail",
+  "tips.smallships.row": "Row",
+  "tips.smallships.cannon_aim": "Aim (hold)",
+  "tips.smallships.cannon_ammo": "Change Ammo",
+  "tips.smallships.cannon_shoot": "Fire",
+  "tips.smallships.inventory": "Ship Inventory",
+  "tips.smallships.zoom": "Zoom Camera",
+  "tips.smallships.mouse_wheel": "Mouse Wheel",
+
   "gui.smallships.dockyard.stat.wind": "Wind Profile",
   "gui.smallships.dockyard.stat.head_wind": "Head Wind",
   "gui.smallships.dockyard.stat.side_wind": "Side Wind",

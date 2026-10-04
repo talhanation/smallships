@@ -13,6 +13,9 @@ public class ClientTickHandler {
     public static void onClientTick(Minecraft minecraft) {
         // before the level check: this one has to see the world come AND go
         UpdateNotifier.tick(minecraft);
+        // the tips too: leaving the world aboard a ship has to reset them
+        TipManager.tick();
+        ShipTipHandler.tick(minecraft);
         if (minecraft.level == null) return;
         ClientWindManager.tick();
         WindEffects.tick(minecraft);

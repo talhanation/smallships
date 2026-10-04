@@ -1,6 +1,7 @@
 package com.talhanation.smallships.forge.client;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.client.TipManager;
 import com.talhanation.smallships.client.cannon.CannonAmmoHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -28,5 +29,6 @@ public class ClientForgeBus {
     @SubscribeEvent
     static void onRenderGui(RenderGuiEvent.Post event) {
         CannonAmmoHandler.render(event.getGuiGraphics());
+        TipManager.render(event.getGuiGraphics());
     }
 }

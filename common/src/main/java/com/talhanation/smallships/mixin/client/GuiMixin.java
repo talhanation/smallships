@@ -1,5 +1,6 @@
 package com.talhanation.smallships.mixin.client;
 
+import com.talhanation.smallships.client.TipManager;
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.client.cannon.CannonAmmoHandler;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Draws the mouse wheel ammo picker on top of the finished HUD.
+ * Draws the mouse wheel ammo picker and the control tips on top of the finished HUD.
  *
  * TAIL, so the icons sit above the crosshair and hotbar rather than under them.
  *
@@ -38,6 +39,7 @@ public abstract class GuiMixin {
     @Inject(method = "render", at = @At("TAIL"))
     private void smallships$renderAmmoPicker(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         CannonAmmoHandler.render(guiGraphics);
+        TipManager.render(guiGraphics);
     }
 
     /**

@@ -125,5 +125,15 @@
   "commands.smallships.wind.info": "Wind: Richtung %s° (Norden = 0°, im Uhrzeigersinn), Stärke %s",
   "chat.smallships.update.available": "Eine neue Version von Small Ships ist verfügbar: %s (installiert: %s)",
   "chat.smallships.update.download": "Lade das Update %s herunter",
-  "chat.smallships.update.here": "hier"
+  "chat.smallships.update.here": "hier",
+
+  "tips.smallships.sail_toggle": "Segel setzen / einholen",
+  "tips.smallships.sail_adjust": "Mehr / weniger Segel",
+  "tips.smallships.row": "Rudern",
+  "tips.smallships.cannon_aim": "Zielen (halten)",
+  "tips.smallships.cannon_ammo": "Munition wechseln",
+  "tips.smallships.cannon_shoot": "Feuern",
+  "tips.smallships.inventory": "Schiffsinventar",
+  "tips.smallships.zoom": "Kamera zoomen",
+  "tips.smallships.mouse_wheel": "Mausrad"
 }
