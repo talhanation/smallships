@@ -30,7 +30,7 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
             ShipUpgrade.COTTON_SAILS, 2,
             ShipUpgrade.COPPER_PLATING, 3
     );
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerCogContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerDhowContainerSize.get();
     public DhowEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
