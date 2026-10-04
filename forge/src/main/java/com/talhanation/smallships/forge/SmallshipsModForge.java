@@ -4,6 +4,7 @@ import com.electronwill.nightconfig.toml.TomlFormat;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.forge.events.CommandEvents;
 import com.talhanation.smallships.forge.events.DataPackEvents;
+import com.talhanation.smallships.forge.events.LeashEvents;
 import com.talhanation.smallships.forge.events.PassengerEvents;
 import com.talhanation.smallships.forge.events.UpdateEvents;
 import com.talhanation.smallships.forge.events.WindEvents;
@@ -46,5 +47,6 @@ public class SmallshipsModForge {
         MinecraftForge.EVENT_BUS.register(new WindEvents());
         MinecraftForge.EVENT_BUS.register(new CommandEvents());
         MinecraftForge.EVENT_BUS.register(new UpdateEvents());
+        MinecraftForge.EVENT_BUS.register(new LeashEvents());
     }
 }

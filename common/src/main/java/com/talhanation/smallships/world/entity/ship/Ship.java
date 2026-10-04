@@ -41,6 +41,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.WaterAnimal;
+import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.DismountHelper;
@@ -162,6 +163,19 @@ public abstract class Ship extends Boat {
      * Leashable retries the lookup until it resolves or gives up.
      */
     @Nullable public UUID leashHolderUuid;
+    /**
+     * Server side: the fence post she is moored to, if the holder is a knot.
+     *
+     * A knot is never written to disk - vanilla ties it anew from the post it
+     * sat on, and so does Leashable. The uuid above is of no use for that one,
+     * the knot that comes back after a world load is a new entity.
+     */
+    @Nullable public BlockPos leashKnotPos;
+    /**
+     * Server side: that knot itself, for as long as it is there. Kept so that
+     * Leashable can still ask it WHY it went once the level no longer knows it.
+     */
+    @Nullable public LeashFenceKnotEntity leashKnot;
 
     /**
      * The live collision parts. The server creates them, see updateParts; the
@@ -2343,7 +2357,10 @@ public abstract class Ship extends Boat {
     }
     @Override
     public void destroy(@NotNull DamageSource damageSource) {
-        super.destroy(damageSource);
+        // Boat#destroy is what drops the ship item. A wreck is not handed back
+        // as a ship: whoever breaks her up, or the despawn timer running out,
+        // gets what she carried and nothing more.
+        if (!this.isSunken() && !this.isSinking()) super.destroy(damageSource);
         if (this.getCommandSenderWorld().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getCommandSenderWorld(), this);
             if(this instanceof Cannonable cannonableShip) cannonableShip.cannonShipDestroyed(this.getCommandSenderWorld(), this);

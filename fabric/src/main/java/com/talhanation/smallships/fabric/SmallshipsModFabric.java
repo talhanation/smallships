@@ -10,6 +10,7 @@ import com.talhanation.smallships.world.block.ModBlockEntityTypes;
 import com.talhanation.smallships.world.block.ModBlocks;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.ModShipTypes;
+import com.talhanation.smallships.world.entity.ship.abilities.Leashable;
 import com.talhanation.smallships.commands.SmallshipsCommand;
 import com.talhanation.smallships.update.UpdateChecker;
 import com.talhanation.smallships.world.wind.WindManager;
@@ -23,7 +24,9 @@ import com.talhanation.smallships.world.item.ModItems;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.minecraft.world.InteractionResult;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.server.packs.PackType;
 
@@ -46,6 +49,11 @@ public class SmallshipsModFabric implements ModInitializer {
         ModPacketsImpl.registerServerReceivers();
 
         UseEntityCallback.EVENT.register(new PassengerEvents());
+
+        // mooring: a ship on a lead is tied to the fence post the player right
+        // clicks, vanilla only does that for mobs
+        UseBlockCallback.EVENT.register((player, level, hand, hitResult) ->
+                Leashable.bindPlayerShips(player, level, hitResult.getBlockPos()) ? InteractionResult.SUCCESS : InteractionResult.PASS);
 
         // dockyard recipes come from data packs, one json file per ship
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new DockyardRecipeManagerFabric());
