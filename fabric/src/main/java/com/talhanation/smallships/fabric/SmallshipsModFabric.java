@@ -51,9 +51,9 @@ public class SmallshipsModFabric implements ModInitializer {
         UseEntityCallback.EVENT.register(new PassengerEvents());
 
         // mooring: a ship on a lead is tied to the fence post the player right
-        // clicks, vanilla only does that for mobs
+        // clicks and cast off again on the next click, vanilla only does that for mobs
         UseBlockCallback.EVENT.register((player, level, hand, hitResult) ->
-                Leashable.bindPlayerShips(player, level, hitResult.getBlockPos()) ? InteractionResult.SUCCESS : InteractionResult.PASS);
+                Leashable.interactFence(player, level, hitResult.getBlockPos()) ? InteractionResult.SUCCESS : InteractionResult.PASS);
 
         // dockyard recipes come from data packs, one json file per ship
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new DockyardRecipeManagerFabric());

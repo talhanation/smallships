@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +34,7 @@ import java.util.UUID;
  * on the two sides. Synched data crosses on its own and needs no mixin at all.
  *
  * The other end is a player, or a fence post he moors her to. LeadItem only
- * ever binds Mobs to a post, so the ships are bound by {@link #bindPlayerShips},
+ * ever binds Mobs to a post, so the ships are bound by {@link #interactFence},
  * which the platforms call from their own right click block event - no mixin
  * for that one either.
  */
@@ -49,6 +50,12 @@ public interface Leashable extends Ability {
      * it should feel like the same rope whatever is on the other end of it.
      */
     double LEASH_PULL_STRENGTH = 0.4D;
+    /**
+     * Ticks a ship stays moored before a click on her post casts her off
+     * again. A right mouse button that is held repeats the click every four
+     * ticks, and the click after the mooring would undo it straight away.
+     */
+    int LEASH_CAST_OFF_DELAY = 10;
 
     /**
      * @return where the rope is tied on, relative to the ship origin and
@@ -79,12 +86,26 @@ public interface Leashable extends Ability {
         self().leashHolderUuid = holder.getUUID();
         LeashFenceKnotEntity knot = holder instanceof LeashFenceKnotEntity fenceKnot ? fenceKnot : null;
         self().leashKnot = knot;
+        self().leashTime = self().level().getGameTime();
         self().leashKnotPos = knot != null ? knot.getPos() : null;
         self().setData(Ship.LEASH_HOLDER, holder.getId());
     }
 
+    /**
+     * @return whether a holder is on record at all, there or not.
+     *
+     * NOT isShipLeashed: Ship answers that one itself and only says yes while
+     * the holder can be found in the level. For "is she being towed" that is
+     * the right question, for the bookkeeping in here it is the wrong one - a
+     * knot that was just taken off the post is exactly a holder that is on
+     * record and no longer there.
+     */
+    private boolean hasLeashHolder() {
+        return self().getData(Ship.LEASH_HOLDER) != -1;
+    }
+
     default void dropLeash(boolean dropItem) {
-        if (!this.isShipLeashed()) return;
+        if (!this.hasLeashHolder()) return;
         self().leashHolderUuid = null;
         self().leashKnot = null;
         self().leashKnotPos = null;
@@ -100,7 +121,7 @@ public interface Leashable extends Ability {
 
         // after a world load the holder is only a uuid: its chunk may not be
         // there yet, so the lookup is retried until it is - or given up on
-        if (self().leashHolderUuid != null && !this.isShipLeashed()) {
+        if (self().leashHolderUuid != null && !this.hasLeashHolder()) {
             this.restoreLeashHolder();
             return;
         }
@@ -136,8 +157,8 @@ public interface Leashable extends Ability {
     }
 
     /**
-     * The level no longer knows the knot she was moored to. Why it went
-     * decides what happens to the lead:
+     * The level no longer knows the holder. For a knot, why it went decides
+     * what happens to the lead:
      *
      * - taken off the post by a right click, or the post broken under it: she
      *   is untied, the lead drops
@@ -147,8 +168,12 @@ public interface Leashable extends Ability {
      */
     private void tickLostKnot() {
         LeashFenceKnotEntity knot = self().leashKnot;
-        // a player: gone for now, he may come back
-        if (knot == null) return;
+        // a player: looked up again by his uuid, as he may be back under a new
+        // id - after a respawn for one - and given up on if he is not
+        if (knot == null) {
+            if (self().leashHolderUuid != null) this.restoreLeashHolder();
+            return;
+        }
 
         Entity.RemovalReason reason = knot.getRemovalReason();
         // still there, only out of the levels' sight for the moment
@@ -196,8 +221,9 @@ public interface Leashable extends Ability {
     /* ---------------- interaction ---------------- */
 
     /**
-     * Right click with a lead ties the ship to the player; right clicking the
-     * ship again while holding the other end unties it.
+     * Right click with a lead ties the ship to the player, as long as nobody
+     * stands at her helm; right clicking the ship again while holding the
+     * other end unties it.
      */
     default boolean interactLead(Player player, InteractionHand interactionHand) {
         if (this.getLeashHolder() == player) {
@@ -207,6 +233,10 @@ public interface Leashable extends Ability {
 
         ItemStack itemStack = player.getItemInHand(interactionHand);
         if (!itemStack.is(Items.LEAD) || this.isShipLeashed()) return false;
+        // Only a ship with nobody at the helm is taken on the lead. A leashed
+        // ship makes no way of her own, so a lead thrown from the quay would
+        // stop anybody's ship dead under its helmsman.
+        if (self().hasHelmsman()) return false;
 
         if (!self().level().isClientSide()) {
             this.setLeashedTo(player);
@@ -218,32 +248,63 @@ public interface Leashable extends Ability {
     }
 
     /**
-     * Moors every ship the player holds on a lead to the fence post at the
-     * given position - what LeadItem#bindPlayerMobs does for mobs, which never
-     * looks at anything but a Mob.
+     * A right click on a fence post, the one place a ship is moored and cast
+     * off again:
+     *
+     * - with a ship on the lead in hand, every such ship is tied to the post -
+     *   what LeadItem#bindPlayerMobs does for mobs, which never looks at
+     *   anything but a Mob
+     * - with nothing to tie, the ships moored to this very post are cast off
+     *   and their leads drop. The knot is a small target next to a hull, and
+     *   vanilla only ever unties Mobs from it.
      *
      * Called by the platforms when a block is right clicked, on both sides:
-     * the client only answers whether there is something to tie, so the hand
-     * swings and the click is sent on, the server does the tying. She is
-     * untied the vanilla way, by a right click on the knot.
+     * the client only answers whether the click is one of the two, so the hand
+     * swings and the click is sent on, the server does the work.
      *
-     * @return true if the click was a mooring and is used up by it
+     * @return true if the click was a mooring or a casting off and is used up
      */
-    static boolean bindPlayerShips(Player player, Level level, BlockPos pos) {
+    static boolean interactFence(Player player, Level level, BlockPos pos) {
         if (player.isSpectator() || !level.getBlockState(pos).is(BlockTags.FENCES)) return false;
 
         // no further out than the lead reaches, or it would snap in the next tick
-        List<Ship> ships = level.getEntitiesOfClass(Ship.class, new AABB(pos).inflate(LEASH_BREAK_DISTANCE),
+        AABB reach = new AABB(pos).inflate(LEASH_BREAK_DISTANCE);
+        List<Ship> held = level.getEntitiesOfClass(Ship.class, reach,
                 ship -> ship instanceof Leashable leashShip && leashShip.getLeashHolder() == player);
-        if (ships.isEmpty()) return false;
+        if (!held.isEmpty()) {
+            if (level.isClientSide()) return true;
+
+            LeashFenceKnotEntity knot = LeashFenceKnotEntity.getOrCreateKnot(level, pos);
+            knot.playPlacementSound();
+            for (Ship ship : held) ((Leashable) ship).setLeashedTo(knot);
+            // the click ends here, so a mob on a lead in the same hand goes onto
+            // the post with her - vanilla would have tied it on this very click
+            LeadItem.bindPlayerMobs(player, level, pos);
+            return true;
+        }
+
+        // he brings a mob to the post: that click is vanillas', not a casting off
+        AABB mobReach = new AABB(pos).inflate(7.0D);
+        if (!level.getEntitiesOfClass(Mob.class, mobReach, mob -> mob.getLeashHolder() == player).isEmpty()) return false;
+
+        List<Ship> moored = level.getEntitiesOfClass(Ship.class, reach,
+                ship -> ship instanceof Leashable leashShip && leashShip.getLeashHolder() instanceof LeashFenceKnotEntity fenceKnot && fenceKnot.getPos().equals(pos));
+        if (moored.isEmpty()) return false;
         if (level.isClientSide()) return true;
 
-        LeashFenceKnotEntity knot = LeashFenceKnotEntity.getOrCreateKnot(level, pos);
-        knot.playPlacementSound();
-        for (Ship ship : ships) ((Leashable) ship).setLeashedTo(knot);
-        // the click ends here, so a mob on a lead in the same hand goes onto
-        // the post with her - vanilla would have tied it on this very click
-        LeadItem.bindPlayerMobs(player, level, pos);
+        // only the server knows when she was tied on, see LEASH_CAST_OFF_DELAY
+        moored.removeIf(ship -> level.getGameTime() - ship.leashTime < LEASH_CAST_OFF_DELAY);
+        if (moored.isEmpty()) return true;
+
+        Entity knot = ((Leashable) moored.get(0)).getLeashHolder();
+        for (Ship ship : moored) ((Leashable) ship).dropLeash(!player.getAbilities().instabuild);
+        level.playSound(null, pos, SoundEvents.LEASH_KNOT_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
+        // a knot nothing hangs on any more is taken off the post with her
+        if (knot != null
+                && level.getEntitiesOfClass(Mob.class, mobReach, mob -> mob.getLeashHolder() == knot).isEmpty()
+                && level.getEntitiesOfClass(Ship.class, reach, ship -> ship instanceof Leashable leashShip && leashShip.getLeashHolder() == knot).isEmpty()) {
+            knot.discard();
+        }
         return true;
     }
 

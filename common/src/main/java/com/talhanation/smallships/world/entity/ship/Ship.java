@@ -176,6 +176,8 @@ public abstract class Ship extends Boat {
      * Leashable can still ask it WHY it went once the level no longer knows it.
      */
     @Nullable public LeashFenceKnotEntity leashKnot;
+    /** server side: the game time she was last tied to something, see Leashable#interactFence */
+    public long leashTime;
 
     /**
      * The live collision parts. The server creates them, see updateParts; the
