@@ -72,6 +72,27 @@ public class ShipCameraHandler {
         }
     }
 
+    /** the third person distance vanilla pulls the camera back by */
+    public static final double VANILLA_CAMERA_DISTANCE = 4.0D;
+    /**
+     * Never let the zoom factor reach zero or turn negative - the configured
+     * minimum zoom can go down to 1.0, which would put the camera in FRONT.
+     */
+    private static final float MIN_ZOOM_FACTOR = 0.25F;
+
+    /**
+     * @return what the third person distance is multiplied with for the given
+     * ship zoom.
+     *
+     * One formula for both cameras: the vanilla one (CameraMixin) and the one
+     * Shoulder Surfing puts in its place (ShoulderSurfingCompat). Two copies
+     * would drift apart, and the ship would zoom differently depending on
+     * which camera mod the player happens to run.
+     */
+    public static double getZoomFactor(float shipZoom) {
+        return Math.max(MIN_ZOOM_FACTOR, shipZoom - 4.0F);
+    }
+
     /**
      * @return the interpolation factor between player anchor (0.0) and
      * ship center anchor (1.0).

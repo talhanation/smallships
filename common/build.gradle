@@ -6,6 +6,16 @@ loom {
     accessWidenerPath = file("src/main/resources/smallships.accesswidener")
 }
 
+repositories {
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
 dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
@@ -14,6 +24,10 @@ dependencies {
     compileOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
     compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
     modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-common:${rootProject.forge_config_api_port_version}"
+
+    // Shoulder Surfing Reloaded api for compat/shouldersurfing - compile only: not in the jar,
+    // not in the dev client, not required by players. The fabric jar carries the api classes too.
+    modCompileOnly "maven.modrinth:shoulder-surfing-reloaded:${rootProject.shouldersurfing_version}"
 }
 
 publishing {

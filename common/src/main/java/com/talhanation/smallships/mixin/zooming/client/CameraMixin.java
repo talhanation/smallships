@@ -1,5 +1,6 @@
 package com.talhanation.smallships.mixin.zooming.client;
 
+import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
@@ -51,9 +52,6 @@ public abstract class CameraMixin implements CameraZoomAccess {
     @Unique private static final double SHIP_CANNON_BORE_FORWARD = 0.75D;
     // the eight corner offsets vanilla probes in getMaxZoom
     @Unique private static final double CAMERA_PROBE = 0.1D;
-    // never let the zoom factor reach zero or turn negative - the configured
-    // minimum zoom can go down to 1.0, which would put the camera in FRONT
-    @Unique private static final float MIN_ZOOM_FACTOR = 0.25F;
 
     @Shadow public abstract Entity getEntity();
 
@@ -250,12 +248,16 @@ public abstract class CameraMixin implements CameraZoomAccess {
      *
      * The whole camera is double based in 1.20.1 - Camera#move and getMaxZoom
      * only became float in the later versions.
+     *
+     * With Shoulder Surfing in its own perspective this argument is computed
+     * and then thrown away: it redirects the move this feeds into. The zoom
+     * reaches its camera through ShoulderSurfingCompat instead.
      */
     @ModifyArg(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(D)D"), index = 0)
     private double smallships$shipZoomDistance(double original) {
         if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return original;
         if (this.getEntity().getVehicle() instanceof Ship && !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
-            return original * Math.max(MIN_ZOOM_FACTOR, this.smallships$getShipZoomData() - 4.0F);
+            return original * ShipCameraHandler.getZoomFactor(this.smallships$getShipZoomData());
         } else {
             return original;
         }
