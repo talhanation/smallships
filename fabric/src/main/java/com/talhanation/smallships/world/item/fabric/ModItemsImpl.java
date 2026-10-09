@@ -1,8 +1,8 @@
 package com.talhanation.smallships.world.item.fabric;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.api.ShipItems;
 import com.talhanation.smallships.config.SmallShipsConfig;
-import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.item.*;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -12,7 +12,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.*;
 
 import java.util.ArrayList;
@@ -36,12 +35,21 @@ public class ModItemsImpl {
             CreativeModeTab customCreativeModeTab = FabricItemGroup.builder()
                     .title(Component.translatable(creativeModeTab.location().toString().replace(":", ".")))
                     .icon(() -> new ItemStack(ModItems.CANNON))
-                    .displayItems((itemDisplayParameters, output) -> itemDisplayParameters.holders()
-                            .lookup(Registries.ITEM)
-                            .ifPresent(registryLookup -> registryLookup.listElementIds()
-                                    .filter(itemResourceKey -> SmallShipsMod.MOD_ID.equals(itemResourceKey.location().getNamespace()))
-                                    .forEach(itemResourceKey -> output.accept(BuiltInRegistries.ITEM.getOrThrow(itemResourceKey)))
-                            ))
+                    .displayItems((itemDisplayParameters, output) -> {
+                        itemDisplayParameters.holders()
+                                .lookup(Registries.ITEM)
+                                .ifPresent(registryLookup -> registryLookup.listElementIds()
+                                        .filter(itemResourceKey -> SmallShipsMod.MOD_ID.equals(itemResourceKey.location().getNamespace()))
+                                        .map(BuiltInRegistries.ITEM::getOrThrow)
+                                        // ships are added below, in their own order
+                                        .filter(item -> !(item instanceof ShipItem))
+                                        .forEach(output::accept)
+                                );
+                        // every ship item, the addons' included - they belong next
+                        // to the ships of the main mod, not scattered over the
+                        // vanilla tabs
+                        ShipItems.getAll().forEach(output::accept);
+                    })
                     .build();
 
             Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, creativeModeTab, customCreativeModeTab);
@@ -57,15 +65,7 @@ public class ModItemsImpl {
                 shipItems.add(ModItems.IRON_SCANTLINGS);
                 shipItems.add(ModItems.COPPER_PLATING);
                 shipItems.add(ModItems.COTTON_SAILS);
-                for (Boat.Type type : Boat.Type.values()) {
-                    shipItems.add(ModItems.COG_ITEMS.get(type));
-                    shipItems.add(ModItems.BRIGG_ITEMS.get(type));
-                    shipItems.add(ModItems.GALLEY_ITEMS.get(type));
-                    shipItems.add(ModItems.DHOW_ITEMS.get(type));
-                    shipItems.add(ModItems.DRAKKAR_ITEMS.get(type));
-                    shipItems.add(ModItems.GALLEON_ITEMS.get(type));
-                    shipItems.add(ModItems.CARAVEL_ITEMS.get(type));
-                }
+                shipItems.addAll(ShipItems.getAll());
                 entries.addBefore(Items.RAIL, shipItems.toArray(Item[]::new));
             });
         }
@@ -81,17 +81,9 @@ public class ModItemsImpl {
         register("copper_plating", new Item(new Item.Properties().stacksTo(1)));
         register("cotton_sails", new Item(new Item.Properties().stacksTo(1)));
         register("iron_scantlings", new Item(new Item.Properties().stacksTo(1)));
-        
-        for (Boat.Type type: Boat.Type.values()) {
-            String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
-            register(name + "_" + CogEntity.ID,  new CogItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + BriggEntity.ID,  new BriggItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + GalleyEntity.ID,  new GalleyItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + DhowEntity.ID,  new DhowItem(type, new Item.Properties().stacksTo(1)));
-			register(name + "_" + DrakkarEntity.ID,  new DrakkarItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + GalleonEntity.ID,  new GalleonItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + CaravelEntity.ID,  new CaravelItem(type, new Item.Properties().stacksTo(1)));
-        }
+
+        // the ship items are not registered here: they go through ShipItems
+        // like every addon ship does, see ModShipItems
     }
 
     private static void register(String id, Item item) {

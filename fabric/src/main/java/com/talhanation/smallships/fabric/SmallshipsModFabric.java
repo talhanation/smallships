@@ -21,6 +21,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.level.ServerLevel;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import com.talhanation.smallships.world.item.ModItems;
+import com.talhanation.smallships.world.item.ModShipItems;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.fabricmc.api.ModInitializer;
@@ -41,6 +42,8 @@ public class SmallshipsModFabric implements ModInitializer {
         new ModEntityTypes();
         new ModMenuTypes();
         new ModItems();
+        // the ship items, through the same api the addons use
+        ModShipItems.register();
         new ModSoundTypes();
         new ModParticleTypes();
         ModShipTypes.init();

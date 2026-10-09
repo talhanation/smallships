@@ -12,6 +12,7 @@ import com.talhanation.smallships.world.block.forge.ModBlockEntityTypesImpl;
 import com.talhanation.smallships.world.block.forge.ModBlocksImpl;
 import com.talhanation.smallships.world.entity.forge.ModEntityTypesImpl;
 import com.talhanation.smallships.world.inventory.forge.ModMenuTypesImpl;
+import com.talhanation.smallships.world.item.ModShipItems;
 import com.talhanation.smallships.world.item.forge.ModItemsImpl;
 import com.talhanation.smallships.world.particles.forge.ModParticleTypesImpl;
 import com.talhanation.smallships.world.sound.forge.ModSoundTypesImpl;
@@ -34,6 +35,9 @@ public class SmallshipsModForge {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ModItemsImpl.ITEMS.register(modEventBus);
+        // the ship items, through the same api the addons use - it has to be
+        // called from here, the constructor, see ShipItems
+        ModShipItems.register();
         if (hasCustomItemGroup) ModItemsImpl.CREATIVE_MODE_TABS.register(modEventBus);
         ModBlocksImpl.BLOCKS.register(modEventBus);
         ModBlockEntityTypesImpl.BLOCK_ENTITY_TYPES.register(modEventBus);

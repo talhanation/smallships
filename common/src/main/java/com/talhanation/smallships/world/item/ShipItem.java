@@ -1,5 +1,7 @@
 package com.talhanation.smallships.world.item;
 
+import com.talhanation.smallships.api.ShipItems;
+import com.talhanation.smallships.api.ShipType;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -35,20 +37,29 @@ import java.util.function.Predicate;
  * vanilla, only the entity in the middle is ours.
  *
  * BoatItem keeps its type and hasChest private, hence the own variant field.
+ *
+ * One class for every ship: what it places is handed in as the ships' factory.
+ * There used to be a subclass per ship that did nothing but name its summon
+ * method - and every addon had to write the same again. The items themselves
+ * are created by {@link ShipItems}.
  */
-public abstract class ShipItem extends BoatItem {
+public class ShipItem extends BoatItem {
     private static final Predicate<Entity> ENTITY_PREDICATE = EntitySelector.NO_SPECTATORS.and(Entity::isPickable);
     /** how far ahead of the eyes a ship may be placed */
     private static final double PLACE_REACH = 5.0D;
 
     private final Boat.Type variant;
+    private final ShipType.Factory factory;
 
-    public ShipItem(Boat.Type type, Properties properties) {
+    public ShipItem(Boat.Type type, ShipType.Factory factory, Properties properties) {
         super(false, type, properties);
         this.variant = type;
+        this.factory = factory;
     }
 
-    protected abstract @NotNull Ship getShip(@NotNull Level level, double x, double y, double z);
+    protected @NotNull Ship getShip(@NotNull Level level, double x, double y, double z) {
+        return this.factory.summon(level, x, y, z);
+    }
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand interactionHand) {

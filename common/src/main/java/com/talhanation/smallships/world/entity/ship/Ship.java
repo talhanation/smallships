@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.api.ShipItems;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.config.SyncedServerConfig;
@@ -25,6 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -2125,8 +2127,22 @@ public abstract class Ship extends Boat {
     public int getMaxPassengers() {
         return this instanceof Seatable seatable ? seatable.getUsableSeatCount() : 0;
     }
+    /**
+     * @return the item of this ship in its wood, or air while item drops are
+     * switched off.
+     *
+     * Concrete for the same reason as getMaxPassengers: seven ships carried the
+     * identical body, and every addon had to write it again around a lookup map
+     * of its own. The items come from ShipItems and are found under the ships'
+     * ENTITY id - the id the ship registered its items with. Override it only
+     * for a ship that drops something else.
+     */
     @Override
-    public abstract @NotNull Item getDropItem();
+    public @NotNull Item getDropItem() {
+        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        Item item = ShipItems.get(BuiltInRegistries.ENTITY_TYPE.getKey(this.getType()), this.getVariant());
+        return item != null ? item : ItemStack.EMPTY.getItem();
+    }
     public abstract BiomeModifierType getBiomeModifierType();
 
     /**

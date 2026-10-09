@@ -3,13 +3,11 @@ package com.talhanation.smallships.world.item.forge;
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.client.renderer.item.DockyardItemRenderer;
 import com.talhanation.smallships.world.block.ModBlocks;
-import com.talhanation.smallships.world.entity.ship.*;
 import com.talhanation.smallships.world.item.*;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -64,16 +62,8 @@ public class ModItemsImpl {
         register("cotton_sails", () -> new Item(new Item.Properties().stacksTo(1)));
         register("iron_scantlings", () -> new Item(new Item.Properties().stacksTo(1)));
 
-        for (Boat.Type type: Boat.Type.values()) {
-            String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
-            register(name + "_" + CogEntity.ID,  () -> new CogItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + BriggEntity.ID,  () -> new BriggItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + GalleyEntity.ID,  () -> new GalleyItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + DhowEntity.ID,  () -> new DhowItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + DrakkarEntity.ID,  () -> new DrakkarItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + GalleonEntity.ID,  () -> new GalleonItem(type, new Item.Properties().stacksTo(1)));
-            register(name + "_" + CaravelEntity.ID,  () -> new CaravelItem(type, new Item.Properties().stacksTo(1)));
-        }
+        // the ship items are not registered here: they go through ShipItems
+        // like every addon ship does, see ModShipItems
     }
 
     private static void register(String id, Supplier<Item> itemSupplier) {

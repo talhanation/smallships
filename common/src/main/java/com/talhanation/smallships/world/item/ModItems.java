@@ -1,13 +1,12 @@
 package com.talhanation.smallships.world.item;
 
-import com.talhanation.smallships.world.entity.ship.*;
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * The main mods' items. The ship items are not in here any more - they come
+ * from ShipItems, see ModShipItems.
+ */
 @SuppressWarnings("unused")
 public class ModItems {
 
@@ -22,27 +21,6 @@ public class ModItems {
     public static final Item IRON_SCANTLINGS = getItem("iron_scantlings");
     public static final Item COPPER_PLATING = getItem("copper_plating");
     public static final Item COTTON_SAILS = getItem("cotton_sails");
-
-    public static final Map<Boat.Type, Item> COG_ITEMS = new HashMap<>(Boat.Type.values().length);
-    public static final Map<Boat.Type, Item> BRIGG_ITEMS = new HashMap<>(Boat.Type.values().length);
-    public static final Map<Boat.Type, Item> GALLEY_ITEMS = new HashMap<>(Boat.Type.values().length);
-    public static final Map<Boat.Type, Item> DHOW_ITEMS = new HashMap<>(Boat.Type.values().length);
-    public static final Map<Boat.Type, Item> DRAKKAR_ITEMS = new HashMap<>(Boat.Type.values().length);
-    public static final Map<Boat.Type, Item> GALLEON_ITEMS = new HashMap<>(Boat.Type.values().length);
-    public static final Map<Boat.Type, Item> CARAVEL_ITEMS = new HashMap<>(Boat.Type.values().length);
-    static {
-        Boat.Type[] boatTypes = Boat.Type.values();
-        for (Boat.Type type : boatTypes) {
-            String name = type.getName().replaceAll("[^a-z0-9_.-]", "_");
-            COG_ITEMS.put(type, getItem(name + "_" + CogEntity.ID));
-            BRIGG_ITEMS.put(type, getItem(name + "_" + BriggEntity.ID));
-            GALLEY_ITEMS.put(type, getItem(name + "_" + GalleyEntity.ID));
-            DHOW_ITEMS.put(type, getItem(name + "_" + DhowEntity.ID));
-            DRAKKAR_ITEMS.put(type, getItem(name + "_" + DrakkarEntity.ID));
-            GALLEON_ITEMS.put(type, getItem(name + "_" + GalleonEntity.ID));
-            CARAVEL_ITEMS.put(type, getItem(name + "_" + CaravelEntity.ID));
-        }
-    }
 
     @ExpectPlatform
     public static Item getItem(String id) {

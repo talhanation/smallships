@@ -5,16 +5,12 @@ import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
-import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -56,12 +52,6 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
     @Override
     public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
         return SmallShipsConfig.Server.galleyAttributes;
-    }
-
-    @Override
-    public @NotNull Item getDropItem() {
-        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
-        return ModItems.GALLEY_ITEMS.get(this.getVariant());
     }
 
     @Override
