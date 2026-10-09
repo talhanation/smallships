@@ -8,7 +8,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShearsItem;
 
 public interface Bannerable extends Ability {
 
@@ -43,11 +42,6 @@ public interface Bannerable extends Ability {
             if (!shipBanner.isEmpty()) self().spawnAtLocation(shipBanner, 4);
             self().setData(Ship.BANNER, item.copy());
             if (!player.isCreative()) item.shrink(1);
-            self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
-            return true;
-        } else if (item.getItem() instanceof ShearsItem && !shipBanner.isEmpty()) {
-            self().spawnAtLocation(shipBanner,4);
-            self().setData(Ship.BANNER, ItemStack.EMPTY);
             self().level().playSound(player, self().getX(), self().getY() + 4 , self().getZ(), SoundEvents.WOOL_HIT, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         }

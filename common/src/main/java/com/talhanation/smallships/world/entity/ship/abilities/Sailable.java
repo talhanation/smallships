@@ -4,7 +4,6 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
-import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -100,9 +99,6 @@ public interface Sailable extends Ability {
     }
 
     default boolean interactSail(Player player, InteractionHand interactionHand) {
-        // sail repair has priority over dyeing: new cloth first, then the
-        // needle and thread patch
-        if (SailDamage.interactRepair(self(), player, interactionHand)) return true;
         if (SailDamage.interactPatch(self(), player, interactionHand)) return true;
 
         ItemStack item = player.getItemInHand(interactionHand);

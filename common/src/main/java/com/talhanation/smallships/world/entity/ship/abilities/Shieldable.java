@@ -10,7 +10,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 
 public interface Shieldable extends Ability {
@@ -30,8 +29,8 @@ public interface Shieldable extends Ability {
     /**
      * One slot per anchor point on the hull, addressed the same way a cannon
      * carriage is. The shields used to live in a push/pop stack next to a
-     * synched copy of themselves, which is why taking one off with an axe left
-     * the copy behind and the client hung it straight back up.
+     * synched copy of themselves, which is why taking one off left the copy
+     * behind and the client hung it straight back up.
      */
     default int getTotalShieldSlots() {
         return this.getMaxShieldsPerSide() * 2;
@@ -124,6 +123,9 @@ public interface Shieldable extends Ability {
      * Field mounting by hand. What counts as a shield is not hardcoded any more
      * but asked of the {@link ShieldRegistry}, so a shield from another mod goes
      * up the same way the vanilla one does.
+     *
+     * Only ON: taking a shield off is dockyard work. The axe that used to strip
+     * them in the field was a test leftover.
      */
     default boolean interactShield(Player player, InteractionHand interactionHand) {
         ItemStack itemStack = player.getItemInHand(interactionHand);
@@ -133,14 +135,6 @@ public interface Shieldable extends Ability {
             this.setShieldInSlot(slot, itemStack.copyWithCount(1));
             if (!player.isCreative()) itemStack.shrink(1);
             self().getCommandSenderWorld().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.5F);
-            return true;
-        } else if (itemStack.getItem() instanceof AxeItem) {
-            int slot = this.getLastOccupiedShieldSlot();
-            if (slot < 0) return false;
-            ItemStack removedShield = this.getShieldInSlot(slot);
-            this.setShieldInSlot(slot, ItemStack.EMPTY);
-            self().spawnAtLocation(removedShield, 2);
-            self().getCommandSenderWorld().playSound(player, self().getX(), self().getY() + 4, self().getZ(), SoundEvents.WOOD_HIT, self().getSoundSource(), 15.0F, 1.0F);
             return true;
         }
         return false;

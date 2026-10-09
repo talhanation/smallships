@@ -7,7 +7,6 @@ import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +29,6 @@ import net.minecraft.world.item.Items;
  * - At 0 the sail is not rendered at all.
  * - Speed: above 50 HP no debuff, at 50 HP or below the sail output is reduced
  *   by 25%, at 0 HP the sail contributes nothing.
- * - Repaired by hand with 6x wool (any color), or completely at the dockyard.
  */
 public final class SailDamage {
     /** health one sail is worth; the pool is this times the sail count */
@@ -39,7 +37,7 @@ public final class SailDamage {
     public static final float TORN_FRACTION = 0.5F;
     /**
      * How far a patch job with needle and thread gets the canvas. Anything
-     * beyond that needs new cloth: either the full bolt of wool, or a dockyard.
+     * beyond that needs new cloth, and new cloth goes on at a dockyard.
      */
     public static final float PATCH_LIMIT = 0.33F;
 
@@ -141,23 +139,7 @@ public final class SailDamage {
 
     /* ---------------- repair ---------------- */
 
-    /**
-     * Hand repair: right click the ship with at least 6x wool.
-     * Consumes the wool and fully repairs the sails.
      */
-    public static boolean interactRepair(Ship ship, Player player, InteractionHand interactionHand) {
-        if (!(ship instanceof Sailable)) return false;
-        if (getHealth(ship) >= getMaxHealth(ship)) return false;
-
-        ItemStack item = player.getItemInHand(interactionHand);
-        int cost = SmallShipsConfig.Server.sailRepairWoolAmount.get();
-        if (!item.is(ItemTags.WOOL) || item.getCount() < cost) return false;
-
-        if (!player.isCreative()) item.shrink(cost);
-        repair(ship);
-        ship.level().playSound(player, ship.getX(), ship.getY() + 4, ship.getZ(), SoundEvents.WOOL_PLACE, ship.getSoundSource(), 10.0F, 1.0F);
-        return true;
-    }
 
     /**
      * Patch repair: right click the ship with a string in hand and an iron
