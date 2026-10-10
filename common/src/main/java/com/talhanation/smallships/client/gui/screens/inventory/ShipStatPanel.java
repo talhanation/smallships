@@ -156,8 +156,8 @@ public class ShipStatPanel {
                         1.0F - cannonShip.getCannonModifier() / 100.0F);
             }
             if (ship instanceof Shieldable shieldable) {
-                line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.shields_dmg",
-                        shieldable.getDamageModifier()* -1);
+                line = protection(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.shields_dmg",
+                        shieldable.getShieldProtection());
             }
             line = penalty(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.penalty_biome",
                     1.0F + ship.getBiomeModifier() / 100.0F);
@@ -177,7 +177,10 @@ public class ShipStatPanel {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.ice_breaker");
             }
             if (displayShip instanceof Shieldable shieldable) {
-                line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.shields");
+                // what a full reling is worth - the number that makes the shield
+                // slots in the attributes above mean something
+                line = protection(guiGraphics, font, x, line, width, "gui.smallships.dockyard.stat.shields_max",
+                        shieldable.getMaxShieldProtection());
             }
             if (displayShip.getRamSelfDamageFactor() < 1.0F) {
                 line = note(guiGraphics, font, x, line, "gui.smallships.dockyard.stat.ramming");
@@ -213,6 +216,24 @@ public class ShipStatPanel {
     private static int penalty(GuiGraphics guiGraphics, Font font, int x, int y, int width, String translationKey, float value) {
         if (Math.round((value - 1.0F) * 100.0F) == 0) return y;
         return multiplier(guiGraphics, font, x, y, width, translationKey, value);
+    }
+
+    /**
+     * A protection, label left and share right aligned: 0.18 -> "18%".
+     *
+     * Not a {@link #multiplier}: that one reads below 100% as a loss and paints
+     * it red, but a shield takes damage OFF - the more, the better. It used to
+     * go through penalty with the modifier negated, which put -182% in red on
+     * a ship with six shields and -200% on one with none. Silent at zero, like
+     * the penalties around it.
+     */
+    private static int protection(GuiGraphics guiGraphics, Font font, int x, int y, int width, String translationKey, float share) {
+        int percent = Math.round(share * 100.0F);
+        if (percent == 0) return y;
+        String value = percent + "%";
+        guiGraphics.drawString(font, Component.translatable(translationKey), x, y, COLOR_LABEL, false);
+        guiGraphics.drawString(font, value, x + width - font.width(value), y, colorFor(1.0F + share), false);
+        return y + LINE_HEIGHT;
     }
 
     /** a full width note without a value column */
