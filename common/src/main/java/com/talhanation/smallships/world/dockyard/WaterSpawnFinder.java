@@ -5,6 +5,7 @@ import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -24,6 +25,12 @@ import java.util.List;
  * long and draws three blocks of water, a 5x5 surface check let it spawn with
  * the bow in the bank and the keel in the sand.
  *
+ * The spot also has to be free of other ships: a hull launched into one that
+ * already lies there locks both of them together, and neither can be sailed
+ * out again. The check is part of isValidSpawnSpot, so it runs when the build
+ * starts AND again at launch - a ship that moored there in the meantime moves
+ * the launch to another spot instead of being rammed.
+ *
  * Searches in an outward spiral up to the given radius.
  */
 public class WaterSpawnFinder {
@@ -31,6 +38,15 @@ public class WaterSpawnFinder {
     /** fallback for a ship without hull parts: the old fixed 5x5 square */
     private static final int AREA_HALF = 2;
     private static final int AIR_HEIGHT = 3;
+    /** room left between the new hull and one that already lies there */
+    private static final double SHIP_CLEARANCE = 0.5D;
+    /**
+     * How far a ship can reach beyond its own entity box. The position lies
+     * amidships and a galleon carries seven blocks of hull in front of it and
+     * behind it - the search area is grown by this much, or a long hull could
+     * lie across the spot while its entity box stays outside the search.
+     */
+    private static final double SHIP_REACH = 16.0D;
 
     /**
      * The hull of a ship type, read off a throwaway dummy - the same trick the
@@ -106,7 +122,9 @@ public class WaterSpawnFinder {
                     if (!isWaterColumn(level, center.offset(dx, 0, dz), depth)) return false;
                 }
             }
-            return true;
+            AABB area = new AABB(center.getX() - AREA_HALF, center.getY() - depth + 1, center.getZ() - AREA_HALF,
+                    center.getX() + AREA_HALF + 1, center.getY() + 1 + AIR_HEIGHT, center.getZ() + AREA_HALF + 1);
+            return !isTakenByShip(level, List.of(area));
         }
 
         // the exact position and yaw finishBuildShip puts the ship at
@@ -114,8 +132,10 @@ public class WaterSpawnFinder {
         double x = center.getX() + 0.5D;
         double y = center.getY() + 1.0D;
         double z = center.getZ() + 0.5D;
+        List<AABB> boxes = new ArrayList<>(hull.size());
         for (ShipPartEntity.Definition part : hull) {
             AABB box = part.boxAt(x, y, z, yaw);
+            boxes.add(box);
             // every column the box stands over; an edge lying exactly on a
             // block border does not reach into the next block
             for (int bx = Mth.floor(box.minX); bx <= Mth.floor(box.maxX - 1.0E-4D); bx++) {
@@ -124,7 +144,35 @@ public class WaterSpawnFinder {
                 }
             }
         }
-        return true;
+        // last, because it is the only check that asks for entities: most
+        // candidates have long failed on the water by now
+        return !isTakenByShip(level, boxes);
+    }
+
+    /**
+     * @param boxes the hull of the new ship at the candidate spot
+     * @return true if a ship or boat already lies in the way
+     *
+     * Measured hull against HULL: the entity box of a ship is a small square
+     * amidships, two galleons could lie bow into stern without their entity
+     * boxes ever touching. Vanilla boats have nothing but their own box. A
+     * sunken ship counts as well - until it despawns, the wreck is as solid as
+     * any other hull.
+     */
+    private static boolean isTakenByShip(Level level, List<AABB> boxes) {
+        AABB area = boxes.get(0);
+        for (AABB box : boxes) area = area.minmax(box);
+
+        for (Boat boat : level.getEntitiesOfClass(Boat.class, area.inflate(SHIP_REACH))) {
+            List<AABB> taken = boat instanceof Ship ship ? ShipPartEntity.hullBoxes(ship) : List.of(boat.getBoundingBox());
+            for (AABB other : taken) {
+                AABB occupied = other.inflate(SHIP_CLEARANCE);
+                for (AABB box : boxes) {
+                    if (box.intersects(occupied)) return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
