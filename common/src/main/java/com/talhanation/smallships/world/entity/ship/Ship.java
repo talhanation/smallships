@@ -208,13 +208,13 @@ public abstract class Ship extends Boat {
      */
 
     /** below this closing speed the hulls just bump and nothing is spent */
-    private static final double RAM_MIN_CLOSING_KMH = 20.0D;
+    public static final double RAM_MIN_CLOSING_KMH = 20.0D;
     /**
      * The same bar for running aground, and lower on purpose. Another hull
      * gives way, takes part of the blow and carries some of it off; rock does
      * none of that, so a lesser knock already tells on the timbers.
      */
-    private static final double CRASH_MIN_SPEED_KMH = 16.0D;
+    public static final double CRASH_MIN_SPEED_KMH = 16.0D;
     /**
      * Below this a hull is only leaning against something. A ship warping
      * itself into a jetty used to bang once per stop, however slowly it drifted
@@ -245,7 +245,7 @@ public abstract class Ship extends Boat {
      * second, so a cooldown only throttles grinding against a hull already
      * touched. This says what it should: break off, come about, run in again.
      */
-    private static final double RAM_REARM_DISTANCE = 10.0D;
+    public static final double RAM_REARM_DISTANCE = 10.0D;
     /**
      * Share of the wanted movement that has to survive the collision test for
      * the way to count as free. Running into a cliff stops a ship dead;
@@ -747,15 +747,46 @@ public abstract class Ship extends Boat {
      * only knows players and a Recruits captain has to count here as well.
      */
     public boolean hasHelmsman() {
+        return this.getHelmsman() != null;
+    }
+
+    /**
+     * @return whoever stands at the helm and may steer her - a player or an
+     * NPC such as a Recruits captain - or null. For the rules that do not care
+     * WHO steers (oars, friendly fire); getControllingPassenger stays players
+     * only, because it drives the vanilla client side movement.
+     */
+    @Nullable
+    public Entity getHelmsman() {
         if (this instanceof Seatable seatable) {
             for (ShipSeat seat : seatable.getSeats()) {
                 if (seat.type() != SeatType.DRIVER) continue;
                 Entity occupant = seatable.getSeatOccupant(seat.id());
-                if (occupant != null && this.canDrive(occupant)) return true;
+                if (occupant != null && this.canDrive(occupant)) return occupant;
             }
-            return false;
+            return null;
         }
-        return !this.getPassengers().isEmpty() && this.canDrive(this.getPassengers().get(0));
+        Entity first = this.getFirstPassenger();
+        return first != null && this.canDrive(first) ? first : null;
+    }
+
+    /**
+     * The oars of an NPC helmsman. Vanilla only rows for a controlling
+     * passenger, which on a ship is a PLAYER at the helm, and takes his strokes
+     * from his client inputs. An NPC at the helm has neither, so his strokes
+     * are read off the synched keys he presses - the same rule the players'
+     * client follows, see Paddleable#controlBoatPaddleShip. Purely the look and
+     * the sound of it, the drive itself is in controlShip.
+     */
+    @Override
+    public boolean getPaddleState(int side) {
+        if (this instanceof Paddleable && this.getControllingPassenger() == null && this.hasHelmsman()) {
+            boolean forward = this.isForward();
+            boolean left = this.isLeft();
+            boolean right = this.isRight();
+            return side == 0 ? (right && !left) || forward : (left && !right) || forward;
+        }
+        return super.getPaddleState(side);
     }
 
     /**
@@ -1225,6 +1256,9 @@ public abstract class Ship extends Boat {
      * dockyard worth sailing to.
      */
     public static final float HAND_REPAIR_LIMIT = 0.66F;
+    /** hull points one hand repair puts back: HAND_REPAIR_MIN + 0 .. HAND_REPAIR_RANDOM - 1 */
+    public static final int HAND_REPAIR_MIN = 5;
+    public static final int HAND_REPAIR_RANDOM = 5;
 
     /** @return the damage a hand repair cannot go below. */
     public float getHandRepairFloor() {
@@ -1277,7 +1311,7 @@ public abstract class Ship extends Boat {
 
     /** hull points one hand repair puts back, by hand or out of a container */
     private int rollHandRepairAmount() {
-        return 5 + this.level().random.nextInt(5);
+        return HAND_REPAIR_MIN + this.level().random.nextInt(HAND_REPAIR_RANDOM);
     }
 
     /** @return the first slot whose stack matches, -1 if there is none */

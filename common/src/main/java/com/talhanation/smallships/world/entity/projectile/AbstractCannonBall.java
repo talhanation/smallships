@@ -59,6 +59,17 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
      * muzzle velocity stays identical.
      */
     private static final double ACCELERATION_POWER = 0.1;
+    /**
+     * Flight per tick, in this order: move by the velocity, then velocity =
+     * velocity * DRAG - GRAVITY. Public for NPC gunners that solve their own
+     * aim (ShipBridge#getRules); the client preview, CannonTrajectory, flies
+     * the same numbers.
+     */
+    public static final float DRAG = 0.99F;
+    public static final float GRAVITY = 0.06F;
+    /** hull points a hit on a ship is worth before the ammo factors: SHIP_HIT_DAMAGE_MIN + 0 .. SHIP_HIT_DAMAGE_RANDOM - 1 */
+    public static final int SHIP_HIT_DAMAGE_MIN = 10;
+    public static final int SHIP_HIT_DAMAGE_RANDOM = 10;
 
     public AbstractCannonBall(EntityType<? extends AbstractCannonBall> type, Level world) {
         super(type, world);
@@ -146,8 +157,8 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
         double d1 = this.getY() + vector3d.y;
         double d2 = this.getZ() + vector3d.z;
         this.updateRotation();
-        float f = 0.99F;
-        float f1 = 0.06F;
+        float f = DRAG;
+        float f1 = GRAVITY;
         float f2 = -0.05F;
         this.setDeltaMovement(vector3d.scale(f));
         if (!this.isNoGravity()) {
@@ -256,10 +267,13 @@ public abstract class AbstractCannonBall extends AbstractHurtingProjectile imple
             Entity ownerEntity = this.getOwner();
             if(ownerEntity == null) return;
             if (hitEntity instanceof Ship shipHitEntity) {
-                if(shipHitEntity.getControllingPassenger() != null &&  ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(shipHitEntity.getControllingPassenger()) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
+                // the helmsman, not getControllingPassenger: that one only knows
+                // players, and an allied NPC captain's ship is just as allied
+                Entity helmsman = shipHitEntity.getHelmsman();
+                if(helmsman != null &&  ownerEntity.getTeam() != null && ownerEntity.isAlliedTo(helmsman) && !ownerEntity.getTeam().isAllowFriendlyFire()) return;
 
                 CannonBallItem.Type ballType = this.getBallType();
-                float shipDamage = (random.nextInt(10) + 10) * ballType.damageMultiplier;
+                float shipDamage = (random.nextInt(SHIP_HIT_DAMAGE_RANDOM) + SHIP_HIT_DAMAGE_MIN) * ballType.damageMultiplier;
                 // the masts ARE the sails' hit box: what goes through the rigging
                 // never reaches the timbers, and a ball in the side never reaches
                 // the canvas. Which one you hit is now the players' decision.

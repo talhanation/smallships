@@ -54,7 +54,8 @@ public final class SyncedServerConfig {
             boolean windEnable,
             boolean vanillaBoatSlowdownEnable,
             double vanillaBoatSpeedFactor,
-            boolean cameraFreeLook) {
+            boolean cameraFreeLook,
+            double shieldDamageReduction) {
     }
 
     private static void writeAttributes(FriendlyByteBuf buf, Attributes attributes) {
@@ -90,6 +91,7 @@ public final class SyncedServerConfig {
         buf.writeBoolean(snapshot.vanillaBoatSlowdownEnable());
         buf.writeDouble(snapshot.vanillaBoatSpeedFactor());
         buf.writeBoolean(snapshot.cameraFreeLook());
+        buf.writeDouble(snapshot.shieldDamageReduction());
     }
 
     /**
@@ -110,7 +112,8 @@ public final class SyncedServerConfig {
                 buf.readBoolean(),
                 buf.readBoolean(),
                 buf.readDouble(),
-                buf.readBoolean());
+                buf.readBoolean(),
+                buf.readDouble());
     }
 
     /** Reads the current server config into a snapshot ready to be sent. */
@@ -131,7 +134,8 @@ public final class SyncedServerConfig {
                 SmallShipsConfig.Server.windEnable.get(),
                 SmallShipsConfig.Server.vanillaBoatSlowdownEnable.get(),
                 SmallShipsConfig.Server.vanillaBoatSpeedFactor.get(),
-                SmallShipsConfig.Server.shipGeneralCameraFreeLook.get());
+                SmallShipsConfig.Server.shipGeneralCameraFreeLook.get(),
+                SmallShipsConfig.Server.shipGeneralShieldDamageReduction.get());
     }
 
     /** Sends the current server values to a single (e.g. joining) player. */
@@ -223,5 +227,15 @@ public final class SyncedServerConfig {
     public static boolean cameraFreeLook() {
         Snapshot snapshot = active;
         return snapshot != null ? snapshot.cameraFreeLook() : SmallShipsConfig.Server.shipGeneralCameraFreeLook.get();
+    }
+
+    /**
+     * Damage reduction per shield in percent. Synced because the stat panel
+     * shows what the shields take off - read from the local file, a client on
+     * a server with another value showed a protection the hull did not have.
+     */
+    public static double shieldDamageReduction() {
+        Snapshot snapshot = active;
+        return snapshot != null ? snapshot.shieldDamageReduction() : SmallShipsConfig.Server.shipGeneralShieldDamageReduction.get();
     }
 }

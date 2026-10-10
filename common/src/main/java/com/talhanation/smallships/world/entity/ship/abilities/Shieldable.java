@@ -1,7 +1,7 @@
 package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.compat.ShieldRegistry;
-import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -115,8 +115,26 @@ public interface Shieldable extends Ability {
 
     /* ---------------- effect ---------------- */
 
+    /**
+     * @return the factor incoming hull damage is multiplied with: 1.0 without
+     * shields, 0.82 with six of them at the default 3 percent each.
+     */
     default float getDamageModifier() {
-        return (float) (1.0F - this.getShieldCount() * SmallShipsConfig.Server.shipGeneralShieldDamageReduction.get() / 100F);
+        return 1.0F - this.getShieldProtection();
+    }
+
+    /**
+     * @return the share of incoming damage the shields that hang right now take
+     * off, 0.18 for 18 percent. Read through SyncedServerConfig, so the stat
+     * panel on a client shows what the server actually applies.
+     */
+    default float getShieldProtection() {
+        return (float) (this.getShieldCount() * SyncedServerConfig.shieldDamageReduction() / 100.0D);
+    }
+
+    /** @return the protection with every anchor point hung, see {@link #getShieldProtection()} */
+    default float getMaxShieldProtection() {
+        return (float) (this.getTotalShieldSlots() * SyncedServerConfig.shieldDamageReduction() / 100.0D);
     }
 
     /**

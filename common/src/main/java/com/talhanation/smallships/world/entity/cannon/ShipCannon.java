@@ -140,7 +140,7 @@ public class ShipCannon implements ICannon {
         float speedMultiplier = type.speedMultiplier;
         boolean fineGrain = cannonable.consumeFineGrainPowder(shooterEntity);
         if (fineGrain) {
-            speedMultiplier *= 1.5F;
+            speedMultiplier *= Cannon.FINE_GRAIN_SPEED_FACTOR;
         }
         this.cannon.setSpeedMultiplier(speedMultiplier);
         this.cannon.setFineGrain(fineGrain);

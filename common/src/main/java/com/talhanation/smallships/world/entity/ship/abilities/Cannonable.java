@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.Ship;
@@ -360,7 +361,7 @@ public interface Cannonable extends Ability {
     default float getShotSpeedMultiplier(@Nullable Entity shooter, boolean peekFineGrain) {
         CannonBallItem ammo = this.getCannonBallToShoot(shooter);
         float multiplier = ammo != null ? ammo.getType().speedMultiplier : CannonBallItem.Type.BALL.speedMultiplier;
-        if (peekFineGrain && this.hasFineGrainPowder(shooter)) multiplier *= 1.5F;
+        if (peekFineGrain && this.hasFineGrainPowder(shooter)) multiplier *= Cannon.FINE_GRAIN_SPEED_FACTOR;
         return multiplier;
     }
 

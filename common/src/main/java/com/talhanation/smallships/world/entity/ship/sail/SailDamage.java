@@ -43,6 +43,9 @@ public final class SailDamage {
      * beyond that needs new cloth, and new cloth goes on at a dockyard.
      */
     public static final float PATCH_LIMIT = 0.33F;
+    /** canvas points one patch puts back: PATCH_MIN + 0 .. PATCH_RANDOM - 1 */
+    public static final int PATCH_MIN = 5;
+    public static final int PATCH_RANDOM = 5;
 
     /**
      * @return the full sail health of this ship: {@link #HEALTH_PER_SAIL} for
@@ -198,7 +201,7 @@ public final class SailDamage {
     /** One seam: the amount and the sound, the same for every way of paying for it. */
     private static void applyPatch(Ship ship, @Nullable Player soundSource) {
         float limit = getMaxHealth(ship) * PATCH_LIMIT;
-        float repaired = 5.0F + ship.level().random.nextInt(5);
+        float repaired = PATCH_MIN + ship.level().random.nextInt(PATCH_RANDOM);
         setHealth(ship, Math.min(limit, getHealth(ship) + repaired));
         ship.level().playSound(soundSource, ship.getX(), ship.getY() + 4, ship.getZ(),
                 SoundEvents.WOOL_PLACE, ship.getSoundSource(), 6.0F, 1.2F);

@@ -708,7 +708,7 @@ public class GroundCannonEntity extends Entity implements ICannon{
                 float speedMultiplier = ballType.speedMultiplier;
                 boolean fineGrain = this.consumeFineGrainPowder();
                 if (fineGrain) {
-                    speedMultiplier *= 1.5F;
+                    speedMultiplier *= Cannon.FINE_GRAIN_SPEED_FACTOR;
                 }
                 this.cannon.setSpeedMultiplier(speedMultiplier);
                 this.cannon.setFineGrain(fineGrain);

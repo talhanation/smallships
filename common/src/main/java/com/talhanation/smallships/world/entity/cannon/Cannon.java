@@ -54,7 +54,17 @@ public class Cannon {
     private float barrelForwardOffset = 0.0F;
     /** pivot to the point the projectile spawns at */
     private float barrelLength = 1.2F;
-    private final float speed = 2.6F;
+    /**
+     * Muzzle speed in blocks per tick before the ammo type and the powder
+     * multiply it, see setSpeedMultiplier. Public for NPC gunners that solve
+     * their own aim (ShipBridge#getRules).
+     */
+    public static final float BASE_SPEED = 2.6F;
+    /** a fine grain powder charge multiplies the muzzle speed by this */
+    public static final float FINE_GRAIN_SPEED_FACTOR = 1.5F;
+    /** ticks from lighting the fuze to the shot: FUZE_MIN_TICKS + 0 .. FUZE_RANDOM_TICKS - 1 */
+    public static final int FUZE_MIN_TICKS = 10;
+    public static final int FUZE_RANDOM_TICKS = 10;
     private float speedMultiplier;
     /** set by the owner right before the shot, see setFineGrain */
     private boolean fineGrain;
@@ -146,7 +156,7 @@ public class Cannon {
     }
 
     private void resetTimer() {
-        this.shootDelayTimer = 10 + random.nextInt(10);
+        this.shootDelayTimer = FUZE_MIN_TICKS + random.nextInt(FUZE_RANDOM_TICKS);
     }
 
     /**
@@ -154,7 +164,7 @@ public class Cannon {
      * loader is sponge, powder, wad, ball, ram, prime - a broadside is meant to
      * be a decision, not a rate of fire.
      */
-    private static final int COOL_DOWN_TICKS = 75;
+    public static final int COOL_DOWN_TICKS = 75;
 
     private void setCoolDown() {
         this.coolDown = COOL_DOWN_TICKS;
@@ -179,7 +189,7 @@ public class Cannon {
         if (!(this.level instanceof ServerLevel serverLevel) || this.isCooldown() || this.isFuzing()) return;
         this.setCoolDown();
         Vector3d forward = this.getForward();
-        projectile.shootAndSpawn(this, this.getBarrelEndPoint(), VectorMath.castToVector3f(forward), this.speed * this.speedMultiplier, 1, shooter);
+        projectile.shootAndSpawn(this, this.getBarrelEndPoint(), VectorMath.castToVector3f(forward), BASE_SPEED * this.speedMultiplier, 1, shooter);
         this.playCannonShotSound();
 
         Vector3d particlePos = this.getBarrelEndPoint();
