@@ -38,6 +38,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -269,7 +270,7 @@ public abstract class Ship extends Boat {
      * deliberately NOT derived from maxSpeed: warping into a berth or working
      * a wedged hull free should take the same patience on every ship.
      */
-    private static final float MANOEUVRE_SPEED = 0.03F;
+    public static final float MANOEUVRE_SPEED = 0.03F;
 
     /**
      * What is left of a ships' way after each tick of sinking. She does not
@@ -354,6 +355,20 @@ public abstract class Ship extends Boat {
 
     public static float toTickSpeed(float attributeSpeed) {
         return attributeSpeed / SPEED_ATTRIBUTE_DIVISOR;
+    }
+
+    /**
+     * The turn rate ceiling in degrees per tick for a maxRotationSpeed
+     * attribute. One formula for controlShip and for everyone who has to know
+     * how a hull turns without driving it (ShipBridge).
+     */
+    public static float toMaxRotSpeed(float attributeRotationSpeed) {
+        return attributeRotationSpeed * 0.1F + 1.8F;
+    }
+
+    /** What the rudder adds to the turn rate per tick, see toMaxRotSpeed. */
+    public static float toRotStep(float attributeRotationAcceleration) {
+        return attributeRotationAcceleration * 1 / 8;
     }
     private CameraType previousCameraType;
     /** client: whether the local player sat at this helm last tick */
@@ -800,7 +815,7 @@ public abstract class Ship extends Boat {
                         (1 - (this instanceof ContainerShip containerShip && containerShip.isEffectedByCargoPenalty() ? containerShip.getContainerModifier()/100 : 0.0F));
 
         this.maxSpeed = toTickSpeed(attributes.maxSpeed) * speedPenalty;
-        float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
+        float maxRotSp = toMaxRotSpeed(attributes.maxRotationSpeed);
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
 
@@ -823,7 +838,9 @@ public abstract class Ship extends Boat {
             // oars are a wind independent floor, not a bonus: they carry the
             // ship when the sails cannot, but never beyond the ceiling
             float oarDrive = 0.0F;
-            if (this instanceof Paddleable && this.isForward() && this.getDriver() != null) {
+            // hasHelmsman, not getDriver: a Recruits captain at the helm rows
+            // like a player does (driverEntities config, see canDrive)
+            if (this instanceof Paddleable && this.isForward() && this.hasHelmsman()) {
                 oarDrive = this.maxSpeed * this.getOarFactor();
             }
 
@@ -834,7 +851,7 @@ public abstract class Ship extends Boat {
             // canvas furled, otherwise it would read as braking against the
             // wind. Ahead it is a FLOOR, never an override, or it would cut
             // into an oar drive that is already faster.
-            if (this.getDriver() != null && this.canManoeuvre()) {
+            if (this.hasHelmsman() && this.canManoeuvre()) {
                 if (this.isBackward()) setPoint = -MANOEUVRE_SPEED;
                 else if (this.isForward()) setPoint = Math.max(setPoint, MANOEUVRE_SPEED);
             }
@@ -847,13 +864,13 @@ public abstract class Ship extends Boat {
 
             if (isRight()) {
                 if (rotationSpeed < maxRotSp) {
-                    rotationSpeed = Math.min(rotationSpeed + rotAcceleration * 1 / 8, maxRotSp);
+                    rotationSpeed = Math.min(rotationSpeed + toRotStep(rotAcceleration), maxRotSp);
                 }
             }
 
             if (isLeft()) {
                 if (rotationSpeed > -maxRotSp) {
-                    rotationSpeed = Math.max(rotationSpeed - rotAcceleration * 1 / 8, -maxRotSp);
+                    rotationSpeed = Math.max(rotationSpeed - toRotStep(rotAcceleration), -maxRotSp);
                 }
             }
             this.setRotSpeed(rotationSpeed);
@@ -870,7 +887,7 @@ public abstract class Ship extends Boat {
             setYRot(allowedYaw);
 
 
-            if(getDriver() != null) {
+            if(hasHelmsman()) {
                 if (this instanceof Sailable sailShip) sailShip.controlBoatSailShip();
                 if (this instanceof Paddleable paddleShip) paddleShip.controlBoatPaddleShip();
             }
@@ -1071,31 +1088,39 @@ public abstract class Ship extends Boat {
         entityData.set(RIGHT, right);
     }
 
+    /*
+     * The input flags only count while someone who may steer stands at the
+     * helm: they stay in the synched data after the helmsman leaves, and
+     * without this guard the hull kept turning by itself.
+     *
+     * hasHelmsman and not getControllingPassenger: the latter only knows
+     * players, so a Recruits captain at the helm (driverEntities config) had
+     * his keys ignored. Players are unaffected - wherever a player was found
+     * before, hasHelmsman is true as well.
+     */
     public boolean isForward() {
-        if (this.getControllingPassenger() == null) {
+        if (!this.hasHelmsman()) {
             return false;
         }
         return entityData.get(FORWARD);
     }
 
     public boolean isBackward() {
-        if (this.getControllingPassenger() == null) {
+        if (!this.hasHelmsman()) {
             return false;
         }
         return entityData.get(BACKWARD);
     }
 
-    // same guard as forward/backward: the input flags stay in the synched data
-    // after the driver leaves, and without this the hull kept turning by itself
     public boolean isLeft() {
-        if (this.getControllingPassenger() == null) {
+        if (!this.hasHelmsman()) {
             return false;
         }
         return entityData.get(LEFT);
     }
 
     public boolean isRight() {
-        if (this.getControllingPassenger() == null) {
+        if (!this.hasHelmsman()) {
             return false;
         }
         return entityData.get(RIGHT);
@@ -1209,7 +1234,7 @@ public abstract class Ship extends Boat {
     private boolean interactIronNuggets(@NotNull Player player){
         if (this.getDamage() > this.getHandRepairFloor() && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
 
-            this.repairShipByHand((5 + this.level().random.nextInt(5)));
+            this.repairShipByHand(this.rollHandRepairAmount());
 
             if(!player.isCreative()){
                 player.getMainHandItem().shrink(1);
@@ -1226,6 +1251,42 @@ public abstract class Ship extends Boat {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Hand repair paid out of any container - one iron nugget and one plank,
+     * the same price and the same limit as a player working with nuggets in
+     * hand. Used by NPC crews through ShipBridge, server side only.
+     *
+     * @return true if a repair was done and paid for
+     */
+    public boolean repairByHand(Container payer) {
+        if (this.level().isClientSide() || this.getDamage() <= this.getHandRepairFloor()) return false;
+
+        int nugget = findSlot(payer, stack -> stack.is(Items.IRON_NUGGET));
+        int plank = findSlot(payer, stack -> stack.is(ItemTags.PLANKS));
+        if (nugget < 0 || plank < 0) return false;
+
+        payer.removeItem(nugget, 1);
+        payer.removeItem(plank, 1);
+        payer.setChanged();
+
+        this.repairShipByHand(this.rollHandRepairAmount());
+        return true;
+    }
+
+    /** hull points one hand repair puts back, by hand or out of a container */
+    private int rollHandRepairAmount() {
+        return 5 + this.level().random.nextInt(5);
+    }
+
+    /** @return the first slot whose stack matches, -1 if there is none */
+    private static int findSlot(Container container, java.util.function.Predicate<ItemStack> filter) {
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            ItemStack stack = container.getItem(i);
+            if (!stack.isEmpty() && filter.test(stack)) return i;
+        }
+        return -1;
     }
 
     /**

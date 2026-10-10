@@ -9,6 +9,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
@@ -77,6 +78,16 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
         public int countIn(Player player) {
             int count = 0;
             for (ItemStack stack : player.getInventory().items) {
+                if (this.matches(stack)) count += stack.getCount();
+            }
+            return count;
+        }
+
+        /** The same count for any container, e.g. the inventory of an NPC paying for a repair. */
+        public int countIn(Container container) {
+            int count = 0;
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                ItemStack stack = container.getItem(i);
                 if (this.matches(stack)) count += stack.getCount();
             }
             return count;
@@ -240,6 +251,30 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
             if (ingredient.countIn(player) < ingredient.amount()) return false;
         }
         return true;
+    }
+
+    /** Cost check against any container - an NPC pays exactly what a player would. */
+    public static boolean canAfford(List<Ingredient> ingredients, Container container) {
+        for (Ingredient ingredient : ingredients) {
+            if (ingredient.countIn(container) < ingredient.amount()) return false;
+        }
+        return true;
+    }
+
+    /** Consumes any material list from any container. Callers must validate with canAfford first. */
+    public static void consume(List<Ingredient> ingredients, Container container) {
+        for (Ingredient ingredient : ingredients) {
+            int remaining = ingredient.amount();
+            for (int i = 0; i < container.getContainerSize() && remaining > 0; i++) {
+                ItemStack stack = container.getItem(i);
+                if (ingredient.matches(stack)) {
+                    int take = Math.min(remaining, stack.getCount());
+                    container.removeItem(i, take);
+                    remaining -= take;
+                }
+            }
+        }
+        container.setChanged();
     }
 
     /** Consumes any material list, also used by the repair task. */

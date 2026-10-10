@@ -30,6 +30,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -689,13 +690,43 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
         DockyardRecipe.consume(costs, player);
         syncInventory(player);
 
+        this.beginRepair(ship, hull, sails, workTime(player, getRepairTime(ship, hull, sails)));
+    }
+
+    /**
+     * Repair task paid out of any container - for NPC crews (ShipBridge). Same
+     * costs, same work time and the same ship lock as the player repair; the
+     * ship is named by the caller instead of being picked in the screen.
+     *
+     * @return true if the job was started and paid for
+     */
+    public boolean startRepairTask(Ship ship, Container payer, boolean hull, boolean sails) {
+        if (this.level == null || this.level.isClientSide() || this.isBusy()) return false;
+        if (!this.isServiceable(ship)) return false;
+        if (!new AABB(this.worldPosition).inflate(SHIP_DETECTION_RANGE).intersects(ship.getBoundingBox())) return false;
+
+        float hullFraction = hull ? Math.min(1.0F, ship.getDamage() / ship.getAttributes().maxHealth) : 0.0F;
+        float sailFraction = sails ? 1.0F - SailDamage.getHealth(ship) / SailDamage.getMaxHealth(ship) : 0.0F;
+        if (hullFraction <= 0.0F && sailFraction <= 0.0F) return false;
+
+        List<DockyardRecipe.Ingredient> costs = getRepairCosts(ship, hull, sails);
+        if (!DockyardRecipe.canAfford(costs, payer)) return false;
+        DockyardRecipe.consume(costs, payer);
+
+        // the screen shows the ship that is being worked on
+        this.selectedShipUUID = ship.getUUID();
+        this.beginRepair(ship, hull, sails, getRepairTime(ship, hull, sails));
+        return true;
+    }
+
+    private void beginRepair(Ship ship, boolean hull, boolean sails, int time) {
         this.task = Task.REPAIR;
         this.repairHull = hull;
         this.repairSails = sails;
         this.targetShipUUID = ship.getUUID();
         ship.setServicingDockyard(this.worldPosition);
         ship.setDockyardWork(true);
-        this.totalTime = workTime(player, getRepairTime(ship, hull, sails));
+        this.totalTime = time;
         this.progress = 0;
         this.setChanged();
     }
