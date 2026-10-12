@@ -2,6 +2,7 @@ package com.talhanation.smallships.world.entity.ship.abilities;
 
 import com.talhanation.smallships.SmallShipsMod;
 import com.talhanation.smallships.config.SmallShipsConfig;
+import com.talhanation.smallships.world.entity.cannon.Cannon;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.ContainerShip;
 import com.talhanation.smallships.world.entity.ship.Ship;
@@ -76,9 +77,13 @@ public interface Cannonable extends Ability {
     /**
      * Fires the single cannon in the given slot, triggered by its gunner.
      * The gunner's cannon fires regardless of the driver's look direction.
+     *
+     * No canShoot() up front: that one asks for the DRIVER's ammo, so a gunner
+     * alone aboard - no driver, nothing in the hold - could never fire the
+     * balls in his own pockets. ShipCannon#trigger checks the ammo of the
+     * actual shooter itself and simply does nothing without any.
      */
     default void triggerGunnerCannon(int slot) {
-        if (!canShoot()) return;
         for (ShipCannon cannon : this.getCannons()) {
             if (cannon.getSlotIndex() == slot) {
                 cannon.trigger(this instanceof Seatable seatable ? seatable.getGunner(slot) : null);
@@ -124,8 +129,7 @@ public interface Cannonable extends Ability {
     }
 
     default boolean hasPerCannonAim(int slot) {
-        if (!(this instanceof Seatable seatable) || seatable.getGunner(slot) == null) return false;
-        return self().getData(Ship.CANNON_AIM).contains("C" + slot + "Angle");
+        return this instanceof Seatable seatable && seatable.getGunner(slot) != null;
     }
 
     /**
@@ -275,15 +279,17 @@ public interface Cannonable extends Ability {
 
     /**
      * @param shooter the entity actually pulling the trigger (driver volley
-     *                or a gunner firing his own cannon) - only used to read
-     *                the shooter's selected ammo type (mouse wheel while
-     *                aiming). The ammo SOURCE is unchanged: the ship
-     *                container, then the DRIVER's inventory.
+     *                or a gunner firing his own cannon). Decides both the
+     *                preferred type (mouse wheel while aiming) and the second
+     *                ammo source: the ship container first, then the SHOOTER's
+     *                own inventory. A gunner loads out of his own pockets, not
+     *                out of the drivers' - the same two places his ammo picker
+     *                counts.
      * @return the preferred type's cannonball if available, otherwise any
      * other CannonBallItem found. Null if there is none.
      */
     default CannonBallItem getCannonBallToShoot(@Nullable Entity shooter) {
-        return CannonAmmoSelection.findPreferred(shooter, this.getShipAmmo(), this.getDriverAmmo());
+        return CannonAmmoSelection.findPreferred(shooter, this.getShipAmmo(), getShooterAmmo(shooter));
     }
 
     /** @return the ship container's stacks, or null if this ship has none. */
@@ -292,10 +298,21 @@ public interface Cannonable extends Ability {
         return self() instanceof ContainerEntity containerEntity ? containerEntity.getItemStacks() : null;
     }
 
-    /** @return the driver's inventory, or null if nobody is at the helm. */
+    /**
+     * @return the shooter's inventory, or null if nobody or no player pulls
+     * the trigger. For the driver's volley this is the driver himself.
+     */
     @Nullable
-    private Iterable<ItemStack> getDriverAmmo() {
-        return self().getControllingPassenger() instanceof Player player ? player.getInventory().items : null;
+    private static Iterable<ItemStack> getShooterAmmo(@Nullable Entity shooter) {
+        return shooter instanceof Player player ? player.getInventory().items : null;
+    }
+
+    /**
+     * Peeks whether a fine grain powder is available WITHOUT consuming it, for
+     * the DRIVER. Kept no-arg for reflection compatibility (Workers/Recruits mod).
+     */
+    default boolean hasFineGrainPowder() {
+        return this.hasFineGrainPowder(self().getControllingPassenger());
     }
 
     /**
@@ -303,16 +320,17 @@ public interface Cannonable extends Ability {
      * Used client side for the trajectory preview - the actual shot uses
      * consumeFineGrainPowder(), which shrinks the stack.
      *
+     * @param shooter same role as in {@link #getCannonBallToShoot(Entity)}
      * @return true if a fine grain powder is in the ship container or the
-     * driver's inventory
+     * shooter's inventory
      */
-    default boolean hasFineGrainPowder() {
+    default boolean hasFineGrainPowder(@Nullable Entity shooter) {
         if (self() instanceof ContainerEntity containerEntity){
             for (ItemStack itemStack : containerEntity.getItemStacks()) {
                 if (itemStack.is(ModItems.FINE_GRAIN_POWDER)) return true;
             }
         }
-        if(self().getControllingPassenger() instanceof Player player) {
+        if(shooter instanceof Player player) {
             for (ItemStack itemStack : player.getInventory().items) {
                 if (itemStack.is(ModItems.FINE_GRAIN_POWDER)) return true;
             }
@@ -331,9 +349,19 @@ public interface Cannonable extends Ability {
      *                      consumeFineGrainPowder instead)
      */
     default float getShotSpeedMultiplier(boolean peekFineGrain) {
-        CannonBallItem ammo = this.getCannonBallToShoot();
+        return this.getShotSpeedMultiplier(self().getControllingPassenger(), peekFineGrain);
+    }
+
+    /**
+     * The same for a given shooter, so a gunner's preview is computed from
+     * HIS ammo and HIS powder, the ones his shot will actually use.
+     *
+     * @param shooter same role as in {@link #getCannonBallToShoot(Entity)}
+     */
+    default float getShotSpeedMultiplier(@Nullable Entity shooter, boolean peekFineGrain) {
+        CannonBallItem ammo = this.getCannonBallToShoot(shooter);
         float multiplier = ammo != null ? ammo.getType().speedMultiplier : CannonBallItem.Type.BALL.speedMultiplier;
-        if (peekFineGrain && this.hasFineGrainPowder()) multiplier *= 1.5F;
+        if (peekFineGrain && this.hasFineGrainPowder(shooter)) multiplier *= Cannon.FINE_GRAIN_SPEED_FACTOR;
         return multiplier;
     }
 
@@ -347,11 +375,11 @@ public interface Cannonable extends Ability {
 
     /**
      * @param shooter same role as in {@link #getCannonBallToShoot(Entity)}:
-     *                only used to read the preferred ammo type, the source
-     *                (container, then driver inventory) is unchanged.
+     *                preferred type and second source (container, then the
+     *                shooter's own inventory).
      */
     default void consumeCannonBall(@Nullable Entity shooter) {
-        CannonAmmoSelection.consumePreferred(shooter, this.getShipAmmo(), this.getDriverAmmo());
+        CannonAmmoSelection.consumePreferred(shooter, this.getShipAmmo(), getShooterAmmo(shooter));
         // firing shrinks a stack in place, which bypasses setItem/setChanged -
         // without this the synched hold flags (and the cargo fill state) would
         // keep advertising the last barrel long after it was fired
@@ -359,12 +387,21 @@ public interface Cannonable extends Ability {
     }
 
     /**
-     * Tries to consume one fine grain powder from the ship container or the
-     * driver's inventory. If successful, the shot gains 50% projectile speed.
-     *
-     * @return true if a fine grain powder was consumed
+     * Consumes one fine grain powder for the DRIVER's volley. Kept no-arg for
+     * reflection compatibility (Workers/Recruits mod).
      */
     default boolean consumeFineGrainPowder() {
+        return this.consumeFineGrainPowder(self().getControllingPassenger());
+    }
+
+    /**
+     * Tries to consume one fine grain powder from the ship container or the
+     * shooter's inventory. If successful, the shot gains 50% projectile speed.
+     *
+     * @param shooter same role as in {@link #getCannonBallToShoot(Entity)}
+     * @return true if a fine grain powder was consumed
+     */
+    default boolean consumeFineGrainPowder(@Nullable Entity shooter) {
         if (self() instanceof ContainerEntity containerEntity){
             for(ItemStack itemstack: containerEntity.getItemStacks()){
                 if(itemstack.is(ModItems.FINE_GRAIN_POWDER)){
@@ -373,7 +410,7 @@ public interface Cannonable extends Ability {
                 }
             }
         }
-        if(self().getControllingPassenger() instanceof Player player) {
+        if(shooter instanceof Player player) {
             for (ItemStack itemstack : player.getInventory().items) {
                 if (itemstack.is(ModItems.FINE_GRAIN_POWDER)) {
                     itemstack.shrink(1);

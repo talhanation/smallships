@@ -3,6 +3,7 @@ package com.talhanation.smallships.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.entity.cannon.CannonGeometry;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -24,21 +25,20 @@ public class CannonModel extends EntityModel<Ship> {
     /**
      * The trunnions, in model units relative to the model root: the point the
      * barrel pitches around. Cannon sits at (0, 26.4, -2), Lauf hangs under it
-     * at (0.5, -13.4, -2) - the sum of the two.
+     * at (0.5, -13.4, -2) - the sum of the two. The muzzle band, the ring of
+     * four strips at z = -18 in Lauf, is BARREL_LENGTH in front of them.
      *
-     * These live here rather than in the renderer because they ARE the model:
-     * move a part in Blockbench and this is the one place that has to follow.
+     * The numbers themselves live in CannonGeometry, which the shot and the aim
+     * camera read as well - they are only mirrored here because this is the
+     * model they describe. Move a part in Blockbench and CannonGeometry is the
+     * one place that has to follow.
      */
-    public static final float TRUNNION_X = 0.5F;
-    public static final float TRUNNION_Y = 13.0F;
-    public static final float TRUNNION_Z = -4.0F;
-    /**
-     * Trunnions to the muzzle band in model units - the ring of four strips at
-     * z = -18 in Lauf, the last thing on the barrel before open air.
-     */
-    public static final float BARREL_LENGTH = 18.0F;
+    public static final float TRUNNION_X = CannonGeometry.TRUNNION_X;
+    public static final float TRUNNION_Y = CannonGeometry.TRUNNION_Y;
+    public static final float TRUNNION_Z = CannonGeometry.TRUNNION_Z;
+    public static final float BARREL_LENGTH = CannonGeometry.BARREL_LENGTH;
     /** the scale the model is drawn at, see the renderers */
-    public static final float MODEL_SCALE = 0.6F;
+    public static final float MODEL_SCALE = CannonGeometry.MODEL_SCALE;
 
     /**
      * Where the barrel ends, as an offset from the origin of the cannon pose.
@@ -46,11 +46,10 @@ public class CannonModel extends EntityModel<Ship> {
      * The result is in BLOCKS and in the same frame the model is drawn in, so a
      * caller drawing at a different scale has to divide that scale out again.
      *
-     * Note this is the VISIBLE muzzle. The ball itself spawns further out, at
-     * {@code Cannon.getBarrelEndPointLocal()} - 1.2 blocks from the trunnions
-     * against 0.675 here. Both sit on the same axis, so a line drawn from here
-     * still runs along the real flight path; it simply starts at the metal
-     * instead of half a block in front of it.
+     * Note this is the VISIBLE muzzle. The ball itself spawns a little further
+     * out, see CannonGeometry#spawnDistance. Both sit on the same axis, so a
+     * line drawn from here still runs along the real flight path; it simply
+     * starts at the metal instead of in front of it.
      *
      * @param aimAngle barrel elevation in degrees, positive = up, the same
      *                 value {@link #setLaufPitch} is fed the negative of
@@ -62,6 +61,20 @@ public class CannonModel extends EntityModel<Ship> {
         return new Vec3(TRUNNION_X,
                 TRUNNION_Y - BARREL_LENGTH * Math.sin(angle),
                 TRUNNION_Z - BARREL_LENGTH * Math.cos(angle))
+                .scale(MODEL_SCALE / 16.0D);
+    }
+
+    /**
+     * Where the ball spawns, as an offset from the origin of the cannon pose:
+     * the same axis as the muzzle, a little further out so it leaves in front of
+     * the metal. This is the point the trajectory preview has to start at.
+     */
+    public static Vec3 getSpawnOffset(float aimAngle) {
+        double angle = Math.toRadians(aimAngle);
+        float length = CannonGeometry.spawnLength();
+        return new Vec3(TRUNNION_X,
+                TRUNNION_Y - length * Math.sin(angle),
+                TRUNNION_Z - length * Math.cos(angle))
                 .scale(MODEL_SCALE / 16.0D);
     }
 

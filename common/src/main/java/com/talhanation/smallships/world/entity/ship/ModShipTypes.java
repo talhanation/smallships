@@ -7,45 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 
-/**
- * The ship types of the main mod. They go through {@link ShipRegistry} exactly
- * like an addons' ships do - this class is nothing but the main mods' own addon
- * entry, so the dockyard never has to know a concrete ship class.
- *
- * The recipes below are the fallbacks. The files under
- * data/smallships/dockyard_recipes/ carry the same values and are what players
- * and pack makers actually edit - keep both in sync when tuning.
- *
- * Feature: ships are ONLY craftable at the dockyard, the vanilla crafting
- * recipes have been removed.
- *
- * <h2>How the numbers are found</h2>
- *
- * Every recipe is derived from what the ship IS, not guessed per ship. The
- * dockyard already prices a repair off the missing points
- * ({@code DockyardBlockEntity.HULL_HP_PER_UNIT}, {@code SAIL_HP_PER_WOOL}), and
- * a build is nothing but a repair from zero - so the same rates set the build
- * cost too, and hull, canvas and rigging can never drift apart from what
- * fixing them costs.
- *
- * <pre>
- *   hull units = maxHealth / 10          one unit = 4 planks + 1 nugget = 10 hp
- *   planks     = hull units * 4 * 1.2
- *   iron       = hull units * 1.2 * (fastening of that hull, see below)
- *   wool       = 20 per sail * 1.2       one wool = 5 sail hp, 100 hp per sail
- *   string     = 12 per sail * (rigging of that hull)
- *   build time = 60s + 0.3s per hull point
- * </pre>
- *
- * The 1.2 says building costs a fifth more than fixing: a wreck is always worth
- * hauling back to the dockyard rather than scuttling and starting over. The
- * factor is anchored on the cog, whose 192 planks and 180 seconds came out of
- * the old hand written recipe and are reproduced exactly by the formula.
- *
- * What stays per ship is only the CHARACTER of the fastening and the rigging,
- * because that is the part history actually differs on - the amount always
- * follows the hull.
- */
 public class ModShipTypes {
 
     /**
@@ -57,7 +18,7 @@ public class ModShipTypes {
      */
     public static final ShipType COG = ShipRegistry.register(ShipType.builder(id(CogEntity.ID), CogEntity::summon)
             .buildTime(180 * 20)
-            .ingredient(ItemTags.PLANKS, 192)
+            .ingredient(ItemTags.PLANKS, 132)
             .ingredient(Items.WHITE_WOOL, 24)
             .ingredient(Items.STRING, 12)
             .ingredient(Items.IRON_NUGGET, 48)
@@ -71,10 +32,10 @@ public class ModShipTypes {
      */
     public static final ShipType BRIGG = ShipRegistry.register(ShipType.builder(id(BriggEntity.ID), BriggEntity::summon)
             .buildTime(210 * 20)
-            .ingredient(ItemTags.PLANKS, 240)
-            .ingredient(Items.WHITE_WOOL, 48)
+            .ingredient(ItemTags.PLANKS, 260)
+            .ingredient(Items.WHITE_WOOL, 64)
             .ingredient(Items.STRING, 24)
-            .ingredient(Items.IRON_INGOT, 8)
+            .ingredient(Items.IRON_INGOT, 16)
             .build());
 
     /**
@@ -85,7 +46,7 @@ public class ModShipTypes {
      */
     public static final ShipType GALLEY = ShipRegistry.register(ShipType.builder(id(GalleyEntity.ID), GalleyEntity::summon)
             .buildTime(120 * 20)
-            .ingredient(ItemTags.PLANKS, 96)
+            .ingredient(ItemTags.PLANKS, 84)
             .ingredient(Items.WHITE_WOOL, 24)
             .ingredient(Items.STRING, 12)
             .ingredient(Items.IRON_NUGGET, 18)
@@ -100,9 +61,9 @@ public class ModShipTypes {
      */
     public static final ShipType DHOW = ShipRegistry.register(ShipType.builder(id(DhowEntity.ID), DhowEntity::summon)
             .buildTime(120 * 20)
-            .ingredient(ItemTags.PLANKS, 96)
+            .ingredient(ItemTags.PLANKS, 112)
             .ingredient(Items.WHITE_WOOL, 48)
-            .ingredient(Items.STRING, 48)
+            .ingredient(Items.STRING, 16)
             .build());
 
     /**
@@ -113,10 +74,10 @@ public class ModShipTypes {
      */
     public static final ShipType DRAKKAR = ShipRegistry.register(ShipType.builder(id(DrakkarEntity.ID), DrakkarEntity::summon)
             .buildTime(120 * 20)
-            .ingredient(ItemTags.PLANKS, 96)
+            .ingredient(ItemTags.PLANKS, 102)
             .ingredient(Items.WHITE_WOOL, 24)
-            .ingredient(Items.STRING, 12)
-            .ingredient(Items.IRON_NUGGET, 36)
+            .ingredient(Items.STRING, 18)
+            .ingredient(Items.IRON_NUGGET, 18)
             .build());
 
     /**
@@ -126,7 +87,7 @@ public class ModShipTypes {
      */
     public static final ShipType CARAVEL = ShipRegistry.register(ShipType.builder(id(CaravelEntity.ID), CaravelEntity::summon)
             .buildTime(135 * 20)
-            .ingredient(ItemTags.PLANKS, 120)
+            .ingredient(ItemTags.PLANKS, 148)
             .ingredient(Items.WHITE_WOOL, 48)
             .ingredient(Items.STRING, 24)
             .ingredient(Items.IRON_NUGGET, 30)
@@ -145,10 +106,10 @@ public class ModShipTypes {
      */
     public static final ShipType GALLEON = ShipRegistry.register(ShipType.builder(id(GalleonEntity.ID), GalleonEntity::summon)
             .buildTime(270 * 20)
-            .ingredient(ItemTags.PLANKS, 336)
-            .ingredient(Items.WHITE_WOOL, 72)
-            .ingredient(Items.STRING, 36)
-            .ingredient(Items.IRON_INGOT, 12)
+            .ingredient(ItemTags.PLANKS, 358)
+            .ingredient(Items.WHITE_WOOL, 128)
+            .ingredient(Items.STRING, 53)
+            .ingredient(Items.IRON_INGOT, 32)
             .build());
 
 

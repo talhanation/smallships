@@ -7,12 +7,14 @@ import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Central handler for the sail damage system.
@@ -30,7 +32,6 @@ import net.minecraft.world.item.Items;
  * - At 0 the sail is not rendered at all.
  * - Speed: above 50 HP no debuff, at 50 HP or below the sail output is reduced
  *   by 25%, at 0 HP the sail contributes nothing.
- * - Repaired by hand with 6x wool (any color), or completely at the dockyard.
  */
 public final class SailDamage {
     /** health one sail is worth; the pool is this times the sail count */
@@ -39,9 +40,12 @@ public final class SailDamage {
     public static final float TORN_FRACTION = 0.5F;
     /**
      * How far a patch job with needle and thread gets the canvas. Anything
-     * beyond that needs new cloth: either the full bolt of wool, or a dockyard.
+     * beyond that needs new cloth, and new cloth goes on at a dockyard.
      */
     public static final float PATCH_LIMIT = 0.33F;
+    /** canvas points one patch puts back: PATCH_MIN + 0 .. PATCH_RANDOM - 1 */
+    public static final int PATCH_MIN = 5;
+    public static final int PATCH_RANDOM = 5;
 
     /**
      * @return the full sail health of this ship: {@link #HEALTH_PER_SAIL} for
@@ -139,26 +143,6 @@ public final class SailDamage {
         };
     }
 
-    /* ---------------- repair ---------------- */
-
-    /**
-     * Hand repair: right click the ship with at least 6x wool.
-     * Consumes the wool and fully repairs the sails.
-     */
-    public static boolean interactRepair(Ship ship, Player player, InteractionHand interactionHand) {
-        if (!(ship instanceof Sailable)) return false;
-        if (getHealth(ship) >= getMaxHealth(ship)) return false;
-
-        ItemStack item = player.getItemInHand(interactionHand);
-        int cost = SmallShipsConfig.Server.sailRepairWoolAmount.get();
-        if (!item.is(ItemTags.WOOL) || item.getCount() < cost) return false;
-
-        if (!player.isCreative()) item.shrink(cost);
-        repair(ship);
-        ship.level().playSound(player, ship.getX(), ship.getY() + 4, ship.getZ(), SoundEvents.WOOL_PLACE, ship.getSoundSource(), 10.0F, 1.0F);
-        return true;
-    }
-
     /**
      * Patch repair: right click the ship with a string in hand and an iron
      * nugget somewhere in the inventory - needle and thread. It only ever gets
@@ -186,11 +170,48 @@ public final class SailDamage {
             }
         }
 
-        float repaired = 5.0F + ship.level().random.nextInt(5);
-        setHealth(ship, Math.min(limit, getHealth(ship) + repaired));
-        ship.level().playSound(player, ship.getX(), ship.getY() + 4, ship.getZ(),
-                SoundEvents.WOOL_PLACE, ship.getSoundSource(), 6.0F, 1.2F);
+        applyPatch(ship, player);
         return true;
+    }
+
+    /**
+     * Patch repair paid out of any container - one string and one iron nugget,
+     * the same price and the same {@link #PATCH_LIMIT} as a player with needle
+     * and thread. Used by NPC crews through ShipBridge, server side only.
+     *
+     * @return true if a patch was done and paid for
+     */
+    public static boolean patchWith(Ship ship, Container payer) {
+        if (!(ship instanceof Sailable)) return false;
+        if (ship.level().isClientSide()) return false;
+        if (getHealth(ship) >= getMaxHealth(ship) * PATCH_LIMIT) return false;
+
+        int string = findSlot(payer, Items.STRING);
+        int nugget = findSlot(payer, Items.IRON_NUGGET);
+        if (string < 0 || nugget < 0) return false;
+
+        payer.removeItem(string, 1);
+        payer.removeItem(nugget, 1);
+        payer.setChanged();
+
+        applyPatch(ship, null);
+        return true;
+    }
+
+    /** One seam: the amount and the sound, the same for every way of paying for it. */
+    private static void applyPatch(Ship ship, @Nullable Player soundSource) {
+        float limit = getMaxHealth(ship) * PATCH_LIMIT;
+        float repaired = PATCH_MIN + ship.level().random.nextInt(PATCH_RANDOM);
+        setHealth(ship, Math.min(limit, getHealth(ship) + repaired));
+        ship.level().playSound(soundSource, ship.getX(), ship.getY() + 4, ship.getZ(),
+                SoundEvents.WOOL_PLACE, ship.getSoundSource(), 6.0F, 1.2F);
+    }
+
+    private static int findSlot(Container container, Item item) {
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            if (container.getItem(i).is(item)) return i;
+        }
+        return -1;
     }
 
     /** Full repair, e.g. from the dockyard. */

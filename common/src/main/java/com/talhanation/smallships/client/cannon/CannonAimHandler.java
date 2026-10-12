@@ -2,6 +2,7 @@ package com.talhanation.smallships.client.cannon;
 
 import com.talhanation.smallships.network.ModPackets;
 import com.talhanation.smallships.network.packet.ServerboundSetCannonAimPacket;
+import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Seatable;
@@ -9,7 +10,9 @@ import com.talhanation.smallships.world.entity.ship.seat.SeatType;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -56,10 +59,15 @@ public class CannonAimHandler {
     private static float angle;
     private static float rotation;
     private static int tickCounter = 0;
+    /** whether the first person hand is switched off for the aim, see updateHandRendering */
+    private static boolean handHidden = false;
 
     /** Called by the MouseHandler mixin on right click press/release. */
     public static void setRightClickHeld(boolean held) {
         rightClickHeld = held;
+        // right away, not only on the next tick - or the hand is still there
+        // for the first frames of the aim
+        updateHandRendering(Minecraft.getInstance());
     }
 
     /**
@@ -73,7 +81,24 @@ public class CannonAimHandler {
         if (player == null || minecraft.screen != null) return false;
         if (!(player.getVehicle() instanceof Ship ship) || !(ship instanceof Cannonable cannonable)) return false;
         if (cannonable.getCannonCount() <= 0) return false;
+        if (isHoldingUsableItem(player)) return false;
         return player.equals(ship.getDriver()) || getGunnerSlot(player, ship) >= 0;
+    }
+
+    /**
+     * @return true if the player holds an item with a use of its own in either
+     * hand - bow, crossbow, trident, shield, food, potion, spyglass, horn. The
+     * right click belongs to that item then, not to the cannon, so a gunner
+     * can still draw his bow or eat at his station.
+     *
+     * Read off the use animation, the one thing every such item declares: an
+     * item without one has nothing to hold right click for.
+     */
+    public static boolean isHoldingUsableItem(Player player) {
+        for (InteractionHand hand : InteractionHand.values()) {
+            if (player.getItemInHand(hand).getUseAnimation() != UseAnim.NONE) return true;
+        }
+        return false;
     }
 
     /**
@@ -205,6 +230,10 @@ public class CannonAimHandler {
      * Called once per client tick: throttled sync and release detection.
      */
     public static void tick(Minecraft minecraft) {
+        // every tick, and before the null check: the ground cannon aim and an
+        // item taken into the hand do not come through setRightClickHeld
+        updateHandRendering(minecraft);
+
         Player player = minecraft.player;
         if (player == null) return;
 
@@ -227,6 +256,23 @@ public class CannonAimHandler {
         if (!active) {
             aiming = false;
         }
+    }
+
+    /**
+     * No first person hand while any cannon is aimed - ship or ground cannon.
+     *
+     * Through GameRenderer#setRenderHand, the switch vanilla itself uses for the
+     * panorama screenshots. It sits above everything that draws the hand, so it
+     * holds whatever the camera type, after an F5 mid aim, and with shader mods
+     * that draw the hand in their own pass. Only written on a change, so
+     * nothing else using the switch is overridden every tick.
+     */
+    private static void updateHandRendering(Minecraft minecraft) {
+        Player player = minecraft.player;
+        boolean hide = player != null && (player.getVehicle() instanceof GroundCannonEntity cannon ? cannon.isAiming() : isAiming());
+        if (hide == handHidden) return;
+        handHidden = hide;
+        minecraft.gameRenderer.setRenderHand(!hide);
     }
 
     /** @return true if the aim mode is active for exactly this ship. */

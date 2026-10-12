@@ -11,6 +11,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
@@ -33,6 +34,13 @@ import java.util.List;
  * even if its json is missing or broken.
  */
 public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
+
+    /** planks one log is worth, the vanilla crafting yield */
+    private static final int PLANKS_PER_LOG = 4;
+    /** nuggets one iron ingot is worth, the vanilla crafting yield */
+    private static final int NUGGETS_PER_INGOT = 9;
+    /** ingots one iron block is worth, the vanilla crafting yield */
+    private static final int INGOTS_PER_BLOCK = 9;
 
     public static final StreamCodec<ByteBuf, DockyardRecipe> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, DockyardRecipe::buildTime,
@@ -65,6 +73,42 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
                 if (this.matches(stack)) count += stack.getCount();
             }
             return count;
+        }
+
+        /** The same count for any container, e.g. the inventory of an NPC paying for a repair. */
+        public int countIn(Container container) {
+            int count = 0;
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                ItemStack stack = container.getItem(i);
+                if (this.matches(stack)) count += stack.getCount();
+            }
+            return count;
+        }
+
+        /**
+         * @return what this ingredient adds to the price of a ship: wood counted
+         * in planks, iron counted in nuggets. Everything else - wool, string,
+         * whatever an addon asks for - is not part of the price, it only says
+         * what KIND of ship it is, not how big.
+         *
+         * Iron is normalized to nuggets because the recipes ask for it in
+         * both sizes: the small hulls in nuggets, brigg and galleon in ingots.
+         * Compared as written, eight ingots would come out cheaper than
+         * eighteen nuggets.
+         */
+        public int getBuildCost() {
+            if (this.tag != null) {
+                if (this.tag.equals(ItemTags.PLANKS)) return this.amount;
+                if (this.tag.equals(ItemTags.LOGS)) return this.amount * PLANKS_PER_LOG;
+                return 0;
+            }
+            if (this.item == Items.IRON_NUGGET) return this.amount;
+            if (this.item == Items.IRON_INGOT) return this.amount * NUGGETS_PER_INGOT;
+            if (this.item == Items.IRON_BLOCK) return this.amount * INGOTS_PER_BLOCK * NUGGETS_PER_INGOT;
+            // a data pack may well ask for one concrete wood instead of the tag
+            if (new ItemStack(this.item).is(ItemTags.PLANKS)) return this.amount;
+            if (new ItemStack(this.item).is(ItemTags.LOGS)) return this.amount * PLANKS_PER_LOG;
+            return 0;
         }
 
         public ItemStack getDisplayStack(Boat.Type woodType) {
@@ -169,6 +213,19 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
     }
 
     /**
+     * @return the price of this ship in wood and iron, see
+     * {@link Ingredient#getBuildCost()}. Only used to ORDER the ships in the
+     * build tab, the dockyard never charges by this number.
+     */
+    public int getBuildCost() {
+        int cost = 0;
+        for (Ingredient ingredient : this.ingredients) {
+            cost += ingredient.getBuildCost();
+        }
+        return cost;
+    }
+
+    /**
      * @return a list of display stacks for the GUI material list.
      */
     public List<ItemStack> getDisplayStacks(Boat.Type woodType) {
@@ -186,6 +243,30 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
             if (ingredient.countIn(player) < ingredient.amount()) return false;
         }
         return true;
+    }
+
+    /** Cost check against any container - an NPC pays exactly what a player would. */
+    public static boolean canAfford(List<Ingredient> ingredients, Container container) {
+        for (Ingredient ingredient : ingredients) {
+            if (ingredient.countIn(container) < ingredient.amount()) return false;
+        }
+        return true;
+    }
+
+    /** Consumes any material list from any container. Callers must validate with canAfford first. */
+    public static void consume(List<Ingredient> ingredients, Container container) {
+        for (Ingredient ingredient : ingredients) {
+            int remaining = ingredient.amount();
+            for (int i = 0; i < container.getContainerSize() && remaining > 0; i++) {
+                ItemStack stack = container.getItem(i);
+                if (ingredient.matches(stack)) {
+                    int take = Math.min(remaining, stack.getCount());
+                    container.removeItem(i, take);
+                    remaining -= take;
+                }
+            }
+        }
+        container.setChanged();
     }
 
     /** Consumes any material list, also used by the repair task. */

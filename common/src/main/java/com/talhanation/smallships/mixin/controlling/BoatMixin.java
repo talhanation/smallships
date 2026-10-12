@@ -17,6 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
+/**
+ * Drives Ship#controlShip on both sides in place of controlBoat and takes
+ * over the passenger pickup.
+ */
 @Mixin(Boat.class)
 public abstract class BoatMixin {
     @Shadow protected abstract void controlBoat();
@@ -36,8 +40,8 @@ public abstract class BoatMixin {
     @SuppressWarnings("ConstantValue")
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;tickLerp()V"))
     private void tickClientAndServerControlBoat(CallbackInfo ci) {
-        if (((Boat)(Object)this instanceof Ship)) {
-            this.controlBoat();
+        if (((Boat)(Object)this instanceof Ship ship)) {
+            ship.controlShip();
         }
     }
 

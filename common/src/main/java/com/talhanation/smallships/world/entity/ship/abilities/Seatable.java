@@ -191,14 +191,27 @@ public interface Seatable extends Ability {
      * can sit there, but clicking a cannon means the cannon, so the post that
      * works that same slot is handed back instead.
      *
-     * @param includeDriver whether the helm may be picked by distance too
+     * @param includeDriver whether the helm may be picked at all. False for
+     *                      everyone who may not steer (Ship#canDrive): for them
+     *                      the helm is skipped entirely, even while it is free
+     *                      and the closest seat to the click
      */
     @Nullable
     default ShipSeat findSeatAt(Vec3 worldPos, boolean includeDriver) {
         ShipSeat target = null;
         double bestDist = Double.MAX_VALUE;
         for (ShipSeat seat : this.getSeats()) {
-            //if (!includeDriver && seat.type() == SeatType.DRIVER) continue;
+
+            if (seat.type() == SeatType.DRIVER) {
+                if (includeDriver && this.isSeatFree(seat.id())) return seat;
+                // the helm is not a place to sit for whoever may not steer -
+                // not even when it happens to be the seat closest to where he
+                // boarded. He takes another one, or stays ashore: see
+                // Ship#hasFreeSeatFor, which refuses him when the helm is all
+                // that is left
+                if (!includeDriver) continue;
+            }
+
             boolean carriageWithGun = seat.type() == SeatType.CANNON && this.isSeatBlocked(seat);
             if (!carriageWithGun && !this.isSeatFree(seat.id())) continue;
             double dist = seat.getWorldPosition(self()).distanceToSqr(worldPos);
@@ -217,6 +230,46 @@ public interface Seatable extends Ability {
             return this.nearestFree(worldPos, seat -> includeDriver || seat.type() != SeatType.DRIVER);
         }
         return target;
+    }
+
+    /**
+     * How close to a gun a boarding click has to land to count as a click ON
+     * that gun, in blocks. Roughly the gun and its post - anywhere else on the
+     * deck is a click on the ship.
+     */
+    double GUN_CLICK_RADIUS = 1.5D;
+
+    /**
+     * Picks the gun post for a boarding click that landed directly on a gun -
+     * the carriage with the gun on it, or the post behind it. Only a slot that
+     * actually carries a gun counts, an empty post has nothing to work.
+     *
+     * Checked BEFORE the usual boarding search, which sends anyone who may
+     * steer straight to the helm: a player who clicks a cannon wants that
+     * cannon, everyone else boards as before.
+     *
+     * @return the free GUNNER post of the clicked gun, or null if the click was
+     * not on a gun or its post is manned already - the caller then boards the
+     * usual way, see {@link #findSeatAt}.
+     */
+    @Nullable
+    default ShipSeat findGunnerSeatAt(Vec3 worldPos) {
+        if (!(this instanceof Cannonable cannonable)) return null;
+
+        ShipSeat clicked = null;
+        double bestDist = GUN_CLICK_RADIUS * GUN_CLICK_RADIUS;
+        for (ShipSeat seat : this.getSeats()) {
+            if (seat.type() != SeatType.CANNON && seat.type() != SeatType.GUNNER) continue;
+            if (!cannonable.isCannonInSlot(seat.mappedCannonSlot())) continue;
+
+            double dist = seat.getWorldPosition(self()).distanceToSqr(worldPos);
+            if (dist < bestDist) {
+                bestDist = dist;
+                clicked = seat;
+            }
+        }
+        if (clicked == null) return null;
+        return this.freeGunnerSeat(clicked.mappedCannonSlot());
     }
 
     /** @return the free GUNNER post working the given cannon slot, or null. */

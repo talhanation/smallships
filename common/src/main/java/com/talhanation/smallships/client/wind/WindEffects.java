@@ -2,6 +2,7 @@ package com.talhanation.smallships.client.wind;
 
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.config.SyncedServerConfig;
+import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.wind.Wind;
 import net.minecraft.client.Minecraft;
@@ -15,7 +16,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Spawns the white wind lines on the water surface around the camera.
+ * Spawns the white wind lines on the water surface around the camera, for
+ * as long as the local player sits in a ship.
  * Called once per client tick.
  */
 public class WindEffects {
@@ -30,6 +32,8 @@ public class WindEffects {
 
         LocalPlayer player = minecraft.player;
         if (player == null) return;
+        // only aboard a ship: on land the wind has nothing to tell the player
+        if (!(player.getVehicle() instanceof Ship)) return;
 
         Level level = minecraft.level;
 

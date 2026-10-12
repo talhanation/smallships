@@ -1,5 +1,6 @@
 package com.talhanation.smallships.world.entity.ship;
 
+import com.talhanation.smallships.api.ShipItems;
 import com.talhanation.smallships.client.model.sail.SailModel;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.config.SyncedServerConfig;
@@ -18,14 +19,15 @@ import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.wind.Wind;
 import com.talhanation.smallships.world.wind.WindManager;
 import com.talhanation.smallships.client.wind.ClientWindManager;
-import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import net.minecraft.server.level.ServerLevel;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -37,6 +39,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -50,6 +53,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WaterlilyBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -63,7 +69,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Stack;
 
 public abstract class Ship extends Boat {
@@ -124,9 +129,33 @@ public abstract class Ship extends Boat {
     public static final EntityDataAccessor<CompoundTag> CANNON_SLOTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
     /** Fixed seat assignments: Seat<id> -> passenger UUID, see Seatable. */
     public static final EntityDataAccessor<CompoundTag> SEAT_ASSIGNMENTS = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
+    /**
+     * The exact pose of a ship that lies still: X, Y, Z and Yaw. Empty while
+     * she moves.
+     *
+     * Vanilla sends an entity position in steps of 1/4096 block and its yaw as
+     * a single byte, 1.4 degrees a step. That is close enough to draw a boat,
+     * but the hull parts are placed from this pose on BOTH sides, and the
+     * server checks every step a player takes against ITS part boxes - with a
+     * tolerance of a hundred-thousandth of a block. A deck that sits a hair
+     * lower on the client puts his feet inside the servers' deck, and he is
+     * set back on every part he touches. It only ever worked after someone had
+     * taken the helm once, because a driving client sends its own pose to the
+     * server unrounded.
+     *
+     * Synched data crosses unrounded as well, reaches everyone who tracks the
+     * ship and everyone who starts to later, and costs one packet per stop.
+     * See tickRestPose.
+     */
+    public static final EntityDataAccessor<CompoundTag> REST_POSE = SynchedEntityData.defineId(Ship.class, EntityDataSerializers.COMPOUND_TAG);
 
-    /** live collision parts, server side only, see updateParts */
+    /**
+     * The live collision parts. The server creates them, see updateParts; the
+     * client only ever finds the ones it was sent, see collectParts.
+     */
     private final List<ShipPartEntity> parts = new ArrayList<>();
+    /** client side: how many parts this ship is made of, counted once */
+    private int partCount = -1;
     /** gets NPCs off the deck they cannot path on, server side only, see DeckEscape */
     private final DeckEscape deckEscape = new DeckEscape(this);
 
@@ -147,13 +176,13 @@ public abstract class Ship extends Boat {
      */
 
     /** below this closing speed the hulls just bump and nothing is spent */
-    private static final double RAM_MIN_CLOSING_KMH = 20.0D;
+    public static final double RAM_MIN_CLOSING_KMH = 20.0D;
     /**
      * The same bar for running aground, and lower on purpose. Another hull
      * gives way, takes part of the blow and carries some of it off; rock does
      * none of that, so a lesser knock already tells on the timbers.
      */
-    private static final double CRASH_MIN_SPEED_KMH = 16.0D;
+    public static final double CRASH_MIN_SPEED_KMH = 16.0D;
     /**
      * Below this a hull is only leaning against something. A ship warping
      * itself into a jetty used to bang once per stop, however slowly it drifted
@@ -184,7 +213,7 @@ public abstract class Ship extends Boat {
      * second, so a cooldown only throttles grinding against a hull already
      * touched. This says what it should: break off, come about, run in again.
      */
-    private static final double RAM_REARM_DISTANCE = 10.0D;
+    public static final double RAM_REARM_DISTANCE = 10.0D;
     /**
      * Share of the wanted movement that has to survive the collision test for
      * the way to count as free. Running into a cliff stops a ship dead;
@@ -197,13 +226,19 @@ public abstract class Ship extends Boat {
      * has no way on, accelerate, hit, stop - grinding its way along a wall.
      */
     private static final int OBSTACLE_HOLD_TICKS = 10;
+    /**
+     * How far past the hull lily pads and ice are cleared, in blocks. More than
+     * a ship makes between two runs of tickBreakThrough even at full way - a
+     * 30 km/h hull covers about 0.83 blocks in two ticks.
+     */
+    private static final double BREAK_THROUGH_REACH = 1.0D;
 
     /**
      * Fixed manoeuvring speed in blocks per tick, ahead and astern alike, and
      * deliberately NOT derived from maxSpeed: warping into a berth or working
      * a wedged hull free should take the same patience on every ship.
      */
-    private static final float MANOEUVRE_SPEED = 0.03F;
+    public static final float MANOEUVRE_SPEED = 0.03F;
 
     /**
      * What is left of a ships' way after each tick of sinking. She does not
@@ -221,6 +256,36 @@ public abstract class Ship extends Boat {
     private static final float SINKING_CLOCK_SNAP = 20.0F;
     /** share of the remaining difference the client clock makes up per tick */
     private static final float SINKING_CLOCK_CATCHUP = 0.1F;
+
+    /**
+     * Ticks a ship has to lie still before its pose is published. Not the first
+     * still tick: a hull that is just settling moves, rests a tick and moves
+     * again, and every change of mind would be a packet.
+     */
+    private static final int REST_POSE_DELAY = 5;
+    /**
+     * Client: further off the rest pose than this - in blocks, or degrees - and
+     * the ship is eased towards it instead of being put there. She may still be
+     * catching up with the last stretch of a movement when the pose arrives.
+     */
+    private static final double REST_POSE_GLIDE_DISTANCE = 0.01D;
+    private static final float REST_POSE_GLIDE_TURN = 0.25F;
+    /** share of the way left to the rest pose that is made up per tick */
+    private static final float REST_POSE_GLIDE = 0.3F;
+    /**
+     * Client: how far around the ship its parts are looked for, in blocks. They
+     * arrive where the servers' ship is, and the ship on this side may still be
+     * a few blocks behind that.
+     */
+    private static final double PART_SEARCH_RADIUS = 16.0D;
+
+    /** server side: where she lay at the end of the last tick, see tickRestPose */
+    private Vec3 lastTickPosition = Vec3.ZERO;
+    private float lastTickYRot;
+    private int stillTicks;
+    /** client side: REST_POSE read once when it arrives, null while she moves */
+    @Nullable private Vec3 restPosition;
+    private float restYRot;
 
     /** Server side: where this ship last rammed, see RAM_REARM_DISTANCE. */
     @Nullable private Vec3 ramRearmPos;
@@ -259,7 +324,23 @@ public abstract class Ship extends Boat {
     public static float toTickSpeed(float attributeSpeed) {
         return attributeSpeed / SPEED_ATTRIBUTE_DIVISOR;
     }
+
+    /**
+     * The turn rate ceiling in degrees per tick for a maxRotationSpeed
+     * attribute. One formula for controlShip and for everyone who has to know
+     * how a hull turns without driving it (ShipBridge).
+     */
+    public static float toMaxRotSpeed(float attributeRotationSpeed) {
+        return attributeRotationSpeed * 0.1F + 1.8F;
+    }
+
+    /** What the rudder adds to the turn rate per tick, see toMaxRotSpeed. */
+    public static float toRotStep(float attributeRotationAcceleration) {
+        return attributeRotationAcceleration * 1 / 8;
+    }
     private CameraType previousCameraType;
+    /** client: whether the local player sat at this helm last tick */
+    private boolean wasLocalDriver;
 
     public Ship(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level);
@@ -268,6 +349,7 @@ public abstract class Ship extends Boat {
 
     @Override
     public void tick() {
+        if (this.level().isClientSide()) this.tickAutoThirdPerson();
         // seat system: clean up assignments of passengers that left (server, every second)
         if (this instanceof Seatable seatable && !this.level().isClientSide() && this.tickCount % 20 == 0) {
             seatable.validateSeatAssignments();
@@ -324,7 +406,7 @@ public abstract class Ship extends Boat {
             if (this instanceof Cannonable cannonShip) cannonShip.tickCannonShip();
             if (this instanceof Paddleable paddleShip) paddleShip.tickPaddleShip();
             if (this instanceof Shieldable shieldShip) shieldShip.tickShieldShip();
-            if (this instanceof IceBreakable iceBreakable) iceBreakable.tickIceBreakable();
+            this.tickBreakThrough();
 
             boolean isCruising = (getSpeed() > 0.085F || getSpeed() < -0.085F);
             this.updateShipAmbience(isCruising);
@@ -334,6 +416,130 @@ public abstract class Ship extends Boat {
             this.floatUp();
             if(outOfControlTicks > 0) --this.outOfControlTicks;
         }
+
+        // last, after everything above that may still have moved her. The
+        // client does its half in tickClientHull, not in here
+        if (!this.level().isClientSide()) {
+            this.tickRestPose();
+            this.moveParts();
+        }
+    }
+
+    /**
+     * Client: holds the rest pose and carries the parts along, once per client
+     * tick. Called by ClientTickHandler for every ship in the world and NOT
+     * from tick(), on purpose.
+     *
+     * A client is free to skip the tick of an entity it does not draw - a
+     * culling mod does exactly that, for the parts always, they are never
+     * drawn, and possibly for a ship that is out of view as well. Whatever
+     * hangs off an entity tick then only works on some clients. The client tick itself is run for everybody, so this is
+     * the one path for all of them, with or without such a mod.
+     */
+    public void tickClientHull() {
+        this.holdRestPose();
+        this.moveParts();
+    }
+
+    /**
+     * Puts every part where the ship is now, on both sides.
+     *
+     * A part does the same in its own tick, but on the client that tick is not
+     * to be relied on, see tickClientHull - without this the parts are left
+     * standing where they were spawned while the ship sails off.
+     */
+    private void moveParts() {
+        if (this.level().isClientSide()) this.collectParts();
+        for (ShipPartEntity part : this.parts) part.follow(this);
+    }
+
+    /**
+     * Client: finds the parts the server sent for this ship. Looked for only
+     * while some are missing - right away as long as there are none at all,
+     * twice a second after that. Timed by the world clock, the ships' own tick
+     * count stands still while its tick is skipped.
+     */
+    private void collectParts() {
+        this.parts.removeIf(Entity::isRemoved);
+        if (this.partCount < 0) this.partCount = ShipPartEntity.split(this.getParts()).size();
+        if (this.parts.size() == this.partCount) return;
+        if (!this.parts.isEmpty() && this.level().getGameTime() % 10L != 0L) return;
+
+        this.parts.clear();
+        this.parts.addAll(this.level().getEntitiesOfClass(ShipPartEntity.class, this.getBoundingBox().inflate(PART_SEARCH_RADIUS), part -> part.getParent() == this));
+    }
+
+    /**
+     * Server: publishes the pose once the ship has not moved for
+     * REST_POSE_DELAY ticks and takes it back in the tick she moves again, so
+     * both sides stand on the very same pose while she lies still. Compared
+     * against the END of the last tick and not against xo/yo/zo, because a
+     * ship with a player at the helm is moved by his packets between two ticks
+     * and never inside one.
+     *
+     * The client half is holdRestPose.
+     */
+    private void tickRestPose() {
+        boolean hasMoved = !this.position().equals(this.lastTickPosition) || this.getYRot() != this.lastTickYRot;
+        this.lastTickPosition = this.position();
+        this.lastTickYRot = this.getYRot();
+
+        boolean isPublished = !this.getData(REST_POSE).isEmpty();
+        if (hasMoved) {
+            this.stillTicks = 0;
+            if (isPublished) this.setData(REST_POSE, new CompoundTag());
+            return;
+        }
+        if (isPublished) return;
+        if (++this.stillTicks < REST_POSE_DELAY) return;
+
+        CompoundTag pose = new CompoundTag();
+        pose.putDouble("X", this.getX());
+        pose.putDouble("Y", this.getY());
+        pose.putDouble("Z", this.getZ());
+        pose.putFloat("Yaw", this.getYRot());
+        this.setData(REST_POSE, pose);
+    }
+
+    /**
+     * Client: holds the ship on the pose the server published, for as long as
+     * it stands and nobody on this client is steering her.
+     *
+     * Runs after the entity ticks of this client tick, so after the vanilla
+     * interpolation as well, and simply has the last word:
+     * whatever rounded position a packet pulled her towards in this tick, she
+     * ends it on the exact one. The parts follow the ship, so they end up
+     * where the servers' parts are.
+     */
+    private void holdRestPose() {
+        if (this.restPosition == null || this.isControlledByLocalInstance()) return;
+
+        Vec3 offset = this.restPosition.subtract(this.position());
+        float turn = Mth.wrapDegrees(this.restYRot - this.getYRot());
+        if (offset.lengthSqr() > REST_POSE_GLIDE_DISTANCE * REST_POSE_GLIDE_DISTANCE || Math.abs(turn) > REST_POSE_GLIDE_TURN) {
+            this.setPos(this.getX() + offset.x * REST_POSE_GLIDE, this.getY() + offset.y * REST_POSE_GLIDE, this.getZ() + offset.z * REST_POSE_GLIDE);
+            this.setYRot(this.getYRot() + turn * REST_POSE_GLIDE);
+            return;
+        }
+
+        // The same angle is not the same number: the server keeps a yaw
+        // wrapped to +-180, a client that has been steering may stand at 725.
+        // The parts are turned through a sine TABLE, so the number has to
+        // match - and the old yaw is shifted by the same full turns, or the
+        // renderer would spin the hull through them within this one tick.
+        this.yRotO += (this.restYRot - this.getYRot()) - turn;
+        this.setPos(this.restPosition.x, this.restPosition.y, this.restPosition.z);
+        this.setYRot(this.restYRot);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> accessor) {
+        super.onSyncedDataUpdated(accessor);
+        if (!REST_POSE.equals(accessor) || !this.level().isClientSide()) return;
+
+        CompoundTag pose = this.getData(REST_POSE);
+        this.restPosition = pose.isEmpty() ? null : new Vec3(pose.getDouble("X"), pose.getDouble("Y"), pose.getDouble("Z"));
+        this.restYRot = pose.getFloat("Yaw");
     }
 
     @Override
@@ -387,6 +593,9 @@ public abstract class Ship extends Boat {
 
         // Seat assignments
         builder.define(Ship.SEAT_ASSIGNMENTS, new CompoundTag());
+
+        // Rest pose
+        builder.define(Ship.REST_POSE, new CompoundTag());
     }
 
     @Override
@@ -430,21 +639,30 @@ public abstract class Ship extends Boat {
         if (this instanceof Seatable) tag.put("SeatAssignments", this.getData(SEAT_ASSIGNMENTS));
     }
 
+    /**
+     * A ship rides out a bubble column, it is no rowing boat. Vanilla's Boat
+     * starts its bubble timer here - the one that rocks it and, once run out,
+     * drags it under and throws the crew off, or flings it into the air.
+     * None of that is started, so the timer stays at zero: no rocking, no
+     * sinking. Only the spray is left, the water is still boiling after all.
+     */
+    @Override
     public void onAboveBubbleCol(boolean bl) {
-        if (!this.level().isClientSide) {
-            this.isAboveBubbleColumn = true;
-            this.bubbleColumnDirectionIsDown = bl;
-            if (this.getBubbleTime() == 0) {
-                this.setBubbleTime(1200);
-            }
-        }
-
         this.level().addParticle(ParticleTypes.SPLASH, this.getX() + (double)this.random.nextFloat(), this.getY() + 0.7, this.getZ() + (double)this.random.nextFloat(), 0.0, 0.0, 0.0);
         if (this.random.nextInt(20) == 0) {
             this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), this.getSwimSplashSound(), this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
             this.gameEvent(GameEvent.SPLASH, this.getControllingPassenger());
         }
 
+    }
+
+    /**
+     * The hull reaches down into the column, and Entity would pull or push it
+     * a little every tick for that - fighting the buoyancy, so the ship bobs
+     * on the spot. A ship this size does not care about a column of bubbles.
+     */
+    @Override
+    public void onInsideBubbleColumn(boolean bl) {
     }
 
     public <T> T getData(EntityDataAccessor<T> accessor) {
@@ -483,6 +701,56 @@ public abstract class Ship extends Boat {
     }
 
     /**
+     * @return whether someone is standing at the helm who may actually steer
+     * her. Only the DRIVER seat counts - a player on a passenger bench or at a
+     * gun is aboard, but nobody is sailing the ship. Goes through
+     * {@link #canDrive} and not getControllingPassenger, because the latter
+     * only knows players and a Recruits captain has to count here as well.
+     */
+    public boolean hasHelmsman() {
+        return this.getHelmsman() != null;
+    }
+
+    /**
+     * @return whoever stands at the helm and may steer her - a player or an
+     * NPC such as a Recruits captain - or null. For the rules that do not care
+     * WHO steers (oars, friendly fire); getControllingPassenger stays players
+     * only, because it drives the vanilla client side movement.
+     */
+    @Nullable
+    public Entity getHelmsman() {
+        if (this instanceof Seatable seatable) {
+            for (ShipSeat seat : seatable.getSeats()) {
+                if (seat.type() != SeatType.DRIVER) continue;
+                Entity occupant = seatable.getSeatOccupant(seat.id());
+                if (occupant != null && this.canDrive(occupant)) return occupant;
+            }
+            return null;
+        }
+        Entity first = this.getFirstPassenger();
+        return first != null && this.canDrive(first) ? first : null;
+    }
+
+    /**
+     * The oars of an NPC helmsman. Vanilla only rows for a controlling
+     * passenger, which on a ship is a PLAYER at the helm, and takes his strokes
+     * from his client inputs. An NPC at the helm has neither, so his strokes
+     * are read off the synched keys he presses - the same rule the players'
+     * client follows, see Paddleable#controlBoatPaddleShip. Purely the look and
+     * the sound of it, the drive itself is in controlShip.
+     */
+    @Override
+    public boolean getPaddleState(int side) {
+        if (this instanceof Paddleable && this.getControllingPassenger() == null && this.hasHelmsman()) {
+            boolean forward = this.isForward();
+            boolean left = this.isLeft();
+            boolean right = this.isRight();
+            return side == 0 ? (right && !left) || forward : (left && !right) || forward;
+        }
+        return super.getPaddleState(side);
+    }
+
+    /**
      * Everything standing on this ship that could be taken aboard.
      *
      * Vanilla only looks at the entity bounding box, and for a ship that box is
@@ -517,8 +785,16 @@ public abstract class Ship extends Boat {
         this.getEntityData().set(accessor, value);
     }
 
-    @Override
-    protected void controlBoat() {
+    /**
+     * The ships' own drive, called by BoatMixin in place of Boat#controlBoat.
+     *
+     * Deliberately NOT an override of controlBoat: that method is private in
+     * vanilla and only widened by our access widener. Loom does not remap an
+     * override of a private method, so in an addons' dev environment this
+     * stayed m_38396_, never overrode anything and every ship drove like a
+     * vanilla boat. A name of our own needs no widening and no remapping.
+     */
+    public void controlShip() {
         if (this.level().isClientSide() && !this.isControlledByLocalInstance()) return;
 
         Attributes attributes = this.getAttributes();
@@ -531,7 +807,7 @@ public abstract class Ship extends Boat {
                         (1 - (this instanceof ContainerShip containerShip && containerShip.isEffectedByCargoPenalty() ? containerShip.getContainerModifier()/100 : 0.0F));
 
         this.maxSpeed = toTickSpeed(attributes.maxSpeed) * speedPenalty;
-        float maxRotSp = (attributes.maxRotationSpeed * 0.1F + 1.8F);
+        float maxRotSp = toMaxRotSpeed(attributes.maxRotationSpeed);
         float acceleration = attributes.acceleration;
         float rotAcceleration = attributes.rotationAcceleration;
 
@@ -556,7 +832,9 @@ public abstract class Ship extends Boat {
             // oars are a wind independent floor, not a bonus: they carry the
             // ship when the sails cannot, but never beyond the ceiling
             float oarDrive = 0.0F;
-            if (this instanceof Paddleable && this.isForward() && this.getDriver() != null) {
+            // hasHelmsman, not getDriver: a Recruits captain at the helm rows
+            // like a player does (driverEntities config, see canDrive)
+            if (this instanceof Paddleable && this.isForward() && this.hasHelmsman()) {
                 oarDrive = this.maxSpeed * this.getOarFactor();
             }
 
@@ -567,7 +845,7 @@ public abstract class Ship extends Boat {
             // canvas furled, otherwise it would read as braking against the
             // wind. Ahead it is a FLOOR, never an override, or it would cut
             // into an oar drive that is already faster.
-            if (this.getDriver() != null && this.canManoeuvre()) {
+            if (this.hasHelmsman() && this.canManoeuvre()) {
                 if (this.isBackward()) setPoint = -MANOEUVRE_SPEED;
                 else if (this.isForward()) setPoint = Math.max(setPoint, MANOEUVRE_SPEED);
             }
@@ -581,13 +859,13 @@ public abstract class Ship extends Boat {
 
             if (isRight()) {
                 if (rotationSpeed < maxRotSp) {
-                    rotationSpeed = Math.min(rotationSpeed + rotAcceleration * 1 / 8, maxRotSp);
+                    rotationSpeed = Math.min(rotationSpeed + toRotStep(rotAcceleration), maxRotSp);
                 }
             }
 
             if (isLeft()) {
                 if (rotationSpeed > -maxRotSp) {
-                    rotationSpeed = Math.max(rotationSpeed - rotAcceleration * 1 / 8, -maxRotSp);
+                    rotationSpeed = Math.max(rotationSpeed - toRotStep(rotAcceleration), -maxRotSp);
                 }
             }
             this.setRotSpeed(rotationSpeed);
@@ -604,7 +882,7 @@ public abstract class Ship extends Boat {
             setYRot(allowedYaw);
 
 
-            if(getDriver() != null) {
+            if(hasHelmsman()) {
                 if (this instanceof Sailable sailShip) sailShip.controlBoatSailShip();
                 if (this instanceof Paddleable paddleShip) paddleShip.controlBoatPaddleShip();
             }
@@ -733,6 +1011,11 @@ public abstract class Ship extends Boat {
     public boolean isLocked(){
         return isLocked;
     }
+
+    /**
+     * @return whether a lead is holding this ship. A ship on the leash makes no
+     * way of its own - see controlShip, it is being towed, not sailed.
+     */
     public boolean isShipLeashed(){
         return this.isLeashed();
     }
@@ -800,29 +1083,39 @@ public abstract class Ship extends Boat {
         entityData.set(RIGHT, right);
     }
 
+    /*
+     * The input flags only count while someone who may steer stands at the
+     * helm: they stay in the synched data after the helmsman leaves, and
+     * without this guard the hull kept turning by itself.
+     *
+     * hasHelmsman and not getControllingPassenger: the latter only knows
+     * players, so a Recruits captain at the helm (driverEntities config) had
+     * his keys ignored. Players are unaffected - wherever a player was found
+     * before, hasHelmsman is true as well.
+     */
     public boolean isForward() {
-        if (this.getControllingPassenger() == null) {
+        if (!this.hasHelmsman()) {
             return false;
         }
         return entityData.get(FORWARD);
     }
 
     public boolean isBackward() {
-        if (this.getControllingPassenger() == null) {
+        if (!this.hasHelmsman()) {
             return false;
         }
         return entityData.get(BACKWARD);
     }
 
     public boolean isLeft() {
-        if (this.getControllingPassenger() == null) {
+        if (!this.hasHelmsman()) {
             return false;
         }
         return entityData.get(LEFT);
     }
 
     public boolean isRight() {
-        if (this.getControllingPassenger() == null) {
+        if (!this.hasHelmsman()) {
             return false;
         }
         return entityData.get(RIGHT);
@@ -868,8 +1161,7 @@ public abstract class Ship extends Boat {
         // dyeing behind the shipwrights' back
         if (this.isInDockyardWork()) return InteractionResult.PASS;
 
-        if (this instanceof Seatable && !this.isLocked()
-                && player.getVehicle() != this && !this.level().isClientSide()) {
+        if (this instanceof Seatable && !this.isLocked() && player.getVehicle() != this && !this.level().isClientSide()) {
             this.pendingSeatHit = this.position().add(hitVec);
             this.pendingSeatHitFor = player.getUUID();
         }
@@ -924,6 +1216,9 @@ public abstract class Ship extends Boat {
      * dockyard worth sailing to.
      */
     public static final float HAND_REPAIR_LIMIT = 0.66F;
+    /** hull points one hand repair puts back: HAND_REPAIR_MIN + 0 .. HAND_REPAIR_RANDOM - 1 */
+    public static final int HAND_REPAIR_MIN = 5;
+    public static final int HAND_REPAIR_RANDOM = 5;
 
     /** @return the damage a hand repair cannot go below. */
     public float getHandRepairFloor() {
@@ -933,7 +1228,7 @@ public abstract class Ship extends Boat {
     private boolean interactIronNuggets(@NotNull Player player){
         if (this.getDamage() > this.getHandRepairFloor() && player.getMainHandItem().is(Items.IRON_NUGGET) && player.getInventory().hasAnyMatching(stack -> stack.is(ItemTags.PLANKS))){
 
-            this.repairShipByHand((5 + this.level().random.nextInt(5)));
+            this.repairShipByHand(this.rollHandRepairAmount());
 
             if(!player.isCreative()){
                 player.getMainHandItem().shrink(1);
@@ -950,6 +1245,42 @@ public abstract class Ship extends Boat {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Hand repair paid out of any container - one iron nugget and one plank,
+     * the same price and the same limit as a player working with nuggets in
+     * hand. Used by NPC crews through ShipBridge, server side only.
+     *
+     * @return true if a repair was done and paid for
+     */
+    public boolean repairByHand(Container payer) {
+        if (this.level().isClientSide() || this.getDamage() <= this.getHandRepairFloor()) return false;
+
+        int nugget = findSlot(payer, stack -> stack.is(Items.IRON_NUGGET));
+        int plank = findSlot(payer, stack -> stack.is(ItemTags.PLANKS));
+        if (nugget < 0 || plank < 0) return false;
+
+        payer.removeItem(nugget, 1);
+        payer.removeItem(plank, 1);
+        payer.setChanged();
+
+        this.repairShipByHand(this.rollHandRepairAmount());
+        return true;
+    }
+
+    /** hull points one hand repair puts back, by hand or out of a container */
+    private int rollHandRepairAmount() {
+        return HAND_REPAIR_MIN + this.level().random.nextInt(HAND_REPAIR_RANDOM);
+    }
+
+    /** @return the first slot whose stack matches, -1 if there is none */
+    private static int findSlot(Container container, java.util.function.Predicate<ItemStack> filter) {
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            ItemStack stack = container.getItem(i);
+            if (!stack.isEmpty() && filter.test(stack)) return i;
+        }
+        return -1;
     }
 
     /**
@@ -996,6 +1327,29 @@ public abstract class Ship extends Boat {
     }
 
     /**
+     * Boat#positionRider turns every rider along with the hull. A player who is
+     * NOT at the helm must not be: his view is his own, a gunner or a passenger
+     * looks where he looks, and the ship turning under him must not turn his
+     * camera along. Only the helmsman is carried round with the bow, and so is
+     * every mob aboard - a mob has no view to keep, it would just stand at an
+     * angle to the deck.
+     *
+     * So the turn vanilla just added is taken off again for those players, and
+     * the rotation is clamped once more on the yaw they actually keep.
+     */
+    @Override
+    protected void positionRider(@NotNull Entity entity, @NotNull Entity.MoveFunction moveFunction) {
+        super.positionRider(entity, moveFunction);
+
+        if (entity instanceof Player && entity != this.getDriverAnySide()) {
+            float deltaRotation = ((BoatAccessor) this).getDeltaRotation();
+            entity.setYRot(entity.getYRot() - deltaRotation);
+            entity.setYHeadRot(entity.getYHeadRot() - deltaRotation);
+            this.clampRotation(entity);
+        }
+    }
+
+    /**
      * Puts a passenger off at HIS SEAT instead of at the middle of the ship.
      *
      * Vanilla only ever looks for a BLOCK to stand on: Boat gives up as soon as
@@ -1005,14 +1359,19 @@ public abstract class Ship extends Boat {
      */
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(@NotNull LivingEntity livingEntity) {
-        if (this instanceof Sailable sailShip && sailShip.getSailState() != 0) sailShip.toggleSail();
-
         Vec3 seatPosition = null;
         if (livingEntity.getUUID().equals(this.dismountSeatFor) && this.dismountSeat != null) {
             seatPosition = this.dismountSeat;
-        } else if (this instanceof Seatable seatable) {
+        }
+        else if (this instanceof Seatable seatable) {
             ShipSeat seat = seatable.getSeatOf(livingEntity);
-            if (seat != null) seatPosition = seat.getWorldPosition(this);
+
+            if (seat != null){
+                if(seat.type() == SeatType.DRIVER && this instanceof Sailable sailShip && sailShip.getSailState() != 0)
+                    sailShip.toggleSail();
+
+                seatPosition = seat.getWorldPosition(this);
+            }
         }
         this.dismountSeat = null;
         this.dismountSeatFor = null;
@@ -1023,7 +1382,7 @@ public abstract class Ship extends Boat {
             // Leave them over their own seat anyway: the hull parts carry them
             // while the ship lies still, and dropping into the water beside
             // their station beats being teleported amidships.
-            return spot != null ? spot : new Vec3(seatPosition.x, seatPosition.y + 1.25, seatPosition.z);
+            return spot != null ? spot : new Vec3(seatPosition.x, seatPosition.y + 1.5, seatPosition.z);
         }
         return super.getDismountLocationForPassenger(livingEntity);
     }
@@ -1058,28 +1417,51 @@ public abstract class Ship extends Boat {
 
     @Override
     protected void addPassenger(Entity entity) {
-        // Auto third person: Enable
-        if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
-            this.previousCameraType = Minecraft.getInstance().options.getCameraType();
-            Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
-        }
-        // Better Ship Camera: smoothly move the camera anchor to the ship center,
-        // keeping the direction the player was facing when right-clicking (aim and align)
-        if (this.level().isClientSide() && Objects.equals(Minecraft.getInstance().player, entity)) {
-            ShipCameraHandler.startTransition();
-        }
-        super.addPassenger(entity);
-
         // seat system: assign the fixed seat (never index based)
         if (this instanceof Seatable seatable && !this.level().isClientSide() && seatable.getSeatOf(entity) == null) {
             Vec3 from = entity.position();
-            if (entity.getUUID().equals(this.pendingSeatHitFor) && this.pendingSeatHit != null) {
+            boolean hasClicked = entity.getUUID().equals(this.pendingSeatHitFor) && this.pendingSeatHit != null;
+            if (hasClicked) {
                 from = this.pendingSeatHit;
             }
             this.pendingSeatHit = null;
             this.pendingSeatHitFor = null;
-            ShipSeat seat = seatable.findSeatAt(from, this.canDrive(entity));
-            if (seat != null) seatable.assignSeat(entity, seat.id());
+            // a click right on a gun mans that gun, anything else boards as
+            // usual - the helm first for whoever may steer. Only for a real
+            // click: a mob pulled aboard just happens to stand somewhere
+            ShipSeat seat = hasClicked ? seatable.findGunnerSeatAt(from) : null;
+            if (seat == null) seat = seatable.findSeatAt(from, this.canDrive(entity));
+            if (seat != null){
+                seatable.assignSeat(entity, seat.id());
+            }
+        }
+        super.addPassenger(entity);
+    }
+
+    /**
+     * Client: third person when the local player takes the helm, his own camera
+     * back when he leaves it. Watched per tick and not in addPassenger, because
+     * the seat is assigned on the server - at the moment the client adds the
+     * passenger it cannot know yet that he sits at the helm.
+     *
+     * Client side getDriver() is only ever the local player, so it answers
+     * "am I driving this ship" by itself. Only switched from first person: a
+     * player already looking from outside keeps his view.
+     */
+    private void tickAutoThirdPerson() {
+        boolean isLocalDriver = this.getDriver() != null;
+        if (isLocalDriver == this.wasLocalDriver) return;
+        this.wasLocalDriver = isLocalDriver;
+
+        Options options = Minecraft.getInstance().options;
+        if (isLocalDriver) {
+            if (SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && options.getCameraType().isFirstPerson()) {
+                this.previousCameraType = options.getCameraType();
+                options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            }
+        } else if (this.previousCameraType != null) {
+            options.setCameraType(this.previousCameraType);
+            this.previousCameraType = null;
         }
     }
 
@@ -1093,10 +1475,6 @@ public abstract class Ship extends Boat {
                 this.dismountSeatFor = entity.getUUID();
             }
             seatable.freeSeatOf(entity);
-        }
-        // Auto third person: Disable
-        if (this.level().isClientSide() && SmallShipsConfig.Client.shipGeneralCameraAutoThirdPerson.get() && Objects.equals(Minecraft.getInstance().player, entity)) {
-            Minecraft.getInstance().options.setCameraType(this.previousCameraType);
         }
         super.removePassenger(entity);
     }
@@ -1189,9 +1567,9 @@ public abstract class Ship extends Boat {
 
         if (this.level() instanceof ServerLevel sinkingLevel && time % 2 == 0) {
             sinkingLevel.sendParticles(ParticleTypes.BUBBLE, this.getX(), this.getY() + 0.5D, this.getZ(),
-                    6, this.getBbWidth() * 0.6D, 0.3D, this.getBbWidth() * 0.6D, 0.0D);
+                    50, this.getBbWidth() * 0.6D, 0.3D, this.getBbWidth() * 0.6D, 0.0D);
             sinkingLevel.sendParticles(ParticleTypes.SPLASH, this.getX(), this.getY() + 1.0D, this.getZ(),
-                    4, this.getBbWidth() * 0.6D, 0.1D, this.getBbWidth() * 0.6D, 0.0D);
+                    50, this.getBbWidth() * 0.6D, 0.1D, this.getBbWidth() * 0.6D, 0.0D);
         }
 
         if (time >= animation.getDurationTicks()) this.finishSinking();
@@ -1275,6 +1653,26 @@ public abstract class Ship extends Boat {
      * ever reached newly placed ships - now one global setting moves the whole
      * fleet, loaded chunks included, without a migration or a reset command.
      */
+    /**
+     * Height of the render pose origin above the ship position, in blocks - the
+     * translate every ship renderer does before it draws the hull.
+     *
+     * Lives on the entity and not in the renderer because the cannon positions
+     * are built from it, and those are needed on the server, where no renderer
+     * exists. See ShipCannon#getGlobalPosition.
+     */
+    public float getRenderPoseHeight() {
+        return 0.0F;
+    }
+
+    /**
+     * Per ship correction of the cannon mounting height inside the render pose.
+     * Positive values move the guns DOWN, the sign the renderers used.
+     */
+    public float getCannonHeightOffset() {
+        return 0.0F;
+    }
+
     public Attributes getAttributes() {
         Attributes attributes = this.getConfiguredAttributes().read();
         ShipUpgrade.applyAll(this, attributes);
@@ -1352,8 +1750,12 @@ public abstract class Ship extends Boat {
 
     @Override
     public void remove(@NotNull RemovalReason removalReason) {
-        // parts must never outlive their ship, not even for a tick
-        for (ShipPartEntity part : this.parts) part.discard();
+        // parts must never outlive their ship, not even for a tick. Only the
+        // server decides that: on the client the ship may just have left the
+        // tracking range, and a part discarded here is not sent a second time
+        if (!this.level().isClientSide()) {
+            for (ShipPartEntity part : this.parts) part.discard();
+        }
         this.parts.clear();
         super.remove(removalReason);
     }
@@ -1361,7 +1763,7 @@ public abstract class Ship extends Boat {
     /**
      * The solid shapes around this ship, scanned at most once per tick.
      *
-     * The turn gate runs in controlBoat and the movement sweep runs in move,
+     * The turn gate runs in controlShip and the movement sweep runs in move,
      * both in the same tick and over almost the same volume - and that volume is
      * large, because the masts drag the search box twelve blocks into the air.
      * The cache remembers what it covered and rescans as soon as a request
@@ -1379,6 +1781,59 @@ public abstract class Ship extends Boat {
     private static boolean covers(AABB outer, AABB inner) {
         return outer.minX <= inner.minX && outer.minY <= inner.minY && outer.minZ <= inner.minZ
                 && outer.maxX >= inner.maxX && outer.maxY >= inner.maxY && outer.maxZ >= inner.maxZ;
+    }
+
+    /**
+     * @return true for blocks the hull shoves aside instead of stopping at:
+     * lily pads for every ship, the way a vanilla boat does, and ice for an ice
+     * breaker. They are left out of the collision entirely, see
+     * ShipPartEntity#scanBlockers, and cleared away by tickBreakThrough.
+     *
+     * Must answer the same on both sides - the client sweeps the movement, the
+     * server breaks the blocks.
+     */
+    public boolean canBreakThrough(BlockState blockState) {
+        if (blockState.getBlock() instanceof WaterlilyBlock) return true;
+        return this instanceof IceBreakable && IceBreakable.isBreakableIce(blockState);
+    }
+
+    /**
+     * Clears whatever canBreakThrough lets the hull sail into, along the hull
+     * parts and a little ahead of them. Server only, the client cannot break
+     * blocks - it just sails on, since the collision never saw them.
+     *
+     * Every other tick is enough: the reach ahead covers more than a ship makes
+     * in two ticks, so nothing is left standing inside the hull.
+     */
+    private void tickBreakThrough() {
+        if (this.level().isClientSide() || this.tickCount % 2 != 0) return;
+
+        Level level = this.level();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        boolean hasBrokenIce = false;
+        for (AABB box : ShipPartEntity.hullBoxes(this)) {
+            AABB reach = box.inflate(BREAK_THROUGH_REACH, 0.0D, BREAK_THROUGH_REACH);
+            for (int x = Mth.floor(reach.minX); x <= Mth.floor(reach.maxX); x++) {
+                for (int y = Mth.floor(reach.minY); y <= Mth.floor(reach.maxY); y++) {
+                    for (int z = Mth.floor(reach.minZ); z <= Mth.floor(reach.maxZ); z++) {
+                        pos.set(x, y, z);
+                        BlockState blockState = level.getBlockState(pos);
+                        if (!this.canBreakThrough(blockState)) continue;
+
+                        if (blockState.getBlock() instanceof WaterlilyBlock) {
+                            // exactly what WaterlilyBlock#entityInside does for a boat
+                            level.destroyBlock(pos, true, this);
+                        } else {
+                            level.setBlock(pos, Blocks.WATER.defaultBlockState(), 3);
+                            hasBrokenIce = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (hasBrokenIce) {
+            level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GLASS_BREAK, SoundSource.BLOCKS, 1F, 0.9F + 0.2F * this.random.nextFloat());
+        }
     }
 
     /**
@@ -1658,7 +2113,7 @@ public abstract class Ship extends Boat {
      *
      * It cannot live in move(): vanilla only calls that on the controlling
      * client, so for a crewed ship the server never sees the impact at all -
-     * and the damage has to be dealt there. controlBoat is driven on both sides
+     * and the damage has to be dealt there. controlShip is driven on both sides
      * by BoatMixin, and so is tick, which is where this hangs.
      */
     private void tickObstacleContact() {
@@ -1727,8 +2182,22 @@ public abstract class Ship extends Boat {
     public int getMaxPassengers() {
         return this instanceof Seatable seatable ? seatable.getUsableSeatCount() : 0;
     }
+    /**
+     * @return the item of this ship in its wood, or air while item drops are
+     * switched off.
+     *
+     * Concrete for the same reason as getMaxPassengers: seven ships carried the
+     * identical body, and every addon had to write it again around a lookup map
+     * of its own. The items come from ShipItems and are found under the ships'
+     * ENTITY id - the id the ship registered its items with. Override it only
+     * for a ship that drops something else.
+     */
     @Override
-    public abstract @NotNull Item getDropItem();
+    public @NotNull Item getDropItem() {
+        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
+        Item item = ShipItems.get(BuiltInRegistries.ENTITY_TYPE.getKey(this.getType()), this.getVariant());
+        return item != null ? item : ItemStack.EMPTY.getItem();
+    }
     public abstract BiomeModifierType getBiomeModifierType();
 
     /**
@@ -1795,7 +2264,7 @@ public abstract class Ship extends Boat {
         // around the deck, so anything a passenger looses over the rail clips
         // one on the way out - and every part forwards its hits to the ship.
         // This covers the ships' own cannons too: their owner is aboard.
-        else if (this.isOwnCrew(damageSource)) {
+        else if (this.isCrew(damageSource.getEntity())) {
             return false;
         }
         else if (!this.getCommandSenderWorld().isClientSide() && !this.isRemoved()) {
@@ -1828,10 +2297,14 @@ public abstract class Ship extends Boat {
         }
     }
 
-    private boolean isOwnCrew(DamageSource damageSource) {
-        Entity shooter = damageSource.getEntity();
-        if (shooter == null) return false;
-        return shooter.getVehicle() == this || this.hasIndirectPassenger(shooter);
+    /**
+     * @return true if the entity sails aboard this ship - seated directly or
+     * riding something that is. Its hits on the own hull and rigging are
+     * refused, see hurt and ShipPartEntity#hurt.
+     */
+    public boolean isCrew(@Nullable Entity entity) {
+        if (entity == null) return false;
+        return entity.getVehicle() == this || this.hasIndirectPassenger(entity);
     }
 
     private void knockBack(Entity entity, double speed, AABB boundingBox) {
@@ -1957,7 +2430,13 @@ public abstract class Ship extends Boat {
     }
     @Override
     public void destroy(@NotNull DamageSource damageSource) {
-        super.destroy(damageSource);
+        // Boat#destroy is what drops the ship item. A wreck is not handed back
+        // as a ship: whoever breaks her up, or the despawn timer running out,
+        // gets what she carried and nothing more.
+        // VehicleEntity#destroy is also what kills her, so a wreck is killed
+        // here without it - otherwise she would never go.
+        if (!this.isSunken() && !this.isSinking()) super.destroy(damageSource);
+        else this.kill();
         if (this.getCommandSenderWorld().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             if(this instanceof ContainerShip containerShip) containerShip.chestVehicleDestroyed(damageSource, this.getCommandSenderWorld(), this);
             if(this instanceof Cannonable cannonableShip) cannonableShip.cannonShipDestroyed(this.getCommandSenderWorld(), this);

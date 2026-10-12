@@ -46,9 +46,16 @@ import java.util.Map;
  * No land in reach means nothing happens: out at sea the mob stays on the
  * deck. Nothing runs at all while the ship is under way.
  *
- * Players are never touched, they walk on the deck just fine.
+ * Players are never touched, they walk on the deck just fine. Neither is a
+ * mob carrying the scoreboard tag {@link #STAY_ON_DECK_TAG} - an NPC crew that
+ * was told to keep to the deck, or anything tagged by command.
  */
 public class DeckEscape {
+    /**
+     * Scoreboard tag (Entity#addTag, /tag) that keeps a mob on a still deck.
+     * Plain vanilla, so another mod sets it without knowing this one.
+     */
+    public static final String STAY_ON_DECK_TAG = "smallships.stay_on_deck";
     /** below this the ship counts as lying still, same value as the parts use */
     private static final float STILL_SPEED = 0.01F;
     /** the same for turning, in degrees per tick */
@@ -146,7 +153,7 @@ public class DeckEscape {
         while (iterator.hasNext()) {
             Map.Entry<Integer, Stranded> entry = iterator.next();
             Entity entity = this.ship.level().getEntity(entry.getKey());
-            if (!(entity instanceof Mob mob) || mob.isRemoved()) {
+            if (!(entity instanceof Mob mob) || mob.isRemoved() || !canEscape(mob)) {
                 iterator.remove();
                 continue;
             }
@@ -184,7 +191,7 @@ public class DeckEscape {
     private static boolean canEscape(Mob mob) {
         // no AI means no MoveControl that would ever run, and a leashed mob
         // was put there on purpose by whoever holds the lead
-        return !mob.isNoAi() && !mob.isLeashed() && !mob.isPassenger();
+        return !mob.isNoAi() && !mob.isLeashed() && !mob.isPassenger() && !mob.getTags().contains(STAY_ON_DECK_TAG);
     }
 
     /**

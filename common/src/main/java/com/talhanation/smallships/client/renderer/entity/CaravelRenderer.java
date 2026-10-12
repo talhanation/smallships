@@ -21,16 +21,12 @@ public class CaravelRenderer extends ShipRenderer<CaravelEntity> {
         return new CaravelModel(context.bakeLayer(CaravelModel.LAYER_LOCATION));
     }
 
-    @Override
-    protected float getCannonHeightOffset(){
-        return 0.25F;
-    }
 
     @Override
     public void render(@NotNull CaravelEntity caravelEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
-        poseStack.translate(0.0D, 2.15D,0.0D);
+        poseStack.translate(0.0D, caravelEntity.getRenderPoseHeight(), 0.0D);
         super.render(caravelEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 }

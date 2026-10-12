@@ -1,7 +1,6 @@
 package com.talhanation.smallships.world.item;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,8 +9,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Which cannonball type a player has picked with the mouse wheel while aiming,
- * and the ammo picking that follows from it.
+ * Which cannonball type a player has picked with the mouse wheel while aiming -
+ * or an NPC gunner was told to load (ShipBridge#setAmmoPreference) - and the
+ * ammo picking that follows from it.
  *
  * Deliberately a map rather than a field mixed into Player: the selection is a
  * single byte of gameplay preference, and a WeakHashMap keyed on the player
@@ -25,22 +25,27 @@ import java.util.WeakHashMap;
  * key state, not off a per-shot packet.
  */
 public final class CannonAmmoSelection {
-    private static final Map<Player, CannonBallItem.Type> SELECTION = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<Entity, CannonBallItem.Type> SELECTION = Collections.synchronizedMap(new WeakHashMap<>());
 
     private CannonAmmoSelection() {
     }
 
-    public static void set(Player player, CannonBallItem.Type type) {
-        SELECTION.put(player, type);
+    /**
+     * @param shooter a player (mouse wheel, see the packet) or an NPC gunner
+     *                (ShipBridge#setAmmoPreference) - the choice is the same
+     *                kind of thing for both
+     */
+    public static void set(Entity shooter, CannonBallItem.Type type) {
+        SELECTION.put(shooter, type);
     }
 
     /**
-     * @param shooter the entity pulling the trigger, may be null or a non-player
-     * @return his selected type, BALL if he never picked one or is not a player
+     * @param shooter the entity pulling the trigger, may be null
+     * @return his selected type, BALL if he never picked one
      */
     public static CannonBallItem.Type get(@Nullable Entity shooter) {
-        if (!(shooter instanceof Player player)) return CannonBallItem.Type.BALL;
-        return SELECTION.getOrDefault(player, CannonBallItem.Type.BALL);
+        if (shooter == null) return CannonBallItem.Type.BALL;
+        return SELECTION.getOrDefault(shooter, CannonBallItem.Type.BALL);
     }
 
     /**

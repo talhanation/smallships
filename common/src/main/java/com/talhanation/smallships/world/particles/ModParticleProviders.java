@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.particles;
 import com.talhanation.smallships.world.particles.cannon.CannonBallShootParticles;
 import com.talhanation.smallships.world.particles.cannon.CannonPoofParticles;
 import com.talhanation.smallships.world.particles.custom.CustomPoofParticle;
+import com.talhanation.smallships.world.particles.sail.SailShredParticle;
 import com.talhanation.smallships.world.particles.wind.WindLineParticle;
 import com.talhanation.smallships.world.particles.wood.WoodDebrisParticle;
 import dev.architectury.injectables.annotations.ExpectPlatform;
@@ -29,6 +30,8 @@ public class ModParticleProviders {
         // wood_debris takes its sprite off the plank block, not off a sprite set,
         // so it goes through the plain Supplier overload and needs no particle json
         register(ModParticleTypes.WOOD_DEBRIS.get(), WoodDebrisParticle.Provider::new);
+        // sail_shred works the same way off the wool block of the sail colour
+        register(ModParticleTypes.SAIL_SHRED.get(), SailShredParticle.Provider::new);
     }
 
     public static <T extends ParticleOptions> void register(ParticleType<T> type, Supplier<ParticleProvider<T>> providerConstructor) {

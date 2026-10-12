@@ -9,6 +9,10 @@ import net.minecraft.util.Mth;
  */
 public record Wind(float direction, float strength) {
     public static final Wind CALM = new Wind(0.0F, 0.0F);
+    /** up to this many degrees between wind and heading it is a tail wind, see getZone */
+    public static final float TAIL_WIND_ANGLE = 45.0F;
+    /** from this many degrees between wind and heading on it is a head wind */
+    public static final float HEAD_WIND_ANGLE = 135.0F;
 
     /**
      * The three wind zones. Deliberately coarse: a player must be able to read
@@ -35,8 +39,8 @@ public record Wind(float direction, float strength) {
      */
     public Zone getZone(float yaw) {
         float angle = Math.abs(Mth.wrapDegrees(this.direction - yaw));
-        if (angle <= 45.0F) return Zone.TAIL_WIND;
-        if (angle >= 135.0F) return Zone.HEAD_WIND;
+        if (angle <= TAIL_WIND_ANGLE) return Zone.TAIL_WIND;
+        if (angle >= HEAD_WIND_ANGLE) return Zone.HEAD_WIND;
         return Zone.SIDE_WIND;
     }
 

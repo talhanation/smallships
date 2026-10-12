@@ -32,12 +32,6 @@ public class ModMenuTypesImpl {
                 ))
         );
 
-        entries.put("cannon_container", MENU_TYPES.register("cannon_container",
-                () -> IMenuTypeExtension.create((IContainerFactory<AbstractContainerMenu>) (i, inv, buf) ->
-                        Objects.requireNonNull(ModMenuTypes.groundCannonContainerMenuTypeSupplier(i, inv, buf.readUUID()))
-                ))
-        );
-
         entries.put("dockyard", MENU_TYPES.register("dockyard",
                 () -> new MenuType<>(DockyardMenu::new, FeatureFlags.VANILLA_SET))
         );

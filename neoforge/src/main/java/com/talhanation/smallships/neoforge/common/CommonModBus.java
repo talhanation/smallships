@@ -4,6 +4,7 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.mojang.datafixers.util.Pair;
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.api.ShipItems;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.neoforge.SmallshipsModNeoForge;
 import com.talhanation.smallships.network.ModPacket;
@@ -16,9 +17,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -61,6 +62,9 @@ public class CommonModBus {
             //CUSTOM CREATIVE MENU TAB
             if (getCreativeModeTab.apply(ModItemsImpl.customCreativeModeTab.getKey()).equals(event.getTab())) {
                 ModItemsImpl.ITEMS.getEntries().forEach(key -> event.accept(key.get()));
+                // every ship item, the addons' included - they belong next to
+                // the ships of the main mod, not scattered over the vanilla tabs
+                ShipItems.getAll().forEach(event::accept);
             }
         } else {
             //VANILLA CREATIVE MENU TAB
@@ -72,14 +76,11 @@ public class CommonModBus {
                 event.insertAfter(new ItemStack(ModItems.GRAPE_SHOT), new ItemStack(ModItems.FINE_GRAIN_POWDER), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             } else if (getCreativeModeTab.apply(CreativeModeTabs.TOOLS_AND_UTILITIES).equals(event.getTab())) {
                 event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DOCKYARD), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-                for (Boat.Type type: Boat.Type.values()) {
-                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.BRIGG_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.GALLEY_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DHOW_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.DRAKKAR_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.GALLEON_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.CARAVEL_ITEMS.get(type)), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.IRON_SCANTLINGS), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COPPER_PLATING), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(ModItems.COTTON_SAILS), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                for (Item shipItem : ShipItems.getAll()) {
+                    event.insertBefore(new ItemStack(Items.RAIL), new ItemStack(shipItem), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 }
             }
         }

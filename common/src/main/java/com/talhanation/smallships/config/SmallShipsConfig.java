@@ -148,6 +148,7 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.ConfigValue<List<String>> mountBlackList;
         public static ForgeConfigSpec.ConfigValue<List<String>> driverEntities;
         public static ForgeConfigSpec.ConfigValue<List<String>> dockyardBuildableShips;
+        public static ForgeConfigSpec.BooleanValue updateCheckerEnable;
         public static ForgeConfigSpec.DoubleValue shipGeneralShieldDamageReduction;
         public static ForgeConfigSpec.DoubleValue shipGeneralDespawnTimeSunken;
         public static ForgeConfigSpec.DoubleValue shipGeneralCannonDamage;
@@ -173,7 +174,6 @@ public class SmallShipsConfig {
 
         // Sail damage (Feature: More Cannon Balls / Chained Shot)
         public static ForgeConfigSpec.BooleanValue sailDamageEnable;
-        public static ForgeConfigSpec.ConfigValue<Integer> sailRepairWoolAmount;
         public static ForgeConfigSpec.BooleanValue shipGeneralCameraFreeLook;
         public static ForgeConfigSpec.BooleanValue vanillaBoatSlowdownEnable;
         public static ForgeConfigSpec.DoubleValue vanillaBoatSpeedFactor;
@@ -231,6 +231,7 @@ public class SmallShipsConfig {
         public static ForgeConfigSpec.BooleanValue windBannerEnable;
         public static ForgeConfigSpec.ConfigValue<Integer> shipModSpeedUnit;
         public static ForgeConfigSpec.BooleanValue smallshipsItemGroupEnable;
+        public static ForgeConfigSpec.BooleanValue updateCheckerEnable;
     }
 
 
@@ -622,10 +623,6 @@ public class SmallShipsConfig {
         Server.sailDamageEnable = builder
                 .define("sailDamageEnable", true);
 
-        builder.comment("Amount of wool needed to repair the sails by hand.");
-        Server.sailRepairWoolAmount = builder
-                .define("sailRepairWoolAmount", 6);
-
         builder.pop();
 
         builder.comment(" This category holds configs for the ship camera behaviour that affect gameplay.");
@@ -649,6 +646,15 @@ public class SmallShipsConfig {
                 .defineInRange("vanillaBoatSpeedFactor", 0.25D, 0.05D, 1.0D);
 
         builder.pop();
+
+        builder.pop();
+
+        builder.comment(" This category holds configs that define general mod settings.");
+        builder.push("General");
+
+        builder.comment("Check for a new version of the mod when the server starts and write the result to the server log.");
+        Server.updateCheckerEnable = builder
+                .define("updateCheckerEnable", true);
 
         builder.pop();
     }
@@ -725,6 +731,10 @@ public class SmallShipsConfig {
         builder.comment("Enable smallships creative tab in the creative inventory (only takes effect after restart).");
         Client.smallshipsItemGroupEnable = builder
                 .define("smallshipsItemGroupEnable", true);
+
+        builder.comment("Check for a new version of the mod and show a chat message when joining a world while an update is available.");
+        Client.updateCheckerEnable = builder
+                .define("updateCheckerEnable", true);
 
         builder.pop();
     }

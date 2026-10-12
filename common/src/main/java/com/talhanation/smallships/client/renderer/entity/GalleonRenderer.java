@@ -19,16 +19,12 @@ public class GalleonRenderer extends ShipRenderer<GalleonEntity> {
         return new GalleonModel(context.bakeLayer(GalleonModel.LAYER_LOCATION));
     }
 
-    @Override
-    protected float getCannonHeightOffset(){
-        return 0.25F;
-    }
 
     @Override
     public void render(@NotNull GalleonEntity galleonEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource multiBufferSource, int packedLight) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
-        poseStack.translate(0.0D, 2.7D,0.0D);
+        poseStack.translate(0.0D, galleonEntity.getRenderPoseHeight(), 0.0D);
         super.render(galleonEntity, entityYaw, partialTicks, poseStack, multiBufferSource, packedLight);
     }
 }

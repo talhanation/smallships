@@ -11,13 +11,16 @@ import com.talhanation.smallships.world.block.ModBlocks;
 import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.ModShipTypes;
 import com.talhanation.smallships.commands.SmallshipsCommand;
+import com.talhanation.smallships.update.UpdateChecker;
 import com.talhanation.smallships.world.wind.WindManager;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.level.ServerLevel;
 import com.talhanation.smallships.world.inventory.ModMenuTypes;
 import com.talhanation.smallships.world.item.ModItems;
+import com.talhanation.smallships.world.item.ModShipItems;
 import com.talhanation.smallships.world.particles.ModParticleTypes;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.fabricmc.api.ModInitializer;
@@ -36,6 +39,8 @@ public class SmallshipsModFabric implements ModInitializer {
         new ModEntityTypes();
         new ModMenuTypes();
         new ModItems();
+        // the ship items, through the same api the addons use
+        ModShipItems.register();
         new ModSoundTypes();
         new ModParticleTypes();
         ModShipTypes.init();
@@ -57,5 +62,8 @@ public class SmallshipsModFabric implements ModInitializer {
                 WindManager.get(serverLevel).sync(handler.getPlayer());
             }
         });
+
+        // update check: the server config is only loaded once the server is up
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> UpdateChecker.onServerStarted());
     }
 }

@@ -11,6 +11,7 @@ import com.talhanation.smallships.network.packet.ServerboundDockyardApplyPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardBuildPacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardRenamePacket;
 import com.talhanation.smallships.network.packet.ServerboundDockyardRepairPacket;
+import com.talhanation.smallships.network.packet.ServerboundDockyardSelectShipPacket;
 import com.talhanation.smallships.world.block.DockyardBlockEntity;
 import com.talhanation.smallships.compat.ShieldRegistry;
 import com.talhanation.smallships.world.dockyard.DockyardAction;
@@ -22,10 +23,12 @@ import com.talhanation.smallships.world.entity.ship.abilities.Bannerable;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import com.talhanation.smallships.world.entity.ship.abilities.Sailable;
 import com.talhanation.smallships.world.entity.ship.abilities.Shieldable;
+import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.inventory.DockyardMenu;
 import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractScrollWidget;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -67,6 +70,8 @@ import java.util.Set;
  * - MODIFY: the docked ship with its editable name, the two repair buttons and
  *   the upgrade list. Several rows can be ticked at once - the dockyard turns
  *   the whole selection into ONE job with summed costs and one progress bar.
+ *   The arrows next to the preview flip through the ships in range; which one
+ *   is selected is kept by the dockyard, not by the screen.
  *
  * The ship in the middle is NOT animated: it is turned by the player with left
  * click + drag, zoomed with the wheel and reset with a double click.
@@ -177,6 +182,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private MaterialList materialList;
     private UpgradeList upgradeList;
     private NameField nameField;
+    private AboutText aboutText;
 
     /** build mode: cached dummy ship for the preview (never added to the world) */
     @Nullable private Ship previewShip;
@@ -191,6 +197,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private final List<UpgradeOption> options = new ArrayList<>();
     /** cheap change detector so the list is not rebuilt 20 times a second for nothing */
     private String optionSignature = "";
+    /** entity id of the ship the modify tab showed last tick, -1 = none */
+    private int displayedShipId = -1;
     /** the cannon slot the cursor rests on, projected onto the preview. -1 = none */
     private int ghostCannonSlot = -1;
 
@@ -233,9 +241,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         // popup has to be drawn last of all, see render().
         this.woodDropdown = this.addWidget(new WoodDropdown(this.x(ACTION_X + ACTION_W - 26), this.y(ACTION_Y + 12)));
 
-        this.prevShipButton = this.addRenderableWidget(Button.builder(Component.literal("<"), button -> this.cycleShipType(-1))
+        this.prevShipButton = this.addRenderableWidget(Button.builder(Component.literal("<"), button -> this.cycle(-1))
                 .bounds(this.x(PREVIEW_X + 2), this.y(PREVIEW_Y + PREVIEW_H / 2 - 10), 14, 20).build());
-        this.nextShipButton = this.addRenderableWidget(Button.builder(Component.literal(">"), button -> this.cycleShipType(1))
+        this.nextShipButton = this.addRenderableWidget(Button.builder(Component.literal(">"), button -> this.cycle(1))
                 .bounds(this.x(PREVIEW_X + PREVIEW_W - 16), this.y(PREVIEW_Y + PREVIEW_H / 2 - 10), 14, 20).build());
 
         // sail state toggle: the preview dummy alone, the modify tab always
@@ -267,12 +275,18 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
         this.nameField = this.addRenderableWidget(new NameField(this.x(PREVIEW_X + 4), this.y(PREVIEW_Y + 2), 104, 10));
 
+        // the vanilla scrollbar is drawn right NEXT to a scroll widget, not
+        // inside it - so the widget leaves that lane of the panel free
+        this.aboutText = this.addRenderableWidget(new AboutText(this.x(CENTER_X + 1), this.y(CENTER_Y),
+                CENTER_W - AboutText.SCROLLBAR_LANE - 2, CENTER_H));
+
         // the preview is a child (so it receives drag and scroll) but not
         // renderable: it is drawn in renderBg, below the arrow buttons sitting
         // on top of it
         this.preview = this.addWidget(new ShipPreview(this.x(PREVIEW_X), this.y(PREVIEW_Y), PREVIEW_W, PREVIEW_H));
 
         this.rebuildMaterialList();
+        this.rebuildAboutText();
         this.optionSignature = "";
         this.updateWidgetVisibility();
     }
@@ -311,6 +325,20 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         ModPackets.clientSendPacket(new ServerboundDockyardRenamePacket(this.menu.getDockyardPos(), this.nameField.getValue()));
     }
 
+    /**
+     * The arrows next to the preview flip through whatever the tab shows: the
+     * ship types in build mode, the ships in range in modify mode. The docked
+     * ship is picked by the dockyard - the screen only asks for the next one
+     * and follows once the new id arrives with the container data.
+     */
+    private void cycle(int direction) {
+        if (this.isModifyMode()) {
+            ModPackets.clientSendPacket(new ServerboundDockyardSelectShipPacket(this.menu.getDockyardPos(), direction));
+        } else {
+            this.cycleShipType(direction);
+        }
+    }
+
     /* ---------------- build tab ---------------- */
 
     /** Steps to the next / previous buildable ship type, wrapping around. */
@@ -326,6 +354,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         // list, so both the camera and the list start over
         this.preview.reset();
         this.rebuildMaterialList();
+        this.rebuildAboutText();
     }
 
     private void setWoodType(Boat.Type type) {
@@ -337,6 +366,12 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private void rebuildMaterialList() {
         if (this.materialList == null) return;
         this.materialList.rebuild(this.selectedShipType, this.woodType);
+    }
+
+    private void rebuildAboutText() {
+        if (this.aboutText == null) return;
+        this.aboutText.setText(this.selectedShipType == null ? Component.empty()
+                : Component.translatable(aboutKey(this.selectedShipType)));
     }
 
     private boolean canAffordSelection() {
@@ -769,13 +804,23 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             this.selectedShipType = building;
             this.preview.reset();
             this.rebuildMaterialList();
+            this.rebuildAboutText();
         }
 
+        // a different ship - flipped to, or the old one sailed off - must not
+        // inherit the ticked rows and the camera of the one before
+        int shipId = ship != null ? ship.getId() : -1;
+        if (shipId != this.displayedShipId) {
+            this.displayedShipId = shipId;
+            this.selectedRows.clear();
+            if (modify) this.preview.reset();
+        }
+
+        // the same arrows serve both tabs. How many ships are in range only
+        // the dockyard knows, so in modify mode they stay clickable while idle
         boolean multipleTypes = ShipRegistry.getBuildable().size() > 1;
-        this.prevShipButton.visible = !modify;
-        this.nextShipButton.visible = !modify;
-        this.prevShipButton.active = multipleTypes && !busy;
-        this.nextShipButton.active = multipleTypes && !busy;
+        this.prevShipButton.active = (modify || multipleTypes) && !busy;
+        this.nextShipButton.active = (modify || multipleTypes) && !busy;
 
         this.sailToggleButton.visible = !modify && this.getOrCreatePreviewShip() instanceof Sailable;
 
@@ -789,6 +834,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.woodDropdown.active = !busy;
         if (modify || busy) this.woodDropdown.close();
         this.materialList.visible = !modify;
+        this.aboutText.visible = !modify;
 
         this.upgradeList.visible = modify;
         this.applyButton.visible = modify;
@@ -913,7 +959,6 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.renderPreviewCaption(guiGraphics, modify);
         ShipStatPanel.render(guiGraphics, this.font, this.x(STATS_X + 3), this.y(STATS_Y + 3), STATS_W - 6,
                 modify ? this.getShip() : null, displayed);
-        if (!modify) this.renderAboutText(guiGraphics);
         this.renderProgressBar(guiGraphics);
     }
 
@@ -930,21 +975,6 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         // keep clear of the sail toggle button in the top right corner
         guiGraphics.drawString(this.font, typeName,
                 this.x(PREVIEW_X + PREVIEW_W - 18) - this.font.width(typeName), this.y(PREVIEW_Y + 2), COLOR_TEXT, false);
-    }
-
-    /** Center panel below the preview: the ship types' flavour text in build mode. */
-    private void renderAboutText(GuiGraphics guiGraphics) {
-        if (this.selectedShipType == null) return;
-
-        List<FormattedCharSequence> lines = this.font.split(
-                Component.translatable(aboutKey(this.selectedShipType)), CENTER_W - 8);
-        int line = this.y(CENTER_Y + 4);
-        int limit = this.y(CENTER_Y + CENTER_H - 4);
-        for (FormattedCharSequence sequence : lines) {
-            if (line + 9 > limit) break;
-            guiGraphics.drawString(this.font, sequence, this.x(CENTER_X + 4), line, COLOR_MUTED, false);
-            line += 10;
-        }
     }
 
     /**
@@ -1125,6 +1155,34 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
          * happens to be.
          */
         private static final float PREVIEW_FIT = 0.9F;
+        /**
+         * The most pixels one block of ship is drawn with before the players'
+         * own zoom comes on top. Fitting by height alone has no upper end: a
+         * low hull without a mast - a rowing boat from an addon - was blown up
+         * until its one block of freeboard filled the frame, and the preview
+         * opened on a wall of planks. Anything lower than about five and a half
+         * blocks is held at this size instead; every ship of the main mod is
+         * taller and comes out exactly as before.
+         *
+         * Only the starting size is capped. The wheel still zooms in from
+         * there as far as ZOOM_MAX allows.
+         */
+        private static final float MAX_FIT = 16.0F;
+        /** where the model sits in gui depth, well above the window texture at 0 */
+        private static final float MODEL_DEPTH = 100.0F;
+        /**
+         * How far the model may reach in front of and behind MODEL_DEPTH, in
+         * gui depth units. Less than MODEL_DEPTH, so the far end of the hull
+         * can never dip below the window texture.
+         */
+        private static final float DEPTH_BUDGET = 40.0F;
+        /** ShipRenderer draws every ship model at 1.3 times its block size */
+        private static final float MODEL_SCALE = 1.3F;
+        /**
+         * Sails, yards, banners and oars stand out beyond the collision boxes
+         * the reach is measured from - this much is added on top for them.
+         */
+        private static final float REACH_MARGIN = 1.25F;
         /** two clicks within this many milliseconds count as a double click */
         private static final long DOUBLE_CLICK_MS = 250L;
 
@@ -1175,6 +1233,23 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         }
 
         /**
+         * @return how far the model reaches from its pivot at the most, in
+         * blocks of the drawn model - whichever way the player has turned it.
+         * Read off the part definitions like Ship#getModelHeight, with the
+         * registered bounding box as the fallback for a ship without parts.
+         */
+        private static float getModelReach(Ship ship) {
+            float reach = Math.max(ship.getBbWidth(), ship.getBbHeight());
+            for (ShipPartEntity.Definition part : ship.getParts()) {
+                float along = Math.abs(part.v()) + part.width() / 2.0F;
+                float sideways = Math.abs(part.h()) + part.width() / 2.0F;
+                float upwards = Math.max(Math.abs(part.y()), Math.abs(part.y() + part.height()));
+                reach = Math.max(reach, Mth.sqrt(along * along + sideways * sideways + upwards * upwards));
+            }
+            return reach * MODEL_SCALE * REACH_MARGIN;
+        }
+
+        /**
          * Draws the ship into the frame. Called from renderBg, not as a
          * renderable: the arrow buttons have to sit on top of the model.
          *
@@ -1200,13 +1275,20 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             int centerX = this.getX() + this.getWidth() / 2;
             int centerY = this.getY() + (int) (this.getHeight() * PIVOT_Y_FRACTION);
             // fit the ship into the frame once, the player takes it from there
-            float fit = this.getHeight() * PIVOT_Y_FRACTION * PREVIEW_FIT / ship.getModelHeight();
+            float fit = Math.min(MAX_FIT, this.getHeight() * PIVOT_Y_FRACTION * PREVIEW_FIT / ship.getModelHeight());
             float scale = fit * this.zoom;
+            // The depth axis gets a scale of its own. Drawn as deep as it is
+            // wide, a model zoomed in far enough pushes its far end below the
+            // window texture, and the background cuts a piece out of the hull.
+            // The preview is an orthographic picture: depth only decides what
+            // is drawn in front of what, so it can be squeezed into a fixed
+            // slab without the ship looking any different.
+            float depthScale = Math.min(scale, DEPTH_BUDGET / getModelReach(ship));
 
             guiGraphics.enableScissor(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight());
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(centerX, centerY, 100.0F);
-            guiGraphics.pose().scale(scale, scale, -scale);
+            guiGraphics.pose().translate(centerX, centerY, MODEL_DEPTH);
+            guiGraphics.pose().scale(scale, scale, -depthScale);
             guiGraphics.pose().mulPose(new Quaternionf()
                     .rotateZ((float) Math.PI)
                     .rotateX(this.pitch * Mth.DEG_TO_RAD)
@@ -1229,6 +1311,82 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
         @Override
         protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        }
+
+        @Override
+        protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
+        }
+    }
+
+    /**
+     * The flavour text of the selected ship type, below the preview in the
+     * build tab. It used to be drawn line by line straight into the panel and
+     * simply stopped after the third line - anything longer was cut off.
+     *
+     * Built on the vanilla AbstractScrollWidget, the same base the vanilla
+     * MultiLineEditBox scrolls with: wheel, scrollbar drag and the arrow keys
+     * all come from there. Not the edit box itself - read only, it would still
+     * take a blinking cursor and a mouse selection, and it draws its text in a
+     * fixed colour of its own.
+     *
+     * Transparent like the name field: the frame is part of the background
+     * texture, so the vanilla border and its black fill are left out.
+     */
+    private class AboutText extends AbstractScrollWidget {
+        /** the vanilla scrollbar is 8 wide and sits right of the widget */
+        private static final int SCROLLBAR_LANE = 8;
+        private static final int LINE_HEIGHT = 10;
+
+        private Component text = Component.empty();
+        private List<FormattedCharSequence> lines = List.of();
+
+        protected AboutText(int x, int y, int width, int height) {
+            super(x, y, width, height, Component.empty());
+        }
+
+        /** Rewraps the text and starts at its top again, but only if it actually changed. */
+        public void setText(Component text) {
+            if (text.getString().equals(this.text.getString())) return;
+            this.text = text;
+            this.lines = DockyardScreen.this.font.split(text, this.getWidth() - this.totalInnerPadding());
+            this.setScrollAmount(0.0D);
+        }
+
+        @Override
+        protected int getInnerHeight() {
+            return this.lines.size() * LINE_HEIGHT;
+        }
+
+        /** one line per wheel notch */
+        @Override
+        protected double scrollRate() {
+            return LINE_HEIGHT;
+        }
+
+        @Override
+        protected void renderContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            // clipping to the frame and the scroll offset are already applied
+            // by the vanilla render around this call
+            int line = this.getY() + this.innerPadding();
+            for (FormattedCharSequence sequence : this.lines) {
+                guiGraphics.drawString(DockyardScreen.this.font, sequence, this.getX() + this.innerPadding(), line, COLOR_MUTED, false);
+                line += LINE_HEIGHT;
+            }
+        }
+
+        /**
+         * Vanilla only shows the bar once the text is taller than the whole
+         * widget, padding included. A text just a line too long could then be
+         * scrolled with the wheel, with nothing telling the player so - the
+         * bar has to be there as soon as there is anything to scroll at all.
+         */
+        @Override
+        protected boolean scrollbarVisible() {
+            return this.getMaxScrollAmount() > 0;
+        }
+
+        @Override
+        protected void renderBorder(@NotNull GuiGraphics guiGraphics, int x, int y, int width, int height) {
         }
 
         @Override

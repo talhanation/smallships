@@ -1,11 +1,12 @@
 package com.talhanation.smallships.mixin.zooming.client;
 
+import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
 import com.talhanation.smallships.world.entity.ship.Ship;
-import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import com.talhanation.smallships.client.cannon.CannonAimHandler;
 import com.talhanation.smallships.world.entity.cannon.GroundCannonEntity;
+import com.talhanation.smallships.world.entity.cannon.CannonGeometry;
 import com.talhanation.smallships.world.entity.cannon.ShipCannon;
 import com.talhanation.smallships.world.entity.ship.abilities.Cannonable;
 import net.minecraft.world.entity.player.Player;
@@ -16,8 +17,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,17 +38,20 @@ public abstract class CameraMixin implements CameraZoomAccess {
     // the barrel pivots around, BORE_FORWARD how far along the bore the camera
     // sits in front of that pivot - so elevating the gun swings the camera up
     // with the muzzle instead of leaving it at a fixed height looking upwards.
-    @Unique private static final double GROUND_CANNON_TRUNNION_Y = 0.75D;
+    //
+    // SIGHT_HEIGHT lifts it off the bore axis onto the barrel: sitting exactly
+    // in the axis means sitting INSIDE the metal, which clips the model into the
+    // view. The gunner sights over his gun, he does not look out of its bore.
+    @Unique private static final double CANNON_SIGHT_HEIGHT = CannonGeometry.sightHeight();
+    @Unique private static final double GROUND_CANNON_TRUNNION_Y = GroundCannonEntity.TRUNNION_HEIGHT + CANNON_SIGHT_HEIGHT;
     @Unique private static final double GROUND_CANNON_BORE_FORWARD = 0.75D;
-    // the same two for a ship gun. Higher than the ground cannon, because a
-    // carriage stands on a deck well above the ship origin.
-    @Unique private static final double SHIP_CANNON_TRUNNION_Y = 2.5D;
+    // the same two for a ship gun. The trunnion part is negative, because
+    // ShipCannon#getGlobalPosition returns the mounting point and the barrel of
+    // a ship gun hangs below it.
+    @Unique private static final double SHIP_CANNON_TRUNNION_Y = CannonGeometry.shipTrunnionHeight() + CANNON_SIGHT_HEIGHT;
     @Unique private static final double SHIP_CANNON_BORE_FORWARD = 0.75D;
     // the eight corner offsets vanilla probes in getMaxZoom
     @Unique private static final double CAMERA_PROBE = 0.1D;
-    // never let the zoom factor reach zero or turn negative - the configured
-    // minimum zoom can go down to 1.0, which would put the camera in FRONT
-    @Unique private static final float MIN_ZOOM_FACTOR = 0.25F;
 
     @Shadow public abstract Entity getEntity();
 
@@ -92,7 +95,9 @@ public abstract class CameraMixin implements CameraZoomAccess {
             // only offset keeps the camera at one height whatever the barrel does,
             // which reads as a floating viewpoint rather than a mounted one.
             Vec3 bore = Vec3.directionFromRotation(pitch, yaw);
-            Vec3 anchor = new Vec3(x, y + GROUND_CANNON_TRUNNION_Y, z);
+            Vec3 side = Vec3.directionFromRotation(0.0F, yaw + 90.0F).scale(-0.025D);
+            Vec3 anchor = new Vec3(x, y + GROUND_CANNON_TRUNNION_Y, z).add(side);
+
             Vec3 camera = this.smallships$clip(blockGetter, anchor, anchor.add(bore.scale(GROUND_CANNON_BORE_FORWARD)));
 
             this.setPosition(camera.x, camera.y, camera.z);
@@ -192,21 +197,41 @@ public abstract class CameraMixin implements CameraZoomAccess {
     /**
      * Better Ship Camera: in third person the camera anchor is moved from the
      * player position to the ship center, allowing a full 360 degree orbit
-     * around the ship. The transition after mounting is smoothed by
-     * ShipCameraHandler (aim and align).
+     * around the ship.
+     *
+     * Straight onto the centre, NOT eased in over the first ticks after
+     * mounting: the player sits off centre, so easing is a camera that slides
+     * sideways on its own the moment he boards. The jump itself is hidden by
+     * the mount.
+     *
+     * A REDIRECT, not a ModifyArgs: the latter hands the handler a synthetic
+     * org.spongepowered.asm.synthetic.args.Args subclass that mixin generates at
+     * runtime, and in a dev launch that class is regularly not loadable - the
+     * whole GameRenderer then dies with a NoClassDefFoundError before the game
+     * window ever appears. A redirect needs no generated class, and unlike
+     * ModifyArg (singular) it may still take the enclosing setup parameters,
+     * which is what detached, entity and partialTick below come from.
+     *
+     * The camera is NOT clipped here. This only moves the anchor sideways onto
+     * the hull; vanilla runs its own getMaxZoom right after and probes the orbit
+     * out of that new anchor, so terrain still pushes the camera back in.
      */
-    @ModifyArgs(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", ordinal = 0))
-    private void smallships$centerCameraOnShip(Args args, BlockGetter blockGetter, Entity entity, boolean detached, boolean mirrored, float partialTick) {
-        if (!detached) return;
-        if (!SmallShipsConfig.Client.shipGeneralCameraShipCenterEnable.get()) return;
-        if (!(entity.getVehicle() instanceof Ship ship)) return;
+    @Redirect(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", ordinal = 0))
+    private void smallships$centerCameraOnShip(Camera camera, double x, double y, double z,
+                                               BlockGetter blockGetter, Entity entity, boolean detached, boolean mirrored, float partialTick) {
+        if (!detached
+                || !SmallShipsConfig.Client.shipGeneralCameraShipCenterEnable.get()
+                || !(entity.getVehicle() instanceof Ship ship)) {
+            this.setPosition(x, y, z);
+            return;
+        }
 
         double shipX = Mth.lerp(partialTick, ship.xo, ship.getX());
         double shipZ = Mth.lerp(partialTick, ship.zo, ship.getZ());
 
-        float blend = ShipCameraHandler.getAnchorBlend(partialTick);
-        args.set(0, Mth.lerp(blend, (Double) args.get(0), shipX));
-        args.set(2, Mth.lerp(blend, (Double) args.get(2), shipZ));
+        // y is left alone on purpose: the eye stays at the player's own height,
+        // only the horizontal pivot moves onto the ship
+        this.setPosition(shipX, y, shipZ);
     }
 
     /**
@@ -217,12 +242,16 @@ public abstract class CameraMixin implements CameraZoomAccess {
      * that was already clamped against a wall, which is how the camera ended up
      * inside terrain. Scaling what goes in makes vanilla probe the full distance
      * we want and clamp it itself.
+     *
+     * With Shoulder Surfing in its own perspective this argument is computed
+     * and then thrown away: it redirects the move this feeds into. The zoom
+     * reaches its camera through ShoulderSurfingCompat instead.
      */
     @ModifyArg(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"), index = 0)
     private float smallships$shipZoomDistance(float original) {
         if (!SmallShipsConfig.Client.shipGeneralCameraZoomEnable.get()) return original;
         if (this.getEntity().getVehicle() instanceof Ship && !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
-            return original * Math.max(MIN_ZOOM_FACTOR, this.smallships$getShipZoomData() - 4.0F);
+            return (float) (original * ShipCameraHandler.getZoomFactor(this.smallships$getShipZoomData()));
         } else {
             return original;
         }

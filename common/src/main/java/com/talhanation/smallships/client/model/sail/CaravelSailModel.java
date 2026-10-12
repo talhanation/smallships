@@ -776,119 +776,22 @@ public class CaravelSailModel extends SailModel {
 
 	@Override
 	public void setupAnim(Ship entity, float f, float g, float h, float i, float j) {
-		switch (entity.getData(Ship.SAIL_STATE)) {
-			case 0 -> {
-				this.sail_1_0.visible = true;
-				this.sail_1_1.visible = false;
-				this.sail_1_2.visible = false;
-				this.sail_1_3.visible = false;
-				this.sail_1_4.visible = false;
+		int state = entity.getData(Ship.SAIL_STATE);
 
-				this.sail_1_1_bottom.visible = false;
-				this.sail_1_2_bottom.visible = false;
-				this.sail_1_3_bottom.visible = false;
+		showSail(state, this.sail_1_0, this.sail_1_1, this.sail_1_2, this.sail_1_3, this.sail_1_4, this.sail_1_1_bottom, this.sail_1_2_bottom, this.sail_1_3_bottom);
+		showSail(state, this.sail_2_0, this.sail_2_1, this.sail_2_2, this.sail_2_3, this.sail_2_4, this.sail_2_1_bottom, this.sail_2_2_bottom, this.sail_2_3_bottom);
 
-				this.sail_2_0.visible = true;
-				this.sail_2_1.visible = false;
-				this.sail_2_2.visible = false;
-				this.sail_2_3.visible = false;
-				this.sail_2_4.visible = false;
+		this.sail_1_rope_0.visible = state == 0;
+		this.sail_1_rope_1.visible = state == 1;
+		this.sail_1_rope_2.visible = state == 2;
+		this.sail_1_rope_3.visible = state == 3;
+		this.sail_1_rope_4.visible = state == 4;
 
-				this.sail_2_1_bottom.visible = false;
-				this.sail_2_2_bottom.visible = false;
-				this.sail_2_3_bottom.visible = false;
-			}
-			case 1 -> {
-				this.sail_1_0.visible = false;
-				this.sail_1_1.visible = true;
-				this.sail_1_2.visible = false;
-				this.sail_1_3.visible = false;
-				this.sail_1_4.visible = false;
-
-				this.sail_1_1_bottom.visible = true;
-				this.sail_1_2_bottom.visible = false;
-				this.sail_1_3_bottom.visible = false;
-
-				this.sail_2_0.visible = false;
-				this.sail_2_1.visible = true;
-				this.sail_2_2.visible = false;
-				this.sail_2_3.visible = false;
-				this.sail_2_4.visible = false;
-
-				this.sail_2_1_bottom.visible = true;
-				this.sail_2_2_bottom.visible = false;
-				this.sail_2_3_bottom.visible = false;
-			}
-			case 2 -> {
-				this.sail_1_0.visible = false;
-				this.sail_1_1.visible = true;
-				this.sail_1_2.visible = true;
-				this.sail_1_3.visible = false;
-				this.sail_1_4.visible = false;
-				this.sail_1_1_bottom.visible = false;
-				this.sail_1_2_bottom.visible = true;
-				this.sail_1_3_bottom.visible = false;
-
-				this.sail_2_0.visible = false;
-				this.sail_2_1.visible = true;
-				this.sail_2_2.visible = true;
-				this.sail_2_3.visible = false;
-				this.sail_2_4.visible = false;
-				this.sail_2_1_bottom.visible = false;
-				this.sail_2_2_bottom.visible = true;
-				this.sail_2_3_bottom.visible = false;
-			}
-			case 3 -> {
-				this.sail_1_0.visible = false;
-				this.sail_1_1.visible = true;
-				this.sail_1_2.visible = true;
-				this.sail_1_3.visible = true;
-				this.sail_1_4.visible = false;
-				this.sail_1_1_bottom.visible = false;
-				this.sail_1_2_bottom.visible = false;
-				this.sail_1_3_bottom.visible = true;
-
-				this.sail_2_0.visible = false;
-				this.sail_2_1.visible = true;
-				this.sail_2_2.visible = true;
-				this.sail_2_3.visible = true;
-				this.sail_2_4.visible = false;
-				this.sail_2_1_bottom.visible = false;
-				this.sail_2_2_bottom.visible = false;
-				this.sail_2_3_bottom.visible = true;
-			}
-			case 4 -> {
-				this.sail_1_0.visible = false;
-				this.sail_1_1.visible = true;
-				this.sail_1_2.visible = true;
-				this.sail_1_3.visible = true;
-				this.sail_1_4.visible = true;
-				this.sail_1_1_bottom.visible = false;
-				this.sail_1_2_bottom.visible = false;
-				this.sail_1_3_bottom.visible = false;
-
-				this.sail_2_0.visible = false;
-				this.sail_2_1.visible = true;
-				this.sail_2_2.visible = true;
-				this.sail_2_3.visible = true;
-				this.sail_2_4.visible = true;
-				this.sail_2_1_bottom.visible = false;
-				this.sail_2_2_bottom.visible = false;
-				this.sail_2_3_bottom.visible = false;
-			}
-		}
-
-		this.sail_1_rope_0.visible = sail_1_0.visible;
-		this.sail_1_rope_1.visible = sail_1_1_bottom.visible;
-		this.sail_1_rope_2.visible = sail_1_2_bottom.visible;
-		this.sail_1_rope_3.visible = sail_1_3_bottom.visible;
-		this.sail_1_rope_4.visible = sail_1_4.visible;
-
-		this.sail_2_rope_0.visible = sail_2_0.visible;
-		this.sail_2_rope_1.visible = sail_2_1_bottom.visible;
-		this.sail_2_rope_2.visible = sail_2_2_bottom.visible;
-		this.sail_2_rope_3.visible = sail_2_3_bottom.visible;
-		this.sail_2_rope_4.visible = sail_2_4.visible;
+		this.sail_2_rope_0.visible = state == 0;
+		this.sail_2_rope_1.visible = state == 1;
+		this.sail_2_rope_2.visible = state == 2;
+		this.sail_2_rope_3.visible = state == 3;
+		this.sail_2_rope_4.visible = state == 4;
 	}
 
 	@Override

@@ -5,16 +5,12 @@ import com.talhanation.smallships.world.entity.ModEntityTypes;
 import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.seat.ShipSeat;
 import com.talhanation.smallships.world.entity.ship.abilities.*;
-import com.talhanation.smallships.world.item.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +25,7 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
             ShipUpgrade.COTTON_SAILS, 2,
             ShipUpgrade.COPPER_PLATING, 3
     );
-    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerCogContainerSize.get();
+    private static final int ORIGINAL_CONTAINER_SIZE = SmallShipsConfig.Server.shipContainerDhowContainerSize.get();
     public DhowEntity(EntityType<? extends Boat> entityType, Level level) {
         super(entityType, level, ORIGINAL_CONTAINER_SIZE);
     }
@@ -58,12 +54,6 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     @Override
     public SmallShipsConfig.ShipAttributes getConfiguredAttributes() {
         return SmallShipsConfig.Server.dhowAttributes;
-    }
-
-    @Override
-    public @NotNull Item getDropItem() {
-        if (!SmallShipsConfig.Server.shipGeneralDoItemDrop.get()) return ItemStack.EMPTY.getItem();
-        return ModItems.DHOW_ITEMS.get(this.getVariant());
     }
 
     @Override
@@ -194,5 +184,15 @@ public class DhowEntity extends ContainerShip implements Bannerable, Sailable, C
     @Override
     public float getTailWindMultiplier() {
         return 1.00F;
+    }
+
+    @Override
+    public float getRenderPoseHeight() {
+        return 2.5F;
+    }
+
+    @Override
+    public float getCannonHeightOffset() {
+        return 0.25F;
     }
 }

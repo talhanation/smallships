@@ -31,6 +31,8 @@ public class ModPackets {
         registerNonPacket(ClientboundShipImpactPacket.TYPE, ClientboundShipImpactPacket.CODEC, ModPacket.Side.CLIENTBOUND);
         registerNonPacket(ServerboundShipDetachPacket.TYPE, ServerboundShipDetachPacket.CODEC, ModPacket.Side.SERVERBOUND);
         registerNonPacket(ServerboundSetCannonAmmoTypePacket.TYPE, ServerboundSetCannonAmmoTypePacket.CODEC, ModPacket.Side.SERVERBOUND);
+        registerNonPacket(ClientboundSailImpactPacket.TYPE, ClientboundSailImpactPacket.CODEC, ModPacket.Side.CLIENTBOUND);
+        registerNonPacket(ServerboundDockyardSelectShipPacket.TYPE, ServerboundDockyardSelectShipPacket.CODEC, ModPacket.Side.SERVERBOUND);
 
     }
 

@@ -4,7 +4,6 @@ import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import com.talhanation.smallships.world.entity.ship.hitbox.ShipPartEntity;
 import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
-import com.talhanation.smallships.world.entity.ship.sail.SailDamage;
 import com.talhanation.smallships.world.sound.ModSoundTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -33,6 +32,15 @@ public interface Sailable extends Ability {
 
     default void tickSailShip() {
         if (self().sailStateCooldown > 0) self().sailStateCooldown--;
+
+        // nobody at the helm who may steer her: the canvas comes in. Checked
+        // every tick instead of only on dismount, because the helmsman can
+        // leave in many ways that never pass through getDismountLocation -
+        // death, a teleport, a disconnect, a seat change or a /kill.
+        if (!self().level().isClientSide() && this.getSailState() != 0 && !self().hasHelmsman()) {
+            this.setSailState((byte) 0);
+            this.playSailSound(0);
+        }
     }
 
     default void readSailShipSaveData(CompoundTag tag) {
@@ -91,9 +99,6 @@ public interface Sailable extends Ability {
     }
 
     default boolean interactSail(Player player, InteractionHand interactionHand) {
-        // sail repair has priority over dyeing: new cloth first, then the
-        // needle and thread patch
-        if (SailDamage.interactRepair(self(), player, interactionHand)) return true;
         if (SailDamage.interactPatch(self(), player, interactionHand)) return true;
 
         ItemStack item = player.getItemInHand(interactionHand);
