@@ -377,7 +377,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private boolean canAffordSelection() {
         Player player = this.menu.getPlayer();
         return player != null && this.selectedShipType != null
-                && DockyardRecipeManager.get(this.selectedShipType).canAfford(player);
+                && DockyardRecipeManager.get(this.selectedShipType).forWood(this.woodType).canAfford(player);
     }
 
     /* ---------------- modify tab ---------------- */
@@ -1466,7 +1466,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             this.setScrollAmount(0.0D);
             if (shipType == null) return;
 
-            DockyardRecipe recipe = DockyardRecipeManager.get(shipType);
+            // narrowed to the wood, so the row only counts planks of that wood
+            DockyardRecipe recipe = DockyardRecipeManager.get(shipType).forWood(wood);
             for (DockyardRecipe.Ingredient ingredient : recipe.ingredients()) {
                 this.addEntry(new Entry(ingredient, ingredient.getDisplayStack(wood)));
             }

@@ -340,8 +340,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_not_allowed"), true);
             return;
         }
-        // read the recipe fresh: a data pack reload takes effect immediately
-        DockyardRecipe recipe = DockyardRecipeManager.get(shipType);
+        // read the recipe fresh: a data pack reload takes effect immediately.
+        // Narrowed to the chosen wood, so the planks have to match the hull
+        DockyardRecipe recipe = DockyardRecipeManager.get(shipType).forWood(woodType);
         if (!recipe.canAfford(player)) {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
             return;
