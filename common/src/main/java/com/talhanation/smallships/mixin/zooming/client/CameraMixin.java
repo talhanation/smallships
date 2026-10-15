@@ -1,5 +1,8 @@
 package com.talhanation.smallships.mixin.zooming.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.talhanation.smallships.client.camera.ShipCameraHandler;
 import com.talhanation.smallships.config.SmallShipsConfig;
 import com.talhanation.smallships.duck.CameraZoomAccess;
@@ -17,7 +20,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -204,25 +206,29 @@ public abstract class CameraMixin implements CameraZoomAccess {
      * sideways on its own the moment he boards. The jump itself is hidden by
      * the mount.
      *
-     * A REDIRECT, not a ModifyArgs: the latter hands the handler a synthetic
+     * A WRAPOPERATION, not a ModifyArgs: the latter hands the handler a synthetic
      * org.spongepowered.asm.synthetic.args.Args subclass that mixin generates at
      * runtime, and in a dev launch that class is regularly not loadable - the
      * whole GameRenderer then dies with a NoClassDefFoundError before the game
-     * window ever appears. A redirect needs no generated class, and unlike
-     * ModifyArg (singular) it may still take the enclosing setup parameters,
-     * which is what detached, entity and partialTick below come from.
+     * window ever appears. A WrapOperation needs no generated class, and the
+     * enclosing setup parameters (detached, entity and partialTick below) come
+     * in through @Local(argsOnly = true).
+     *
+     * Not a Redirect either: a redirect claims the call for itself, a second
+     * camera mod on the same setPosition then makes the required injection fail
+     * and the game crashes. WrapOperations of several mods chain instead.
      *
      * The camera is NOT clipped here. This only moves the anchor sideways onto
      * the hull; vanilla runs its own getMaxZoom right after and probes the orbit
      * out of that new anchor, so terrain still pushes the camera back in.
      */
-    @Redirect(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", ordinal = 0))
-    private void smallships$centerCameraOnShip(Camera camera, double x, double y, double z,
-                                               BlockGetter blockGetter, Entity entity, boolean detached, boolean mirrored, float partialTick) {
+    @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", ordinal = 0))
+    private void smallships$centerCameraOnShip(Camera camera, double x, double y, double z, Operation<Void> original,
+                                               @Local(argsOnly = true) Entity entity, @Local(argsOnly = true, ordinal = 0) boolean detached, @Local(argsOnly = true) float partialTick) {
         if (!detached
                 || !SmallShipsConfig.Client.shipGeneralCameraShipCenterEnable.get()
                 || !(entity.getVehicle() instanceof Ship ship)) {
-            this.setPosition(x, y, z);
+            original.call(camera, x, y, z);
             return;
         }
 
@@ -231,7 +237,7 @@ public abstract class CameraMixin implements CameraZoomAccess {
 
         // y is left alone on purpose: the eye stays at the player's own height,
         // only the horizontal pivot moves onto the ship
-        this.setPosition(shipX, y, shipZ);
+        original.call(camera, shipX, y, shipZ);
     }
 
     /**

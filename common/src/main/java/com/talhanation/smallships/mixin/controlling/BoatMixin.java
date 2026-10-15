@@ -1,5 +1,6 @@
 package com.talhanation.smallships.mixin.controlling;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.talhanation.smallships.config.SyncedServerConfig;
 import com.talhanation.smallships.world.entity.ship.Ship;
 import net.minecraft.world.entity.Entity;
@@ -9,10 +10,8 @@ import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.List;
  */
 @Mixin(Boat.class)
 public abstract class BoatMixin {
-    @Shadow protected abstract void controlBoat();
 
     /**
      * Better Ship Camera: skip the vanilla passenger rotation clamp for ships,
@@ -45,12 +43,14 @@ public abstract class BoatMixin {
         }
     }
 
+    /**
+     * A WrapWithCondition and not a Redirect, so other mods hooking the same
+     * controlBoat call in tick still apply instead of crashing the game.
+     */
     @SuppressWarnings("ConstantValue")
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V"))
-    private void tickCancelControlBoatHereForShip(Boat instance) {
-        if (!(((Boat)(Object)this) instanceof Ship)) {
-            this.controlBoat();
-        }
+    @WrapWithCondition(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;controlBoat()V"))
+    private boolean tickCancelControlBoatHereForShip(Boat instance) {
+        return !(((Boat)(Object)this) instanceof Ship);
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;checkInsideBlocks()V"), cancellable = true)

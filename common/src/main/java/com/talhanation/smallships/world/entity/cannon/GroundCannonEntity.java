@@ -727,7 +727,10 @@ public class GroundCannonEntity extends Entity implements ICannon{
             Vector3d endPoint = this.cannon.getBarrelEndPointLocal();
             return new Vec3(endPoint.x, endPoint.y, endPoint.z);
         } else {
-            return this.getBarrelPassengerAttachmentPoint();
+            // positionRider subtracts the riders' own vehicle attachment point
+            // (a player sits 0.6 below the seat), added back here so the feet of
+            // the standing driver really are at the height of the gun
+            return this.getBarrelPassengerAttachmentPoint().add(0, entity.getVehicleAttachmentPoint(this).y, 0);
         }
     }
 
