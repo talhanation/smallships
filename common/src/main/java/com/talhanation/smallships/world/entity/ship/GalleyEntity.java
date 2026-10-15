@@ -189,6 +189,18 @@ public class GalleyEntity extends ContainerShip implements Bannerable, Sailable,
         return 0.0F;
     }
 
+    /** the beak: what a galley drives into another hull lands harder */
+    @Override
+    public float getRamDamageFactor() {
+        return 1.75F;
+    }
+
+    /** the rowers brace for their own ram, nobody aboard is thrown */
+    @Override
+    public float getRamCrewDamageFactor() {
+        return 0.0F;
+    }
+
     @Override
     public float getRenderPoseHeight() {
         return 3.15F;
