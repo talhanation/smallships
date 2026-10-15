@@ -5,6 +5,8 @@
   "client": [
   ],
   "mixins": [
+    "BoatTypeAccessor",
+    "BoatTypeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

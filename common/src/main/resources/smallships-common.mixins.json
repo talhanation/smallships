@@ -15,6 +15,7 @@
     "controlling.BoatAccessor",
     "controlling.BoatMixin",
     "vanillaboat.BoatSpeedMixin",
+    "vanillaboat.BoatRotationMixin",
     "entity.EntityMixin",
     "entity.LivingEntityMixin",
     "entity.ServerEntityMixin"
