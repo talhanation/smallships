@@ -12,6 +12,7 @@ description = '''
 This mod adds vanilla friendly ships into Minecraft!
 '''
 logoFile = "icon.png"
+enumExtensions = "META-INF/enumextensions.json"
 
 [[dependencies.smallships]]
 modId = "neoforge"

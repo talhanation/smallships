@@ -422,7 +422,12 @@ public abstract class  ShipRenderer<T extends Ship> extends EntityRenderer<T> {
         sailModel.render(bannerShipEntity.self(), banner, poseStack, multiBufferSource, packedLight);
     }
 
+    /**
+     * Texture name of a wood type. The woods SmallShips adds lie next to the
+     * vanilla ones ({@code smallships:warped} -> {@code warped}), those of
+     * other mods in a folder named after their namespace.
+     */
     public static String getNameFromType(Boat.Type type) {
-        return type.getName().replace(":", "/");
+        return ModBoatTypes.getWoodName(type).replace(":", "/");
     }
 }
