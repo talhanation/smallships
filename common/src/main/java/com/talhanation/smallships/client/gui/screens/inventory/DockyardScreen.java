@@ -47,6 +47,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -1081,7 +1082,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
      * the ship is beaten up and only shows in the tooltip.
      */
     private class RepairButton extends Button {
-        private final ItemStack icon;
+        /** the hull button follows the selected ships' wood, see update */
+        private ItemStack icon;
 
         protected RepairButton(int x, int y, int width, ItemStack icon, Component label, OnPress onPress) {
             super(x, y, width, 20, label, onPress, DEFAULT_NARRATION);
@@ -1090,6 +1092,13 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
         /** Recomputes cost tooltip and enabled state from the current damage. */
         public void update(Ship ship, boolean hull, boolean sails, boolean busy, @Nullable Player player) {
+            // the hull is patched with the ships' own planks, so the icon shows
+            // those - a spruce hull must not advertise oak
+            if (hull) {
+                Item planks = DockyardRecipe.plankItemOf(ship.getVariant());
+                if (!this.icon.is(planks)) this.icon = new ItemStack(planks);
+            }
+
             List<DockyardRecipe.Ingredient> costs = DockyardBlockEntity.getRepairCosts(ship, hull, sails);
             if (costs.isEmpty()) {
                 // nothing damaged on this half - say so instead of greying out
@@ -1102,7 +1111,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             net.minecraft.network.chat.MutableComponent costLine = Component.translatable("gui.smallships.dockyard.repair_cost");
             boolean afford = true;
             for (DockyardRecipe.Ingredient cost : costs) {
-                ItemStack display = cost.getDisplayStack(Boat.Type.OAK);
+                ItemStack display = cost.getDisplayStack(ship.getVariant());
                 costLine.append(Component.literal("\n" + cost.amount() + "x ")).append(display.getHoverName());
                 if (player != null && !player.hasInfiniteMaterials() && cost.countIn(player) < cost.amount()) afford = false;
             }

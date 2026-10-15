@@ -636,7 +636,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             float missing = Math.min(ship.getDamage(), ship.getAttributes().maxHealth);
             int units = Mth.ceil(missing / HULL_HP_PER_UNIT);
             if (units > 0) {
-                costs.add(DockyardRecipe.Ingredient.of(ItemTags.PLANKS, units * 4));
+                // the hull is patched with its own wood: a spruce ship takes
+                // spruce planks, the same rule as building it
+                costs.add(DockyardRecipe.Ingredient.of(ItemTags.PLANKS, units * 4).forWood(ship.getVariant()));
                 costs.add(DockyardRecipe.Ingredient.of(Items.IRON_NUGGET, units));
             }
         }
