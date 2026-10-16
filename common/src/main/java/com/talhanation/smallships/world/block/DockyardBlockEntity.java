@@ -339,8 +339,15 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_not_allowed"), true);
             return;
         }
-        // read the recipe fresh: a data pack reload takes effect immediately
-        DockyardRecipe recipe = DockyardRecipeManager.get(shipType);
+        // the screen hides a nether wood without its planks, the server holds
+        // the same line - a client must not pick it by ordinal anyway
+        if (!DockyardRecipe.isWoodSelectable(woodType, player)) {
+            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
+            return;
+        }
+        // read the recipe fresh: a data pack reload takes effect immediately.
+        // Narrowed to the chosen wood, so the planks have to match the hull
+        DockyardRecipe recipe = DockyardRecipeManager.get(shipType).forWood(woodType);
         if (!recipe.canAfford(player)) {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
             return;
@@ -634,7 +641,9 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             float missing = Math.min(ship.getDamage(), ship.getAttributes().maxHealth);
             int units = Mth.ceil(missing / HULL_HP_PER_UNIT);
             if (units > 0) {
-                costs.add(DockyardRecipe.Ingredient.of(ItemTags.PLANKS, units * 4));
+                // the hull is patched with its own wood: a spruce ship takes
+                // spruce planks, the same rule as building it
+                costs.add(DockyardRecipe.Ingredient.of(ItemTags.PLANKS, units * 4).forWood(ship.getVariant()));
                 costs.add(DockyardRecipe.Ingredient.of(Items.IRON_NUGGET, units));
             }
         }

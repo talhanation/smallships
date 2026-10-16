@@ -641,7 +641,7 @@ public class SmallShipsConfig {
         Server.vanillaBoatSlowdownEnable = builder
                 .define("vanillaBoatSlowdownEnable", true);
 
-        builder.comment("Speed factor for vanilla boats: 0.25 = 75% slower.");
+        builder.comment("Speed factor for vanilla boats, also applies to turning with A and D: 0.25 = 75% slower.");
         Server.vanillaBoatSpeedFactor = builder
                 .defineInRange("vanillaBoatSpeedFactor", 0.25D, 0.05D, 1.0D);
 

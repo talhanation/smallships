@@ -25,6 +25,12 @@ dependencies {
     compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
     modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-common:${rootProject.forge_config_api_port_version}"
 
+    // MixinExtras: the chaining injectors (WrapOperation, ModifyExpressionValue, ...)
+    // the mixins use instead of Redirect / ModifyConstant, so other mods on the
+    // same spot do not crash the game. Neither Fabric Loader 0.14 nor Forge 47
+    // ship it on 1.20.1, so each platform bundles it.
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${rootProject.mixinextras_version}"))
+
     // Shoulder Surfing Reloaded api for compat/shouldersurfing - compile only: not in the jar,
     // not in the dev client, not required by players. The fabric jar carries the api classes too.
     modCompileOnly "maven.modrinth:shoulder-surfing-reloaded:${rootProject.shouldersurfing_version}"

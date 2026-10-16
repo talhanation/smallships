@@ -8,12 +8,20 @@ public class CannonBallItem extends Item {
      * The type of a cannonball, defining its ballistic and damage behavior.
      */
     public enum Type {
-        /** default cannonball: solid shot, made for timbers */
-        BALL((byte) 0, 1.0F, 1.5F, 1.5F, 1, 1.0F, 0.33F),
+        /**
+         * default cannonball: solid shot, made for timbers. The hull factor
+         * lies above 1.0 on purpose - a solid ball is what sinks a ship, and
+         * raising it here leaves block destruction and crew damage alone.
+         */
+        BALL((byte) 0, 1.0F, 1.5F, 1.5F, 1, 1.5F, 0.33F),
         /** chained shot: two balls on a chain, made for rigging */
         CHAINED((byte) 1, 0.75F, 1.0F, 1.00F, 1, 0.33F, 1.0F),
-        /** grape shot: a cloud of pellets, made for the crew */
-        GRAPE((byte) 2, 0.6F, 0.5F, 2.5F, 6, 0.25F, 0.75F);
+        /**
+         * grape shot: a cloud of pellets, made for the crew. The living damage
+         * is per PELLET and a shot fires six of them, so it stays well below a
+         * solid ball - one pellet must not take a man down on its own.
+         */
+        GRAPE((byte) 2, 0.6F, 0.5F, 0.6F, 6, 0.25F, 0.75F);
 
         public final byte id;
         /** multiplier for projectile speed → range */
@@ -25,7 +33,7 @@ public class CannonBallItem extends Item {
         /** how many projectiles a single shot spawns */
         public final int projectileCount;
         /**
-         * Share of the damage that lands when the HULL is hit. Together with
+         * Factor on the damage that lands when the HULL is hit. Together with
          * sailFactor this is what makes a shot type mean something: a solid ball
          * is made for timbers, a chain is made for rigging, and neither is any
          * good at the other job.
@@ -72,4 +80,4 @@ public class CannonBallItem extends Item {
     public Type getType() {
         return this.type;
     }
-}
+}

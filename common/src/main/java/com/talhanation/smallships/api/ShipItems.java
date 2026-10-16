@@ -1,6 +1,7 @@
 package com.talhanation.smallships.api;
 
 import com.talhanation.smallships.SmallShipsMod;
+import com.talhanation.smallships.world.entity.ship.ModBoatTypes;
 import com.talhanation.smallships.world.item.ShipItem;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.resources.ResourceLocation;
@@ -109,9 +110,13 @@ public final class ShipItems {
         return all;
     }
 
-    /** Registry name of a ship item, e.g. {@code dark_oak_cog}. */
+    /**
+     * Registry name of a ship item, e.g. {@code dark_oak_cog}. The wood types
+     * SmallShips adds come without their namespace ({@code warped_cog}), see
+     * {@link ModBoatTypes#getWoodName(Boat.Type)}.
+     */
     public static String itemId(Boat.Type type, String shipId) {
-        return type.getName().replaceAll("[^a-z0-9_.-]", "_") + "_" + shipId;
+        return ModBoatTypes.getWoodName(type).replaceAll("[^a-z0-9_.-]", "_") + "_" + shipId;
     }
 
     /**

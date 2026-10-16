@@ -49,6 +49,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -390,7 +391,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
     private boolean canAffordSelection() {
         Player player = this.menu.getPlayer();
         return player != null && this.selectedShipType != null
-                && DockyardRecipeManager.get(this.selectedShipType).canAfford(player);
+                && DockyardRecipeManager.get(this.selectedShipType).forWood(this.woodType).canAfford(player);
     }
 
     /* ---------------- modify tab ---------------- */
@@ -846,6 +847,10 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.woodDropdown.visible = !modify;
         this.woodDropdown.active = !busy;
         if (modify || busy) this.woodDropdown.close();
+        // a nether wood leaves the picker together with its planks - but not
+        // while it is being built, the build just used those planks up
+        Player player = this.menu.getPlayer();
+        if (!busy && player != null && !DockyardRecipe.isWoodSelectable(this.woodType, player)) this.setWoodType(Boat.Type.OAK);
         this.materialList.setVisible(!modify);
         this.aboutText.visible = !modify;
 
@@ -1094,7 +1099,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
      * the ship is beaten up and only shows in the tooltip.
      */
     private class RepairButton extends Button {
-        private final ItemStack icon;
+        /** the hull button follows the selected ships' wood, see update */
+        private ItemStack icon;
 
         protected RepairButton(int x, int y, int width, ItemStack icon, Component label, OnPress onPress) {
             super(x, y, width, 20, label, onPress, DEFAULT_NARRATION);
@@ -1103,6 +1109,13 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
 
         /** Recomputes cost tooltip and enabled state from the current damage. */
         public void update(Ship ship, boolean hull, boolean sails, boolean busy, @Nullable Player player) {
+            // the hull is patched with the ships' own planks, so the icon shows
+            // those - a spruce hull must not advertise oak
+            if (hull) {
+                Item planks = DockyardRecipe.plankItemOf(ship.getVariant());
+                if (!this.icon.is(planks)) this.icon = new ItemStack(planks);
+            }
+
             List<DockyardRecipe.Ingredient> costs = DockyardBlockEntity.getRepairCosts(ship, hull, sails);
             if (costs.isEmpty()) {
                 // nothing damaged on this half - say so instead of greying out
@@ -1115,7 +1128,7 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             net.minecraft.network.chat.MutableComponent costLine = Component.translatable("gui.smallships.dockyard.repair_cost");
             boolean afford = true;
             for (DockyardRecipe.Ingredient cost : costs) {
-                ItemStack display = cost.getDisplayStack(Boat.Type.OAK);
+                ItemStack display = cost.getDisplayStack(ship.getVariant());
                 costLine.append(Component.literal("\n" + cost.amount() + "x ")).append(display.getHoverName());
                 if (player != null && !hasInfiniteMaterials(player) && cost.countIn(player) < cost.amount()) afford = false;
             }
@@ -1483,7 +1496,8 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             this.setScrollAmount(0.0D);
             if (shipType == null) return;
 
-            DockyardRecipe recipe = DockyardRecipeManager.get(shipType);
+            // narrowed to the wood, so the row only counts planks of that wood
+            DockyardRecipe recipe = DockyardRecipeManager.get(shipType).forWood(wood);
             for (DockyardRecipe.Ingredient ingredient : recipe.ingredients()) {
                 this.addEntry(new Entry(ingredient, ingredient.getDisplayStack(wood)));
             }
@@ -1727,8 +1741,22 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             this.open = false;
         }
 
+        /**
+         * @return the woods the player may pick right now. The nether woods only
+         * show up while their planks are in the inventory, see
+         * DockyardRecipe#isWoodSelectable.
+         */
+        private List<Boat.Type> types() {
+            Player player = DockyardScreen.this.menu.getPlayer();
+            List<Boat.Type> types = new ArrayList<>();
+            for (Boat.Type type : Boat.Type.values()) {
+                if (player == null || DockyardRecipe.isWoodSelectable(type, player)) types.add(type);
+            }
+            return types;
+        }
+
         private int rows() {
-            return Mth.positiveCeilDiv(Boat.Type.values().length, COLUMNS);
+            return Mth.positiveCeilDiv(this.types().size(), COLUMNS);
         }
 
         private int popupWidth() {
@@ -1770,8 +1798,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 int column = (int) ((mouseX - this.popupX() - 1) / CELL);
                 int row = (int) ((mouseY - this.popupY() - 1) / CELL);
                 int index = row * COLUMNS + column;
-                if (column >= 0 && column < COLUMNS && index >= 0 && index < Boat.Type.values().length) {
-                    DockyardScreen.this.setWoodType(Boat.Type.values()[index]);
+                List<Boat.Type> types = this.types();
+                if (column >= 0 && column < COLUMNS && index >= 0 && index < types.size()) {
+                    DockyardScreen.this.setWoodType(types.get(index));
                 }
                 this.open = false;
                 return;
@@ -1797,16 +1826,16 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             int popupY = this.popupY();
             GuiCompat.blitButton(guiGraphics, popupX, popupY, this.popupWidth(), this.popupHeight(), true, false);
 
-            Boat.Type[] types = Boat.Type.values();
-            for (int i = 0; i < types.length; i++) {
+            List<Boat.Type> types = this.types();
+            for (int i = 0; i < types.size(); i++) {
                 int cellX = popupX + 1 + (i % COLUMNS) * CELL;
                 int cellY = popupY + 1 + (i / COLUMNS) * CELL;
-                if (types[i] == DockyardScreen.this.woodType) {
+                if (types.get(i) == DockyardScreen.this.woodType) {
                     guiGraphics.fill(cellX, cellY, cellX + CELL, cellY + CELL, 0x8055B14C);
                 } else if (mouseX >= cellX && mouseX < cellX + CELL && mouseY >= cellY && mouseY < cellY + CELL) {
                     guiGraphics.fill(cellX, cellY, cellX + CELL, cellY + CELL, 0x55FFFFFF);
                 }
-                guiGraphics.renderItem(new ItemStack(DockyardRecipe.plankItemOf(types[i])), cellX + 2, cellY + 2);
+                guiGraphics.renderItem(new ItemStack(DockyardRecipe.plankItemOf(types.get(i))), cellX + 2, cellY + 2);
             }
         }
 
@@ -1817,12 +1846,12 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 return super.isMouseOver(mouseX, mouseY)
                         ? new ItemStack(DockyardRecipe.plankItemOf(DockyardScreen.this.woodType)) : ItemStack.EMPTY;
             }
-            Boat.Type[] types = Boat.Type.values();
-            for (int i = 0; i < types.length; i++) {
+            List<Boat.Type> types = this.types();
+            for (int i = 0; i < types.size(); i++) {
                 int cellX = this.popupX() + 1 + (i % COLUMNS) * CELL;
                 int cellY = this.popupY() + 1 + (i / COLUMNS) * CELL;
                 if (mouseX >= cellX && mouseX < cellX + CELL && mouseY >= cellY && mouseY < cellY + CELL) {
-                    return new ItemStack(DockyardRecipe.plankItemOf(types[i]));
+                    return new ItemStack(DockyardRecipe.plankItemOf(types.get(i)));
                 }
             }
             return ItemStack.EMPTY;

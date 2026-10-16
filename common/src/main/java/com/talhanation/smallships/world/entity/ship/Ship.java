@@ -228,7 +228,7 @@ public abstract class Ship extends Boat {
     /** further damage per km/h of closing speed above the threshold */
     private static final float RAM_DAMAGE_PER_KMH = 2.0F;
     /** share of the hull damage everyone aboard takes, thrown across the deck */
-    private static final float RAM_CREW_DAMAGE_SHARE = 0.33F;
+    private static final float RAM_CREW_DAMAGE_SHARE = 0.15F;
 
     /** ceiling on how hard a hull is thrown, in blocks per tick */
     private static final double RAM_MAX_SHOVE = 2.5D;
@@ -2051,9 +2051,15 @@ public abstract class Ship extends Boat {
         this.playCollisionSound((float) closingKmh, 2.0F, 0.5F + 0.2F * this.random.nextFloat());
 
         // A ram bow only spares the hull that is DRIVING the hit - being rammed
-        // costs every ship the same, whatever its stem is built like.
-        this.takeRamHit((float) (hit * ownShare), ownRamming ? this.getRamSelfDamageFactor() : 1.0F);
-        other.takeRamHit((float) (hit * otherShare), otherRamming ? other.getRamSelfDamageFactor() : 1.0F);
+        // costs every ship the same, whatever its stem is built like. The same
+        // goes for what the bow deals out and for the crew bracing for it:
+        // both only count for the ship that drives the hit.
+        this.takeRamHit((float) (hit * ownShare),
+                (ownRamming ? this.getRamSelfDamageFactor() : 1.0F) * (otherRamming ? other.getRamDamageFactor() : 1.0F),
+                ownRamming ? this.getRamCrewDamageFactor() : 1.0F);
+        other.takeRamHit((float) (hit * otherShare),
+                (otherRamming ? other.getRamSelfDamageFactor() : 1.0F) * (ownRamming ? this.getRamDamageFactor() : 1.0F),
+                otherRamming ? other.getRamCrewDamageFactor() : 1.0F);
     }
 
     /**
@@ -2096,15 +2102,18 @@ public abstract class Ship extends Boat {
      * what keeps a gentle nudge from bruising the crew.
      *
      * @param damage     this ships' share of the hit, see ramShip
-     * @param hullFactor 1.0 for a normal stem, less for a ram bow. It never
-     *                   touches the crew: they are thrown across the deck
-     *                   whatever the bow is built like.
+     * @param hullFactor 1.0 for a normal stem, less for a ram bow, more when
+     *                   the other ships' ram bow drives into this one. It
+     *                   never touches the crew, the hull factor only moves
+     *                   the timbers.
+     * @param crewFactor 1.0 for a normal crew, less for one that is drilled to
+     *                   brace for its own ram, see getRamCrewDamageFactor
      */
-    private void takeRamHit(float damage, float hullFactor) {
+    private void takeRamHit(float damage, float hullFactor, float crewFactor) {
         float hullDamage = damage * hullFactor;
         if (hullDamage >= 1.0F) this.hurt(this.damageSources().generic(), hullDamage);
 
-        float crewDamage = damage * RAM_CREW_DAMAGE_SHARE;
+        float crewDamage = damage * RAM_CREW_DAMAGE_SHARE * crewFactor;
         if (crewDamage < 1.0F) return;
         for (Entity passenger : this.getPassengers()) {
             passenger.hurt(this.damageSources().flyIntoWall(), crewDamage);
@@ -2124,6 +2133,28 @@ public abstract class Ship extends Boat {
      * deck whatever the stem is made of.
      */
     public float getRamSelfDamageFactor() {
+        return 1.0F;
+    }
+
+    /**
+     * How hard this hulls' stem hits the OTHER ship's timbers, on top of the
+     * weight split. 1.0 is a normal bow, a ram bow returns more.
+     *
+     * Like getRamSelfDamageFactor it only applies to a ram this ship DRIVES:
+     * being rammed abeam the beak points nowhere near the other hull.
+     */
+    public float getRamDamageFactor() {
+        return 1.0F;
+    }
+
+    /**
+     * How much of the ram damage the crew of this ship takes when it drives
+     * the hit itself. 1.0 is a crew thrown across the deck, 0.0 one that knows
+     * the blow is coming and braces for it - a ram crew.
+     *
+     * Being rammed still throws every crew, whatever ship it is on.
+     */
+    public float getRamCrewDamageFactor() {
         return 1.0F;
     }
 
@@ -2194,7 +2225,7 @@ public abstract class Ship extends Boat {
             if (impactKmh >= CRASH_MIN_SPEED_KMH && this.isRamReady()) {
                 this.ramRearmPos = this.position();
                 this.takeRamHit(RAM_BASE_DAMAGE + (impactKmh - (float) CRASH_MIN_SPEED_KMH) * RAM_DAMAGE_PER_KMH,
-                        this.getRamSelfDamageFactor());
+                        this.getRamSelfDamageFactor(), this.getRamCrewDamageFactor());
                 this.playCollisionSound(impactKmh, 2.0F, 0.6F);
             }
         }

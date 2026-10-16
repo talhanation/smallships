@@ -694,6 +694,10 @@ public class GroundCannonEntity extends Entity implements ICannon{
             ModPackets.clientSendPacket(new ServerboundShootGroundCannonPacket(false));
             return;
         }
+        // the trigger comes in every tick while space is held - only consume
+        // ball and powder when the gun can actually start a new shot, the same
+        // guard as ShipCannon#trigger. Otherwise reload and fuze eat the stack
+        if (this.cannon.isCooldown() || this.cannon.isFuzing()) return;
 
         CannonBallItem cannonBallToShoot = this.getPassengerInBarrel() == null ? this.getCannonBallToShoot() : null;
         boolean canFuze = cannonBallToShoot != null || this.getPassengerInBarrel() != null;

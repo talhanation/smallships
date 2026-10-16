@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.dockyard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.talhanation.smallships.world.entity.ship.ModBoatTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.ItemTags;
@@ -132,6 +133,17 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
                     .orElseGet(() -> new ItemStack(Items.BARRIER, this.amount));
         }
 
+        /**
+         * @return this ingredient for the given wood type. The planks tag is
+         * narrowed down to the planks of that wood - an oak hull costs oak
+         * planks, not any planks the player happens to carry. Every other
+         * ingredient stays as it is.
+         */
+        public Ingredient forWood(Boat.Type woodType) {
+            if (this.tag != null && this.tag.equals(ItemTags.PLANKS)) return of(plankItemOf(woodType), this.amount);
+            return this;
+        }
+
         /** Tags travel with a leading '#', exactly like they are written in json. */
         private String toNetworkKey() {
             if (this.tag != null) return "#" + this.tag.location();
@@ -170,18 +182,33 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
         }
     }
 
+    /**
+     * @return the planks of a wood type. Read from the boat type itself, so the
+     * added wood types (warped, crimson) and the ones other mods add come with
+     * their own planks without a table here. A type without planks falls back
+     * to oak.
+     */
     public static Item plankItemOf(Boat.Type type) {
-        return switch (type.getName()) {
-            case "spruce" -> Items.SPRUCE_PLANKS;
-            case "birch" -> Items.BIRCH_PLANKS;
-            case "jungle" -> Items.JUNGLE_PLANKS;
-            case "acacia" -> Items.ACACIA_PLANKS;
-            case "dark_oak" -> Items.DARK_OAK_PLANKS;
-            case "mangrove" -> Items.MANGROVE_PLANKS;
-            case "cherry" -> Items.CHERRY_PLANKS;
-            case "bamboo" -> Items.BAMBOO_PLANKS;
-            default -> Items.OAK_PLANKS;
-        };
+        Item planks = type.getPlanks().asItem();
+        return planks == Items.AIR ? Items.OAK_PLANKS : planks;
+    }
+
+    /**
+     * @return true if the player may pick this wood at the dockyard. The
+     * overworld woods always; the nether woods only while the player carries
+     * at least one of their planks - they are a find from the nether, not
+     * something to choose before ever having been there. Creative sees all.
+     *
+     * Checked on both sides: the screen hides the wood, the dockyard refuses
+     * to build it.
+     */
+    public static boolean isWoodSelectable(Boat.Type type, Player player) {
+        if (!ModBoatTypes.isNetherWood(type) || player.isCreative()) return true;
+        Item planks = plankItemOf(type);
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(planks)) return true;
+        }
+        return false;
     }
 
     /**
@@ -203,6 +230,20 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
             }
         }
         return new DockyardRecipe(buildTime, ingredients);
+    }
+
+    /**
+     * @return this recipe for the given wood type, see
+     * {@link Ingredient#forWood(Boat.Type)}. Build cost check, consumption and
+     * the material list all have to go through this, otherwise the planks tag
+     * takes any wood.
+     */
+    public DockyardRecipe forWood(Boat.Type woodType) {
+        List<Ingredient> list = new ArrayList<>();
+        for (Ingredient ingredient : this.ingredients) {
+            list.add(ingredient.forWood(woodType));
+        }
+        return new DockyardRecipe(this.buildTime, list);
     }
 
     /**
