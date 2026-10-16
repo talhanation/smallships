@@ -834,6 +834,10 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
         this.woodDropdown.visible = !modify;
         this.woodDropdown.active = !busy;
         if (modify || busy) this.woodDropdown.close();
+        // a nether wood leaves the picker together with its planks - but not
+        // while it is being built, the build just used those planks up
+        Player player = this.menu.getPlayer();
+        if (!busy && player != null && !DockyardRecipe.isWoodSelectable(this.woodType, player)) this.setWoodType(Boat.Type.OAK);
         this.materialList.visible = !modify;
         this.aboutText.visible = !modify;
 
@@ -1675,8 +1679,22 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             this.open = false;
         }
 
+        /**
+         * @return the woods the player may pick right now. The nether woods only
+         * show up while their planks are in the inventory, see
+         * DockyardRecipe#isWoodSelectable.
+         */
+        private List<Boat.Type> types() {
+            Player player = DockyardScreen.this.menu.getPlayer();
+            List<Boat.Type> types = new ArrayList<>();
+            for (Boat.Type type : Boat.Type.values()) {
+                if (player == null || DockyardRecipe.isWoodSelectable(type, player)) types.add(type);
+            }
+            return types;
+        }
+
         private int rows() {
-            return Mth.positiveCeilDiv(Boat.Type.values().length, COLUMNS);
+            return Mth.positiveCeilDiv(this.types().size(), COLUMNS);
         }
 
         private int popupWidth() {
@@ -1718,8 +1736,9 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 int column = (int) ((mouseX - this.popupX() - 1) / CELL);
                 int row = (int) ((mouseY - this.popupY() - 1) / CELL);
                 int index = row * COLUMNS + column;
-                if (column >= 0 && column < COLUMNS && index >= 0 && index < Boat.Type.values().length) {
-                    DockyardScreen.this.setWoodType(Boat.Type.values()[index]);
+                List<Boat.Type> types = this.types();
+                if (column >= 0 && column < COLUMNS && index >= 0 && index < types.size()) {
+                    DockyardScreen.this.setWoodType(types.get(index));
                 }
                 this.open = false;
                 return;
@@ -1745,16 +1764,16 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
             int popupY = this.popupY();
             GuiCompat.blitButton(guiGraphics, popupX, popupY, this.popupWidth(), this.popupHeight(), true, false);
 
-            Boat.Type[] types = Boat.Type.values();
-            for (int i = 0; i < types.length; i++) {
+            List<Boat.Type> types = this.types();
+            for (int i = 0; i < types.size(); i++) {
                 int cellX = popupX + 1 + (i % COLUMNS) * CELL;
                 int cellY = popupY + 1 + (i / COLUMNS) * CELL;
-                if (types[i] == DockyardScreen.this.woodType) {
+                if (types.get(i) == DockyardScreen.this.woodType) {
                     guiGraphics.fill(cellX, cellY, cellX + CELL, cellY + CELL, 0x8055B14C);
                 } else if (mouseX >= cellX && mouseX < cellX + CELL && mouseY >= cellY && mouseY < cellY + CELL) {
                     guiGraphics.fill(cellX, cellY, cellX + CELL, cellY + CELL, 0x55FFFFFF);
                 }
-                guiGraphics.renderItem(new ItemStack(DockyardRecipe.plankItemOf(types[i])), cellX + 2, cellY + 2);
+                guiGraphics.renderItem(new ItemStack(DockyardRecipe.plankItemOf(types.get(i))), cellX + 2, cellY + 2);
             }
         }
 
@@ -1765,12 +1784,12 @@ public class DockyardScreen extends AbstractContainerScreen<DockyardMenu> {
                 return super.isMouseOver(mouseX, mouseY)
                         ? new ItemStack(DockyardRecipe.plankItemOf(DockyardScreen.this.woodType)) : ItemStack.EMPTY;
             }
-            Boat.Type[] types = Boat.Type.values();
-            for (int i = 0; i < types.length; i++) {
+            List<Boat.Type> types = this.types();
+            for (int i = 0; i < types.size(); i++) {
                 int cellX = this.popupX() + 1 + (i % COLUMNS) * CELL;
                 int cellY = this.popupY() + 1 + (i / COLUMNS) * CELL;
                 if (mouseX >= cellX && mouseX < cellX + CELL && mouseY >= cellY && mouseY < cellY + CELL) {
-                    return new ItemStack(DockyardRecipe.plankItemOf(types[i]));
+                    return new ItemStack(DockyardRecipe.plankItemOf(types.get(i)));
                 }
             }
             return ItemStack.EMPTY;

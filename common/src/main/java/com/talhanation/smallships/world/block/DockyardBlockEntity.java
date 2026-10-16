@@ -340,6 +340,12 @@ public class DockyardBlockEntity extends BlockEntity implements MenuProvider {
             player.displayClientMessage(Component.translatable("gui.smallships.dockyard.ship_not_allowed"), true);
             return;
         }
+        // the screen hides a nether wood without its planks, the server holds
+        // the same line - a client must not pick it by ordinal anyway
+        if (!DockyardRecipe.isWoodSelectable(woodType, player)) {
+            player.displayClientMessage(Component.translatable("gui.smallships.dockyard.missing_materials"), true);
+            return;
+        }
         // read the recipe fresh: a data pack reload takes effect immediately.
         // Narrowed to the chosen wood, so the planks have to match the hull
         DockyardRecipe recipe = DockyardRecipeManager.get(shipType).forWood(woodType);

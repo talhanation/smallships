@@ -3,6 +3,7 @@ package com.talhanation.smallships.world.dockyard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.talhanation.smallships.world.entity.ship.ModBoatTypes;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.ItemTags;
@@ -182,6 +183,24 @@ public record DockyardRecipe(int buildTime, List<Ingredient> ingredients) {
     public static Item plankItemOf(Boat.Type type) {
         Item planks = type.getPlanks().asItem();
         return planks == Items.AIR ? Items.OAK_PLANKS : planks;
+    }
+
+    /**
+     * @return true if the player may pick this wood at the dockyard. The
+     * overworld woods always; the nether woods only while the player carries
+     * at least one of their planks - they are a find from the nether, not
+     * something to choose before ever having been there. Creative sees all.
+     *
+     * Checked on both sides: the screen hides the wood, the dockyard refuses
+     * to build it.
+     */
+    public static boolean isWoodSelectable(Boat.Type type, Player player) {
+        if (!ModBoatTypes.isNetherWood(type) || player.hasInfiniteMaterials()) return true;
+        Item planks = plankItemOf(type);
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(planks)) return true;
+        }
+        return false;
     }
 
     /**

@@ -16,13 +16,24 @@ import net.minecraft.world.entity.vehicle.Boat;
  *   ModBoatTypeProxies in the neoforge module.
  * - Fabric: BoatTypeMixin in the fabric module.
  *
- * Both use the same names below. NeoForge demands the mod id as namespace for
- * an added constant, so the names carry it on Fabric too - otherwise the same
- * ship would be saved differently depending on the loader.
+ * The names differ per loader, because the two loaders disagree on what a
+ * name may look like:
+ * - NeoForge demands the mod id as namespace ({@code smallships:warped}) and
+ *   patches the vanilla code that builds resource locations from it.
+ * - Fabric runs that vanilla code unpatched: the boat renderer turns the name
+ *   into {@code boat/<name>}, where a ':' is not allowed. So the mod id goes in
+ *   front with an underscore there ({@code smallships_warped}).
+ * getWoodName takes either back to {@code warped}, so item ids and textures
+ * are the same on both loaders. Only the name saved with the ship differs.
  */
 public class ModBoatTypes {
+    /** NeoForge names, the mod id as namespace */
     public static final String WARPED = SmallShipsMod.MOD_ID + ":warped";
     public static final String CRIMSON = SmallShipsMod.MOD_ID + ":crimson";
+
+    /** Fabric names, no ':' - vanilla builds model layer and texture paths from them */
+    public static final String WARPED_FABRIC = SmallShipsMod.MOD_ID + "_warped";
+    public static final String CRIMSON_FABRIC = SmallShipsMod.MOD_ID + "_crimson";
 
     /** the enum constant names, NeoForge wants the mod id as prefix here as well */
     public static final String WARPED_CONSTANT = "SMALLSHIPS_WARPED";
@@ -30,13 +41,26 @@ public class ModBoatTypes {
 
     /**
      * @return the name of a wood type for item ids and texture paths. Our own
-     * namespace is dropped, so the added woods read like the vanilla ones
-     * ({@code smallships:warped} -> {@code warped_cog}). Wood types of other
-     * mods keep their namespace.
+     * prefix is dropped, on NeoForge and Fabric alike, so the added woods read
+     * like the vanilla ones ({@code smallships:warped} / {@code smallships_warped}
+     * -> {@code warped_cog}). Wood types of other mods keep their namespace.
      */
     public static String getWoodName(Boat.Type type) {
         String name = type.getName();
-        String own = SmallShipsMod.MOD_ID + ":";
-        return name.startsWith(own) ? name.substring(own.length()) : name;
+        String namespaced = SmallShipsMod.MOD_ID + ":";
+        String prefixed = SmallShipsMod.MOD_ID + "_";
+        if (name.startsWith(namespaced)) return name.substring(namespaced.length());
+        if (name.startsWith(prefixed)) return name.substring(prefixed.length());
+        return name;
+    }
+
+    /**
+     * @return true for the nether woods SmallShips adds. They are not offered
+     * at the dockyard from the start, see DockyardRecipe#isWoodSelectable.
+     */
+    public static boolean isNetherWood(Boat.Type type) {
+        String name = type.getName();
+        return name.equals(WARPED) || name.equals(CRIMSON)
+                || name.equals(WARPED_FABRIC) || name.equals(CRIMSON_FABRIC);
     }
 }

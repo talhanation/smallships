@@ -33,10 +33,12 @@ public abstract class BoatTypeMixin {
     private static Boat.Type[] smallships$addWoodTypes(Boat.Type[] original) {
         if (smallships$values == null) {
             List<Boat.Type> types = new ArrayList<>(Arrays.asList(original));
-            types.add(BoatTypeAccessor.smallships$create(ModBoatTypes.WARPED_CONSTANT, types.size(), Blocks.WARPED_PLANKS, ModBoatTypes.WARPED));
-            types.add(BoatTypeAccessor.smallships$create(ModBoatTypes.CRIMSON_CONSTANT, types.size(), Blocks.CRIMSON_PLANKS, ModBoatTypes.CRIMSON));
+            types.add(BoatTypeAccessor.smallships$create(ModBoatTypes.WARPED_CONSTANT, types.size(), Blocks.WARPED_PLANKS, ModBoatTypes.WARPED_FABRIC));
+            types.add(BoatTypeAccessor.smallships$create(ModBoatTypes.CRIMSON_CONSTANT, types.size(), Blocks.CRIMSON_PLANKS, ModBoatTypes.CRIMSON_FABRIC));
             smallships$values = types.toArray(new Boat.Type[0]);
         }
-        return smallships$values.clone();
+        // Arrays.copyOf, not clone(): Mixin cannot remap a method call on an
+        // array of the target type and fails the whole class with an NPE
+        return Arrays.copyOf(smallships$values, smallships$values.length);
     }
 }
