@@ -58,6 +58,11 @@ processResources {
 }
 
 shadowJar {
+    // NeoForge never reads it, but Loom does: in an addon that depends on this
+    // jar it points to smallships.accesswidener, which only ships as the
+    // converted accesstransformer.cfg, and the addon build fails
+    exclude "architectury.common.json"
+
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
 }
